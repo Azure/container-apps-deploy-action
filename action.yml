@@ -1,0 +1,227 @@
+name: 'Oryx++ Builder GitHub Action'
+description: |
+  'Uses the Oryx++ Builder to build a runnable image for an application and deploy it to an Azure Container App'
+
+inputs:
+  appSourcePath:
+    description: 'Absolute path on the GitHub runner of the source application code to be built.'
+    required: false
+  acrName:
+    description: 'The name of the Azure Container Registry that the runnable application image will be pushed to.'
+    required: true
+  acrUsername:
+    description: |
+      'The username used to authenticate push requests to the provided Azure Container Registry. If not provided, an
+      access token will be generated via "az acr login" and provided to "docker login" to authenticate the requests.'
+    required: false
+  acrPassword:
+    description: |
+      'The password used to authenticate push requests to the provided Azure Container Registry. If not provided, an
+      access token will be generated via "az acr login" and provided to "docker login" to authenticate the requests.'
+    required: false
+  azureCredentials:
+    description: |
+      'Azure credentials used by the `azure/login` action to authenticate Azure CLI requests if the user has not
+      previously authenticated in the workflow calling this action.'
+    required: false
+  imageToBuild:
+    description: |
+      'The custom name of the image that is to be built, pushed to ACR and deployed to the Container App by this action.
+      Note: this image name should include the ACR server; e.g., <acr-name>.azurecr.io/<repo>:<tag>. If this argument is
+      not provided, a default image name will be constructed in the form of
+      <acr-name>.azurecr.io/github-action/container-app:<github-run-id>.<github-run-attempt>.'
+    required: false
+  imageToDeploy:
+    description: |
+      'The custom name of an image that has already been pushed to ACR and will be deployed to the Container App by this
+      action. Note: this image name should include the ACR server; e.g., <acr-name>.azurecr.io/<repo>:<tag>. If this
+      argument is not provided, the value provided (or determined) for the "imageToBuild" argument will be used.'
+    required: false
+  dockerfilePath:
+    description: |
+      'Relative path to the Dockerfile in the provided application source that should be used to build the image that is
+      then pushed to ACR and deployed to the Container App. If not provided, this action will check if there is a file
+      named "Dockerfile" in the provided application source and use that to build the image. Otherwise, the Oryx++
+      Builder will be used to create the image.'
+    required: false
+  containerAppName:
+    description: |
+      'The name of the Azure Container App that will be created or updated. If not provided, this value will be
+      gh-action-app-<github-run-id>-<github-run-attempt>.'
+    required: false
+    default: 'gh-action-app-${{ github.run_id }}-${{ github.run_attempt }}'
+  resourceGroup:
+    description: |
+      'The resource group that the Azure Container App will be created in. If not provided, this value will be
+      <container-app-name>-rg'
+    required: false
+  containerAppEnvironment:
+    description: |
+      'The name of the Azure Container App environment to use with the application. If not provided, an existing
+      environment in the resource group of the Container App will be used, otherwise, an environment will be created in
+      the format <container-app-name>-env'
+    required: false
+  runtimeStack:
+    description: |
+      'The platform version stack that the application runs in when deployed to the Azure Container App. This should
+      be provided in the format <platform>:<version>. If not provided, this value is determined by Oryx based on the
+      contents of the provided application. Please view the following document for more information on the supported
+      runtime stacks for Oryx:
+      https://github.com/microsoft/Oryx/blob/main/doc/supportedRuntimeVersions.md'
+    required: false
+  targetPort:
+    description: |
+      'The designated port for the application to run on. If not provided, this value is 80 for Python and 8080 for all
+      other supported platforms.'
+    required: false
+
+runs:
+  using: "composite"
+  steps:  
+    - name: Install pack CLI
+      shell: bash
+      run: (curl -sSL "https://github.com/buildpacks/pack/releases/download/v0.27.0/pack-v0.27.0-linux.tgz" | sudo tar -C /usr/local/bin/ --no-same-owner -xzv pack)
+
+    - name: Set Azure CLI to dynamically install missing extensions
+      shell: bash
+      run: az config set extension.use_dynamic_install=yes_without_prompt
+
+    - name: Log in to Azure
+      if: ${{ inputs.azureCredentials != '' }}
+      uses: azure/login@v1
+      with:
+        creds: ${{ inputs.azureCredentials }}
+    
+    - name: Log in to Azure Container Registry
+      uses: docker/login-action@v2.0.0
+      if: ${{ inputs.acrUsername != '' && inputs.acrPassword != '' }}
+      with:
+        registry: ${{ inputs.acrName }}.azurecr.io
+        username: ${{ inputs.acrUsername }}
+        password: ${{ inputs.acrPassword }}
+
+    - name: Export Azure Container Registry information to environment variable for Azure CLI command
+      if: ${{ inputs.acrUsername != '' && inputs.acrPassword != '' }}
+      shell: bash
+      run: |
+        CA_GH_ACTION_ACR_LOGIN_ARG="--registry-server ${{ inputs.acrName }}.azurecr.io --registry-username ${{ inputs.acrUsername }} --registry-password ${{ inputs.acrPassword }}"
+        echo "CA_GH_ACTION_ACR_LOGIN_ARG=${CA_GH_ACTION_ACR_LOGIN_ARG}" >> $GITHUB_ENV
+    
+    - name: Get access token to log in to Azure Container Registry
+      if: ${{ inputs.acrUsername == '' || inputs.acrPassword == '' }}
+      shell: bash
+      run: |
+        CA_GH_ACTION_ACR_ACCESS_TOKEN=$(az acr login --name ${{ inputs.acrName }} --output json --expose-token | jq -r '.accessToken')
+        echo "CA_GH_ACTION_ACR_ACCESS_TOKEN=${CA_GH_ACTION_ACR_ACCESS_TOKEN}" >> $GITHUB_ENV
+        docker login ${{ inputs.acrName }}.azurecr.io -u 00000000-0000-0000-0000-000000000000 -p $CA_GH_ACTION_ACR_ACCESS_TOKEN
+
+    - name: Export Dockerfile path to environment variable
+      shell: bash
+      run: |
+        CA_GH_ACTION_DOCKERFILE_PATH="${{ inputs.dockerfilePath }}"
+        echo "CA_GH_ACTION_DOCKERFILE_PATH=${CA_GH_ACTION_DOCKERFILE_PATH}" >> $GITHUB_ENV
+    
+    - name: Check for existing Dockerfile in application source
+      if: ${{ inputs.dockerfilePath == '' }}
+      shell: bash
+      run: |
+        dockerfilePath=${{ inputs.appSourcePath }}/Dockerfile
+        if [ -f "$dockerfilePath" ]; then echo "CA_GH_ACTION_DOCKERFILE_PATH='Dockerfile'" >> $GITHUB_ENV; fi
+
+    - name: Export name of image to build to environment variable
+      shell: bash
+      run: |
+        CA_GH_ACTION_IMAGE_TO_BUILD="${{ inputs.imageToBuild }}"
+        echo "CA_GH_ACTION_IMAGE_TO_BUILD=${CA_GH_ACTION_IMAGE_TO_BUILD}" >> $GITHUB_ENV
+
+    - name: Determine name of image to build if not provided
+      if: ${{ inputs.imageToBuild == '' }}
+      shell: bash
+      run: |
+        CA_GH_ACTION_IMAGE_TO_BUILD="${{ inputs.acrName }}.azurecr.io/github-action/container-app:${{ github.run_id }}.${{ github.run_attempt }}"
+        echo "CA_GH_ACTION_IMAGE_TO_BUILD=${CA_GH_ACTION_IMAGE_TO_BUILD}" >> $GITHUB_ENV
+
+    - name: Export name of image to deploy to environment variable
+      shell: bash
+      run: |
+        CA_GH_ACTION_IMAGE_TO_DEPLOY="${{ inputs.imageToDeploy }}"
+        echo "CA_GH_ACTION_IMAGE_TO_DEPLOY=${CA_GH_ACTION_IMAGE_TO_DEPLOY}" >> $GITHUB_ENV
+
+    - name: Update name of image to deploy if not provided
+      if: ${{ inputs.imageToDeploy == '' }}
+      shell: bash
+      run: |
+        CA_GH_ACTION_IMAGE_TO_DEPLOY="${{ env.CA_GH_ACTION_IMAGE_TO_BUILD }}"
+        echo "CA_GH_ACTION_IMAGE_TO_DEPLOY=${CA_GH_ACTION_IMAGE_TO_DEPLOY}" >> $GITHUB_ENV
+
+    - name: Export resource group to environment variable
+      shell: bash
+      run: |
+        CA_GH_ACTION_RESOURCE_GROUP="${{ inputs.resourceGroup }}"
+        echo "CA_GH_ACTION_RESOURCE_GROUP=${CA_GH_ACTION_RESOURCE_GROUP}" >> $GITHUB_ENV
+    
+    - name: Determine resource group if not provided
+      if: ${{ inputs.resourceGroup == '' }}
+      shell: bash
+      run: |
+        CA_GH_ACTION_RESOURCE_GROUP="${{ inputs.containerAppName }}-rg"
+        echo "CA_GH_ACTION_RESOURCE_GROUP=${CA_GH_ACTION_RESOURCE_GROUP}" >> $GITHUB_ENV
+    
+    - name: Export environment to environment variable
+      if: ${{ inputs.containerAppEnvironment != '' }}
+      shell: bash
+      run: |
+        CA_GH_ACTION_CONTAINER_APP_ENVIRONMENT_ARG="--environment ${{ inputs.containerAppEnvironment }}"
+        echo "CA_GH_ACTION_CONTAINER_APP_ENVIRONMENT_ARG=${CA_GH_ACTION_CONTAINER_APP_ENVIRONMENT_ARG}" >> $GITHUB_ENV        
+    
+    - name: Export runtime stack to environment variable
+      shell: bash
+      run: |
+        CA_GH_ACTION_RUNTIME_STACK="${{ inputs.runtimeStack }}"
+        echo "CA_GH_ACTION_RUNTIME_STACK=${CA_GH_ACTION_RUNTIME_STACK}" >> $GITHUB_ENV
+    
+    - name: Determine runtime stack if not provided
+      if: ${{ inputs.runtimeStack == '' && inputs.imageToDeploy == '' }}
+      shell: bash
+      run: |
+        docker run --rm -v ${{ inputs.appSourcePath }}:/app cormtestacr.azurecr.io/oryx/cli:latest /bin/bash -c "oryx dockerfile /app | head -n 1 | sed 's/ARG RUNTIME=//' >> /app/oryx-runtime.txt"
+        CA_GH_ACTION_RUNTIME_STACK=$(head -n 1 ${{ inputs.appSourcePath }}/oryx-runtime.txt)
+        echo "CA_GH_ACTION_RUNTIME_STACK=${CA_GH_ACTION_RUNTIME_STACK}" >> $GITHUB_ENV
+        rm ${{ inputs.appSourcePath }}/oryx-runtime.txt
+    
+    - name: Export target port to environment variable
+      shell: bash
+      run: |
+        CA_GH_ACTION_TARGET_PORT="${{ inputs.targetPort }}"
+        echo "CA_GH_ACTION_TARGET_PORT=${CA_GH_ACTION_TARGET_PORT}" >> $GITHUB_ENV
+    
+    - name: Determine default target port if not provided
+      if: ${{ inputs.targetPort == '' }}
+      shell: bash
+      run: |
+        if [ ${{ env.CA_GH_ACTION_RUNTIME_STACK }} = python:* ]; then echo "CA_GH_ACTION_TARGET_PORT=80" >> $GITHUB_ENV; else echo "CA_GH_ACTION_TARGET_PORT=8080" >> $GITHUB_ENV; fi
+    
+    - name: Set Oryx++ Builder as default builder
+      if: ${{ env.CA_GH_ACTION_DOCKERFILE_PATH == '' && inputs.imageToDeploy == '' }}
+      shell: bash
+      run: pack config default-builder cormtestacr.azurecr.io/builder:latest
+    
+    - name: Create runnable application image using Oryx++ Builder
+      if: ${{ env.CA_GH_ACTION_DOCKERFILE_PATH == '' && inputs.imageToDeploy == '' }}
+      shell: bash
+      run: pack build ${{ env.CA_GH_ACTION_IMAGE_TO_DEPLOY }} --path ${{ inputs.appSourcePath }} --builder cormtestacr.azurecr.io/builder:latest --run-image mcr.microsoft.com/oryx/${{ env.CA_GH_ACTION_RUNTIME_STACK }}
+
+    - name: Create runnable application image using provided Dockerfile
+      if: ${{ env.CA_GH_ACTION_DOCKERFILE_PATH != '' && inputs.imageToDeploy == '' }}
+      shell: bash
+      run: docker build --tag ${{ env.CA_GH_ACTION_IMAGE_TO_DEPLOY }} --file ${{ env.CA_GH_ACTION_DOCKERFILE_PATH }} ${{ inputs.appSourcePath }}
+
+    - name: Push image to Azure Container Registry
+      if: ${{ inputs.imageToDeploy == '' }}
+      shell: bash
+      run: docker push ${{ env.CA_GH_ACTION_IMAGE_TO_DEPLOY }}
+    
+    - name: Create or update Azure Container App
+      shell: bash
+      run: |
+        az containerapp up --name ${{ inputs.containerAppName }} --resource-group ${{ env.CA_GH_ACTION_RESOURCE_GROUP }} --image ${{ env.CA_GH_ACTION_IMAGE_TO_DEPLOY }} --target-port ${{ env.CA_GH_ACTION_TARGET_PORT }} ${{ env.CA_GH_ACTION_CONTAINER_APP_ENVIRONMENT_ARG }} ${{ env.CA_GH_ACTION_ACR_LOGIN_ARG }}
