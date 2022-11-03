@@ -209,7 +209,7 @@ runs:
     - name: Create runnable application image using Oryx++ Builder
       if: ${{ env.CA_GH_ACTION_DOCKERFILE_PATH == '' && inputs.imageToDeploy == '' }}
       shell: bash
-      run: pack build ${{ env.CA_GH_ACTION_IMAGE_TO_DEPLOY }} --path ${{ inputs.appSourcePath }} --builder cormtestacr.azurecr.io/builder:latest --run-image mcr.microsoft.com/oryx/${{ env.CA_GH_ACTION_RUNTIME_STACK }}
+      run: pack build ${{ env.CA_GH_ACTION_IMAGE_TO_DEPLOY }} --path ${{ inputs.appSourcePath }} --builder cormtestacr.azurecr.io/builder:latest --run-image mcr.microsoft.com/oryx/${{ env.CA_GH_ACTION_RUNTIME_STACK }} --env "CALLER_ID=github-actions-v0"
 
     - name: Create runnable application image using provided Dockerfile
       if: ${{ env.CA_GH_ACTION_DOCKERFILE_PATH != '' && inputs.imageToDeploy == '' }}
