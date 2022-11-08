@@ -1,7 +1,9 @@
 name: 'Oryx++ Builder GitHub Action'
 description: |
   'Uses the Oryx++ Builder to build a runnable image for an application and deploy it to an Azure Container App'
-
+branding:
+  icon: "login.svg"
+  color: "blue"
 inputs:
   appSourcePath:
     description: 'Absolute path on the GitHub runner of the source application code to be built.'
