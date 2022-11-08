@@ -118,7 +118,7 @@ runs:
     - name: Export Dockerfile path to environment variable
       shell: bash
       run: |
-        CA_GH_ACTION_DOCKERFILE_PATH="${{ inputs.dockerfilePath }}"
+        CA_GH_ACTION_DOCKERFILE_PATH="${{ inputs.appSourcePath }}/${{ inputs.dockerfilePath }}"
         echo "CA_GH_ACTION_DOCKERFILE_PATH=${CA_GH_ACTION_DOCKERFILE_PATH}" >> $GITHUB_ENV
     
     - name: Check for existing Dockerfile in application source

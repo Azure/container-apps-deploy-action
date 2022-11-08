@@ -81,7 +81,7 @@ Below are the arguments that can be provided to the Azure Container Apps Build a
 | `azureCredentials`        | No       | Azure credentials used by the `azure/login` action to authenticate Azure CLI requests if the user has not previously authenticated in the workflow calling this action. |
 | `imageToBuild`            | No       | The custom name of the image that is to be built, pushed to ACR and deployed to the Container App by this action. _Note_: this image name should include the ACR server; _e.g._, `<acr-name>.azurecr.io/<repo>:<tag>`. If this argument is not provided, a default image name will be constructed in the form `<acr-name>.azurecr.io/github-action/container-app:<github-run-id>.<github-run-attempt>` |
 | `imageToDeploy`           | No       | The custom name of the image that has already been pushed to ACR and will be deployed to the Container App by this action. _Note_: this image name should include the ACR server; _e.g._, `<acr-name>.azurecr.io/<repo>:<tag>`. If this argument is not provided, the value provided (or determined) for the `imageToBuild` argument will be used. |
-| `dockerfilePath`          | No       | Relative path to the Dockerfile in the provided application source that should be used to build the image that is then pushed to ACR and deployed to the Container App. If not provided, this action will check if there is a file named `Dockerfile` in the provided application source and use that to build the image. Otherwise, the Oryx++ Builder will be used to create the image. |
+| `dockerfilePath`          | No       | Relative path (_without file prefixes, see example below_) to the Dockerfile in the provided application source that should be used to build the image that is then pushed to ACR and deployed to the Container App. If not provided, this action will check if there is a file named `Dockerfile` in the provided application source and use that to build the image. Otherwise, the Oryx++ Builder will be used to create the image. |
 | `containerAppName`        | No       | The name of the Container App that will be created or updated. If not provided, this value will be `github-action-container-app-<github-run-id>-<github-run-attempt>`. |
 | `resourceGroup`           | No       | The resource group that the Container App will be created in, or currently exists in. If not provided, this value will be `<container-app-name>-rg`. |
 | `containerAppEnvironment` | No       | The name of the Container App environment to use with the application. If not provided, an existing environment in the resource group of the Container App will be used, otherwise, an environment will be created in the formation `<container-app-name>-env`. |
@@ -231,6 +231,34 @@ steps:
 
 This will create a new Container App named `github-action-container-app-<github-run-id>-<github-run-attempt>` in a new
 resource group named `<container-app-name>-rg` where the runnable application image is using the .NET 7 runtime stack.
+
+### Dockerfile provided
+
+```yml
+steps:
+
+  - name: Log in to Azure
+    uses: azure/login@v1
+    with:
+      creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+  - name: Build and deploy Container App
+    uses azure/container-app-deploy-action@v0
+    with:
+      appSourcePath: ${{ github.workspace }}
+      acrName: mytestacr
+      acrUsername: ${{ secrets.REGISTRY_USERNAME }}
+      acrPassword: ${{ secrets.REGISTRY_PASSWORD }}
+      dockerfilePath: test.Dockerfile
+```
+
+This will create a new Container App named `github-action-container-app-<github-run-id>-<github-run-attempt>` in a new
+resource group named `<container-app-name>-rg` where the runnable application image was created from the `test.Dockerfile`
+file found in the provided application source path directory.
+
+_Note_: for values provided to `dockerfilePath`, no file prefixes should be included (_e.g._, `./test.Dockerfile` should be
+passed as just `test.Dockerfile`). The provided `appSourcePath` and `dockerfilePath` arguments will be concatenated inside
+of the GitHub Action.
 
 ### Image to build provided
 
