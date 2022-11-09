@@ -1,6 +1,6 @@
-name: 'Oryx++ Builder GitHub Action'
+name: 'Azure Container Apps Build and Deploy'
 description: |
-  'Uses the Oryx++ Builder to build a runnable image for an application and deploy it to an Azure Container App'
+  'GitHub Action for building and deploying Azure Container Apps'
 branding:
   icon: "login.svg"
   color: "blue"
