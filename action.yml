@@ -79,7 +79,7 @@ inputs:
 
 runs:
   using: "composite"
-  steps:  
+  steps:
     - name: Install pack CLI
       shell: bash
       run: (curl -sSL "https://github.com/buildpacks/pack/releases/download/v0.27.0/pack-v0.27.0-linux.tgz" | sudo tar -C /usr/local/bin/ --no-same-owner -xzv pack)
@@ -93,7 +93,7 @@ runs:
       uses: azure/login@v1
       with:
         creds: ${{ inputs.azureCredentials }}
-    
+
     - name: Log in to Azure Container Registry
       uses: docker/login-action@v2.0.0
       if: ${{ inputs.acrUsername != '' && inputs.acrPassword != '' }}
@@ -108,7 +108,7 @@ runs:
       run: |
         CA_GH_ACTION_ACR_LOGIN_ARG="--registry-server ${{ inputs.acrName }}.azurecr.io --registry-username ${{ inputs.acrUsername }} --registry-password ${{ inputs.acrPassword }}"
         echo "CA_GH_ACTION_ACR_LOGIN_ARG=${CA_GH_ACTION_ACR_LOGIN_ARG}" >> $GITHUB_ENV
-    
+
     - name: Get access token to log in to Azure Container Registry
       if: ${{ inputs.acrUsername == '' || inputs.acrPassword == '' }}
       shell: bash
@@ -118,11 +118,12 @@ runs:
         docker login ${{ inputs.acrName }}.azurecr.io -u 00000000-0000-0000-0000-000000000000 -p $CA_GH_ACTION_ACR_ACCESS_TOKEN
 
     - name: Export Dockerfile path to environment variable
+      if: ${{ inputs.dockerfilePath != '' }}
       shell: bash
       run: |
         CA_GH_ACTION_DOCKERFILE_PATH="${{ inputs.appSourcePath }}/${{ inputs.dockerfilePath }}"
         echo "CA_GH_ACTION_DOCKERFILE_PATH=${CA_GH_ACTION_DOCKERFILE_PATH}" >> $GITHUB_ENV
-    
+
     - name: Check for existing Dockerfile in application source
       if: ${{ inputs.dockerfilePath == '' }}
       shell: bash
@@ -161,27 +162,27 @@ runs:
       run: |
         CA_GH_ACTION_RESOURCE_GROUP="${{ inputs.resourceGroup }}"
         echo "CA_GH_ACTION_RESOURCE_GROUP=${CA_GH_ACTION_RESOURCE_GROUP}" >> $GITHUB_ENV
-    
+
     - name: Determine resource group if not provided
       if: ${{ inputs.resourceGroup == '' }}
       shell: bash
       run: |
         CA_GH_ACTION_RESOURCE_GROUP="${{ inputs.containerAppName }}-rg"
         echo "CA_GH_ACTION_RESOURCE_GROUP=${CA_GH_ACTION_RESOURCE_GROUP}" >> $GITHUB_ENV
-    
+
     - name: Export environment to environment variable
       if: ${{ inputs.containerAppEnvironment != '' }}
       shell: bash
       run: |
         CA_GH_ACTION_CONTAINER_APP_ENVIRONMENT_ARG="--environment ${{ inputs.containerAppEnvironment }}"
         echo "CA_GH_ACTION_CONTAINER_APP_ENVIRONMENT_ARG=${CA_GH_ACTION_CONTAINER_APP_ENVIRONMENT_ARG}" >> $GITHUB_ENV
-    
+
     - name: Export runtime stack to environment variable
       shell: bash
       run: |
         CA_GH_ACTION_RUNTIME_STACK="${{ inputs.runtimeStack }}"
         echo "CA_GH_ACTION_RUNTIME_STACK=${CA_GH_ACTION_RUNTIME_STACK}" >> $GITHUB_ENV
-    
+
     - name: Determine runtime stack if not provided
       if: ${{ inputs.runtimeStack == '' && inputs.imageToDeploy == '' }}
       shell: bash
@@ -190,19 +191,19 @@ runs:
         CA_GH_ACTION_RUNTIME_STACK=$(head -n 1 ${{ inputs.appSourcePath }}/oryx-runtime.txt)
         echo "CA_GH_ACTION_RUNTIME_STACK=${CA_GH_ACTION_RUNTIME_STACK}" >> $GITHUB_ENV
         rm ${{ inputs.appSourcePath }}/oryx-runtime.txt
-    
+
     - name: Export target port to environment variable
       shell: bash
       run: |
         CA_GH_ACTION_TARGET_PORT="${{ inputs.targetPort }}"
         echo "CA_GH_ACTION_TARGET_PORT=${CA_GH_ACTION_TARGET_PORT}" >> $GITHUB_ENV
-    
+
     - name: Determine default target port if not provided and no Dockerfile provided/found
       if: ${{ inputs.targetPort == '' && env.CA_GH_ACTION_DOCKERFILE_PATH == '' }}
       shell: bash
       run: |
         if [ ${{ env.CA_GH_ACTION_RUNTIME_STACK }} = python:* ]; then echo "CA_GH_ACTION_TARGET_PORT=80" >> $GITHUB_ENV; else echo "CA_GH_ACTION_TARGET_PORT=8080" >> $GITHUB_ENV; fi
-    
+
     - name: Export target port information to environment variable for Azure CLI command
       if: ${{ inputs.targetPort == '' && env.CA_GH_ACTION_DOCKERFILE_PATH == '' }}
       shell: bash
@@ -214,7 +215,7 @@ runs:
       if: ${{ env.CA_GH_ACTION_DOCKERFILE_PATH == '' && inputs.imageToDeploy == '' }}
       shell: bash
       run: pack config default-builder cormtestacr.azurecr.io/builder:latest
-    
+
     - name: Create runnable application image using Oryx++ Builder
       if: ${{ env.CA_GH_ACTION_DOCKERFILE_PATH == '' && inputs.imageToDeploy == '' }}
       shell: bash
@@ -229,7 +230,7 @@ runs:
       if: ${{ inputs.imageToDeploy == '' }}
       shell: bash
       run: docker push ${{ env.CA_GH_ACTION_IMAGE_TO_DEPLOY }}
-    
+
     - name: Create or update Azure Container App
       shell: bash
       run: |
