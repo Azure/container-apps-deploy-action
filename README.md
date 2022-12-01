@@ -70,17 +70,32 @@ and giving it proper permissions to the ACR resource.
 
 ## Arguments
 
-Below are the arguments that can be provided to the Azure Container Apps Build and Deploy GitHub Action:
+Below are the arguments that can be provided to the Azure Container Apps Build and Deploy GitHub Action.
+
+_Note_: Although no argument is officially marked as "required" in the metadata of this actions, some arguments will
+need to be provided in order for this action to successfully run using one of the two main scenarios.
+
+### Arguments required for building and pushing application image
 
 | Argument name             | Required | Description |
 | ------------------------- | -------- | ----------- |
-| `appSourcePath`           | No       | Absolute path on the GitHub runner of the source application code to be built. |
-| `acrName`                 | Yes      | The name of the Azure Container Registry that the runnable application image will be pushed to. |
+| `acrName`                 | Yes (for this scenario) | The name of the Azure Container Registry that the runnable application image will be pushed to. |
+| `appSourcePath`           | Yes (for this scenario) | Absolute path on the GitHub runner of the source application code to be built. |
+
+### Arguments required for using an already pushed application image
+
+| Argument name             | Required | Description |
+| ------------------------- | -------- | ----------- |
+| `imageToDeploy`           | Yes (for this scenario) | The name of the image that has already been pushed to a registry and will be deployed to the Container App by this action. If this image is found in an ACR instance that requires authentication to pull, the `acrName` argument, or the `acrUsername` and `acrPassword` arguments, can be provided to authenticate requests to the ACR instance. |
+
+### Additional arguments
+
+| Argument name             | Required | Description |
+| ------------------------- | -------- | ----------- |
 | `acrUsername`             | No       | The username used to authenticate push requests to the provided Azure Container Registry. If not provided, an access token will be generated via "az acr login" and provided to "docker login" to authenticate the requests. |
 | `acrPassword`             | No       | The password used to authenticate push requests to the provided Azure Container Registry. If not provided, an access token will be generated via "az acr login" and provided to "docker login" to authenticate the requests. |
 | `azureCredentials`        | No       | Azure credentials used by the `azure/login` action to authenticate Azure CLI requests if the user has not previously authenticated in the workflow calling this action. |
 | `imageToBuild`            | No       | The custom name of the image that is to be built, pushed to ACR and deployed to the Container App by this action. _Note_: this image name should include the ACR server; _e.g._, `<acr-name>.azurecr.io/<repo>:<tag>`. If this argument is not provided, a default image name will be constructed in the form `<acr-name>.azurecr.io/github-action/container-app:<github-run-id>.<github-run-attempt>` |
-| `imageToDeploy`           | No       | The custom name of the image that has already been pushed to ACR and will be deployed to the Container App by this action. _Note_: this image name should include the ACR server; _e.g._, `<acr-name>.azurecr.io/<repo>:<tag>`. If this argument is not provided, the value provided (or determined) for the `imageToBuild` argument will be used. |
 | `dockerfilePath`          | No       | Relative path (_without file prefixes, see example below_) to the Dockerfile in the provided application source that should be used to build the image that is then pushed to ACR and deployed to the Container App. If not provided, this action will check if there is a file named `Dockerfile` in the provided application source and use that to build the image. Otherwise, the Oryx++ Builder will be used to create the image. |
 | `containerAppName`        | No       | The name of the Container App that will be created or updated. If not provided, this value will be `github-action-container-app-<github-run-id>-<github-run-attempt>`. |
 | `resourceGroup`           | No       | The resource group that the Container App will be created in, or currently exists in. If not provided, this value will be `<container-app-name>-rg`. |
@@ -92,7 +107,49 @@ Below are the arguments that can be provided to the Azure Container Apps Build a
 
 See [`action.yml`](./action.yml)
 
-### Minimal
+### Minimal - Build application image for Container App
+
+```yml
+steps:
+
+  - name: Log in to Azure
+    uses: azure/login@v1
+    with:
+      creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+  - name: Build and deploy Container App
+    uses: azure/container-apps-deploy-action@v0
+    with:
+      appSourcePath: ${{ github.workspace }}
+      acrName: mytestacr
+```
+
+This will create a new Container App named `github-action-container-app-<github-run-id>-<github-run-attempt>` in a new
+resource group named `<container-app-name>-rg`. The Container App will be based off of an image that was built from
+the provided `appSourcePath` and pushed to the provided ACR instance. An access token will be generated to authenticate
+the push to the provided ACR instance.
+
+### Minimal - Use previously published image for Container App
+
+```yml
+steps:
+
+  - name: Log in to Azure
+    uses: azure/login@v1
+    with:
+      creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+  - name: Build and deploy Container App
+    uses: azure/container-apps-deploy-action@v0
+    with:
+      imageToDeploy: mcr.microsoft.com/azuredocs/containerapps-helloworld:latest
+```
+
+This will create a new Container App named `github-action-container-app-<github-run-id>-<github-run-attempt>` in a new
+resource group named `<container-app-name>-rg` where **no new image is built**, but an existing image named
+`mcr.microsoft.com/azuredocs/containerapps-helloworld:latest` will be used for the Container App.
+
+### Using ACR credentials to authenticate
 
 ```yml
 steps:
@@ -112,7 +169,9 @@ steps:
 ```
 
 This will create a new Container App named `github-action-container-app-<github-run-id>-<github-run-attempt>` in a new
-resource group named `<container-app-name>-rg`.
+resource group named `<container-app-name>-rg`. The Container App will be based off of an image that was built from
+the provided `appSourcePath` and pushed to the provided ACR instance. The provided ACR credentials will be used to
+authenticate the calls to the ACR instance.
 
 ### Container App name provided
 
@@ -129,8 +188,6 @@ steps:
     with:
       appSourcePath: ${{ github.workspace }}
       acrName: mytestacr
-      acrUsername: ${{ secrets.REGISTRY_USERNAME }}
-      acrPassword: ${{ secrets.REGISTRY_PASSWORD }}
       containerAppName: my-test-container-app
 ```
 
@@ -152,8 +209,6 @@ steps:
     with:
       appSourcePath: ${{ github.workspace }}
       acrName: mytestacr
-      acrUsername: ${{ secrets.REGISTRY_USERNAME }}
-      acrPassword: ${{ secrets.REGISTRY_PASSWORD }}
       resourceGroup: my-test-rg
 ```
 
@@ -175,8 +230,6 @@ steps:
     with:
       appSourcePath: ${{ github.workspace }}
       acrName: mytestacr
-      acrUsername: ${{ secrets.REGISTRY_USERNAME }}
-      acrPassword: ${{ secrets.REGISTRY_PASSWORD }}
       containerAppName: my-test-container-app
       resourceGroup: my-test-rg
 ```
@@ -201,8 +254,6 @@ steps:
     with:
       appSourcePath: ${{ github.workspace }}
       acrName: mytestacr
-      acrUsername: ${{ secrets.REGISTRY_USERNAME }}
-      acrPassword: ${{ secrets.REGISTRY_PASSWORD }}
       containerAppEnvironment: my-test-container-app-env
 ```
 
@@ -224,8 +275,6 @@ steps:
     with:
       appSourcePath: ${{ github.workspace }}
       acrName: mytestacr
-      acrUsername: ${{ secrets.REGISTRY_USERNAME }}
-      acrPassword: ${{ secrets.REGISTRY_PASSWORD }}
       runtimeStack: 'dotnetcore:7.0'
 ```
 
@@ -247,8 +296,6 @@ steps:
     with:
       appSourcePath: ${{ github.workspace }}
       acrName: mytestacr
-      acrUsername: ${{ secrets.REGISTRY_USERNAME }}
-      acrPassword: ${{ secrets.REGISTRY_PASSWORD }}
       dockerfilePath: test.Dockerfile
 ```
 
@@ -275,38 +322,12 @@ steps:
     with:
       appSourcePath: ${{ github.workspace }}
       acrName: mytestacr
-      acrUsername: ${{ secrets.REGISTRY_USERNAME }}
-      acrPassword: ${{ secrets.REGISTRY_PASSWORD }}
       imageToBuild: mytestacr.azurecr.io/app:latest
 ```
 
 This will create a new Container App named `github-action-container-app-<github-run-id>-<github-run-attempt>` in a new
 resource group named `<container-app-name>-rg` where the image built and pushed to ACR is named
 `mytestacr.azurecr.io/app:latest`
-
-### Image to deploy provided
-
-```yml
-steps:
-
-  - name: Log in to Azure
-    uses: azure/login@v1
-    with:
-      creds: ${{ secrets.AZURE_CREDENTIALS }}
-
-  - name: Build and deploy Container App
-    uses: azure/container-apps-deploy-action@v0
-    with:
-      appSourcePath: ${{ github.workspace }}
-      acrName: mytestacr
-      acrUsername: ${{ secrets.REGISTRY_USERNAME }}
-      acrPassword: ${{ secrets.REGISTRY_PASSWORD }}
-      imageToDeploy: mytestacr.azurecr.io/app:latest
-```
-
-This will create a new Container App named `github-action-container-app-<github-run-id>-<github-run-attempt>` in a new
-resource group named `<container-app-name>-rg` where **no new image is built**, but an existing image in ACR named
-`mytestacr.azurecr.io/app:latest` will be deployed to the Container App.
 
 ## Contributing
 
@@ -324,8 +345,8 @@ contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additio
 
 ## Trademarks
 
-This project may contain trademarks or logos for projects, products, or services. Authorized use of Microsoft 
-trademarks or logos is subject to and must follow 
+This project may contain trademarks or logos for projects, products, or services. Authorized use of Microsoft
+trademarks or logos is subject to and must follow
 [Microsoft's Trademark & Brand Guidelines](https://www.microsoft.com/en-us/legal/intellectualproperty/trademarks/usage/general).
 Use of Microsoft trademarks or logos in modified versions of this project must not cause confusion or imply Microsoft sponsorship.
 Any use of third-party trademarks or logos are subject to those third-party's policies.
