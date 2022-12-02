@@ -224,7 +224,7 @@ runs:
         if [[ "${{ env.CA_GH_ACTION_RUNTIME_STACK }}" == "python:"* ]]; then echo "CA_GH_ACTION_TARGET_PORT=80" >> $GITHUB_ENV; else echo "CA_GH_ACTION_TARGET_PORT=8080" >> $GITHUB_ENV; fi
 
     - name: Export target port information to environment variable for Azure CLI command
-      if: ${{ inputs.targetPort == '' && env.CA_GH_ACTION_DOCKERFILE_PATH == '' }}
+      if: ${{ env.CA_GH_ACTION_TARGET_PORT != '' }}
       shell: bash
       run: |
         CA_GH_ACTION_TARGET_PORT_ARG="--target-port ${{ env.CA_GH_ACTION_TARGET_PORT }}"
