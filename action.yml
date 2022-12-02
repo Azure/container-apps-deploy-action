@@ -218,7 +218,7 @@ runs:
         echo "CA_GH_ACTION_TARGET_PORT=${CA_GH_ACTION_TARGET_PORT}" >> $GITHUB_ENV
 
     - name: Determine default target port if not provided and no Dockerfile provided/found
-      if: ${{ inputs.targetPort == '' && env.CA_GH_ACTION_DOCKERFILE_PATH == '' }}
+      if: ${{ inputs.targetPort == '' && env.CA_GH_ACTION_DOCKERFILE_PATH == '' && inputs.imageToDeploy == '' }}
       shell: bash
       run: |
         if [[ "${{ env.CA_GH_ACTION_RUNTIME_STACK }}" == "python:"* ]]; then echo "CA_GH_ACTION_TARGET_PORT=80" >> $GITHUB_ENV; else echo "CA_GH_ACTION_TARGET_PORT=8080" >> $GITHUB_ENV; fi
