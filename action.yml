@@ -146,6 +146,7 @@ runs:
         if [ -f "$dockerfilePath" ]; then echo "CA_GH_ACTION_DOCKERFILE_PATH=${dockerfilePath}" >> $GITHUB_ENV; fi
 
     - name: Export name of image to build to environment variable
+      if: ${{ inputs.imageToBuild != '' }}
       shell: bash
       run: |
         CA_GH_ACTION_IMAGE_TO_BUILD="${{ inputs.imageToBuild }}"
@@ -159,6 +160,7 @@ runs:
         echo "CA_GH_ACTION_IMAGE_TO_BUILD=${CA_GH_ACTION_IMAGE_TO_BUILD}" >> $GITHUB_ENV
 
     - name: Export name of image to deploy to environment variable
+      if: ${{ inputs.imageToDeploy != '' }}
       shell: bash
       run: |
         CA_GH_ACTION_IMAGE_TO_DEPLOY="${{ inputs.imageToDeploy }}"
@@ -172,6 +174,7 @@ runs:
         echo "CA_GH_ACTION_IMAGE_TO_DEPLOY=${CA_GH_ACTION_IMAGE_TO_DEPLOY}" >> $GITHUB_ENV
 
     - name: Export resource group to environment variable
+      if: ${{ inputs.resourceGroup != '' }}
       shell: bash
       run: |
         CA_GH_ACTION_RESOURCE_GROUP="${{ inputs.resourceGroup }}"
@@ -192,6 +195,7 @@ runs:
         echo "CA_GH_ACTION_CONTAINER_APP_ENVIRONMENT_ARG=${CA_GH_ACTION_CONTAINER_APP_ENVIRONMENT_ARG}" >> $GITHUB_ENV
 
     - name: Export runtime stack to environment variable
+      if: ${{ inputs.runtimeStack != '' }}
       shell: bash
       run: |
         CA_GH_ACTION_RUNTIME_STACK="${{ inputs.runtimeStack }}"
@@ -207,6 +211,7 @@ runs:
         rm ${{ inputs.appSourcePath }}/oryx-runtime.txt
 
     - name: Export target port to environment variable
+      if: ${{ inputs.targetPort != '' }}
       shell: bash
       run: |
         CA_GH_ACTION_TARGET_PORT="${{ inputs.targetPort }}"
