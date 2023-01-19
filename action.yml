@@ -76,6 +76,11 @@ inputs:
       'The designated port for the application to run on. If not provided, this value is 80 for Python and 8080 for all
       other supported platforms.'
     required: false
+  environmentVariables:
+    description: |
+      'A list of environment variable(s) for the container. Space-separated values in 'key=value' format. Empty string
+      to clear existing values. Prefix value with 'secretref:' to reference a secret.'
+    required: false
 
 runs:
   using: "composite"
@@ -230,6 +235,13 @@ runs:
         CA_GH_ACTION_TARGET_PORT_ARG="--target-port ${{ env.CA_GH_ACTION_TARGET_PORT }}"
         echo "CA_GH_ACTION_TARGET_PORT_ARG=${CA_GH_ACTION_TARGET_PORT_ARG}" >> $GITHUB_ENV
 
+    - name: Export environment variables argument to environment variable
+      if: ${{ inputs.environmentVariables != '' }}
+      shell: bash
+      run: |
+        CA_GH_ACTION_CONTAINER_APP_ENVIRONMENT_VARIABLES_ARG="--env-vars ${{ inputs.environmentVariables }}"
+        echo "CA_GH_ACTION_CONTAINER_APP_ENVIRONMENT_VARIABLES_ARG=${CA_GH_ACTION_CONTAINER_APP_ENVIRONMENT_VARIABLES_ARG}" >> $GITHUB_ENV
+
     - name: Set Oryx++ Builder as default builder
       if: ${{ inputs.appSourcePath != '' && env.CA_GH_ACTION_DOCKERFILE_PATH == '' }}
       shell: bash
@@ -253,4 +265,4 @@ runs:
     - name: Create or update Azure Container App
       shell: bash
       run: |
-        az containerapp up --name ${{ inputs.containerAppName }} --resource-group ${{ env.CA_GH_ACTION_RESOURCE_GROUP }} --image ${{ env.CA_GH_ACTION_IMAGE_TO_DEPLOY }} ${{ env.CA_GH_ACTION_TARGET_PORT_ARG }} ${{ env.CA_GH_ACTION_CONTAINER_APP_ENVIRONMENT_ARG }} ${{ env.CA_GH_ACTION_ACR_LOGIN_ARG }}
+        az containerapp up --name ${{ inputs.containerAppName }} --resource-group ${{ env.CA_GH_ACTION_RESOURCE_GROUP }} --image ${{ env.CA_GH_ACTION_IMAGE_TO_DEPLOY }} ${{ env.CA_GH_ACTION_TARGET_PORT_ARG }} ${{ env.CA_GH_ACTION_CONTAINER_APP_ENVIRONMENT_ARG }} ${{ env.CA_GH_ACTION_ACR_LOGIN_ARG }} ${{ env.CA_GH_ACTION_CONTAINER_APP_ENVIRONMENT_VARIABLES_ARG }}
