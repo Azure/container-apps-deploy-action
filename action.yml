@@ -205,7 +205,7 @@ runs:
       if: ${{ inputs.appSourcePath != '' && inputs.runtimeStack == '' }}
       shell: bash
       run: |
-        docker run --rm -v ${{ inputs.appSourcePath }}:/app cormtestacr.azurecr.io/oryx/cli:latest /bin/bash -c "oryx dockerfile /app | head -n 1 | sed 's/ARG RUNTIME=//' >> /app/oryx-runtime.txt"
+        docker run --rm -v ${{ inputs.appSourcePath }}:/app mcr.microsoft.com/oryx/cli:builder-debian-buster-20230118.1 /bin/bash -c "oryx dockerfile /app | head -n 1 | sed 's/ARG RUNTIME=//' >> /app/oryx-runtime.txt"
         CA_GH_ACTION_RUNTIME_STACK=$(head -n 1 ${{ inputs.appSourcePath }}/oryx-runtime.txt)
         echo "CA_GH_ACTION_RUNTIME_STACK=${CA_GH_ACTION_RUNTIME_STACK}" >> $GITHUB_ENV
         rm ${{ inputs.appSourcePath }}/oryx-runtime.txt
@@ -233,12 +233,12 @@ runs:
     - name: Set Oryx++ Builder as default builder
       if: ${{ inputs.appSourcePath != '' && env.CA_GH_ACTION_DOCKERFILE_PATH == '' }}
       shell: bash
-      run: pack config default-builder cormtestacr.azurecr.io/builder:latest
+      run: pack config default-builder mcr.microsoft.com/oryx/builder:20230118.1
 
     - name: Create runnable application image using Oryx++ Builder
       if: ${{ inputs.appSourcePath != '' && env.CA_GH_ACTION_DOCKERFILE_PATH == '' }}
       shell: bash
-      run: pack build ${{ env.CA_GH_ACTION_IMAGE_TO_DEPLOY }} --path ${{ inputs.appSourcePath }} --builder cormtestacr.azurecr.io/builder:latest --run-image mcr.microsoft.com/oryx/${{ env.CA_GH_ACTION_RUNTIME_STACK }} --env "CALLER_ID=github-actions-v0"
+      run: pack build ${{ env.CA_GH_ACTION_IMAGE_TO_DEPLOY }} --path ${{ inputs.appSourcePath }} --builder mcr.microsoft.com/oryx/builder:20230118.1 --run-image mcr.microsoft.com/oryx/${{ env.CA_GH_ACTION_RUNTIME_STACK }} --env "CALLER_ID=github-actions-v0"
 
     - name: Create runnable application image using provided Dockerfile
       if: ${{ inputs.appSourcePath != '' && env.CA_GH_ACTION_DOCKERFILE_PATH != '' }}
