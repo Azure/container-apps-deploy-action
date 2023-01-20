@@ -76,6 +76,11 @@ inputs:
       'The designated port for the application to run on. If not provided, this value is 80 for Python and 8080 for all
       other supported platforms.'
     required: false
+  location:
+    description: |
+      'The location that the Container App (and other created resources) will be deployed to. To view locations suitable
+      for creating the Container App in, please run the following: az provider show -n Microsoft.App --query "resourceTypes[?resourceType=='containerApps'].locations"'
+    required: false
   environmentVariables:
     description: |
       'A list of environment variable(s) for the container. Space-separated values in 'key=value' format. Empty string
@@ -235,6 +240,13 @@ runs:
         CA_GH_ACTION_TARGET_PORT_ARG="--target-port ${{ env.CA_GH_ACTION_TARGET_PORT }}"
         echo "CA_GH_ACTION_TARGET_PORT_ARG=${CA_GH_ACTION_TARGET_PORT_ARG}" >> $GITHUB_ENV
 
+    - name: Export location argument to environment variable
+      if: ${{ inputs.location != '' }}
+      shell: bash
+      run: |
+        CA_GH_ACTION_CONTAINER_APP_LOCATION_ARG="--location ${{ inputs.location }}"
+        echo "CA_GH_ACTION_CONTAINER_APP_LOCATION_ARG=${CA_GH_ACTION_CONTAINER_APP_LOCATION_ARG}" >> $GITHUB_ENV
+
     - name: Export environment variables argument to environment variable
       if: ${{ inputs.environmentVariables != '' }}
       shell: bash
@@ -265,4 +277,4 @@ runs:
     - name: Create or update Azure Container App
       shell: bash
       run: |
-        az containerapp up --name ${{ inputs.containerAppName }} --resource-group ${{ env.CA_GH_ACTION_RESOURCE_GROUP }} --image ${{ env.CA_GH_ACTION_IMAGE_TO_DEPLOY }} ${{ env.CA_GH_ACTION_TARGET_PORT_ARG }} ${{ env.CA_GH_ACTION_CONTAINER_APP_ENVIRONMENT_ARG }} ${{ env.CA_GH_ACTION_ACR_LOGIN_ARG }} ${{ env.CA_GH_ACTION_CONTAINER_APP_ENVIRONMENT_VARIABLES_ARG }}
+        az containerapp up --name ${{ inputs.containerAppName }} --resource-group ${{ env.CA_GH_ACTION_RESOURCE_GROUP }} --image ${{ env.CA_GH_ACTION_IMAGE_TO_DEPLOY }} ${{ env.CA_GH_ACTION_TARGET_PORT_ARG }} ${{ env.CA_GH_ACTION_CONTAINER_APP_ENVIRONMENT_ARG }} ${{ env.CA_GH_ACTION_ACR_LOGIN_ARG }} ${{ env.CA_GH_ACTION_CONTAINER_APP_LOCATION_ARG }} ${{ env.CA_GH_ACTION_CONTAINER_APP_ENVIRONMENT_VARIABLES_ARG }}
