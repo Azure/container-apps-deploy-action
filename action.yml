@@ -104,9 +104,19 @@ runs:
         echo "Either the 'appSourcePath' or 'imageToDeploy' argument must be provided when providing the 'acrName' argument."
         exit 1
 
-    - name: Install pack CLI
+    - name: Install pack CLI on non-Windows runner
+      if: ${{ runner.os != 'Windows' }}
       shell: bash
-      run: (curl -sSL "https://github.com/buildpacks/pack/releases/download/v0.27.0/pack-v0.27.0-linux.tgz" | sudo tar -C /usr/local/bin/ --no-same-owner -xzv pack)
+      run: (curl -sSL "https://github.com/buildpacks/pack/releases/download/v0.27.0/pack-v0.27.0-${{ env.RUNNER_OS }}.tgz" | sudo tar -C /usr/local/bin/ --no-same-owner -xzv pack)
+
+    - name: Install pack CLI on Windows runner
+      if: ${{ runner.os == 'Windows' }}
+      shell: bash
+      run: |
+          mkdir -p $PWD/pack && cd $PWD/pack
+          curl -sSL "https://github.com/buildpacks/pack/releases/download/v0.27.0/pack-v0.27.0-windows.zip" -o "pack-windows.zip"
+          7z x pack-windows.zip > /dev/null 2>&1
+          rm pack-windows.zip && echo "$PWD" >> $GITHUB_PATH
 
     - name: Set Azure CLI to dynamically install missing extensions
       shell: bash

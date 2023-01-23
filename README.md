@@ -67,6 +67,24 @@ Azure Container Registry. These credentials are able to be retrieved by
 [creating a service principal](https://docs.microsoft.com/en-us/azure/container-registry/container-registry-auth-service-principal#create-a-service-principal)
 and giving it proper permissions to the ACR resource.
 
+### pack CLI
+
+The [pack CLI](https://buildpacks.io/docs/tools/pack/) is maintained by the Cloud Native Buildpacks project and is used
+by this action to create runnable application images for the user when the application source code is provided and no
+additional Dockerfile is provided or found. A [builder](https://buildpacks.io/docs/concepts/components/builder/) was
+created by Oryx to take in the application source code provided to this action and produce an image that could then be
+pushed to an image registry and used within a Container App to build and run the application.
+
+A stable version of the pack CLI is installed on the GitHub runner executing the task, and depending on the base OS of
+this runner, different tools will be leverage to assist with the installation:
+- On Windows runners:
+  - `curl` will be used to pull down the `.zip` containing the `pack` executable
+  - `7z` will be used to unzip the `.zip` and place the `pack` executable in a new folder
+  - The `.zip` will be removed from the runner and the path containing the executable will be added to the `PATH`
+  environment variable for future use via `pack`
+- On non-Windows runners:
+  - `curl` will be used to pull down the `.tgz` containing the `pack` executable
+  - `tar` will be used to unzip the `.tgz` and place the `pack` executable in `/usr/local/bin`
 
 ## Arguments
 
