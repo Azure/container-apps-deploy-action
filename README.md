@@ -79,7 +79,8 @@ A stable version of the pack CLI is installed on the GitHub runner executing the
 this runner, different tools will be leverage to assist with the installation:
 - On Windows runners:
   - `curl` will be used to pull down the `.zip` containing the `pack` executable
-  - `7z` will be used to unzip the `.zip` and place the `pack` executable in a new folder
+  - `7z` will be used to unzip the `.zip` and place the `pack` executable in a folder called "pack" created in the
+  working directory of the action
   - The `.zip` will be removed from the runner and the path containing the executable will be added to the `PATH`
   environment variable for future use via `pack`
 - On non-Windows runners:

@@ -107,7 +107,7 @@ runs:
     - name: Install pack CLI on non-Windows runner
       if: ${{ runner.os != 'Windows' }}
       shell: bash
-      run: (curl -sSL "https://github.com/buildpacks/pack/releases/download/v0.27.0/pack-v0.27.0-${{ env.RUNNER_OS }}.tgz" | sudo tar -C /usr/local/bin/ --no-same-owner -xzv pack)
+      run: (curl -sSL "https://github.com/buildpacks/pack/releases/download/v0.27.0/pack-v0.27.0-${{ runner.os }}.tgz" | sudo tar -C /usr/local/bin/ --no-same-owner -xzv pack)
 
     - name: Install pack CLI on Windows runner
       if: ${{ runner.os == 'Windows' }}
