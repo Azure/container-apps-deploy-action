@@ -67,6 +67,25 @@ Azure Container Registry. These credentials are able to be retrieved by
 [creating a service principal](https://docs.microsoft.com/en-us/azure/container-registry/container-registry-auth-service-principal#create-a-service-principal)
 and giving it proper permissions to the ACR resource.
 
+### pack CLI
+
+The [pack CLI](https://buildpacks.io/docs/tools/pack/) is maintained by the Cloud Native Buildpacks project and is used
+by this action to create runnable application images for the user when the application source code is provided and no
+additional Dockerfile is provided or found. A [builder](https://buildpacks.io/docs/concepts/components/builder/) was
+created by Oryx to take in the application source code provided to this action and produce an image that could then be
+pushed to an image registry and used within a Container App to build and run the application.
+
+A stable version of the pack CLI is installed on the GitHub runner executing the task, and depending on the base OS of
+this runner, different tools will be leverage to assist with the installation:
+- On Windows runners:
+  - `curl` will be used to pull down the `.zip` containing the `pack` executable
+  - `7z` will be used to unzip the `.zip` and place the `pack` executable in a folder called "pack" created in the
+  working directory of the action
+  - The `.zip` will be removed from the runner and the path containing the executable will be added to the `PATH`
+  environment variable for future use via `pack`
+- On non-Windows runners:
+  - `curl` will be used to pull down the `.tgz` containing the `pack` executable
+  - `tar` will be used to unzip the `.tgz` and place the `pack` executable in `/usr/local/bin`
 
 ## Arguments
 
@@ -102,6 +121,8 @@ need to be provided in order for this action to successfully run using one of th
 | `containerAppEnvironment` | No       | The name of the Container App environment to use with the application. If not provided, an existing environment in the resource group of the Container App will be used, otherwise, an environment will be created in the formation `<container-app-name>-env`. |
 | `runtimeStack`            | No       | The platform version stack used in the final runnable application image that is deployed to the Container App. The value should be provided in the formation `<platform>:<version>`. If not provided, this value is determined by Oryx based on the contents of the provided application. Please refer to [this document](https://github.com/microsoft/Oryx/blob/main/doc/supportedRuntimeVersions.md) for more information on supported runtime stacks for Oryx. |
 | `targetPort`              | No       | The target port that the Container App will listen on. If not provided, this value will be "80" for Python applications and "8080" for all other supported platforms. |
+| `location`                | No       | The location that the Container App (and other created resources) will be deployed to. To view locations suitable for creating the Container App in, please run the following: `az provider show -n Microsoft.App --query "resourceTypes[?resourceType=='containerApps'].locations"` |
+| `environmentVariables`    | No       | A list of environment variable(s) for the container. Space-separated values in 'key=value' format. Empty string to clear existing values. Prefix value with 'secretref:' to reference a secret. |
 
 ## Usage
 
