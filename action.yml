@@ -91,10 +91,10 @@ runs:
   using: "composite"
   steps:
     - name: Check for ACR name provided with application source path
-      if: ${{ (inputs.appSourcePath != '' && inputs.acrName == '') || (inputs.appSourcePath == '' && inputs.acrName != '') }}
+      if: ${{ inputs.appSourcePath != '' && inputs.acrName == '' }}
       shell: bash
       run: |
-        echo "The 'appSourcePath' and 'acrName' arguments must either be provided together or not at all."
+        echo "The 'acrName' argument must also be provided if the 'appSourcePath' argument is provided."
         exit 1
 
     - name: Check for application source path or previously built image when ACR name is provided
