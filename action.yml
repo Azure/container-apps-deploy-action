@@ -86,10 +86,26 @@ inputs:
       'A list of environment variable(s) for the container. Space-separated values in 'key=value' format. Empty string
       to clear existing values. Prefix value with 'secretref:' to reference a secret.'
     required: false
+  disableTelemetry:
+    description: |
+      'If set to "true", no telemetry will be collected by this GitHub Action. If set to "false", or if this argument is
+      not provided, telemetry will be sent to Microsoft about the Container App build and deploy scenario targeted by
+      this GitHub Action.'
+    required: false
+    default: false
 
 runs:
   using: "composite"
   steps:
+    - name: Start timer to track action execution length, in milliseconds
+      if: ${{ always() && inputs.disableTelemetry == 'false' }}
+      shell: bash
+      run: |
+        CA_GH_ACTION_START_MILLISECONDS=$(date +%s%N | cut -b1-13)
+        echo "CA_GH_ACTION_START_MILLISECONDS=${CA_GH_ACTION_START_MILLISECONDS}" >> $GITHUB_ENV
+        CA_GH_ACTION_RESULT_ARG="--property 'result=failed'"
+        echo "CA_GH_ACTION_RESULT_ARG=${CA_GH_ACTION_RESULT_ARG}" >> $GITHUB_ENV
+
     - name: Check for ACR name provided with application source path
       if: ${{ inputs.appSourcePath != '' && inputs.acrName == '' }}
       shell: bash
@@ -225,7 +241,7 @@ runs:
       if: ${{ inputs.appSourcePath != '' && inputs.runtimeStack == '' }}
       shell: bash
       run: |
-        docker run --rm -v ${{ inputs.appSourcePath }}:/app mcr.microsoft.com/oryx/cli:builder-debian-buster-20230118.1 /bin/bash -c "oryx dockerfile /app | head -n 1 | sed 's/ARG RUNTIME=//' >> /app/oryx-runtime.txt"
+        docker run --rm -v ${{ inputs.appSourcePath }}:/app mcr.microsoft.com/oryx/cli:builder-debian-buster-20230208.1 /bin/bash -c "oryx dockerfile /app | head -n 1 | sed 's/ARG RUNTIME=//' >> /app/oryx-runtime.txt"
         CA_GH_ACTION_RUNTIME_STACK=$(head -n 1 ${{ inputs.appSourcePath }}/oryx-runtime.txt)
         echo "CA_GH_ACTION_RUNTIME_STACK=${CA_GH_ACTION_RUNTIME_STACK}" >> $GITHUB_ENV
         rm ${{ inputs.appSourcePath }}/oryx-runtime.txt
@@ -267,12 +283,26 @@ runs:
     - name: Set Oryx++ Builder as default builder
       if: ${{ inputs.appSourcePath != '' && env.CA_GH_ACTION_DOCKERFILE_PATH == '' }}
       shell: bash
-      run: pack config default-builder mcr.microsoft.com/oryx/builder:20230118.1
+      run: pack config default-builder mcr.microsoft.com/oryx/builder:20230208.1
+
+    - name: Set telemetry for Oryx++ Builder
+      if: ${{ inputs.disableTelemetry == 'false' }}
+      shell: bash
+      run: |
+        CA_GH_ACTION_ORYX_BUILDER_TELEMETRY_ARG='--env "CALLER_ID=github-actions-v0"'
+        echo "CA_GH_ACTION_ORYX_BUILDER_TELEMETRY_ARG=${CA_GH_ACTION_ORYX_BUILDER_TELEMETRY_ARG}" >> $GITHUB_ENV
+
+    - name: Disable telemetry for Oryx++ Builder
+      if: ${{ inputs.disableTelemetry == 'true' }}
+      shell: bash
+      run: |
+        CA_GH_ACTION_ORYX_BUILDER_TELEMETRY_ARG='--env "ORYX_DISABLE_TELEMETRY=true"'
+        echo "CA_GH_ACTION_ORYX_BUILDER_TELEMETRY_ARG=${CA_GH_ACTION_ORYX_BUILDER_TELEMETRY_ARG}" >> $GITHUB_ENV
 
     - name: Create runnable application image using Oryx++ Builder
       if: ${{ inputs.appSourcePath != '' && env.CA_GH_ACTION_DOCKERFILE_PATH == '' }}
       shell: bash
-      run: pack build ${{ env.CA_GH_ACTION_IMAGE_TO_DEPLOY }} --path ${{ inputs.appSourcePath }} --builder mcr.microsoft.com/oryx/builder:20230118.1 --run-image mcr.microsoft.com/oryx/${{ env.CA_GH_ACTION_RUNTIME_STACK }} --env "CALLER_ID=github-actions-v0"
+      run: pack build ${{ env.CA_GH_ACTION_IMAGE_TO_DEPLOY }} --path ${{ inputs.appSourcePath }} --builder mcr.microsoft.com/oryx/builder:20230208.1 --run-image mcr.microsoft.com/oryx/${{ env.CA_GH_ACTION_RUNTIME_STACK }} ${{ env.CA_GH_ACTION_ORYX_BUILDER_TELEMETRY_ARG }}
 
     - name: Create runnable application image using provided Dockerfile
       if: ${{ inputs.appSourcePath != '' && env.CA_GH_ACTION_DOCKERFILE_PATH != '' }}
@@ -288,3 +318,46 @@ runs:
       shell: bash
       run: |
         az containerapp up --name ${{ inputs.containerAppName }} --resource-group ${{ env.CA_GH_ACTION_RESOURCE_GROUP }} --image ${{ env.CA_GH_ACTION_IMAGE_TO_DEPLOY }} ${{ env.CA_GH_ACTION_TARGET_PORT_ARG }} ${{ env.CA_GH_ACTION_CONTAINER_APP_ENVIRONMENT_ARG }} ${{ env.CA_GH_ACTION_ACR_LOGIN_ARG }} ${{ env.CA_GH_ACTION_CONTAINER_APP_LOCATION_ARG }} ${{ env.CA_GH_ACTION_CONTAINER_APP_ENVIRONMENT_VARIABLES_ARG }}
+
+    - name: Mark action as 'succeeded' for telemetry
+      if: ${{ inputs.disableTelemetry == 'false' }}
+      shell: bash
+      run: |
+        CA_GH_ACTION_RESULT_ARG="--property 'result=succeeded'"
+        echo "CA_GH_ACTION_RESULT_ARG=${CA_GH_ACTION_RESULT_ARG}" >> $GITHUB_ENV
+
+    - name: End timer that's tracking action execution length, in milliseconds
+      if: ${{ always() && inputs.disableTelemetry == 'false' }}
+      shell: bash
+      run: |
+        CA_GH_ACTION_END_MILLISECONDS=$(date +%s%N | cut -b1-13)
+        CA_GH_ACTION_START_MILLISECONDS=${{ env.CA_GH_ACTION_START_MILLISECONDS }}
+        CA_GH_ACTION_LENGTH_MILLISECONDS_ARG="--processing-time '$((CA_GH_ACTION_END_MILLISECONDS-CA_GH_ACTION_START_MILLISECONDS))'"
+        echo "CA_GH_ACTION_LENGTH_MILLISECONDS_ARG=${CA_GH_ACTION_LENGTH_MILLISECONDS_ARG}" >> $GITHUB_ENV
+
+    - name: Set telemetry for previously built image scenario
+      if: ${{ inputs.disableTelemetry == 'false' && inputs.appSourcePath == '' }}
+      shell: bash
+      run: |
+        CA_GH_ACTION_SCENARIO_ARG="--property 'scenario=used-image'"
+        echo "CA_GH_ACTION_SCENARIO_ARG=${CA_GH_ACTION_SCENARIO_ARG}" >> $GITHUB_ENV
+
+    - name: Set telemetry for built Dockerfile scenario
+      if: ${{ inputs.disableTelemetry == 'false' && env.CA_GH_ACTION_DOCKERFILE_PATH != '' }}
+      shell: bash
+      run: |
+        CA_GH_ACTION_SCENARIO_ARG="--property 'scenario=used-dockerfile'"
+        echo "CA_GH_ACTION_SCENARIO_ARG=${CA_GH_ACTION_SCENARIO_ARG}" >> $GITHUB_ENV
+
+    - name: Set telemetry for no Dockerfile scenario
+      if: ${{ inputs.disableTelemetry == 'false' && inputs.appSourcePath != '' && env.CA_GH_ACTION_DOCKERFILE_PATH == '' }}
+      shell: bash
+      run: |
+        CA_GH_ACTION_SCENARIO_ARG="--property 'scenario=used-builder'"
+        echo "CA_GH_ACTION_SCENARIO_ARG=${CA_GH_ACTION_SCENARIO_ARG}" >> $GITHUB_ENV
+
+    - name: Log telemetry for action
+      if: ${{ always() && inputs.disableTelemetry == 'false' }}
+      shell: bash
+      run: |
+        docker run --rm mcr.microsoft.com/oryx/cli:debian-buster-20230207.2  /bin/bash -c "oryx telemetry --event-name 'ContainerAppsGitHubAction' ${{ env.CA_GH_ACTION_LENGTH_MILLISECONDS_ARG }} ${{ env.CA_GH_ACTION_SCENARIO_ARG }} ${{ env.CA_GH_ACTION_RESULT_ARG }}"

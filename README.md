@@ -18,6 +18,19 @@ with a call to `docker build` and the Container App will be created or updated b
 If a previously built image has already been pushed to the ACR instance and is provided to this action, no application
 source is required and the image will be used when creating or updating the Container App.
 
+## Data/Telemetry Collection Notice
+
+By default, this GitHub Action collects the following pieces of data for Microsoft:
+- The Container App build and deploy scenario targeted by the user
+  - _i.e._, used the Oryx++ Builder, used a provided/found Dockerfile, or provided a previously built image
+  - _Note_: the image name is _not_ collected
+- The processing time of the GitHub Action, in milliseconds
+- The result of the GitHub Action
+  - _i.e._, succeeded or failed
+- If the Oryx++ Builder is used, events and metrics relating to building the provided application using Oryx
+
+If you want to disable data collection, please set the `disableTelemetry` argument to `true`.
+
 ## Prerequisites
 
 Prior to running this action, a set of Azure resources and GitHub Actions are either required or optional depending on
@@ -123,6 +136,7 @@ need to be provided in order for this action to successfully run using one of th
 | `targetPort`              | No       | The target port that the Container App will listen on. If not provided, this value will be "80" for Python applications and "8080" for all other supported platforms. |
 | `location`                | No       | The location that the Container App (and other created resources) will be deployed to. To view locations suitable for creating the Container App in, please run the following: `az provider show -n Microsoft.App --query "resourceTypes[?resourceType=='containerApps'].locations"` |
 | `environmentVariables`    | No       | A list of environment variable(s) for the container. Space-separated values in 'key=value' format. Empty string to clear existing values. Prefix value with 'secretref:' to reference a secret. |
+| `disableTelemetry`        | No       | If set to `true`, no telemetry will be collected by this GitHub Action. If set to `false`, or if this argument is not provided, telemetry will be sent to Microsoft about the Container App build and deploy scenario targeted by this GitHub Action. |
 
 ## Usage
 
