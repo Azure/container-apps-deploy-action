@@ -241,7 +241,7 @@ runs:
       if: ${{ inputs.appSourcePath != '' && inputs.runtimeStack == '' }}
       shell: bash
       run: |
-        docker run --rm -v ${{ inputs.appSourcePath }}:/app mcr.microsoft.com/oryx/cli:builder-debian-buster-20230118.1 /bin/bash -c "oryx dockerfile /app | head -n 1 | sed 's/ARG RUNTIME=//' >> /app/oryx-runtime.txt"
+        docker run --rm -v ${{ inputs.appSourcePath }}:/app mcr.microsoft.com/oryx/cli:builder-debian-buster-20230208.1 /bin/bash -c "oryx dockerfile /app | head -n 1 | sed 's/ARG RUNTIME=//' >> /app/oryx-runtime.txt"
         CA_GH_ACTION_RUNTIME_STACK=$(head -n 1 ${{ inputs.appSourcePath }}/oryx-runtime.txt)
         echo "CA_GH_ACTION_RUNTIME_STACK=${CA_GH_ACTION_RUNTIME_STACK}" >> $GITHUB_ENV
         rm ${{ inputs.appSourcePath }}/oryx-runtime.txt
@@ -283,7 +283,7 @@ runs:
     - name: Set Oryx++ Builder as default builder
       if: ${{ inputs.appSourcePath != '' && env.CA_GH_ACTION_DOCKERFILE_PATH == '' }}
       shell: bash
-      run: pack config default-builder mcr.microsoft.com/oryx/builder:20230118.1
+      run: pack config default-builder mcr.microsoft.com/oryx/builder:20230208.1
 
     - name: Set telemetry for Oryx++ Builder
       if: ${{ inputs.disableTelemetry == 'false' }}
@@ -302,7 +302,7 @@ runs:
     - name: Create runnable application image using Oryx++ Builder
       if: ${{ inputs.appSourcePath != '' && env.CA_GH_ACTION_DOCKERFILE_PATH == '' }}
       shell: bash
-      run: pack build ${{ env.CA_GH_ACTION_IMAGE_TO_DEPLOY }} --path ${{ inputs.appSourcePath }} --builder mcr.microsoft.com/oryx/builder:20230118.1 --run-image mcr.microsoft.com/oryx/${{ env.CA_GH_ACTION_RUNTIME_STACK }} ${{ env.CA_GH_ACTION_ORYX_BUILDER_TELEMETRY_ARG }}
+      run: pack build ${{ env.CA_GH_ACTION_IMAGE_TO_DEPLOY }} --path ${{ inputs.appSourcePath }} --builder mcr.microsoft.com/oryx/builder:20230208.1 --run-image mcr.microsoft.com/oryx/${{ env.CA_GH_ACTION_RUNTIME_STACK }} ${{ env.CA_GH_ACTION_ORYX_BUILDER_TELEMETRY_ARG }}
 
     - name: Create runnable application image using provided Dockerfile
       if: ${{ inputs.appSourcePath != '' && env.CA_GH_ACTION_DOCKERFILE_PATH != '' }}
@@ -360,4 +360,4 @@ runs:
       if: ${{ always() && inputs.disableTelemetry == 'false' }}
       shell: bash
       run: |
-        docker run --rm mcr.microsoft.com/oryx/build:github-actions-debian-buster-20230206.2  /bin/bash -c "oryx telemetry --event-name 'ContainerAppsGitHubAction' ${{ env.CA_GH_ACTION_LENGTH_MILLISECONDS_ARG }} ${{ env.CA_GH_ACTION_SCENARIO_ARG }} ${{ env.CA_GH_ACTION_RESULT_ARG }}"
+        docker run --rm mcr.microsoft.com/oryx/cli:debian-buster-20230207.2  /bin/bash -c "oryx telemetry --event-name 'ContainerAppsGitHubAction' ${{ env.CA_GH_ACTION_LENGTH_MILLISECONDS_ARG }} ${{ env.CA_GH_ACTION_SCENARIO_ARG }} ${{ env.CA_GH_ACTION_RESULT_ARG }}"
