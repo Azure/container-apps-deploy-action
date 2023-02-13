@@ -1,0 +1,113 @@
+name: Run validation on main branch
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  TEST_FULL_ACR_NAME: ${{ vars.TEST_ACR_NAME }}.azurecr.io
+  TEST_IMAGE_REPOSITORY: github-actions/container-app
+
+jobs:
+  use-builder:
+    name: 'Validating builder scenario'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    env:
+      TEST_IMAGE_TAG: 'bs-${{ github.run_id }}'
+      TEST_CONTAINER_APP_NAME: 'gh-ca-bs-${{ github.run_id }}'
+
+    steps:
+      - name: Clone Oryx repository
+        uses: actions/checkout@v3
+        with:
+          repository: microsoft/Oryx
+
+      - name: Log in to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Execute Azure Container Apps Build and Deploy Action
+        uses: Azure/container-apps-deploy-action@main
+        with:
+          appSourcePath: '${{ github.workspace }}/tests/SampleApps/DotNetCore/NetCore6PreviewWebApp'
+          acrName: ${{ vars.TEST_ACR_NAME }}
+          containerAppName: ${{ env.TEST_CONTAINER_APP_NAME }}
+          resourceGroup: ${{ vars.TEST_RESOURCE_GROUP_NAME }}
+          imageToBuild: ${{ env.TEST_FULL_ACR_NAME }}/${{ env.TEST_IMAGE_REPOSITORY }}:${{ env.TEST_IMAGE_TAG }}
+          disableTelemetry: ${{ vars.TEST_DISABLE_TELEMETRY }}
+
+      - name: Delete created Azure Container App
+        shell: bash
+        run: az containerapp delete --name ${{ env.TEST_CONTAINER_APP_NAME }} --resource-group ${{ vars.TEST_RESOURCE_GROUP_NAME }} --yes
+
+      - name: Delete pushed image
+        shell: bash
+        run: az acr repository delete --name ${{ vars.TEST_ACR_NAME }} --image ${{ env.TEST_IMAGE_REPOSITORY }}:${{ env.TEST_IMAGE_TAG }} --yes
+
+  use-dockerfile:
+    name: 'Validating Dockerfile scenario'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    env:
+      TEST_IMAGE_TAG: 'ds-${{ github.run_id }}'
+      TEST_CONTAINER_APP_NAME: 'gh-ca-ds-${{ github.run_id }}'
+
+    steps:
+      - name: Clone Oryx repository
+        uses: actions/checkout@v3
+        with:
+          repository: microsoft/Oryx
+
+      - name: Log in to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Execute Azure Container Apps Build and Deploy Action
+        uses: Azure/container-apps-deploy-action@main
+        with:
+          appSourcePath: '${{ github.workspace }}/tests/SampleApps/DotNetCore/Blazor_Function_Sample/blazor-sample-app'
+          acrName: ${{ vars.TEST_ACR_NAME }}
+          containerAppName: ${{ env.TEST_CONTAINER_APP_NAME }}
+          resourceGroup: ${{ vars.TEST_RESOURCE_GROUP_NAME }}
+          imageToBuild: ${{ env.TEST_FULL_ACR_NAME }}/${{ env.TEST_IMAGE_REPOSITORY }}:${{ env.TEST_IMAGE_TAG }}
+          disableTelemetry: ${{ vars.TEST_DISABLE_TELEMETRY }}
+
+      - name: Delete created Azure Container App
+        shell: bash
+        run: az containerapp delete --name ${{ env.TEST_CONTAINER_APP_NAME }} --resource-group ${{ vars.TEST_RESOURCE_GROUP_NAME }} --yes
+
+      - name: Delete pushed image
+        shell: bash
+        run: az acr repository delete --name ${{ vars.TEST_ACR_NAME }} --image ${{ env.TEST_IMAGE_REPOSITORY }}:${{ env.TEST_IMAGE_TAG }} --yes
+
+  use-image:
+    name: 'Validating image scenario'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    env:
+      TEST_CONTAINER_APP_NAME: 'gh-ca-ds-${{ github.run_id }}'
+
+    steps:
+      - name: Log in to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Execute Azure Container Apps Build and Deploy Action
+        uses: Azure/container-apps-deploy-action@main
+        with:
+          imageToDeploy: 'mcr.microsoft.com/azuredocs/containerapps-helloworld:latest'
+          containerAppName: ${{ env.TEST_CONTAINER_APP_NAME }}
+          resourceGroup: ${{ vars.TEST_RESOURCE_GROUP_NAME }}
+          disableTelemetry: ${{ vars.TEST_DISABLE_TELEMETRY }}
+
+      - name: Delete created Azure Container App
+        shell: bash
+        run: az containerapp delete --name ${{ env.TEST_CONTAINER_APP_NAME }} --resource-group ${{ vars.TEST_RESOURCE_GROUP_NAME }} --yes
