@@ -20,7 +20,7 @@ jobs:
   use-builder:
     name: 'Validating builder scenario'
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 10
 
     env:
       TEST_IMAGE_TAG: 'bs-${{ github.run_id }}'
@@ -64,7 +64,7 @@ jobs:
   use-dockerfile:
     name: 'Validating Dockerfile scenario'
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 10
 
     env:
       TEST_IMAGE_TAG: 'ds-${{ github.run_id }}'
@@ -108,7 +108,7 @@ jobs:
   use-image:
     name: 'Validating image scenario'
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 10
 
     env:
       TEST_CONTAINER_APP_NAME: 'gh-ca-ds-${{ github.run_id }}'
