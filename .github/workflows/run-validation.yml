@@ -18,7 +18,7 @@ env:
 
 jobs:
   use-builder:
-    name: 'Validating builder scenario'
+    name: 'Validating builder scenarios'
     runs-on: ubuntu-latest
     timeout-minutes: 10
 
