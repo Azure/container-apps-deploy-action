@@ -18,6 +18,9 @@ with a call to `docker build` and the Container App will be created or updated b
 If a previously built image has already been pushed to the ACR instance and is provided to this action, no application
 source is required and the image will be used when creating or updating the Container App.
 
+A YAML configuration file can also be provided to modify specific properties on the Container App that is created or
+updated; please see the section below on the `yamlConfigPath` argument.
+
 ## Data/Telemetry Collection Notice
 
 By default, this GitHub Action collects the following pieces of data for Microsoft:
@@ -120,6 +123,30 @@ need to be provided in order for this action to successfully run using one of th
 | ------------------------- | -------- | ----------- |
 | `imageToDeploy`           | Yes (for this scenario) | The name of the image that has already been pushed to a registry and will be deployed to the Container App by this action. If this image is found in an ACR instance that requires authentication to pull, the `acrName` argument, or the `acrUsername` and `acrPassword` arguments, can be provided to authenticate requests to the ACR instance. |
 
+### Arguments required for using a YAML configuration file
+
+| Argument name             | Required | Description |
+| ------------------------- | -------- | ----------- |
+| `yamlConfigPath`          | Yes (for this scenario) | Full path (on the executing GitHub runner) to the YAML file detailing the configuration of the Container App. |
+
+#### Important note on the YAML configuration file
+
+When providing the `yamlConfigPath`, identity arguments (_e.g._, `containerAppName`, `resourceGroup`) provided
+to this action will still be used, but non-identity arguments (_e.g._, `containerAppEnvironment`, `environmentVariables`,
+`ingress`, etc.) will be ignored in favor of the values provided in the YAML configuration file. Identity arguments
+provided in the YAML configuration file **are not currently used** and should be provided as arguments to the action.
+
+Image and application source arguments (_e.g._, `appSourcePath`, `imageToDeploy`) will still be used to first build
+and/or push an image that is used by the Container App; ion this case, the provided YAML configuration file will need to
+reference the image specified by `imageToDeploy` (or `imageToBuild`, depending on your scenario).
+
+When creating a new Container App, all properties listed in the YAML configuration file (except the identity properties,
+as listed above) will be set when the Container App is created. When updating an existing Container App, only the
+properties listed in the file will be updated on the Container App.
+
+For more information on the structure of the YAML configuration file, please visit [this site](https://aka.ms/azure-container-apps-yaml).
+
+
 ### Additional arguments
 
 | Argument name             | Required | Description |
@@ -136,6 +163,7 @@ need to be provided in order for this action to successfully run using one of th
 | `targetPort`              | No       | The target port that the Container App will listen on. If not provided, this value will be "80" for Python applications and "8080" for all other supported platforms. |
 | `location`                | No       | The location that the Container App (and other created resources) will be deployed to. To view locations suitable for creating the Container App in, please run the following: `az provider show -n Microsoft.App --query "resourceTypes[?resourceType=='containerApps'].locations"` |
 | `environmentVariables`    | No       | A list of environment variable(s) for the container. Space-separated values in 'key=value' format. Empty string to clear existing values. Prefix value with 'secretref:' to reference a secret. |
+| `ingress`                 | No       | Possible options: external, internal, disabled. If set to "external" (default), the Container App will be visible from the internet or a VNET, depending on the app environment endpoint configured. If set to "internal", the Container App will be visible from within the app environment only. If set to "disabled", ingress will be disabled for this Container App and will not have an HTTP or TCP endpoint. |
 | `disableTelemetry`        | No       | If set to `true`, no telemetry will be collected by this GitHub Action. If set to `false`, or if this argument is not provided, telemetry will be sent to Microsoft about the Container App build and deploy scenario targeted by this GitHub Action. |
 
 ## Usage

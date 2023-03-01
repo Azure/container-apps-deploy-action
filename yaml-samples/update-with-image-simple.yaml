@@ -1,0 +1,11 @@
+properties:
+  managedEnvironmentId: /subscriptions/$SUBSCRIPTION_ID$/resourceGroups/$RESOURCE_GROUP$/providers/Microsoft.App/managedEnvironments/$CONTAINER_APP_ENV$
+  configuration:
+    ingress:
+      external: true
+      allowInsecure: false
+      targetPort: 80
+  template:
+    containers:
+      - image: mcr.microsoft.com/azuredocs/containerapps-helloworld:latest
+        name: updatedwithimagecontainer
