@@ -385,7 +385,7 @@ jobs:
 
     env:
       TEST_CONTAINER_APP_NAME: 'gh-ca-bs-yaml-win-${{ github.run_id }}'
-      TEST_YAML_FILE_PATH: '${{ github.workspace }}/yaml-samples/create-with-image-simple.yaml'
+      TEST_YAML_FILE_PATH: '${{ github.workspace }}\yaml-samples\create-with-image-simple.yaml'
 
     steps:
       - name: Checkout action repository
