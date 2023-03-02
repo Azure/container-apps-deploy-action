@@ -312,6 +312,8 @@ jobs:
           (Get-Content ${{ env.TEST_YAML_FILE_PATH }}).Replace('$RESOURCE_GROUP$', '${{ vars.TEST_RESOURCE_GROUP_NAME }}') | Set-Content ${{ env.TEST_YAML_FILE_PATH }}
           (Get-Content ${{ env.TEST_YAML_FILE_PATH }}).Replace('$CONTAINER_APP_ENV$', '${{ vars.TEST_EXISTING_CONTAINER_APP_ENV }}') | Set-Content ${{ env.TEST_YAML_FILE_PATH }}
           (Get-Content ${{ env.TEST_YAML_FILE_PATH }}).Replace('$FULL_ACR_NAME$', '${{ env.TEST_FULL_ACR_NAME }}') | Set-Content ${{ env.TEST_YAML_FILE_PATH }}
+          (Get-Content ${{ env.TEST_YAML_FILE_PATH }}).Replace('$ACR_USERNAME$', '${{ secrets.TEST_REGISTRY_USERNAME }}') | Set-Content ${{ env.TEST_YAML_FILE_PATH }}
+          (Get-Content ${{ env.TEST_YAML_FILE_PATH }}).Replace('$ACR_PASSWORD$', '${{ secrets.TEST_REGISTRY_PASSWORD }}') | Set-Content ${{ env.TEST_YAML_FILE_PATH }}
           (Get-Content ${{ env.TEST_YAML_FILE_PATH }}).Replace('$IMAGE_REPOSITORY$', '${{ env.TEST_IMAGE_REPOSITORY }}') | Set-Content ${{ env.TEST_YAML_FILE_PATH }}
           (Get-Content ${{ env.TEST_YAML_FILE_PATH }}).Replace('$IMAGE_TAG$', '${{ env.TEST_IMAGE_TAG }}') | Set-Content ${{ env.TEST_YAML_FILE_PATH }}
 

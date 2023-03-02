@@ -1,10 +1,17 @@
 properties:
   managedEnvironmentId: /subscriptions/$SUBSCRIPTION_ID$/resourceGroups/$RESOURCE_GROUP$/providers/Microsoft.App/managedEnvironments/$CONTAINER_APP_ENV$
   configuration:
+    secrets:
+      - name: acrPassword
+        value: $ACR_PASSWORD$
     ingress:
       external: true
       allowInsecure: false
       targetPort: 8080
+    registries:
+      - passwordSecretRef: acrPassword
+        server: $FULL_ACR_NAME$
+        username: $ACR_USERNAME$
   template:
     containers:
       - image: $FULL_ACR_NAME$/$IMAGE_REPOSITORY$:$IMAGE_TAG$
