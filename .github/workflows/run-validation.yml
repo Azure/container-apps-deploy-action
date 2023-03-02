@@ -257,22 +257,26 @@ jobs:
         run: az containerapp delete -n ${{ env.TEST_CONTAINER_APP_NAME }} -g ${{ vars.TEST_RESOURCE_GROUP_NAME }} -y
 
       - name: Get customer ID for workspace to delete
+        if: ${{ always() }}
         shell: bash
         run: |
           CUSTOMER_ID=$(az containerapp env show -g ${{ vars.TEST_RESOURCE_GROUP_NAME }} -n ${{ env.TEST_NEW_CONTAINER_APP_ENV }} --query 'properties.appLogsConfiguration.logAnalyticsConfiguration.customerId')
           echo "CUSTOMER_ID=${CUSTOMER_ID}" >> $GITHUB_ENV
 
       - name: Get name of workspace to delete
+        if: ${{ always() }}
         shell: bash
         run: |
           WORKSPACE_NAME=$(az monitor log-analytics workspace list -g ${{ vars.TEST_RESOURCE_GROUP_NAME }} --query '[?customerId == `${{ env.CUSTOMER_ID }}`].name | [0]')
           echo "WORKSPACE_NAME=${WORKSPACE_NAME}" >> $GITHUB_ENV
 
       - name: Delete created Azure Container App environment
+        if: ${{ always() }}
         shell: bash
         run: az containerapp env delete -g ${{ vars.TEST_RESOURCE_GROUP_NAME }} -n ${{ env.TEST_NEW_CONTAINER_APP_ENV }} -y
 
       - name: Delete created workspace
+        if: ${{ always() }}
         shell: bash
         run: az monitor log-analytics workspace delete -g ${{ vars.TEST_RESOURCE_GROUP_NAME }} -n ${{ env.WORKSPACE_NAME }} -y
 
@@ -385,7 +389,7 @@ jobs:
 
     env:
       TEST_CONTAINER_APP_NAME: 'gh-ca-bs-yaml-win-${{ github.run_id }}'
-      TEST_YAML_FILE_PATH: '${{ github.workspace }}\yaml-samples\create-with-image-simple.yaml'
+      TEST_YAML_FILE_PATH: 'yaml-samples/create-with-image-simple.yaml'
 
     steps:
       - name: Checkout action repository
