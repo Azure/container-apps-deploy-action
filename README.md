@@ -224,6 +224,47 @@ This will create a new Container App named `github-action-container-app-<github-
 resource group named `<container-app-name>-rg` where **no new image is built**, but an existing image named
 `mcr.microsoft.com/azuredocs/containerapps-helloworld:latest` will be used for the Container App.
 
+### Minimal - Use YAML configuration file with previously published image for Container App
+
+```yml
+steps:
+
+  - name: Log in to Azure
+    uses: azure/login@v1
+    with:
+      creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+  - name: Build and deploy Container App
+    uses: azure/container-app-deploy-action@v0
+    with:
+      yamlConfigPath: simple-image-container-app.yaml
+```
+
+This will create a new Container App named `github-action-container-app-<github-run-id>-<github-run-attempt>` in a new
+resource group name `<container-app-name>-rg` where **no new image is built**, but an existing image named
+`mcr.microsoft.com/azuredocs/containerapps-helloworld:latest` will be used for the Container App. Additional properties
+about the Container App will be pulled from the `simple-image-container-app.yaml` file and will override any additional
+values that would've been provided to the GitHub Action as arguments **excluding `resourceGroup`**.
+
+The `simple-image-container-app.yaml` file has the following structure:
+
+```yml
+properties:
+  managedEnvironmentId: /subscriptions/SUBSCRIPTION_ID/resourceGroup/RESOURCE_GROUP/providers/Microsoft.App/managedEnvironments/CONTAINER_APP_ENVIRONMENT
+  configuration:
+    ingress:
+      external: true
+      allowInsecure: false
+      targetPort: 80
+  template:
+    containers:
+      - image: mcr.microsoft.com/azuredocs/containerapps-helloworld:latest
+        name: mysampleimagecontainer
+```
+
+The values for `SUBSCRIPTION_ID`, `RESOURCE_GROUP` and `CONTAINER_APP_ENVIRONMENT` must be updated to point to the full
+resource ID of the **existing** Container App environment that the Container App will use.
+
 ### Using ACR credentials to authenticate
 
 ```yml
