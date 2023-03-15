@@ -54,8 +54,8 @@ inputs:
     default: 'gh-action-app-${{ github.run_id }}-${{ github.run_attempt }}'
   resourceGroup:
     description: |
-      'The resource group that the Azure Container App will be created in. If not provided, this value will be
-      <container-app-name>-rg'
+      'The existing resource group that the Azure Container App will be created in. If not provided, this value will be
+      <container-app-name>-rg and its existence will first be checked before attempting to create it.'
     required: false
   containerAppEnvironment:
     description: |
@@ -245,7 +245,8 @@ runs:
         CA_GH_ACTION_RESOURCE_GROUP="${{ inputs.containerAppName }}-rg"
         echo "CA_GH_ACTION_RESOURCE_GROUP=${CA_GH_ACTION_RESOURCE_GROUP}" >> $GITHUB_ENV
 
-    - name: Check if the resource group exists
+    - name: Check if the previously generated resource group exists
+      if: ${{ inputs.resourceGroup == '' }}
       shell: bash
       run: |
         az group show \
