@@ -54,8 +54,8 @@ inputs:
     default: 'gh-action-app-${{ github.run_id }}-${{ github.run_attempt }}'
   resourceGroup:
     description: |
-      'The resource group that the Azure Container App will be created in. If not provided, this value will be
-      <container-app-name>-rg'
+      'The existing resource group that the Azure Container App will be created in. If not provided, this value will be
+      <container-app-name>-rg and its existence will first be checked before attempting to create it.'
     required: false
   containerAppEnvironment:
     description: |
@@ -73,8 +73,11 @@ inputs:
     required: false
   targetPort:
     description: |
-      'The designated port for the application to run on. If not provided, this value is 80 for Python and 8080 for all
-      other supported platforms.'
+      'The designated port for the application to run on. If no value is provided and the builder is used to build the
+      runnable application image, the target port will be set to 80 for Python applications and 8080 for all other
+      platform applications. If no value is provided when creating a Container App, the target port will be set to 80 by
+      default. Note: when using this action to update a Container App, the target port may be updated if not provided
+      based on changes to the ingress property.
     required: false
   location:
     description: |
@@ -88,12 +91,11 @@ inputs:
     required: false
   ingress:
     description: |
-      'Possible options: external, internal, disabled. If set to "external" (default), the Container App will be visible
-      from the internet or a VNET, depending on the app environment endpoint configured. If set to "internal", the
-      Container App will be visible from within the app environment only. If set to "disabled", ingress will be disabled
-      for this Container App and will not have an HTTP or TCP endpoint.'
+      'Possible options: external, internal, disabled. If set to "external" (default value if not provided when creating
+      a Container App), the Container App will be visible from the internet or a VNET, depending on the app environment
+      endpoint configured. If set to "internal", the Container App will be visible from within the app environment only.
+      If set to "disabled", ingress will be disabled for this Container App and will not have an HTTP or TCP endpoint.'
     required: false
-    default: 'external'
   yamlConfigPath:
     description: |
       'Full path (on the executing GitHub runner) to the YAML file detailing the configuration of the Container App.
@@ -243,6 +245,39 @@ runs:
         CA_GH_ACTION_RESOURCE_GROUP="${{ inputs.containerAppName }}-rg"
         echo "CA_GH_ACTION_RESOURCE_GROUP=${CA_GH_ACTION_RESOURCE_GROUP}" >> $GITHUB_ENV
 
+    - name: Check if the previously generated resource group exists
+      if: ${{ inputs.resourceGroup == '' }}
+      shell: bash
+      run: |
+        az group show \
+          -n ${{ env.CA_GH_ACTION_RESOURCE_GROUP }} \
+          -o none && CA_GH_ACTION_RG_EXISTS=true || CA_GH_ACTION_RG_EXISTS=false
+        echo "CA_GH_ACTION_RG_EXISTS=${CA_GH_ACTION_RG_EXISTS}" >> $GITHUB_ENV
+
+    - name: Get default location for Container Apps to use if resource group doesn't exist and location wasn't provided
+      if: ${{ env.CA_GH_ACTION_RG_EXISTS == 'false' && inputs.location == '' }}
+      shell: bash
+      run: |
+        CA_GH_ACTION_DEFAULT_LOCATION=$(az provider show -n Microsoft.App --query "resourceTypes[?resourceType=='containerApps'].locations[] | [0]")
+        CA_GH_ACTION_DEFAULT_LOCATION=$(echo $CA_GH_ACTION_DEFAULT_LOCATION | sed 's/[ !()]//g')
+        CA_GH_ACTION_DEFAULT_LOCATION=${CA_GH_ACTION_DEFAULT_LOCATION,,}
+        echo "CA_GH_ACTION_DEFAULT_LOCATION=${CA_GH_ACTION_DEFAULT_LOCATION}" >> $GITHUB_ENV
+
+    - name: Set default location for Container Apps if location was provided
+      if: ${{ env.CA_GH_ACTION_RG_EXISTS == 'false' && inputs.location != '' }}
+      shell: bash
+      run: |
+        CA_GH_ACTION_DEFAULT_LOCATION="${{ inputs.location }}"
+        echo "CA_GH_ACTION_DEFAULT_LOCATION=${CA_GH_ACTION_DEFAULT_LOCATION}" >> $GITHUB_ENV
+
+    - name: Create resource group if it doesn't exist
+      if: ${{ env.CA_GH_ACTION_RG_EXISTS == 'false' }}
+      shell: bash
+      run: |
+        az group create \
+          -n ${{ env.CA_GH_ACTION_RESOURCE_GROUP }} \
+          -l ${{ env.CA_GH_ACTION_DEFAULT_LOCATION }}
+
     - name: Export location argument to environment variable
       if: ${{ inputs.location != '' && env.CA_GH_ACTION_YAML_PROVIDED != 'true' }}
       shell: bash
@@ -330,8 +365,17 @@ runs:
         CA_GH_ACTION_INGRESS_ENABLED="false"
         echo "CA_GH_ACTION_INGRESS_ENABLED=${CA_GH_ACTION_INGRESS_ENABLED}" >> $GITHUB_ENV
 
+    - name: Set default value of ingress to 'external' if not provided
+      if: ${{ inputs.ingress == '' && env.CA_GH_ACTION_YAML_PROVIDED != 'true' }}
+      shell: bash
+      run: |
+        CA_GH_ACTION_INGRESS_ENABLED="true"
+        echo "CA_GH_ACTION_INGRESS_ENABLED=${CA_GH_ACTION_INGRESS_ENABLED}" >> $GITHUB_ENV
+        CA_GH_ACTION_INGRESS_ARG="--ingress external"
+        echo "CA_GH_ACTION_INGRESS_ARG=${CA_GH_ACTION_INGRESS_ARG}" >> $GITHUB_ENV
+
     - name: Export ingress value to environment variable
-      if: ${{ inputs.ingress != 'disabled' && env.CA_GH_ACTION_YAML_PROVIDED != 'true' }}
+      if: ${{ inputs.ingress != '' && inputs.ingress != 'disabled' && env.CA_GH_ACTION_YAML_PROVIDED != 'true' }}
       shell: bash
       run: |
         CA_GH_ACTION_INGRESS_ENABLED="true"
@@ -352,8 +396,8 @@ runs:
       run: |
         if [[ "${{ env.CA_GH_ACTION_RUNTIME_STACK }}" == "python:"* ]]; then echo "CA_GH_ACTION_TARGET_PORT=80" >> $GITHUB_ENV; else echo "CA_GH_ACTION_TARGET_PORT=8080" >> $GITHUB_ENV; fi
 
-    - name: Default to target port 80 if one wasn't provided or found and ingress is enabled
-      if: ${{ env.CA_GH_ACTION_INGRESS_ENABLED == 'true' && env.CA_GH_ACTION_TARGET_PORT == '' && env.CA_GH_ACTION_YAML_PROVIDED != 'true' }}
+    - name: Default to target port 80 if one wasn't provided or found, and ingress is enabled, and the Container App doesn't exist (prevent overriding)
+      if: ${{ env.CA_GH_ACTION_INGRESS_ENABLED == 'true' && env.CA_GH_ACTION_RESOURCE_EXISTS == 'false' && env.CA_GH_ACTION_TARGET_PORT == '' && env.CA_GH_ACTION_YAML_PROVIDED != 'true' }}
       shell: bash
       run: |
         CA_GH_ACTION_TARGET_PORT="80"
@@ -470,8 +514,8 @@ runs:
           -n ${{ inputs.containerAppName }} \
           --yaml ${{ inputs.yamlConfigPath }}
 
-    - name: Update the existing Container App from provided arguments
-      if: ${{ env.CA_GH_ACTION_YAML_PROVIDED != 'true' && env.CA_GH_ACTION_RESOURCE_EXISTS == 'true' }}
+    - name: Update the existing Container App from provided arguments via 'update' (no ingress values provided)
+      if: ${{ env.CA_GH_ACTION_YAML_PROVIDED != 'true' && inputs.targetPort == '' && inputs.ingress == '' && env.CA_GH_ACTION_RESOURCE_EXISTS == 'true' }}
       shell: bash
       run: |
         az containerapp update \
@@ -480,23 +524,39 @@ runs:
           -i ${{ env.CA_GH_ACTION_IMAGE_TO_DEPLOY }} \
           ${{ env.CA_GH_ACTION_CONTAINER_APP_ENVIRONMENT_VARIABLES_ARG }}
 
+    - name: Reset the ingress argument environment variable if it wasn't provided (use default ingress value)
+      if: ${{ env.CA_GH_ACTION_YAML_PROVIDED != 'true' && inputs.ingress == '' && env.CA_GH_ACTION_RESOURCE_EXISTS == 'true' }}
+      shell: bash
+      run: |
+        CA_GH_ACTION_INGRESS_ARG=""
+        echo "CA_GH_ACTION_INGRESS_ARG=${CA_GH_ACTION_INGRESS_ARG}" >> $GITHUB_ENV
+
+    - name: Reset the environment variables argument environment variable for the 'up' command
+      if: ${{ env.CA_GH_ACTION_YAML_PROVIDED != 'true' && inputs.environmentVariables != '' }}
+      shell: bash
+      run: |
+        CA_GH_ACTION_CONTAINER_APP_ENVIRONMENT_VARIABLES_ARG="--env-vars ${{ inputs.environmentVariables }}"
+        echo "CA_GH_ACTION_CONTAINER_APP_ENVIRONMENT_VARIABLES_ARG=${CA_GH_ACTION_CONTAINER_APP_ENVIRONMENT_VARIABLES_ARG}" >> $GITHUB_ENV
+
+    - name: Update the existing Container App from provided arguments via 'up' (ingress values provided)
+      if: ${{ env.CA_GH_ACTION_YAML_PROVIDED != 'true' && (inputs.targetPort != '' || inputs.ingress != '') && env.CA_GH_ACTION_RESOURCE_EXISTS == 'true' }}
+      shell: bash
+      run: |
+        az containerapp up \
+          -g ${{ env.CA_GH_ACTION_RESOURCE_GROUP }} \
+          -n ${{ inputs.containerAppName }} \
+          -i ${{ env.CA_GH_ACTION_IMAGE_TO_DEPLOY }} \
+          ${{ env.CA_GH_ACTION_TARGET_PORT_ARG }} \
+          ${{ env.CA_GH_ACTION_INGRESS_ARG }} \
+          ${{ env.CA_GH_ACTION_CONTAINER_APP_ENVIRONMENT_VARIABLES_ARG }}
+
     - name: Disable ingress on the existing Container App
-      if: ${{ env.CA_GH_ACTION_RESOURCE_EXISTS == 'true' && env.CA_GH_ACTION_INGRESS_ENABLED == 'false' && env.CA_GH_ACTION_YAML_PROVIDED != 'true' }}
+      if: ${{ env.CA_GH_ACTION_RESOURCE_EXISTS == 'true' && inputs.ingress == 'disabled' && env.CA_GH_ACTION_YAML_PROVIDED != 'true' }}
       shell: bash
       run: |
         az containerapp ingress disable \
           -g ${{ env.CA_GH_ACTION_RESOURCE_GROUP }} \
           -n ${{ inputs.containerAppName }}
-
-    - name: Enable ingress on the existing Container App
-      if: ${{ env.CA_GH_ACTION_RESOURCE_EXISTS == 'true' && env.CA_GH_ACTION_INGRESS_ENABLED == 'true' && env.CA_GH_ACTION_YAML_PROVIDED != 'true' }}
-      shell: bash
-      run: |
-        az containerapp ingress enable \
-          -g ${{ env.CA_GH_ACTION_RESOURCE_GROUP }} \
-          -n ${{ inputs.containerAppName }} \
-          --target-port ${{ env.CA_GH_ACTION_TARGET_PORT }} \
-          --type ${{ inputs.ingress }}
 
     - name: Update the Container Registry details on the existing Container App
       if: ${{ env.CA_GH_ACTION_RESOURCE_EXISTS == 'true' && env.CA_GH_ACTION_ACR_LOGIN_ARG != '' && env.CA_GH_ACTION_YAML_PROVIDED != 'true' }}
