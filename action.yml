@@ -546,7 +546,7 @@ runs:
         echo "CA_GH_ACTION_CONTAINER_APP_ENVIRONMENT_VARIABLES_ARG=${CA_GH_ACTION_CONTAINER_APP_ENVIRONMENT_VARIABLES_ARG}" >> $GITHUB_ENV
 
     - name: Update the existing Container App from provided arguments via 'up' (ingress values provided)
-      if: ${{ env.CA_GH_ACTION_USE_UP == 'true' && env.CA_GH_ACTION_YAML_PROVIDED != 'true' && env.CA_GH_ACTION_RESOURCE_EXISTS == 'true' }}
+      if: ${{ env.CA_GH_ACTION_USE_UP == 'true' }}
       shell: bash
       run: |
         az containerapp up \
