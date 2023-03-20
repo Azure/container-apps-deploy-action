@@ -514,8 +514,15 @@ runs:
           -n ${{ inputs.containerAppName }} \
           --yaml ${{ inputs.yamlConfigPath }}
 
+    - name: Determine whether or not 'update' or 'up' should be used
+      if: ${{ env.CA_GH_ACTION_YAML_PROVIDED != 'true' && env.CA_GH_ACTION_RESOURCE_EXISTS == 'true' && (inputs.targetPort != '' || inputs.ingress != '') }}
+      shell: bash
+      run: |
+        CA_GH_ACTION_USE_UP="true"
+        echo "CA_GH_ACTION_USE_UP=${CA_GH_ACTION_USE_UP}" >> $GITHUB_ENV
+
     - name: Update the existing Container App from provided arguments via 'update' (no ingress values provided)
-      if: ${{ env.CA_GH_ACTION_YAML_PROVIDED != 'true' && inputs.targetPort == '' && inputs.ingress == '' && env.CA_GH_ACTION_RESOURCE_EXISTS == 'true' }}
+      if: ${{ env.CA_GH_ACTION_USE_UP != 'true' && env.CA_GH_ACTION_YAML_PROVIDED != 'true' && env.CA_GH_ACTION_RESOURCE_EXISTS == 'true' }}
       shell: bash
       run: |
         az containerapp update \
@@ -525,21 +532,21 @@ runs:
           ${{ env.CA_GH_ACTION_CONTAINER_APP_ENVIRONMENT_VARIABLES_ARG }}
 
     - name: Reset the ingress argument environment variable if it wasn't provided (use default ingress value)
-      if: ${{ env.CA_GH_ACTION_YAML_PROVIDED != 'true' && inputs.ingress == '' && env.CA_GH_ACTION_RESOURCE_EXISTS == 'true' }}
+      if: ${{ inputs.ingress == '' && env.CA_GH_ACTION_YAML_PROVIDED != 'true' && env.CA_GH_ACTION_RESOURCE_EXISTS == 'true' }}
       shell: bash
       run: |
         CA_GH_ACTION_INGRESS_ARG=""
         echo "CA_GH_ACTION_INGRESS_ARG=${CA_GH_ACTION_INGRESS_ARG}" >> $GITHUB_ENV
 
     - name: Reset the environment variables argument environment variable for the 'up' command
-      if: ${{ env.CA_GH_ACTION_YAML_PROVIDED != 'true' && inputs.environmentVariables != '' }}
+      if: ${{ env.CA_GH_ACTION_USE_UP == 'true' && inputs.environmentVariables != '' }}
       shell: bash
       run: |
         CA_GH_ACTION_CONTAINER_APP_ENVIRONMENT_VARIABLES_ARG="--env-vars ${{ inputs.environmentVariables }}"
         echo "CA_GH_ACTION_CONTAINER_APP_ENVIRONMENT_VARIABLES_ARG=${CA_GH_ACTION_CONTAINER_APP_ENVIRONMENT_VARIABLES_ARG}" >> $GITHUB_ENV
 
     - name: Update the existing Container App from provided arguments via 'up' (ingress values provided)
-      if: ${{ env.CA_GH_ACTION_YAML_PROVIDED != 'true' && (inputs.targetPort != '' || inputs.ingress != '') && env.CA_GH_ACTION_RESOURCE_EXISTS == 'true' }}
+      if: ${{ env.CA_GH_ACTION_USE_UP == 'true' && env.CA_GH_ACTION_YAML_PROVIDED != 'true' && env.CA_GH_ACTION_RESOURCE_EXISTS == 'true' }}
       shell: bash
       run: |
         az containerapp up \
@@ -548,7 +555,8 @@ runs:
           -i ${{ env.CA_GH_ACTION_IMAGE_TO_DEPLOY }} \
           ${{ env.CA_GH_ACTION_TARGET_PORT_ARG }} \
           ${{ env.CA_GH_ACTION_INGRESS_ARG }} \
-          ${{ env.CA_GH_ACTION_CONTAINER_APP_ENVIRONMENT_VARIABLES_ARG }}
+          ${{ env.CA_GH_ACTION_CONTAINER_APP_ENVIRONMENT_VARIABLES_ARG }} \
+          ${{ env.CA_GH_ACTION_ACR_LOGIN_ARG }}
 
     - name: Disable ingress on the existing Container App
       if: ${{ env.CA_GH_ACTION_RESOURCE_EXISTS == 'true' && inputs.ingress == 'disabled' && env.CA_GH_ACTION_YAML_PROVIDED != 'true' }}
@@ -559,7 +567,7 @@ runs:
           -n ${{ inputs.containerAppName }}
 
     - name: Update the Container Registry details on the existing Container App
-      if: ${{ env.CA_GH_ACTION_RESOURCE_EXISTS == 'true' && env.CA_GH_ACTION_ACR_LOGIN_ARG != '' && env.CA_GH_ACTION_YAML_PROVIDED != 'true' }}
+      if: ${{ env.CA_GH_ACTION_ACR_LOGIN_ARG != '' && env.CA_GH_ACTION_USE_UP != 'true' && env.CA_GH_ACTION_RESOURCE_EXISTS == 'true' && env.CA_GH_ACTION_YAML_PROVIDED != 'true' }}
       shell: bash
       run: |
         az containerapp registry set \
