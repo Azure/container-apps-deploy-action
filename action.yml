@@ -521,6 +521,17 @@ runs:
         CA_GH_ACTION_USE_UP="true"
         echo "CA_GH_ACTION_USE_UP=${CA_GH_ACTION_USE_UP}" >> $GITHUB_ENV
 
+    - name: Update the Container Registry details on the existing Container App
+      if: ${{ env.CA_GH_ACTION_ACR_LOGIN_ARG != '' && env.CA_GH_ACTION_USE_UP != 'true' && env.CA_GH_ACTION_RESOURCE_EXISTS == 'true' && env.CA_GH_ACTION_YAML_PROVIDED != 'true' }}
+      shell: bash
+      run: |
+        az containerapp registry set \
+          -g ${{ env.CA_GH_ACTION_RESOURCE_GROUP }} \
+          -n ${{ inputs.containerAppName }} \
+          --server ${{ inputs.acrName }}.azurecr.io \
+          --username ${{ inputs.acrUsername }} \
+          --password ${{ inputs.acrPassword }}
+
     - name: Update the existing Container App from provided arguments via 'update' (no ingress values provided)
       if: ${{ env.CA_GH_ACTION_USE_UP != 'true' && env.CA_GH_ACTION_YAML_PROVIDED != 'true' && env.CA_GH_ACTION_RESOURCE_EXISTS == 'true' }}
       shell: bash
@@ -565,17 +576,6 @@ runs:
         az containerapp ingress disable \
           -g ${{ env.CA_GH_ACTION_RESOURCE_GROUP }} \
           -n ${{ inputs.containerAppName }}
-
-    - name: Update the Container Registry details on the existing Container App
-      if: ${{ env.CA_GH_ACTION_ACR_LOGIN_ARG != '' && env.CA_GH_ACTION_USE_UP != 'true' && env.CA_GH_ACTION_RESOURCE_EXISTS == 'true' && env.CA_GH_ACTION_YAML_PROVIDED != 'true' }}
-      shell: bash
-      run: |
-        az containerapp registry set \
-          -g ${{ env.CA_GH_ACTION_RESOURCE_GROUP }} \
-          -n ${{ inputs.containerAppName }} \
-          --server ${{ inputs.acrName }}.azurecr.io \
-          --username ${{ inputs.acrUsername }} \
-          --password ${{ inputs.acrPassword }}
 
     - name: Mark action as 'succeeded' for telemetry
       if: ${{ inputs.disableTelemetry == 'false' }}
