@@ -470,6 +470,11 @@ jobs:
         shell: bash
         run: az acr repository delete -n ${{ vars.TEST_ACR_NAME }} -t ${{ env.TEST_IMAGE_REPOSITORY }}:${{ env.TEST_IMAGE_TAG }} -y
 
+      - name: Update Container App with existing image
+        if: ${{ always() }}
+        shell: bash
+        run: az containerapp update -n ${{ env.TEST_CONTAINER_APP_NAME }} -g ${{ vars.TEST_RESOURCE_GROUP_NAME }} -i mcr.microsoft.com/azuredocs/containerapps-helloworld:latest
+
   update-using-image:
 
     name: 'Update app using image'
