@@ -447,7 +447,7 @@ runs:
       if: ${{ inputs.appSourcePath != '' && env.CA_GH_ACTION_DOCKERFILE_PATH == '' && inputs.disableTelemetry == 'false' }}
       shell: bash
       run: |
-        CA_GH_ACTION_ORYX_BUILDER_TELEMETRY_ARG='--env "CALLER_ID=github-actions-v0"'
+        CA_GH_ACTION_ORYX_BUILDER_TELEMETRY_ARG='--env "CALLER_ID=github-actions-v1"'
         echo "CA_GH_ACTION_ORYX_BUILDER_TELEMETRY_ARG=${CA_GH_ACTION_ORYX_BUILDER_TELEMETRY_ARG}" >> $GITHUB_ENV
 
     - name: Disable telemetry for Oryx++ Builder
