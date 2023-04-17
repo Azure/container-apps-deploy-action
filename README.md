@@ -250,7 +250,7 @@ The `simple-image-container-app.yaml` file has the following structure:
 
 ```yml
 properties:
-  managedEnvironmentId: /subscriptions/SUBSCRIPTION_ID/resourceGroup/RESOURCE_GROUP/providers/Microsoft.App/managedEnvironments/CONTAINER_APP_ENVIRONMENT
+  managedEnvironmentId: /subscriptions/SUBSCRIPTION_ID/resourceGroups/RESOURCE_GROUP/providers/Microsoft.App/managedEnvironments/CONTAINER_APP_ENVIRONMENT
   configuration:
     ingress:
       external: true
