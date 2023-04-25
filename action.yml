@@ -22,14 +22,14 @@ inputs:
       access token will be generated via "az acr login" and provided to "docker login" to authenticate the requests.'
     required: false
   registryUrl:
-    description: 'The name of the container registry that the runnable application image will be pushed to. If not provided, this argument is set to `registryUsername.docker.io`'  
+    description: 'The name of the container registry that the runnable application image will be pushed to.'  
     required: false
   registryUsername: 
     description: 'The username used to authenticate push requests to the provided registry using the "docker login" action.'  
-    required: true
+    required: false
   registryPassword: 
     description: 'The password used to authenticate push requests to the provided container registry using the "docker login" action.'  
-    required: true
+    required: false
   azureCredentials:
     description: |
       'Azure credentials used by the `azure/login` action to authenticate Azure CLI requests if the user has not
@@ -190,7 +190,7 @@ runs:
         username: ${{ inputs.acrUsername }}
         password: ${{ inputs.acrPassword }}
     
-    
+
     - name: Export Container Registry information to environment variable 
       if: ${{ inputs.registryUrl != '' && inputs.registryUsername != '' && inputs.registryPassword != '' && env.CA_GH_ACTION_ONLY_YAML != 'true' }}
       shell: bash
