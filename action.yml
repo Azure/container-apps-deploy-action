@@ -191,6 +191,14 @@ runs:
         password: ${{ inputs.acrPassword }}
     
 
+    - name: Log in to Container Registry
+      uses: docker/login-action@v2.0.0
+      if: ${{ inputs.registryUrl != '' && inputs.registryUsername != '' && inputs.registryPassword != '' }}
+      with:
+        registry: ${{ inputs.registryUrl }}
+        username: ${{ inputs.registryUsername }}
+        password: ${{ inputs.registryPassword }}
+
     - name: Export Container Registry information to environment variable 
       if: ${{ inputs.registryUrl != '' && inputs.registryUsername != '' && inputs.registryPassword != '' && env.CA_GH_ACTION_ONLY_YAML != 'true' }}
       shell: bash
