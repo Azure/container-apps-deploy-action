@@ -22,7 +22,7 @@ inputs:
       access token will be generated via "az acr login" and provided to "docker login" to authenticate the requests.'
     required: false
   registryUrl:
-    description: 'The name of the container registry that the runnable application image will be pushed to.'  
+    description: 'The base URL of the container registry that the runnable application image will be pushed to.'  
     required: false
   registryUsername: 
     description: 'The username used to authenticate push requests to the provided registry using the "docker login" action.'  
@@ -38,14 +38,14 @@ inputs:
   imageToBuild:
     description: |
       'The custom name of the image that is to be built, pushed to ACR and deployed to the Container App by this action.
-      Note: this image name should include the ACR server; e.g., <acr-name>.azurecr.io/<repo>:<tag>. If this argument is
+      Note: this image name should include the registry server; e.g., <acr-name>.azurecr.io/<repo>:<tag> or <registryUrl>/<repo>:<tag>. If this argument is
       not provided, a default image name will be constructed in the form of
       <acr-name>.azurecr.io/github-action/container-app:<github-run-id>.<github-run-attempt>.'
     required: false
   imageToDeploy:
     description: |
       'The custom name of an image that has already been pushed to ACR and will be deployed to the Container App by this
-      action. Note: this image name should include the ACR server; e.g., <acr-name>.azurecr.io/<repo>:<tag>. If this
+      action. Note: this image name should include the registry server; e.g., <acr-name>.azurecr.io/<repo>:<tag> or <registryUrl>/<repo>:<tag>. If this
       argument is not provided, the value provided (or determined) for the "imageToBuild" argument will be used.'
     required: false
   dockerfilePath:
@@ -137,11 +137,11 @@ runs:
         CA_GH_ACTION_RESULT_ARG="--property 'result=failed'"
         echo "CA_GH_ACTION_RESULT_ARG=${CA_GH_ACTION_RESULT_ARG}" >> $GITHUB_ENV
 
-    - name: Check for ACR name or Registry URL
+    - name: Check that an ACR name and a registry URL are not provided together
       if: ${{ inputs.acrName != '' && inputs.registryUrl != '' }}
       shell: bash
       run: | 
-        echo "The 'acrName' argument or the 'registryUrl' argument must be provided."
+        echo "Both 'acrName' and 'registryUrl' arguments cannot be provided together."
         exit 1    
 
     - name: Check for ACR name or any other registry url provided with application source path
@@ -189,8 +189,6 @@ runs:
         registry: ${{ inputs.acrName }}.azurecr.io
         username: ${{ inputs.acrUsername }}
         password: ${{ inputs.acrPassword }}
-    
-
     - name: Log in to Container Registry
       uses: docker/login-action@v2.0.0
       if: ${{ inputs.registryUrl != '' && inputs.registryUsername != '' && inputs.registryPassword != '' }}
@@ -204,14 +202,26 @@ runs:
       shell: bash
       run: |
         CA_GH_ACTION_REGISTRY_LOGIN_ARG="--registry-server ${{ inputs.registryUrl }} --registry-username ${{ inputs.registryUsername }} --registry-password ${{ inputs.registryPassword }}"
+        CA_GH_ACTION_REGISTRY_URL=${{ inputs.registryUrl }}
+        CA_GH_ACTION_REGISTRY_USERNAME=${{ inputs.registryUsername }}
+        CA_GH_ACTION_REGISTRY_PASSWORD=${{ inputs.registryPassword }}
         echo "CA_GH_ACTION_REGISTRY_LOGIN_ARG=${CA_GH_ACTION_REGISTRY_LOGIN_ARG}" >> $GITHUB_ENV
+        echo "CA_GH_ACTION_REGISTRY_URL=${CA_GH_ACTION_REGISTRY_URL}" >> $GITHUB_ENV
+        echo "CA_GH_ACTION_REGISTRY_USERNAME=${CA_GH_ACTION_REGISTRY_USERNAME}" >> $GITHUB_ENV
+        echo "CA_GH_ACTION_REGISTRY_PASSWORD=${CA_GH_ACTION_REGISTRY_PASSWORD}" >> $GITHUB_ENV
 
     - name: Export Azure Container Registry information to environment variable for Azure CLI command
       if: ${{ inputs.acrName != '' && inputs.acrUsername != '' && inputs.acrPassword != '' && env.CA_GH_ACTION_ONLY_YAML != 'true' }}
       shell: bash
       run: |
         CA_GH_ACTION_REGISTRY_LOGIN_ARG="--registry-server ${{ inputs.acrName }}.azurecr.io --registry-username ${{ inputs.acrUsername }} --registry-password ${{ inputs.acrPassword }}"
+        CA_GH_ACTION_REGISTRY_URL=${{ inputs.acrName }}.azurecr.io
+        CA_GH_ACTION_REGISTRY_USERNAME=${{ inputs.acrUsername }}
+        CA_GH_ACTION_REGISTRY_PASSWORD=${{ inputs.acrPassword }}
         echo "CA_GH_ACTION_REGISTRY_LOGIN_ARG=${CA_GH_ACTION_REGISTRY_LOGIN_ARG}" >> $GITHUB_ENV
+        echo "CA_GH_ACTION_REGISTRY_URL=${CA_GH_ACTION_REGISTRY_URL}" >> $GITHUB_ENV
+        echo "CA_GH_ACTION_REGISTRY_USERNAME=${CA_GH_ACTION_REGISTRY_USERNAME}" >> $GITHUB_ENV
+        echo "CA_GH_ACTION_REGISTRY_PASSWORD=${CA_GH_ACTION_REGISTRY_PASSWORD}" >> $GITHUB_ENV
 
     - name: Get access token to log in to Azure Container Registry
       if: ${{ inputs.acrName != '' && (inputs.acrUsername == '' || inputs.acrPassword == '') }}
@@ -248,6 +258,13 @@ runs:
       run: |
         CA_GH_ACTION_IMAGE_TO_BUILD="${{ inputs.acrName }}.azurecr.io/github-action/container-app:${{ github.run_id }}.${{ github.run_attempt }}"
         echo "CA_GH_ACTION_IMAGE_TO_BUILD=${CA_GH_ACTION_IMAGE_TO_BUILD}" >> $GITHUB_ENV
+
+    - name: Determine name of image to build if not provided
+      if: ${{ inputs.registryUrl != '' && inputs.imageToBuild == '' && env.CA_GH_ACTION_ONLY_YAML != 'true' }}
+      shell: bash
+      run: |
+        CA_GH_ACTION_IMAGE_TO_BUILD="${{ inputs.registryUrl }}/github-action/container-app:${{ github.run_id }}.${{ github.run_attempt }}"
+        echo "CA_GH_ACTION_IMAGE_TO_BUILD=${CA_GH_ACTION_IMAGE_TO_BUILD}" >> $GITHUB_ENV    
 
     - name: Export name of image to deploy to environment variable
       if: ${{ inputs.imageToDeploy != '' }}
@@ -560,9 +577,9 @@ runs:
         az containerapp registry set \
           -g ${{ env.CA_GH_ACTION_RESOURCE_GROUP }} \
           -n ${{ inputs.containerAppName }} \
-          --server ${{ inputs.acrName }}.azurecr.io \
-          --username ${{ inputs.acrUsername }} \
-          --password ${{ inputs.acrPassword }}
+          --server ${{ env.CA_GH_ACTION_REGISTRY_URL }} \
+          --username ${{ env.CA_GH_ACTION_REGISTRY_USERNAME }} \
+          --password ${{ env.CA_GH_ACTION_REGISTRY_PASSWORD }}
 
     - name: Update the existing Container App from provided arguments via 'update' (no ingress values provided)
       if: ${{ env.CA_GH_ACTION_USE_UP != 'true' && env.CA_GH_ACTION_YAML_PROVIDED != 'true' && env.CA_GH_ACTION_RESOURCE_EXISTS == 'true' }}
