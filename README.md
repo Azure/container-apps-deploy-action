@@ -308,7 +308,7 @@ steps:
 This will create a new Container App named `github-action-container-app-<github-run-id>-<github-run-attempt>` in a new
 resource group named `<container-app-name>-rg`. The Container App will be based off of an image that was built from
 the provided `appSourcePath` and pushed to the provided Container Registry instance. The provided Container Registry credentials will be used to
-authenticate the calls to the ACR instance.
+authenticate the calls to the Container Registry instance.
 
 ### Container App name provided
 
