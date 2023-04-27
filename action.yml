@@ -22,13 +22,13 @@ inputs:
       access token will be generated via "az acr login" and provided to "docker login" to authenticate the requests.'
     required: false
   registryUrl:
-    description: 'The base URL of the container registry that the runnable application image will be pushed to.'  
+    description: 'The base URL of the Container Registry that the runnable application image will be pushed to.'  
     required: false
   registryUsername: 
-    description: 'The username used to authenticate push requests to the provided registry using the "docker login" action.'  
+    description: 'The username used to authenticate push requests to the provided Container Registry using the "docker login" action.'  
     required: false
   registryPassword: 
-    description: 'The password used to authenticate push requests to the provided container registry using the "docker login" action.'  
+    description: 'The password used to authenticate push requests to the provided Container Registry using the "docker login" action.'  
     required: false
   azureCredentials:
     description: |
@@ -37,21 +37,21 @@ inputs:
     required: false
   imageToBuild:
     description: |
-      'The custom name of the image that is to be built, pushed to ACR and deployed to the Container App by this action.
-      Note: this image name should include the registry server; e.g., <acr-name>.azurecr.io/<repo>:<tag> or <registryUrl>/<repo>:<tag>. If this argument is
+      'The custom name of the image that is to be built, pushed to the Container Registry and deployed to the Container App by this action.
+      Note: this image name should include the registry server; e.g., <registryUrl>/<repo>:<tag>. If this argument is
       not provided, a default image name will be constructed in the form of
       <acr-name>.azurecr.io/github-action/container-app:<github-run-id>.<github-run-attempt>.'
     required: false
   imageToDeploy:
     description: |
-      'The custom name of an image that has already been pushed to ACR and will be deployed to the Container App by this
-      action. Note: this image name should include the registry server; e.g., <acr-name>.azurecr.io/<repo>:<tag> or <registryUrl>/<repo>:<tag>. If this
+      'The custom name of an image that has already been pushed to the Container Registry and will be deployed to the Container App by this
+      action. Note: this image name should include the registry server; e.g., <registryUrl>/<repo>:<tag>. If this
       argument is not provided, the value provided (or determined) for the "imageToBuild" argument will be used.'
     required: false
   dockerfilePath:
     description: |
       'Relative path to the Dockerfile in the provided application source that should be used to build the image that is
-      then pushed to ACR and deployed to the Container App. If not provided, this action will check if there is a file
+      then pushed to the Container Registry and deployed to the Container App. If not provided, this action will check if there is a file
       named "Dockerfile" in the provided application source and use that to build the image. Otherwise, the Oryx++
       Builder will be used to create the image.'
     required: false
@@ -189,6 +189,7 @@ runs:
         registry: ${{ inputs.acrName }}.azurecr.io
         username: ${{ inputs.acrUsername }}
         password: ${{ inputs.acrPassword }}
+
     - name: Log in to Container Registry
       uses: docker/login-action@v2.0.0
       if: ${{ inputs.registryUrl != '' && inputs.registryUsername != '' && inputs.registryPassword != '' }}
@@ -230,6 +231,8 @@ runs:
         CA_GH_ACTION_ACR_ACCESS_TOKEN=$(az acr login --name ${{ inputs.acrName }} --output json --expose-token | jq -r '.accessToken')
         echo "CA_GH_ACTION_ACR_ACCESS_TOKEN=${CA_GH_ACTION_ACR_ACCESS_TOKEN}" >> $GITHUB_ENV
         docker login ${{ inputs.acrName }}.azurecr.io -u 00000000-0000-0000-0000-000000000000 -p $CA_GH_ACTION_ACR_ACCESS_TOKEN
+        CA_GH_ACTION_REGISTRY_URL=${{ inputs.acrName }}.azurecr.io
+        echo "CA_GH_ACTION_REGISTRY_URL=${CA_GH_ACTION_REGISTRY_URL}" >> $GITHUB_ENV
 
     - name: Export Dockerfile path to environment variable
       if: ${{ inputs.appSourcePath != '' && inputs.dockerfilePath != '' }}
@@ -253,17 +256,10 @@ runs:
         echo "CA_GH_ACTION_IMAGE_TO_BUILD=${CA_GH_ACTION_IMAGE_TO_BUILD}" >> $GITHUB_ENV
 
     - name: Determine name of image to build if not provided
-      if: ${{ inputs.acrName != '' && inputs.imageToBuild == '' && env.CA_GH_ACTION_ONLY_YAML != 'true' }}
+      if: ${{ env.CA_GH_ACTION_REGISTRY_URL != '' && inputs.imageToBuild == '' && env.CA_GH_ACTION_ONLY_YAML != 'true' }}
       shell: bash
       run: |
-        CA_GH_ACTION_IMAGE_TO_BUILD="${{ inputs.acrName }}.azurecr.io/github-action/container-app:${{ github.run_id }}.${{ github.run_attempt }}"
-        echo "CA_GH_ACTION_IMAGE_TO_BUILD=${CA_GH_ACTION_IMAGE_TO_BUILD}" >> $GITHUB_ENV
-
-    - name: Determine name of image to build if not provided
-      if: ${{ inputs.registryUrl != '' && inputs.imageToBuild == '' && env.CA_GH_ACTION_ONLY_YAML != 'true' }}
-      shell: bash
-      run: |
-        CA_GH_ACTION_IMAGE_TO_BUILD="${{ inputs.registryUrl }}/github-action/container-app:${{ github.run_id }}.${{ github.run_attempt }}"
+        CA_GH_ACTION_IMAGE_TO_BUILD="${{ env.CA_GH_ACTION_REGISTRY_URL }}/github-action/container-app:${{ github.run_id }}.${{ github.run_attempt }}"
         echo "CA_GH_ACTION_IMAGE_TO_BUILD=${CA_GH_ACTION_IMAGE_TO_BUILD}" >> $GITHUB_ENV    
 
     - name: Export name of image to deploy to environment variable
@@ -526,7 +522,7 @@ runs:
           --file ${{ env.CA_GH_ACTION_DOCKERFILE_PATH }} \
           ${{ inputs.appSourcePath }}
 
-    - name: Push image to Azure Container Registry
+    - name: Push image to Container Registry
       if: ${{ inputs.appSourcePath != '' }}
       shell: bash
       run: docker push ${{ env.CA_GH_ACTION_IMAGE_TO_DEPLOY }}
