@@ -164,7 +164,7 @@ For more information on the structure of the YAML configuration file, please vis
 | `registryUsername`             | No       | The username used to authenticate push requests to the provided Container Registry using the "docker login" action. |
 | `registryPassword`             | No       | The password used to authenticate push requests to the provided Container Registry using the "docker login" action. |
 | `azureCredentials`        | No       | Azure credentials used by the `azure/login` action to authenticate Azure CLI requests if the user has not previously authenticated in the workflow calling this action. |
-| `imageToBuild`            | No       | The custom name of the image that is to be built, pushed to the Container Registry and deployed to the Container App by this action. _Note_: this image name should include the registry server; _e.g._, `<registryUrl>/<repo>:<tag>`. If this argument is not provided, a default image name will be constructed in the form `<acr-name>.azurecr.io/github-action/container-app:<github-run-id>.<github-run-attempt>` |
+| `imageToBuild`            | No       | The custom name of the image that is to be built, pushed to the Container Registry and deployed to the Container App by this action. _Note_: this image name should include the registry server; _e.g._, `<registryUrl>/<repo>:<tag>`. If this argument is not provided, a default image name will be constructed in the form `<registryUrl>/github-action/container-app:<github-run-id>.<github-run-attempt>` |
 | `dockerfilePath`          | No       | Relative path (_without file prefixes, see example below_) to the Dockerfile in the provided application source that should be used to build the image that is then pushed to the Container Registry and deployed to the Container App. If not provided, this action will check if there is a file named `Dockerfile` in the provided application source and use that to build the image. Otherwise, the Oryx++ Builder will be used to create the image. |
 | `containerAppName`        | No       | The name of the Container App that will be created or updated. If not provided, this value will be `github-action-container-app-<github-run-id>-<github-run-attempt>`. |
 | `resourceGroup`           | No       | The existing resource group that the Azure Container App will be created in. If not provided, this value will be `<container-app-name>-rg` and its existence will first be checked before attempting to create it. |
@@ -199,7 +199,7 @@ steps:
 
 This will create a new Container App named `github-action-container-app-<github-run-id>-<github-run-attempt>` in a new
 resource group named `<container-app-name>-rg`. The Container App will be based off of an image that was built from
-the provided `appSourcePath` and pushed to the provided Container Registry instance.If the Container Registry is ACR, an access token will be generated to authenticate
+the provided `appSourcePath` and pushed to the provided ACR instance. An access token will be generated to authenticate an access token will be generated to authenticate
 the push to the provided ACR instance.
 
 ### Minimal - Use previously published image for Container App
@@ -463,9 +463,7 @@ steps:
 ```
 
 This will create a new Container App named `github-action-container-app-<github-run-id>-<github-run-attempt>` in a new
-resource group named `<container-app-name>-rg` where the image built and pushed to the Container Registry is named
-`mytestacr.azurecr.io/app:latest`
-
+resource group named `<container-app-name>-rg` where the image built and pushed to ACR is named `mytestacr.azurecr.io/app:latest`
 ## Contributing
 
 This project welcomes contributions and suggestions.  Most contributions require you to agree to a
