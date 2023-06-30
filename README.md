@@ -7,8 +7,7 @@ runnable application image for the user.
 
 If no Dockerfile is found or provided in the provided application source, the following steps are performed by this action:
 
-- Uses the Oryx++ Builder to build the application source using [Oryx](https://github.com/microsoft/Oryx) to produce a
-  runnable application image
+- Uses the Mariner Builder to build the application source to produce a runnable application image
 - Pushes this runnable application image to the provided Container Registry
 - Creates or updates a Container App based on this image
 
@@ -24,12 +23,12 @@ updated; please see the section below on the `yamlConfigPath` argument.
 
 By default, this GitHub Action collects the following pieces of data for Microsoft:
 - The Container App build and deploy scenario targeted by the user
-  - _i.e._, used the Oryx++ Builder, used a provided/found Dockerfile, or provided a previously built image
+  - _i.e._, used the Mariner Builder, used a provided/found Dockerfile, or provided a previously built image
   - _Note_: the image name is _not_ collected
 - The processing time of the GitHub Action, in milliseconds
 - The result of the GitHub Action
   - _i.e._, succeeded or failed
-- If the Oryx++ Builder is used, events and metrics relating to building the provided application using Oryx
+- If the Mariner Builder is used, events and metrics relating to building the provided application
 
 If you want to disable data collection, please set the `disableTelemetry` argument to `true`.
 
@@ -165,11 +164,10 @@ For more information on the structure of the YAML configuration file, please vis
 | `registryPassword`             | No       | The password used to authenticate push requests to the provided Container Registry using the "docker login" action. |
 | `azureCredentials`        | No       | Azure credentials used by the `azure/login` action to authenticate Azure CLI requests if the user has not previously authenticated in the workflow calling this action. |
 | `imageToBuild`            | No       | The custom name of the image that is to be built, pushed to the Container Registry and deployed to the Container App by this action. _Note_: this image name should include the registry server; _e.g._, `<registryUrl>/<repo>:<tag>`. If this argument is not provided, a default image name will be constructed in the form `<registryUrl>/github-action/container-app:<github-run-id>.<github-run-attempt>` |
-| `dockerfilePath`          | No       | Relative path (_without file prefixes, see example below_) to the Dockerfile in the provided application source that should be used to build the image that is then pushed to the Container Registry and deployed to the Container App. If not provided, this action will check if there is a file named `Dockerfile` in the provided application source and use that to build the image. Otherwise, the Oryx++ Builder will be used to create the image. |
+| `dockerfilePath`          | No       | Relative path (_without file prefixes, see example below_) to the Dockerfile in the provided application source that should be used to build the image that is then pushed to the Container Registry and deployed to the Container App. If not provided, this action will check if there is a file named `Dockerfile` in the provided application source and use that to build the image. Otherwise, the Mariner Builder will be used to create the image. |
 | `containerAppName`        | No       | The name of the Container App that will be created or updated. If not provided, this value will be `github-action-container-app-<github-run-id>-<github-run-attempt>`. |
 | `resourceGroup`           | No       | The existing resource group that the Azure Container App will be created in. If not provided, this value will be `<container-app-name>-rg` and its existence will first be checked before attempting to create it. |
 | `containerAppEnvironment` | No       | The name of the Container App environment to use with the application. If not provided, an existing environment in the resource group of the Container App will be used, otherwise, an environment will be created in the formation `<container-app-name>-env`. |
-| `runtimeStack`            | No       | The platform version stack used in the final runnable application image that is deployed to the Container App. The value should be provided in the formation `<platform>:<version>`. If not provided, this value is determined by Oryx based on the contents of the provided application. Please refer to [this document](https://github.com/microsoft/Oryx/blob/main/doc/supportedRuntimeVersions.md) for more information on supported runtime stacks for Oryx. |
 | `targetPort`              | No       | The designated port for the application to run on. If no value is provided and the builder is used to build the runnable application image, the target port will be set to 80 for Python applications and 8080 for all other platform applications. If no value is provided when creating a Container App, the target port will default to 80. Note: when using this action to update a Container App, the target port may be updated if not provided based on changes to the ingress property. |
 | `location`                | No       | The location that the Container App (and other created resources) will be deployed to. To view locations suitable for creating the Container App in, please run the following: `az provider show -n Microsoft.App --query "resourceTypes[?resourceType=='containerApps'].locations"` |
 | `environmentVariables`    | No       | A list of environment variable(s) for the container. Space-separated values in 'key=value' format. Empty string to clear existing values. Prefix value with 'secretref:' to reference a secret. |
