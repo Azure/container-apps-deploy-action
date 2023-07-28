@@ -124,7 +124,11 @@ inputs:
       this GitHub Action.'
     required: false
     default: false
-
+    
+outputs:
+  app-url:
+    description: 'URL of the Deployed Application'
+      
 runs:
   using: "composite"
   steps:
@@ -531,24 +535,26 @@ runs:
       if: ${{ env.CA_GH_ACTION_YAML_PROVIDED == 'true' && env.CA_GH_ACTION_RESOURCE_EXISTS == 'false' }}
       shell: bash
       run: |
-        az containerapp create \
-          -g ${{ env.CA_GH_ACTION_RESOURCE_GROUP }} \
-          -n ${{ inputs.containerAppName }} \
-          --yaml ${{ inputs.yamlConfigPath }}
+        appUrl=$(az containerapp create \
+                  -g ${{ env.CA_GH_ACTION_RESOURCE_GROUP }} \
+                  -n ${{ inputs.containerAppName }} \
+                  --yaml ${{ inputs.yamlConfigPath }})
+        echo "::set-output name=app-url::https://$appUrl"
 
     - name: Create the Container App from provided arguments
       if: ${{ env.CA_GH_ACTION_YAML_PROVIDED != 'true' && env.CA_GH_ACTION_RESOURCE_EXISTS == 'false' }}
       shell: bash
       run: |
-        az containerapp create \
-          -g ${{ env.CA_GH_ACTION_RESOURCE_GROUP }} \
-          -n ${{ inputs.containerAppName }} \
-          -i ${{ env.CA_GH_ACTION_IMAGE_TO_DEPLOY }} \
-          --environment ${{ env.CA_GH_ACTION_CONTAINER_APP_ENVIRONMENT }} \
-          ${{ env.CA_GH_ACTION_INGRESS_ARG }} \
-          ${{ env.CA_GH_ACTION_TARGET_PORT_ARG }} \
-          ${{ env.CA_GH_ACTION_REGISTRY_LOGIN_ARG }} \
-          ${{ env.CA_GH_ACTION_CONTAINER_APP_ENVIRONMENT_VARIABLES_ARG }}
+        appUrl=$(az containerapp create \
+                  -g ${{ env.CA_GH_ACTION_RESOURCE_GROUP }} \
+                  -n ${{ inputs.containerAppName }} \
+                  -i ${{ env.CA_GH_ACTION_IMAGE_TO_DEPLOY }} \
+                  --environment ${{ env.CA_GH_ACTION_CONTAINER_APP_ENVIRONMENT }} \
+                  ${{ env.CA_GH_ACTION_INGRESS_ARG }} \
+                  ${{ env.CA_GH_ACTION_TARGET_PORT_ARG }} \
+                  ${{ env.CA_GH_ACTION_REGISTRY_LOGIN_ARG }} \
+                  ${{ env.CA_GH_ACTION_CONTAINER_APP_ENVIRONMENT_VARIABLES_ARG }})
+        echo "::set-output name=app-url::https://$appUrl"
 
     - name: Update the existing Container App from a YAML configuration file
       if: ${{ env.CA_GH_ACTION_YAML_PROVIDED == 'true' && env.CA_GH_ACTION_RESOURCE_EXISTS == 'true' }}
