@@ -535,27 +535,14 @@ runs:
       if: ${{ env.CA_GH_ACTION_YAML_PROVIDED == 'true' && env.CA_GH_ACTION_RESOURCE_EXISTS == 'false' }}
       shell: bash
       run: |
-        CA_GH_ACTION_CONTAINER_APP_URL=$(az containerapp create \
-           -g ${{ env.CA_GH_ACTION_RESOURCE_GROUP }} \
-           -n ${{ inputs.containerAppName }} \
-            --yaml ${{ inputs.yamlConfigPath }} \ 
-            --query properties.configuration.ingress.fqdn -o tsv)
+        CA_GH_ACTION_CONTAINER_APP_URL=$(az containerapp create -g ${{ env.CA_GH_ACTION_RESOURCE_GROUP }} -n ${{ inputs.containerAppName }} --yaml ${{ inputs.yamlConfigPath }} --query properties.configuration.ingress.fqdn -o tsv)
         echo "appUrl=https://$CA_GH_ACTION_CONTAINER_APP_URL"  >> $GITHUB_OUTPUT
 
     - name: Create the Container App from provided arguments
       if: ${{ env.CA_GH_ACTION_YAML_PROVIDED != 'true' && env.CA_GH_ACTION_RESOURCE_EXISTS == 'false' }}
       shell: bash
       run: |
-        CA_GH_ACTION_CONTAINER_APP_URL=$(az containerapp create \
-            -g ${{ env.CA_GH_ACTION_RESOURCE_GROUP }} \
-            -n ${{ inputs.containerAppName }} \
-            -i ${{ env.CA_GH_ACTION_IMAGE_TO_DEPLOY }} \
-            --environment ${{ env.CA_GH_ACTION_CONTAINER_APP_ENVIRONMENT }} \
-            ${{ env.CA_GH_ACTION_INGRESS_ARG }} \
-            ${{ env.CA_GH_ACTION_TARGET_PORT_ARG }} \
-            ${{ env.CA_GH_ACTION_REGISTRY_LOGIN_ARG }} \
-            ${{ env.CA_GH_ACTION_CONTAINER_APP_ENVIRONMENT_VARIABLES_ARG }} \ 
-            --query properties.configuration.ingress.fqdn -o tsv)
+        CA_GH_ACTION_CONTAINER_APP_URL=$(az containerapp create -g ${{ env.CA_GH_ACTION_RESOURCE_GROUP }} -n ${{ inputs.containerAppName }} -i ${{ env.CA_GH_ACTION_IMAGE_TO_DEPLOY }} --environment ${{ env.CA_GH_ACTION_CONTAINER_APP_ENVIRONMENT }} ${{ env.CA_GH_ACTION_INGRESS_ARG }} ${{ env.CA_GH_ACTION_TARGET_PORT_ARG }} ${{ env.CA_GH_ACTION_REGISTRY_LOGIN_ARG }} ${{ env.CA_GH_ACTION_CONTAINER_APP_ENVIRONMENT_VARIABLES_ARG }} --query properties.configuration.ingress.fqdn -o tsv)
         echo "appUrl=https://$CA_GH_ACTION_CONTAINER_APP_URL"  >> $GITHUB_OUTPUT
 
     - name: Update the existing Container App from a YAML configuration file
