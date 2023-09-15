@@ -1,6 +1,7 @@
 name: Run validation on action
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - main
