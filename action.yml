@@ -126,5 +126,5 @@ inputs:
     default: false
 
 runs:
-  using: 'node18'
+  using: 'node16'
   main: 'dist/index.js'
