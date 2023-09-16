@@ -38,9 +38,6 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 exports.__esModule = true;
 exports.azurecontainerapps = void 0;
 var core = require("@actions/core");
-//import * as github from '@actions/github';
-var io = require("@actions/io");
-var exec = require("@actions/exec");
 var fs = require("fs");
 var path = require("path");
 //import { AzureAuthenticationHelper } from './src/AzureAuthenticationHelper';
@@ -54,7 +51,7 @@ var azurecontainerapps = /** @class */ (function () {
     }
     azurecontainerapps.runMain = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var disableTelemetry, cwd, err_1;
+            var disableTelemetry, err_1;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -63,9 +60,10 @@ var azurecontainerapps = /** @class */ (function () {
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 6, 7, 8]);
-                        cwd = core.getInput('cwd');
-                        io.mkdirP(cwd);
-                        exec.exec("cd " + cwd);
+                        // Get the current working directory
+                        //const cwd: string = core.getInput('cwd');
+                        //io.mkdirP(cwd);
+                        //exec.exec(`cd ${cwd}`);
                         // Validate that the arguments provided can be used for one of the supported scenarios
                         this.validateSupportedScenarioArguments();
                         // Set up the Azure CLI to be used for this task

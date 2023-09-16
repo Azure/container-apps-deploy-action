@@ -45,9 +45,6 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 exports.__esModule = true;
 exports.azurecontainerapps = void 0;
 var core = __nccwpck_require__(3195);
-//import * as github from '@actions/github';
-var io = __nccwpck_require__(9529);
-var exec = __nccwpck_require__(9714);
 var fs = __nccwpck_require__(7147);
 var path = __nccwpck_require__(1017);
 //import { AzureAuthenticationHelper } from './src/AzureAuthenticationHelper';
@@ -61,7 +58,7 @@ var azurecontainerapps = /** @class */ (function () {
     }
     azurecontainerapps.runMain = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var disableTelemetry, cwd, err_1;
+            var disableTelemetry, err_1;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -70,9 +67,10 @@ var azurecontainerapps = /** @class */ (function () {
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 6, 7, 8]);
-                        cwd = core.getInput('cwd');
-                        io.mkdirP(cwd);
-                        exec.exec("cd " + cwd);
+                        // Get the current working directory
+                        //const cwd: string = core.getInput('cwd');
+                        //io.mkdirP(cwd);
+                        //exec.exec(`cd ${cwd}`);
                         // Validate that the arguments provided can be used for one of the supported scenarios
                         this.validateSupportedScenarioArguments();
                         // Set up the Azure CLI to be used for this task
@@ -4564,33 +4562,28 @@ var CommandHelper = /** @class */ (function () {
     /**
      * Runs a command based on the OS of the agent running this task.
      * @param command - the command to execute
-     * @param cwd - the current working directory; if not provided, the 'cwd' input will be used
      * @returns the string output from the command
      */
-    CommandHelper.prototype.execCommandAsync = function (command, cwd) {
+    CommandHelper.prototype.execCommandAsync = function (command) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 return [2 /*return*/, os.platform() == 'win32' ?
-                        this.execPwshCommandAsync(command, cwd) :
-                        this.execBashCommandAsync(command, cwd)];
+                        this.execPwshCommandAsync(command) :
+                        this.execBashCommandAsync(command)];
             });
         });
     };
     /**
      * @param command - the command to execute in Bash
-     * @param cwd - the current working directory; if not provided, the 'cwd' input will be used
      * @returns the string output from the command
      */
-    CommandHelper.prototype.execBashCommandAsync = function (command, cwd) {
+    CommandHelper.prototype.execBashCommandAsync = function (command) {
         return __awaiter(this, void 0, void 0, function () {
             var bashOutput, options, err_1;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         bashOutput = '';
-                        if (!cwd) {
-                            cwd = core.getInput('cwd', { required: true });
-                        }
                         options = {
                             listeners: {
                                 stdout: function (data) {
@@ -4601,7 +4594,6 @@ var CommandHelper = /** @class */ (function () {
                                     process.stderr.write(data);
                                 }
                             },
-                            cwd: cwd,
                             failOnStdErr: true,
                             ignoreReturnCode: false,
                             errStream: process.stderr,
@@ -4629,19 +4621,15 @@ var CommandHelper = /** @class */ (function () {
     /**
      * Executes a given command using the pwsh executable.
      * @param command - the command to execute in PowerShell
-     * @param cwd - the current working directory; if not provided, the 'cwd' input will be used
      * @returns the string output from the command
      */
-    CommandHelper.prototype.execPwshCommandAsync = function (command, cwd) {
+    CommandHelper.prototype.execPwshCommandAsync = function (command) {
         return __awaiter(this, void 0, void 0, function () {
             var pwshOutput, options, err_2;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         pwshOutput = '';
-                        if (!cwd) {
-                            cwd = core.getInput('cwd', { required: true });
-                        }
                         options = {
                             listeners: {
                                 stdout: function (data) {
@@ -4652,7 +4640,6 @@ var CommandHelper = /** @class */ (function () {
                                     process.stderr.write(data);
                                 }
                             },
-                            cwd: cwd,
                             failOnStdErr: true,
                             ignoreReturnCode: false,
                             errStream: process.stderr,

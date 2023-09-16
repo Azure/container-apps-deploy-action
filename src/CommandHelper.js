@@ -46,33 +46,28 @@ var CommandHelper = /** @class */ (function () {
     /**
      * Runs a command based on the OS of the agent running this task.
      * @param command - the command to execute
-     * @param cwd - the current working directory; if not provided, the 'cwd' input will be used
      * @returns the string output from the command
      */
-    CommandHelper.prototype.execCommandAsync = function (command, cwd) {
+    CommandHelper.prototype.execCommandAsync = function (command) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 return [2 /*return*/, os.platform() == 'win32' ?
-                        this.execPwshCommandAsync(command, cwd) :
-                        this.execBashCommandAsync(command, cwd)];
+                        this.execPwshCommandAsync(command) :
+                        this.execBashCommandAsync(command)];
             });
         });
     };
     /**
      * @param command - the command to execute in Bash
-     * @param cwd - the current working directory; if not provided, the 'cwd' input will be used
      * @returns the string output from the command
      */
-    CommandHelper.prototype.execBashCommandAsync = function (command, cwd) {
+    CommandHelper.prototype.execBashCommandAsync = function (command) {
         return __awaiter(this, void 0, void 0, function () {
             var bashOutput, options, err_1;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         bashOutput = '';
-                        if (!cwd) {
-                            cwd = core.getInput('cwd', { required: true });
-                        }
                         options = {
                             listeners: {
                                 stdout: function (data) {
@@ -83,7 +78,6 @@ var CommandHelper = /** @class */ (function () {
                                     process.stderr.write(data);
                                 }
                             },
-                            cwd: cwd,
                             failOnStdErr: true,
                             ignoreReturnCode: false,
                             errStream: process.stderr,
@@ -111,19 +105,15 @@ var CommandHelper = /** @class */ (function () {
     /**
      * Executes a given command using the pwsh executable.
      * @param command - the command to execute in PowerShell
-     * @param cwd - the current working directory; if not provided, the 'cwd' input will be used
      * @returns the string output from the command
      */
-    CommandHelper.prototype.execPwshCommandAsync = function (command, cwd) {
+    CommandHelper.prototype.execPwshCommandAsync = function (command) {
         return __awaiter(this, void 0, void 0, function () {
             var pwshOutput, options, err_2;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         pwshOutput = '';
-                        if (!cwd) {
-                            cwd = core.getInput('cwd', { required: true });
-                        }
                         options = {
                             listeners: {
                                 stdout: function (data) {
@@ -134,7 +124,6 @@ var CommandHelper = /** @class */ (function () {
                                     process.stderr.write(data);
                                 }
                             },
-                            cwd: cwd,
                             failOnStdErr: true,
                             ignoreReturnCode: false,
                             errStream: process.stderr,

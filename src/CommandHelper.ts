@@ -7,25 +7,21 @@ export class CommandHelper {
     /**
      * Runs a command based on the OS of the agent running this task.
      * @param command - the command to execute
-     * @param cwd - the current working directory; if not provided, the 'cwd' input will be used
      * @returns the string output from the command
      */
-    public async execCommandAsync(command: string, cwd?: string): Promise<string> {
+    public async execCommandAsync(command: string): Promise<string> {
         return os.platform() == 'win32' ?
-            this.execPwshCommandAsync(command, cwd) :
-            this.execBashCommandAsync(command, cwd);
+            this.execPwshCommandAsync(command) :
+            this.execBashCommandAsync(command);
     }
 
     /**
      * @param command - the command to execute in Bash
-     * @param cwd - the current working directory; if not provided, the 'cwd' input will be used
      * @returns the string output from the command
      */
-    private async execBashCommandAsync(command: string, cwd?: string): Promise<string> {
+    private async execBashCommandAsync(command: string): Promise<string> {
         var bashOutput: string = '';
-        if (!cwd) {
-            cwd = core.getInput('cwd', { required: true });
-        }
+
         const options: exec.ExecOptions = <exec.ExecOptions>{
             listeners: {
                 stdout: (data: Buffer) => {
@@ -36,7 +32,6 @@ export class CommandHelper {
                     process.stderr.write(data);
                 }
             },
-            cwd: cwd,
             failOnStdErr: true,
             ignoreReturnCode: false,
             errStream: process.stderr,
@@ -58,14 +53,10 @@ export class CommandHelper {
     /**
      * Executes a given command using the pwsh executable.
      * @param command - the command to execute in PowerShell
-     * @param cwd - the current working directory; if not provided, the 'cwd' input will be used
      * @returns the string output from the command
      */
-    private async execPwshCommandAsync(command: string, cwd?: string): Promise<string> {
+    private async execPwshCommandAsync(command: string): Promise<string> {
         var pwshOutput: string = '';
-        if (!cwd) {
-            cwd = core.getInput('cwd', { required: true });
-        }
         const options: exec.ExecOptions = <exec.ExecOptions>{
             listeners: {
                 stdout: (data: Buffer) => {
@@ -76,7 +67,6 @@ export class CommandHelper {
                     process.stderr.write(data);
                 }
             },
-            cwd: cwd,
             failOnStdErr: true,
             ignoreReturnCode: false,
             errStream: process.stderr,
