@@ -19,11 +19,6 @@ export class azurecontainerapps {
         this.initializeHelpers(disableTelemetry);
 
         try {
-            // Get the current working directory
-            const cwd: string = core.getInput('cwd');
-            io.mkdirP(cwd);
-            exec.exec(`cd ${cwd}`);
-
             // Validate that the arguments provided can be used for one of the supported scenarios
             this.validateSupportedScenarioArguments();
 
