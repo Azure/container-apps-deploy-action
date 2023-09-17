@@ -38,7 +38,7 @@ export class CommandHelper {
             outStream: process.stdout,
         }
         try {
-            await exec.exec('bash',['-c', command], options);
+            await exec.exec('/bin/bash',['-c', command], options);
             return bashOutput.trim();
         } catch (err) {
             core.error('Unable to run provided bash command ${command}');

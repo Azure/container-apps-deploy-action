@@ -86,7 +86,7 @@ var CommandHelper = /** @class */ (function () {
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
-                        return [4 /*yield*/, exec.exec('bash', ['-c', command], options)];
+                        return [4 /*yield*/, exec.exec('/bin/bash', ['-c', command], options)];
                     case 2:
                         _a.sent();
                         return [2 /*return*/, bashOutput.trim()];
