@@ -4602,10 +4602,7 @@ var CommandHelper = /** @class */ (function () {
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
-                        return [4 /*yield*/, new Promise(function (resolve, reject) {
-                                exec.exec('bash', ['-c', command], options)
-                                    .then(function () { return resolve(); })["catch"](function (error) { return reject(error); });
-                            })];
+                        return [4 /*yield*/, exec.exec('bash', ['-c', command], options)];
                     case 2:
                         _a.sent();
                         return [2 /*return*/, bashOutput.trim()];
@@ -4648,10 +4645,7 @@ var CommandHelper = /** @class */ (function () {
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
-                        return [4 /*yield*/, new Promise(function (resolve, reject) {
-                                exec.exec('pwsh', ['-c', command], options)
-                                    .then(function () { return resolve(); })["catch"](function (error) { return reject(error); });
-                            })];
+                        return [4 /*yield*/, exec.exec('pwsh', ['-c', command], options)];
                     case 2:
                         _a.sent();
                         return [2 /*return*/, pwshOutput.trim()];

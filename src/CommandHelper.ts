@@ -22,7 +22,7 @@ export class CommandHelper {
     private async execBashCommandAsync(command: string): Promise<string> {
         var bashOutput: string = '';
 
-        const options: exec.ExecOptions = <exec.ExecOptions>{
+        const options: any = {
             listeners: {
                 stdout: (data: Buffer) => {
                     process.stdout.write(data);
@@ -38,11 +38,7 @@ export class CommandHelper {
             outStream: process.stdout,
         }
         try {
-            await new Promise<void>((resolve, reject) => {
-                exec.exec('bash', ['-c', command], options)
-                    .then(() => resolve())
-                    .catch((error: Error) => reject(error));
-            });
+            await exec.exec('bash',['-c', command], options);
             return bashOutput.trim();
         } catch (err) {
             core.error('Unable to run provided bash command ${command}');
@@ -57,7 +53,7 @@ export class CommandHelper {
      */
     private async execPwshCommandAsync(command: string): Promise<string> {
         var pwshOutput: string = '';
-        const options: exec.ExecOptions = <exec.ExecOptions>{
+        const options: any = <exec.ExecOptions>{
             listeners: {
                 stdout: (data: Buffer) => {
                     process.stdout.write(data);
@@ -73,11 +69,7 @@ export class CommandHelper {
             outStream: process.stdout,
         }
         try {
-            await new Promise<void>((resolve, reject) => {
-                exec.exec('pwsh', ['-c', command], options)
-                    .then(() => resolve())
-                    .catch((error: Error) => reject(error));
-            });
+            await exec.exec('pwsh',['-c', command], options);
             return pwshOutput.trim();
         } catch (err) {
             core.error('Unable to run provided PowerShell command ${command}');
