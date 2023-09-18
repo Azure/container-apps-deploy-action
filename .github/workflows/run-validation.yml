@@ -83,6 +83,7 @@ jobs:
         with:
           repository: microsoft/Oryx
           path: oryx
+          ref: snehapar/Add-libbrotli-dev
 
       - name: Log in to Azure
         uses: azure/login@v1
@@ -91,7 +92,8 @@ jobs:
 
       - name: Install Dependencies
         run: |
-          sudo apt-get install -y libbrotli-dev
+          sudo apt-get update
+          sudo apt-get -y install brotli lbrotlienc libbrotli-dev libbrotlicommon
 
       - name: Execute Azure Container Apps Build and Deploy Action
         uses: ./
