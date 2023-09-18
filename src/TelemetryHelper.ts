@@ -66,7 +66,7 @@ export class TelemetryHelper {
     /**
      * If telemetry is enabled, uses the "oryx telemetry" command to log metadata about this task execution.
      */
-    public sendLogs() {
+    public async sendLogs() {
         const taskLengthMilliseconds: number = Date.now() - this.taskStartMilliseconds;
         if (!this.disableTelemetry) {
             core.debug(`Telemetry enabled; logging metadata about task result, length and scenario targeted.`);
@@ -86,11 +86,12 @@ export class TelemetryHelper {
                     errorMessageArg = `--property 'errorMessage=${this.errorMessage}'`;
                 }
 
-                const dockerCommand = `run --rm ${ORYX_CLI_IMAGE} /bin/bash -c "oryx telemetry --event-name 'ContainerAppsPipelinesTaskRCV1' ` +
-                `--processing-time '${taskLengthMilliseconds}' ${resultArg} ${scenarioArg} ${errorMessageArg}"`
+                let args: string[] = [`run`, `--rm`, `${ORYX_CLI_IMAGE}`, `/bin/bash`, `-c`, `oryx telemetry --event-name 'ContainerAppsPipelinesTaskRCV1' ` + `--processing-time '${taskLengthMilliseconds}' ${resultArg} ${scenarioArg} ${errorMessageArg}"`];
+                // const dockerCommand = `run --rm ${ORYX_CLI_IMAGE} /bin/bash -c "oryx telemetry --event-name 'ContainerAppsPipelinesTaskRCV1' ` +
+                // `--processing-time '${taskLengthMilliseconds}' ${resultArg} ${scenarioArg} ${errorMessageArg}"`
 
                 // Don't use Utility's throwIfError() since it will still record an error in the pipeline logs, but won't fail the task
-                executeDockerCommand(dockerCommand, true)
+                await executeDockerCommand(args, true)
             } catch (err) {
                 core.warning(`Skipping telemetry logging due to the following exception: ${err.message}`);
             }
@@ -98,12 +99,9 @@ export class TelemetryHelper {
     }
 }
 
-const executeDockerCommand = async (command: string, continueOnError: boolean = false): Promise<void> => {
-
+const executeDockerCommand = async (args: string[], continueOnError: boolean = false): Promise<void> => {
     const dockerTool: string = await io.which("docker", true);
-    const dockerCommand = `${dockerTool} ${command}`;
     var errorStream: string = '';
-    var shouldOutputErrorStream: boolean = false;
     var execOptions: any = {
         listeners: {
             stdout: (data: any) => console.log(data.toString()), //to log the script output while the script is running.
@@ -111,7 +109,7 @@ const executeDockerCommand = async (command: string, continueOnError: boolean = 
     };
     var exitCode;
     try {
-        exitCode = await exec.exec(dockerTool, [command], execOptions);
+        exitCode = await exec.exec(dockerTool, args, execOptions);
     } catch (error) {
         if (!continueOnError) {
             throw error;

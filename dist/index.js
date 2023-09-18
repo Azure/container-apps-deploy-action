@@ -66,7 +66,7 @@ var azurecontainerapps = /** @class */ (function () {
                         this.initializeHelpers(disableTelemetry);
                         _a.label = 1;
                     case 1:
-                        _a.trys.push([1, 6, 7, 8]);
+                        _a.trys.push([1, 8, 9, 11]);
                         // Get the current working directory
                         //const cwd: string = core.getInput('cwd');
                         //io.mkdirP(cwd);
@@ -76,19 +76,22 @@ var azurecontainerapps = /** @class */ (function () {
                         // Set up the Azure CLI to be used for this task
                         this.setupAzureCli();
                         // Set up the resources required to deploy a Container App
-                        this.setupResources();
-                        if (!!util.isNullOrEmpty(this.acrName)) return [3 /*break*/, 3];
-                        return [4 /*yield*/, this.authenticateAzureContainerRegistryAsync()];
+                        return [4 /*yield*/, this.setupResources()];
                     case 2:
+                        // Set up the resources required to deploy a Container App
                         _a.sent();
-                        _a.label = 3;
+                        if (!!util.isNullOrEmpty(this.acrName)) return [3 /*break*/, 4];
+                        return [4 /*yield*/, this.authenticateAzureContainerRegistryAsync()];
                     case 3:
-                        if (!!util.isNullOrEmpty(this.appSourcePath)) return [3 /*break*/, 5];
-                        return [4 /*yield*/, this.buildAndPushImageAsync()];
-                    case 4:
                         _a.sent();
-                        _a.label = 5;
+                        _a.label = 4;
+                    case 4:
+                        if (!!util.isNullOrEmpty(this.appSourcePath)) return [3 /*break*/, 6];
+                        return [4 /*yield*/, this.buildAndPushImageAsync()];
                     case 5:
+                        _a.sent();
+                        _a.label = 6;
+                    case 6:
                         // If no application source was provided, set up the scenario for deploying an existing image
                         if (util.isNullOrEmpty(this.appSourcePath)) {
                             this.setupExistingImageScenario();
@@ -98,22 +101,30 @@ var azurecontainerapps = /** @class */ (function () {
                             this.setupContainerAppProperties();
                         }
                         // Create/update the Container App
-                        this.createOrUpdateContainerApp();
+                        return [4 /*yield*/, this.createOrUpdateContainerApp()];
+                    case 7:
+                        // Create/update the Container App
+                        _a.sent();
                         // If telemetry is enabled, log that the task completed successfully
                         this.telemetryHelper.setSuccessfulResult();
-                        return [3 /*break*/, 8];
-                    case 6:
+                        return [3 /*break*/, 11];
+                    case 8:
                         err_1 = _a.sent();
                         core.setFailed(err_1.message);
                         this.telemetryHelper.setFailedResult(err_1.message);
-                        return [3 /*break*/, 8];
-                    case 7:
+                        return [3 /*break*/, 11];
+                    case 9: 
+                    // Logout of Azure if logged in during this task session
+                    //  this.authHelper.logoutAzure();
+                    // If telemetry is enabled, will log metadata for this task run
+                    return [4 /*yield*/, this.telemetryHelper.sendLogs()];
+                    case 10:
                         // Logout of Azure if logged in during this task session
                         //  this.authHelper.logoutAzure();
                         // If telemetry is enabled, will log metadata for this task run
-                        this.telemetryHelper.sendLogs();
+                        _a.sent();
                         return [7 /*endfinally*/];
-                    case 8: return [2 /*return*/];
+                    case 11: return [2 /*return*/];
                 }
             });
         });
@@ -5635,47 +5646,62 @@ var TelemetryHelper = /** @class */ (function () {
      * If telemetry is enabled, uses the "oryx telemetry" command to log metadata about this task execution.
      */
     TelemetryHelper.prototype.sendLogs = function () {
-        var taskLengthMilliseconds = Date.now() - this.taskStartMilliseconds;
-        if (!this.disableTelemetry) {
-            core.debug("Telemetry enabled; logging metadata about task result, length and scenario targeted.");
-            try {
-                var resultArg = '';
-                if (!util.isNullOrEmpty(this.result)) {
-                    resultArg = "--property 'result=" + this.result + "'";
+        return __awaiter(this, void 0, void 0, function () {
+            var taskLengthMilliseconds, resultArg, scenarioArg, errorMessageArg, args, err_1;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        taskLengthMilliseconds = Date.now() - this.taskStartMilliseconds;
+                        if (!!this.disableTelemetry) return [3 /*break*/, 4];
+                        core.debug("Telemetry enabled; logging metadata about task result, length and scenario targeted.");
+                        _a.label = 1;
+                    case 1:
+                        _a.trys.push([1, 3, , 4]);
+                        resultArg = '';
+                        if (!util.isNullOrEmpty(this.result)) {
+                            resultArg = "--property 'result=" + this.result + "'";
+                        }
+                        scenarioArg = '';
+                        if (!util.isNullOrEmpty(this.scenario)) {
+                            scenarioArg = "--property 'scenario=" + this.scenario + "'";
+                        }
+                        errorMessageArg = '';
+                        if (!util.isNullOrEmpty(this.errorMessage)) {
+                            errorMessageArg = "--property 'errorMessage=" + this.errorMessage + "'";
+                        }
+                        args = ["run", "--rm", "" + ORYX_CLI_IMAGE, "/bin/bash", "-c", "oryx telemetry --event-name 'ContainerAppsPipelinesTaskRCV1' " + ("--processing-time '" + taskLengthMilliseconds + "' " + resultArg + " " + scenarioArg + " " + errorMessageArg + "\"")];
+                        // const dockerCommand = `run --rm ${ORYX_CLI_IMAGE} /bin/bash -c "oryx telemetry --event-name 'ContainerAppsPipelinesTaskRCV1' ` +
+                        // `--processing-time '${taskLengthMilliseconds}' ${resultArg} ${scenarioArg} ${errorMessageArg}"`
+                        // Don't use Utility's throwIfError() since it will still record an error in the pipeline logs, but won't fail the task
+                        return [4 /*yield*/, executeDockerCommand(args, true)];
+                    case 2:
+                        // const dockerCommand = `run --rm ${ORYX_CLI_IMAGE} /bin/bash -c "oryx telemetry --event-name 'ContainerAppsPipelinesTaskRCV1' ` +
+                        // `--processing-time '${taskLengthMilliseconds}' ${resultArg} ${scenarioArg} ${errorMessageArg}"`
+                        // Don't use Utility's throwIfError() since it will still record an error in the pipeline logs, but won't fail the task
+                        _a.sent();
+                        return [3 /*break*/, 4];
+                    case 3:
+                        err_1 = _a.sent();
+                        core.warning("Skipping telemetry logging due to the following exception: " + err_1.message);
+                        return [3 /*break*/, 4];
+                    case 4: return [2 /*return*/];
                 }
-                var scenarioArg = '';
-                if (!util.isNullOrEmpty(this.scenario)) {
-                    scenarioArg = "--property 'scenario=" + this.scenario + "'";
-                }
-                var errorMessageArg = '';
-                if (!util.isNullOrEmpty(this.errorMessage)) {
-                    errorMessageArg = "--property 'errorMessage=" + this.errorMessage + "'";
-                }
-                var dockerCommand = "run --rm " + ORYX_CLI_IMAGE + " /bin/bash -c \"oryx telemetry --event-name 'ContainerAppsPipelinesTaskRCV1' " +
-                    ("--processing-time '" + taskLengthMilliseconds + "' " + resultArg + " " + scenarioArg + " " + errorMessageArg + "\"");
-                // Don't use Utility's throwIfError() since it will still record an error in the pipeline logs, but won't fail the task
-                executeDockerCommand(dockerCommand, true);
-            }
-            catch (err) {
-                core.warning("Skipping telemetry logging due to the following exception: " + err.message);
-            }
-        }
+            });
+        });
     };
     return TelemetryHelper;
 }());
 exports.TelemetryHelper = TelemetryHelper;
-var executeDockerCommand = function (command, continueOnError) {
+var executeDockerCommand = function (args, continueOnError) {
     if (continueOnError === void 0) { continueOnError = false; }
     return __awaiter(void 0, void 0, void 0, function () {
-        var dockerTool, dockerCommand, errorStream, shouldOutputErrorStream, execOptions, exitCode, error_1;
+        var dockerTool, errorStream, execOptions, exitCode, error_1;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0: return [4 /*yield*/, io.which("docker", true)];
                 case 1:
                     dockerTool = _a.sent();
-                    dockerCommand = dockerTool + " " + command;
                     errorStream = '';
-                    shouldOutputErrorStream = false;
                     execOptions = {
                         listeners: {
                             stdout: function (data) { return console.log(data.toString()); }
@@ -5684,7 +5710,7 @@ var executeDockerCommand = function (command, continueOnError) {
                     _a.label = 2;
                 case 2:
                     _a.trys.push([2, 4, 5, 6]);
-                    return [4 /*yield*/, exec.exec(dockerTool, [command], execOptions)];
+                    return [4 /*yield*/, exec.exec(dockerTool, args, execOptions)];
                 case 3:
                     exitCode = _a.sent();
                     return [3 /*break*/, 6];

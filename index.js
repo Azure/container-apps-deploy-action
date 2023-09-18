@@ -59,7 +59,7 @@ var azurecontainerapps = /** @class */ (function () {
                         this.initializeHelpers(disableTelemetry);
                         _a.label = 1;
                     case 1:
-                        _a.trys.push([1, 6, 7, 8]);
+                        _a.trys.push([1, 8, 9, 11]);
                         // Get the current working directory
                         //const cwd: string = core.getInput('cwd');
                         //io.mkdirP(cwd);
@@ -69,19 +69,22 @@ var azurecontainerapps = /** @class */ (function () {
                         // Set up the Azure CLI to be used for this task
                         this.setupAzureCli();
                         // Set up the resources required to deploy a Container App
-                        this.setupResources();
-                        if (!!util.isNullOrEmpty(this.acrName)) return [3 /*break*/, 3];
-                        return [4 /*yield*/, this.authenticateAzureContainerRegistryAsync()];
+                        return [4 /*yield*/, this.setupResources()];
                     case 2:
+                        // Set up the resources required to deploy a Container App
                         _a.sent();
-                        _a.label = 3;
+                        if (!!util.isNullOrEmpty(this.acrName)) return [3 /*break*/, 4];
+                        return [4 /*yield*/, this.authenticateAzureContainerRegistryAsync()];
                     case 3:
-                        if (!!util.isNullOrEmpty(this.appSourcePath)) return [3 /*break*/, 5];
-                        return [4 /*yield*/, this.buildAndPushImageAsync()];
-                    case 4:
                         _a.sent();
-                        _a.label = 5;
+                        _a.label = 4;
+                    case 4:
+                        if (!!util.isNullOrEmpty(this.appSourcePath)) return [3 /*break*/, 6];
+                        return [4 /*yield*/, this.buildAndPushImageAsync()];
                     case 5:
+                        _a.sent();
+                        _a.label = 6;
+                    case 6:
                         // If no application source was provided, set up the scenario for deploying an existing image
                         if (util.isNullOrEmpty(this.appSourcePath)) {
                             this.setupExistingImageScenario();
@@ -91,22 +94,30 @@ var azurecontainerapps = /** @class */ (function () {
                             this.setupContainerAppProperties();
                         }
                         // Create/update the Container App
-                        this.createOrUpdateContainerApp();
+                        return [4 /*yield*/, this.createOrUpdateContainerApp()];
+                    case 7:
+                        // Create/update the Container App
+                        _a.sent();
                         // If telemetry is enabled, log that the task completed successfully
                         this.telemetryHelper.setSuccessfulResult();
-                        return [3 /*break*/, 8];
-                    case 6:
+                        return [3 /*break*/, 11];
+                    case 8:
                         err_1 = _a.sent();
                         core.setFailed(err_1.message);
                         this.telemetryHelper.setFailedResult(err_1.message);
-                        return [3 /*break*/, 8];
-                    case 7:
+                        return [3 /*break*/, 11];
+                    case 9: 
+                    // Logout of Azure if logged in during this task session
+                    //  this.authHelper.logoutAzure();
+                    // If telemetry is enabled, will log metadata for this task run
+                    return [4 /*yield*/, this.telemetryHelper.sendLogs()];
+                    case 10:
                         // Logout of Azure if logged in during this task session
                         //  this.authHelper.logoutAzure();
                         // If telemetry is enabled, will log metadata for this task run
-                        this.telemetryHelper.sendLogs();
+                        _a.sent();
                         return [7 /*endfinally*/];
-                    case 8: return [2 /*return*/];
+                    case 11: return [2 /*return*/];
                 }
             });
         });

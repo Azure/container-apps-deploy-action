@@ -31,7 +31,7 @@ export class azurecontainerapps {
             this.setupAzureCli();
 
             // Set up the resources required to deploy a Container App
-            this.setupResources();
+            await this.setupResources();
 
             // If an Azure Container Registry name was provided, try to authenticate against it
             if (!util.isNullOrEmpty(this.acrName)) {
@@ -54,7 +54,7 @@ export class azurecontainerapps {
             }
 
             // Create/update the Container App
-            this.createOrUpdateContainerApp();
+            await this.createOrUpdateContainerApp();
 
             // If telemetry is enabled, log that the task completed successfully
             this.telemetryHelper.setSuccessfulResult();
@@ -66,7 +66,7 @@ export class azurecontainerapps {
           //  this.authHelper.logoutAzure();
 
             // If telemetry is enabled, will log metadata for this task run
-            this.telemetryHelper.sendLogs();
+            await this.telemetryHelper.sendLogs();
         }
     }
 
