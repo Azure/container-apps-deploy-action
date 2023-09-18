@@ -5,7 +5,10 @@ import * as path from 'path';
 import * as os from 'os';
 import { CommandHelper } from './CommandHelper';
 import { Utility } from './Utility';
+const util = require('util');
+const cpExec = util.promisify(require('child_process').exec);
 import { pathToFileURL } from 'url';
+import { cp } from 'fs';
 
 const ORYX_CLI_IMAGE: string = 'mcr.microsoft.com/oryx/cli:builder-debian-buster-20230208.1';
 const ORYX_BUILDER_IMAGE: string = 'mcr.microsoft.com/oryx/builder:20230208.1';
@@ -35,16 +38,11 @@ export class ContainerAppHelper {
         optionalCmdArgs: string[]) {
             core.debug(`Attempting to create Container App with name "${containerAppName}" in resource group "${resourceGroup}" based from image "${imageToDeploy}"`);
             try {
-                let command = `containerapp create -n ${containerAppName} -g ${resourceGroup} -i ${imageToDeploy} --environment ${environment}`;
+                let command = `az containerapp create -n ${containerAppName} -g ${resourceGroup} -i ${imageToDeploy} --environment ${environment}`;
                 optionalCmdArgs.forEach(function (val: string) {
                     command += ` ${val}`;
                 });
-
-                new Utility().executeAndthrowIfError(
-                    await io.which('az', true),
-                    command,
-                    "Unable to create Azure Container App via 'az containerapp create' command."
-                );
+                await cpExec(`${command}`);
             } catch (err) {
                 core.error(err.message);
                 throw err;
@@ -63,13 +61,13 @@ export class ContainerAppHelper {
         yamlConfigPath: string) {
             core.debug(`Attempting to create Container App with name "${containerAppName}" in resource group "${resourceGroup}" from provided YAML "${yamlConfigPath}"`);
             try {
-                let command = `containerapp create -n ${containerAppName} -g ${resourceGroup} --yaml ${yamlConfigPath}`;
-
-                new Utility().executeAndthrowIfError(
-                    await io.which('az', true),
-                    command,
-                    "Unable to create Azure Container App from YAML configuration file via 'az containerapp create' command."
-                );
+                let command = `az containerapp create -n ${containerAppName} -g ${resourceGroup} --yaml ${yamlConfigPath}`;
+                await cpExec(`${command}`);
+                // new Utility().executeAndthrowIfError(
+                //     await io.which('az', true),
+                //     command,
+                //     "Unable to create Azure Container App from YAML configuration file via 'az containerapp create' command."
+                // );
             } catch (err) {
                 core.error(err.message);
                 throw err;
@@ -186,10 +184,9 @@ export class ContainerAppHelper {
     public async doesContainerAppExist(containerAppName: string, resourceGroup: string): Promise<boolean> {
         core.debug(`Attempting to determine if Container App with name "${containerAppName}" exists in resource group "${resourceGroup}"`);
         try {
-            const command = `containerapp show -n ${containerAppName} -g ${resourceGroup} -o none`;
-            const pathToTool = await io.which('az', true);
-            const result = await exec.exec(pathToTool, [command]);
-            return result == 0;
+            const command = `az containerapp show -n ${containerAppName} -g ${resourceGroup} -o none`;
+            const {stdout, stderr} = await cpExec(`${command}`);
+            return !stderr;
         } catch (err) {
             core.warning(err.message);
             return false;
@@ -223,10 +220,12 @@ export class ContainerAppHelper {
     public async doesResourceGroupExist(resourceGroup: string): Promise<boolean> {
         core.debug(`Attempting to determine if resource group "${resourceGroup}" exists`);
         try {
-            const command = `group show -n ${resourceGroup} -o none`;
-            const pathToTool = await io.which('az', true);
-            const result = await new Utility().executeAndReturnExitCode(pathToTool, command);
-            return result == 0;
+            const command = `az group show -n ${resourceGroup} -o none`;
+            const {stdout, stderr} = await cpExec(`${command}`);
+            return !stderr;
+            // const pathToTool = await io.which('az', true);
+            // const result = await new Utility().executeAndReturnExitCode(pathToTool, command);
+            // return result == 0;
         } catch (err) {
             core.warning(err.message);
             return false;
@@ -240,13 +239,10 @@ export class ContainerAppHelper {
     public async getDefaultContainerAppLocation(): Promise<string> {
         core.debug(`Attempting to get the default location for the Container App service for the subscription.`);
         try {
-            const command = `provider show -n Microsoft.App --query "resourceTypes[?resourceType=='containerApps'].locations[] | [0]"`
-            const pathToTool = await io.which('az', true);
-            const exitCode = await new Utility().executeAndReturnExitCode(pathToTool, command);
-            const result = await new Utility().executeAndReturnOutput(pathToTool, command);
-
+            const command = `az provider show -n Microsoft.App --query "resourceTypes[?resourceType=='containerApps'].locations[] | [0]"`
+            const {stdout, stderr} = await cpExec(`${command}`);
             // If successful, strip out double quotes, spaces and parentheses from the first location returned
-            return exitCode == 0 ? result.toLowerCase().replace(/["() ]/g, "") : `eastus2`;
+            return !stderr ? stdout.toLowerCase().replace(/["() ]/g, "") : `eastus2`;
         } catch (err) {
             core.warning(err.message);
             return `eastus2`;
@@ -261,12 +257,8 @@ export class ContainerAppHelper {
     public async createResourceGroup(name: string, location: string) {
         core.debug(`Attempting to create resource group "${name}" in location "${location}"`);
         try {
-            const command = `group create -n ${name} -l ${location}`;
-            new Utility().executeAndthrowIfError(
-                await io.which('az', true),
-                command,
-                `Unable to create resource group "${name}" in location "${location}".`
-            );
+            const command = `az group create -n ${name} -l ${location}`;
+            await cpExec(`${command}`);
         } catch (err) {
             core.error(err.message);
             throw err;
@@ -281,15 +273,17 @@ export class ContainerAppHelper {
     public async getExistingContainerAppEnvironment(resourceGroup: string) {
         core.debug(`Attempting to get the existing Container App Environment in resource group "${resourceGroup}"`);
         try {
-            const command = `containerapp env list -g ${resourceGroup} --query [0].name"`;
-            const pathToTool = await io.which('az', true);
-            const result = await new Utility().executeAndReturnExitCode(
-                pathToTool,
-                command,
-                `Unable to get the existing Container App Environment in resource group "${resourceGroup}".`
-            );
-            const output = await new Utility().executeAndReturnOutput(pathToTool, command);
-            return result == 0 ? output : null;
+            const command = `az containerapp env list -g ${resourceGroup} --query [0].name"`;
+            const {stdout, stderr} = await cpExec(`${command}`);
+            return !stderr ? stdout : null;
+            // const pathToTool = await io.which('az', true);
+            // const result = await new Utility().executeAndReturnExitCode(
+            //     pathToTool,
+            //     command,
+            //     `Unable to get the existing Container App Environment in resource group "${resourceGroup}".`
+            // );
+            // const output = await new Utility().executeAndReturnOutput(pathToTool, command);
+            // return result == 0 ? output : null;
         } catch (err) {
             core.warning(err.message);
             return null;
@@ -407,12 +401,7 @@ export class ContainerAppHelper {
         dockerfilePath: string) {
             core.debug(`Attempting to create a runnable application image from the provided/found Dockerfile "${dockerfilePath}" with image name "${imageToDeploy}"`);
             try {
-                const dockerTool: string = await io.which("docker", true);
-                new Utility().executeAndthrowIfError(
-                    `${dockerTool}`,
-                     `build --tag ${imageToDeploy} --file ${dockerfilePath} ${appSourcePath}`,
-                    `Unable to create runnable application image from the provided/found Dockerfile "${dockerfilePath}" with image name "${imageToDeploy}".`
-                );
+                exec.exec('docker', ['build', '--tag', `${imageToDeploy}`, '--file', `${dockerfilePath}`, `${appSourcePath}`])
             } catch (err) {
                 core.error(err.message);
                 throw err;
@@ -430,11 +419,12 @@ export class ContainerAppHelper {
             const dockerTool: string = await io.which("docker", true);
             // Use 'oryx dockerfile' command to determine the runtime stack to use and write it to a temp file
             const dockerCommand: string = `run --rm -v ${appSourcePath}:/app ${ORYX_CLI_IMAGE} /bin/bash -c "oryx dockerfile /app | head -n 1 | sed 's/ARG RUNTIME=//' >> /app/oryx-runtime.txt"`;
-            new Utility().executeAndthrowIfError(
-                `${dockerTool}`,
-                `${dockerCommand}`,
-                `Unable to determine the runtime stack needed for the provided application source.`
-            );
+            exec.exec('docker', ['run', '--rm', '-v', `${appSourcePath}:/app`, `${ORYX_CLI_IMAGE}`, '/bin/bash', '-c', `"oryx dockerfile /app | head -n 1 | sed 's/ARG RUNTIME=//' >> /app/oryx-runtime.txt"`])
+            // new Utility().executeAndthrowIfError(
+            //     `${dockerTool}`,
+            //     `${dockerCommand}`,
+            //     `Unable to determine the runtime stack needed for the provided application source.`
+            // );
 
             // Read the temp file to get the runtime stack into a variable
             const oryxRuntimeTxtPath = path.join(appSourcePath, 'oryx-runtime.txt');

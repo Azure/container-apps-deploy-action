@@ -1,5 +1,8 @@
 import * as core from '@actions/core';
 import * as exec from '@actions/exec';
+import { cp } from 'fs';
+const util = require('util');
+const cpExec = util.promisify(require('child_process').exec);
 export class Utility {
     /**
      * @param command - the command to execute
@@ -106,11 +109,12 @@ export class Utility {
      * Sets the Azure CLI to dynamically install extensions that are missing. In this case, we care about the
      * Azure Container Apps module being dynamically installed while it's still in preview.
      */
-    public setAzureCliDynamicInstall() {
-        this.executeAndthrowIfError(
-            `az config set extension.use_dynamic_install=yes_without_prompt`,
-            `Unable to set Azure CLI to dynamically install extensions.`
-            );
+    public async setAzureCliDynamicInstall() {
+        await cpExec(`az config set extension.use_dynamic_install=yes_without_prompt`);
+        // this.executeAndthrowIfError(
+        //     `az config set extension.use_dynamic_install=yes_without_prompt`,
+        //     `Unable to set Azure CLI to dynamically install extensions.`
+        //     );
     }
 
     /**

@@ -153,11 +153,25 @@ var azurecontainerapps = /** @class */ (function () {
      * setting the Azure CLI to dynamically install missing extensions.
      */
     azurecontainerapps.setupAzureCli = function () {
-        // Log in to Azure with the service connection provided
-        //  const connectedService: string = tl.getInput('connectedServiceNameARM', true);
-        //  this.authHelper.loginAzureRM(connectedService);
-        // Set the Azure CLI to dynamically install missing extensions
-        util.setAzureCliDynamicInstall();
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: 
+                    // Log in to Azure with the service connection provided
+                    //  const connectedService: string = tl.getInput('connectedServiceNameARM', true);
+                    //  this.authHelper.loginAzureRM(connectedService);
+                    // Set the Azure CLI to dynamically install missing extensions
+                    return [4 /*yield*/, util.setAzureCliDynamicInstall()];
+                    case 1:
+                        // Log in to Azure with the service connection provided
+                        //  const connectedService: string = tl.getInput('connectedServiceNameARM', true);
+                        //  this.authHelper.loginAzureRM(connectedService);
+                        // Set the Azure CLI to dynamically install missing extensions
+                        _a.sent();
+                        return [2 /*return*/];
+                }
+            });
+        });
     };
     /**
      * Sets up the resources required to deploy a Container App. This includes the following:
@@ -207,7 +221,7 @@ var azurecontainerapps = /** @class */ (function () {
     azurecontainerapps.getContainerAppName = function () {
         var containerAppName = core.getInput('containerAppName', { required: false });
         if (util.isNullOrEmpty(containerAppName)) {
-            containerAppName = "ado-task-app-" + this.buildId + "-" + this.buildNumber;
+            containerAppName = "app-" + this.buildId + "-" + this.buildNumber;
             // Replace all '.' characters with '-' characters in the Container App name
             containerAppName = containerAppName.replace(/\./gi, "-");
             console.log("Default Container App name: " + containerAppName);

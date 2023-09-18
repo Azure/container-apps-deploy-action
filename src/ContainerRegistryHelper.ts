@@ -44,12 +44,13 @@ export class ContainerRegistryHelper {
      public async pushImageToAcr(imageToPush: string) {
         core.debug(`Attempting to push image "${imageToPush}" to ACR`);
         try {
-            const dockerTool: string = await io.which("docker", true);
-            new Utility().executeAndthrowIfError(
-                `${dockerTool}`,
-                `push ${imageToPush}`,
-                `Failed to push image "${imageToPush}" to ACR`
-            );
+            exec.exec('docker', [`push`, `${imageToPush}`])
+            // const dockerTool: string = await io.which("docker", true);
+            // new Utility().executeAndthrowIfError(
+            //     `${dockerTool}`,
+            //     `push ${imageToPush}`,
+            //     `Failed to push image "${imageToPush}" to ACR`
+            // );
 
         } catch (err) {
             core.error(err.message);

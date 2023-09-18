@@ -39,6 +39,8 @@ exports.__esModule = true;
 exports.Utility = void 0;
 var core = require("@actions/core");
 var exec = require("@actions/exec");
+var util = require('util');
+var cpExec = util.promisify(require('child_process').exec);
 var Utility = /** @class */ (function () {
     function Utility() {
     }
@@ -168,7 +170,16 @@ var Utility = /** @class */ (function () {
      * Azure Container Apps module being dynamically installed while it's still in preview.
      */
     Utility.prototype.setAzureCliDynamicInstall = function () {
-        this.executeAndthrowIfError("az config set extension.use_dynamic_install=yes_without_prompt", "Unable to set Azure CLI to dynamically install extensions.");
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, cpExec("az config set extension.use_dynamic_install=yes_without_prompt")];
+                    case 1:
+                        _a.sent();
+                        return [2 /*return*/];
+                }
+            });
+        });
     };
     /**
      * Checks whether or not the provided string is null, undefined or empty.

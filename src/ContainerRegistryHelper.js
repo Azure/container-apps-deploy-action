@@ -39,9 +39,7 @@ exports.__esModule = true;
 exports.ContainerRegistryHelper = void 0;
 var core = require("@actions/core");
 var exec = require("@actions/exec");
-var io = require("@actions/io");
 var CommandHelper_1 = require("./CommandHelper");
-var Utility_1 = require("./Utility");
 var ContainerRegistryHelper = /** @class */ (function () {
     function ContainerRegistryHelper() {
     }
@@ -96,25 +94,22 @@ var ContainerRegistryHelper = /** @class */ (function () {
      */
     ContainerRegistryHelper.prototype.pushImageToAcr = function (imageToPush) {
         return __awaiter(this, void 0, void 0, function () {
-            var dockerTool, err_2;
             return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        core.debug("Attempting to push image \"" + imageToPush + "\" to ACR");
-                        _a.label = 1;
-                    case 1:
-                        _a.trys.push([1, 3, , 4]);
-                        return [4 /*yield*/, io.which("docker", true)];
-                    case 2:
-                        dockerTool = _a.sent();
-                        new Utility_1.Utility().executeAndthrowIfError("" + dockerTool, "push " + imageToPush, "Failed to push image \"" + imageToPush + "\" to ACR");
-                        return [3 /*break*/, 4];
-                    case 3:
-                        err_2 = _a.sent();
-                        core.error(err_2.message);
-                        throw err_2;
-                    case 4: return [2 /*return*/];
+                core.debug("Attempting to push image \"" + imageToPush + "\" to ACR");
+                try {
+                    exec.exec('docker', ["push", "" + imageToPush]);
+                    // const dockerTool: string = await io.which("docker", true);
+                    // new Utility().executeAndthrowIfError(
+                    //     `${dockerTool}`,
+                    //     `push ${imageToPush}`,
+                    //     `Failed to push image "${imageToPush}" to ACR`
+                    // );
                 }
+                catch (err) {
+                    core.error(err.message);
+                    throw err;
+                }
+                return [2 /*return*/];
             });
         });
     };

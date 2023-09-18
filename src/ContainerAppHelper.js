@@ -44,6 +44,8 @@ var path = require("path");
 var os = require("os");
 var CommandHelper_1 = require("./CommandHelper");
 var Utility_1 = require("./Utility");
+var util = require('util');
+var cpExec = util.promisify(require('child_process').exec);
 var ORYX_CLI_IMAGE = 'mcr.microsoft.com/oryx/cli:builder-debian-buster-20230208.1';
 var ORYX_BUILDER_IMAGE = 'mcr.microsoft.com/oryx/builder:20230208.1';
 var IS_WINDOWS_AGENT = os.platform() == 'win32';
@@ -63,26 +65,24 @@ var ContainerAppHelper = /** @class */ (function () {
      */
     ContainerAppHelper.prototype.createContainerApp = function (containerAppName, resourceGroup, environment, imageToDeploy, optionalCmdArgs) {
         return __awaiter(this, void 0, void 0, function () {
-            var command_1, _a, _b, err_1;
-            return __generator(this, function (_c) {
-                switch (_c.label) {
+            var command_1, err_1;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
                     case 0:
                         core.debug("Attempting to create Container App with name \"" + containerAppName + "\" in resource group \"" + resourceGroup + "\" based from image \"" + imageToDeploy + "\"");
-                        _c.label = 1;
+                        _a.label = 1;
                     case 1:
-                        _c.trys.push([1, 3, , 4]);
-                        command_1 = "containerapp create -n " + containerAppName + " -g " + resourceGroup + " -i " + imageToDeploy + " --environment " + environment;
+                        _a.trys.push([1, 3, , 4]);
+                        command_1 = "az containerapp create -n " + containerAppName + " -g " + resourceGroup + " -i " + imageToDeploy + " --environment " + environment;
                         optionalCmdArgs.forEach(function (val) {
                             command_1 += " " + val;
                         });
-                        _b = (_a = new Utility_1.Utility()).executeAndthrowIfError;
-                        return [4 /*yield*/, io.which('az', true)];
+                        return [4 /*yield*/, cpExec("" + command_1)];
                     case 2:
-                        _b.apply(_a, [_c.sent(), command_1,
-                            "Unable to create Azure Container App via 'az containerapp create' command."]);
+                        _a.sent();
                         return [3 /*break*/, 4];
                     case 3:
-                        err_1 = _c.sent();
+                        err_1 = _a.sent();
                         core.error(err_1.message);
                         throw err_1;
                     case 4: return [2 /*return*/];
@@ -98,23 +98,21 @@ var ContainerAppHelper = /** @class */ (function () {
      */
     ContainerAppHelper.prototype.createContainerAppFromYaml = function (containerAppName, resourceGroup, yamlConfigPath) {
         return __awaiter(this, void 0, void 0, function () {
-            var command, _a, _b, err_2;
-            return __generator(this, function (_c) {
-                switch (_c.label) {
+            var command, err_2;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
                     case 0:
                         core.debug("Attempting to create Container App with name \"" + containerAppName + "\" in resource group \"" + resourceGroup + "\" from provided YAML \"" + yamlConfigPath + "\"");
-                        _c.label = 1;
+                        _a.label = 1;
                     case 1:
-                        _c.trys.push([1, 3, , 4]);
-                        command = "containerapp create -n " + containerAppName + " -g " + resourceGroup + " --yaml " + yamlConfigPath;
-                        _b = (_a = new Utility_1.Utility()).executeAndthrowIfError;
-                        return [4 /*yield*/, io.which('az', true)];
+                        _a.trys.push([1, 3, , 4]);
+                        command = "az containerapp create -n " + containerAppName + " -g " + resourceGroup + " --yaml " + yamlConfigPath;
+                        return [4 /*yield*/, cpExec("" + command)];
                     case 2:
-                        _b.apply(_a, [_c.sent(), command,
-                            "Unable to create Azure Container App from YAML configuration file via 'az containerapp create' command."]);
+                        _a.sent();
                         return [3 /*break*/, 4];
                     case 3:
-                        err_2 = _c.sent();
+                        err_2 = _a.sent();
                         core.error(err_2.message);
                         throw err_2;
                     case 4: return [2 /*return*/];
@@ -240,27 +238,24 @@ var ContainerAppHelper = /** @class */ (function () {
      */
     ContainerAppHelper.prototype.doesContainerAppExist = function (containerAppName, resourceGroup) {
         return __awaiter(this, void 0, void 0, function () {
-            var command, pathToTool, result, err_6;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
+            var command, _a, stdout, stderr, err_6;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
                     case 0:
                         core.debug("Attempting to determine if Container App with name \"" + containerAppName + "\" exists in resource group \"" + resourceGroup + "\"");
-                        _a.label = 1;
+                        _b.label = 1;
                     case 1:
-                        _a.trys.push([1, 4, , 5]);
-                        command = "containerapp show -n " + containerAppName + " -g " + resourceGroup + " -o none";
-                        return [4 /*yield*/, io.which('az', true)];
+                        _b.trys.push([1, 3, , 4]);
+                        command = "az containerapp show -n " + containerAppName + " -g " + resourceGroup + " -o none";
+                        return [4 /*yield*/, cpExec("" + command)];
                     case 2:
-                        pathToTool = _a.sent();
-                        return [4 /*yield*/, exec.exec(pathToTool, [command])];
+                        _a = _b.sent(), stdout = _a.stdout, stderr = _a.stderr;
+                        return [2 /*return*/, !stderr];
                     case 3:
-                        result = _a.sent();
-                        return [2 /*return*/, result == 0];
-                    case 4:
-                        err_6 = _a.sent();
+                        err_6 = _b.sent();
                         core.warning(err_6.message);
                         return [2 /*return*/, false];
-                    case 5: return [2 /*return*/];
+                    case 4: return [2 /*return*/];
                 }
             });
         });
@@ -305,27 +300,24 @@ var ContainerAppHelper = /** @class */ (function () {
      */
     ContainerAppHelper.prototype.doesResourceGroupExist = function (resourceGroup) {
         return __awaiter(this, void 0, void 0, function () {
-            var command, pathToTool, result, err_8;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
+            var command, _a, stdout, stderr, err_8;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
                     case 0:
                         core.debug("Attempting to determine if resource group \"" + resourceGroup + "\" exists");
-                        _a.label = 1;
+                        _b.label = 1;
                     case 1:
-                        _a.trys.push([1, 4, , 5]);
-                        command = "group show -n " + resourceGroup + " -o none";
-                        return [4 /*yield*/, io.which('az', true)];
+                        _b.trys.push([1, 3, , 4]);
+                        command = "az group show -n " + resourceGroup + " -o none";
+                        return [4 /*yield*/, cpExec("" + command)];
                     case 2:
-                        pathToTool = _a.sent();
-                        return [4 /*yield*/, new Utility_1.Utility().executeAndReturnExitCode(pathToTool, command)];
+                        _a = _b.sent(), stdout = _a.stdout, stderr = _a.stderr;
+                        return [2 /*return*/, !stderr];
                     case 3:
-                        result = _a.sent();
-                        return [2 /*return*/, result == 0];
-                    case 4:
-                        err_8 = _a.sent();
+                        err_8 = _b.sent();
                         core.warning(err_8.message);
                         return [2 /*return*/, false];
-                    case 5: return [2 /*return*/];
+                    case 4: return [2 /*return*/];
                 }
             });
         });
@@ -336,31 +328,25 @@ var ContainerAppHelper = /** @class */ (function () {
      */
     ContainerAppHelper.prototype.getDefaultContainerAppLocation = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var command, pathToTool, exitCode, result, err_9;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
+            var command, _a, stdout, stderr, err_9;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
                     case 0:
                         core.debug("Attempting to get the default location for the Container App service for the subscription.");
-                        _a.label = 1;
+                        _b.label = 1;
                     case 1:
-                        _a.trys.push([1, 5, , 6]);
-                        command = "provider show -n Microsoft.App --query \"resourceTypes[?resourceType=='containerApps'].locations[] | [0]\"";
-                        return [4 /*yield*/, io.which('az', true)];
+                        _b.trys.push([1, 3, , 4]);
+                        command = "az provider show -n Microsoft.App --query \"resourceTypes[?resourceType=='containerApps'].locations[] | [0]\"";
+                        return [4 /*yield*/, cpExec("" + command)];
                     case 2:
-                        pathToTool = _a.sent();
-                        return [4 /*yield*/, new Utility_1.Utility().executeAndReturnExitCode(pathToTool, command)];
-                    case 3:
-                        exitCode = _a.sent();
-                        return [4 /*yield*/, new Utility_1.Utility().executeAndReturnOutput(pathToTool, command)];
-                    case 4:
-                        result = _a.sent();
+                        _a = _b.sent(), stdout = _a.stdout, stderr = _a.stderr;
                         // If successful, strip out double quotes, spaces and parentheses from the first location returned
-                        return [2 /*return*/, exitCode == 0 ? result.toLowerCase().replace(/["() ]/g, "") : "eastus2"];
-                    case 5:
-                        err_9 = _a.sent();
+                        return [2 /*return*/, !stderr ? stdout.toLowerCase().replace(/["() ]/g, "") : "eastus2"];
+                    case 3:
+                        err_9 = _b.sent();
                         core.warning(err_9.message);
                         return [2 /*return*/, "eastus2"];
-                    case 6: return [2 /*return*/];
+                    case 4: return [2 /*return*/];
                 }
             });
         });
@@ -372,22 +358,21 @@ var ContainerAppHelper = /** @class */ (function () {
      */
     ContainerAppHelper.prototype.createResourceGroup = function (name, location) {
         return __awaiter(this, void 0, void 0, function () {
-            var command, _a, _b, err_10;
-            return __generator(this, function (_c) {
-                switch (_c.label) {
+            var command, err_10;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
                     case 0:
                         core.debug("Attempting to create resource group \"" + name + "\" in location \"" + location + "\"");
-                        _c.label = 1;
+                        _a.label = 1;
                     case 1:
-                        _c.trys.push([1, 3, , 4]);
-                        command = "group create -n " + name + " -l " + location;
-                        _b = (_a = new Utility_1.Utility()).executeAndthrowIfError;
-                        return [4 /*yield*/, io.which('az', true)];
+                        _a.trys.push([1, 3, , 4]);
+                        command = "az group create -n " + name + " -l " + location;
+                        return [4 /*yield*/, cpExec("" + command)];
                     case 2:
-                        _b.apply(_a, [_c.sent(), command, "Unable to create resource group \"" + name + "\" in location \"" + location + "\"."]);
+                        _a.sent();
                         return [3 /*break*/, 4];
                     case 3:
-                        err_10 = _c.sent();
+                        err_10 = _a.sent();
                         core.error(err_10.message);
                         throw err_10;
                     case 4: return [2 /*return*/];
@@ -402,30 +387,24 @@ var ContainerAppHelper = /** @class */ (function () {
      */
     ContainerAppHelper.prototype.getExistingContainerAppEnvironment = function (resourceGroup) {
         return __awaiter(this, void 0, void 0, function () {
-            var command, pathToTool, result, output, err_11;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
+            var command, _a, stdout, stderr, err_11;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
                     case 0:
                         core.debug("Attempting to get the existing Container App Environment in resource group \"" + resourceGroup + "\"");
-                        _a.label = 1;
+                        _b.label = 1;
                     case 1:
-                        _a.trys.push([1, 5, , 6]);
-                        command = "containerapp env list -g " + resourceGroup + " --query [0].name\"";
-                        return [4 /*yield*/, io.which('az', true)];
+                        _b.trys.push([1, 3, , 4]);
+                        command = "az containerapp env list -g " + resourceGroup + " --query [0].name\"";
+                        return [4 /*yield*/, cpExec("" + command)];
                     case 2:
-                        pathToTool = _a.sent();
-                        return [4 /*yield*/, new Utility_1.Utility().executeAndReturnExitCode(pathToTool, command, "Unable to get the existing Container App Environment in resource group \"" + resourceGroup + "\".")];
+                        _a = _b.sent(), stdout = _a.stdout, stderr = _a.stderr;
+                        return [2 /*return*/, !stderr ? stdout : null];
                     case 3:
-                        result = _a.sent();
-                        return [4 /*yield*/, new Utility_1.Utility().executeAndReturnOutput(pathToTool, command)];
-                    case 4:
-                        output = _a.sent();
-                        return [2 /*return*/, result == 0 ? output : null];
-                    case 5:
-                        err_11 = _a.sent();
+                        err_11 = _b.sent();
                         core.warning(err_11.message);
                         return [2 /*return*/, null];
-                    case 6: return [2 /*return*/];
+                    case 4: return [2 /*return*/];
                 }
             });
         });
@@ -557,25 +536,16 @@ var ContainerAppHelper = /** @class */ (function () {
      */
     ContainerAppHelper.prototype.createRunnableAppImageFromDockerfile = function (imageToDeploy, appSourcePath, dockerfilePath) {
         return __awaiter(this, void 0, void 0, function () {
-            var dockerTool, err_15;
             return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        core.debug("Attempting to create a runnable application image from the provided/found Dockerfile \"" + dockerfilePath + "\" with image name \"" + imageToDeploy + "\"");
-                        _a.label = 1;
-                    case 1:
-                        _a.trys.push([1, 3, , 4]);
-                        return [4 /*yield*/, io.which("docker", true)];
-                    case 2:
-                        dockerTool = _a.sent();
-                        new Utility_1.Utility().executeAndthrowIfError("" + dockerTool, "build --tag " + imageToDeploy + " --file " + dockerfilePath + " " + appSourcePath, "Unable to create runnable application image from the provided/found Dockerfile \"" + dockerfilePath + "\" with image name \"" + imageToDeploy + "\".");
-                        return [3 /*break*/, 4];
-                    case 3:
-                        err_15 = _a.sent();
-                        core.error(err_15.message);
-                        throw err_15;
-                    case 4: return [2 /*return*/];
+                core.debug("Attempting to create a runnable application image from the provided/found Dockerfile \"" + dockerfilePath + "\" with image name \"" + imageToDeploy + "\"");
+                try {
+                    exec.exec('docker', ['build', '--tag', "" + imageToDeploy, '--file', "" + dockerfilePath, "" + appSourcePath]);
                 }
+                catch (err) {
+                    core.error(err.message);
+                    throw err;
+                }
+                return [2 /*return*/];
             });
         });
     };
@@ -586,7 +556,7 @@ var ContainerAppHelper = /** @class */ (function () {
      */
     ContainerAppHelper.prototype.determineRuntimeStackAsync = function (appSourcePath) {
         return __awaiter(this, void 0, void 0, function () {
-            var dockerTool, dockerCommand, oryxRuntimeTxtPath, command, runtimeStack, err_16;
+            var dockerTool, dockerCommand, oryxRuntimeTxtPath, command, runtimeStack, err_15;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -598,7 +568,7 @@ var ContainerAppHelper = /** @class */ (function () {
                     case 2:
                         dockerTool = _a.sent();
                         dockerCommand = "run --rm -v " + appSourcePath + ":/app " + ORYX_CLI_IMAGE + " /bin/bash -c \"oryx dockerfile /app | head -n 1 | sed 's/ARG RUNTIME=//' >> /app/oryx-runtime.txt\"";
-                        new Utility_1.Utility().executeAndthrowIfError("" + dockerTool, "" + dockerCommand, "Unable to determine the runtime stack needed for the provided application source.");
+                        exec.exec('docker', ['run', '--rm', '-v', appSourcePath + ":/app", "" + ORYX_CLI_IMAGE, '/bin/bash', '-c', "\"oryx dockerfile /app | head -n 1 | sed 's/ARG RUNTIME=//' >> /app/oryx-runtime.txt\""]);
                         oryxRuntimeTxtPath = path.join(appSourcePath, 'oryx-runtime.txt');
                         command = "head -n 1 " + oryxRuntimeTxtPath;
                         if (IS_WINDOWS_AGENT) {
@@ -617,9 +587,9 @@ var ContainerAppHelper = /** @class */ (function () {
                         _a.sent();
                         return [2 /*return*/, runtimeStack];
                     case 5:
-                        err_16 = _a.sent();
-                        core.error(err_16.message);
-                        throw err_16;
+                        err_15 = _a.sent();
+                        core.error(err_15.message);
+                        throw err_15;
                     case 6: return [2 /*return*/];
                 }
             });
@@ -645,7 +615,7 @@ var ContainerAppHelper = /** @class */ (function () {
      */
     ContainerAppHelper.prototype.installPackCliAsync = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var command, packZipDownloadUri, packZipDownloadFilePath, tgzSuffix, err_17;
+            var command, packZipDownloadUri, packZipDownloadFilePath, tgzSuffix, err_16;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -672,9 +642,9 @@ var ContainerAppHelper = /** @class */ (function () {
                         _a.sent();
                         return [3 /*break*/, 4];
                     case 3:
-                        err_17 = _a.sent();
+                        err_16 = _a.sent();
                         core.error("Unable to install the pack CLI.");
-                        throw err_17;
+                        throw err_16;
                     case 4: return [2 /*return*/];
                 }
             });

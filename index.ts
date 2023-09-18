@@ -160,13 +160,13 @@ export class azurecontainerapps {
      * Sets up the Azure CLI to be used for this task by logging in to Azure with the provided service connection and
      * setting the Azure CLI to dynamically install missing extensions.
      */
-    private static setupAzureCli() {
+    private static async setupAzureCli() {
         // Log in to Azure with the service connection provided
       //  const connectedService: string = tl.getInput('connectedServiceNameARM', true);
       //  this.authHelper.loginAzureRM(connectedService);
 
         // Set the Azure CLI to dynamically install missing extensions
-        util.setAzureCliDynamicInstall();
+        await util.setAzureCliDynamicInstall();
     }
 
     /**
@@ -203,7 +203,7 @@ export class azurecontainerapps {
     private static getContainerAppName(): string {
         let containerAppName: string = core.getInput('containerAppName', {required: false});
         if (util.isNullOrEmpty(containerAppName)) {
-            containerAppName = `ado-task-app-${this.buildId}-${this.buildNumber}`;
+            containerAppName = `app-${this.buildId}-${this.buildNumber}`;
 
             // Replace all '.' characters with '-' characters in the Container App name
             containerAppName = containerAppName.replace(/\./gi, "-");
