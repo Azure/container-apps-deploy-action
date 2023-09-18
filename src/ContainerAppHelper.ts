@@ -401,7 +401,7 @@ export class ContainerAppHelper {
         dockerfilePath: string) {
             core.debug(`Attempting to create a runnable application image from the provided/found Dockerfile "${dockerfilePath}" with image name "${imageToDeploy}"`);
             try {
-                exec.exec('docker', ['build', '--file', `${dockerfilePath}`, `${appSourcePath}`, '--tag', `${imageToDeploy}`])
+                exec.exec('docker', ['buildx','build', '--file', `${dockerfilePath}`, `${appSourcePath}`, '--tag', `${imageToDeploy}`])
             } catch (err) {
                 core.error(err.message);
                 throw err;

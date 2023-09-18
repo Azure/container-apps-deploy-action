@@ -5245,7 +5245,7 @@ var ContainerAppHelper = /** @class */ (function () {
             return __generator(this, function (_a) {
                 core.debug("Attempting to create a runnable application image from the provided/found Dockerfile \"" + dockerfilePath + "\" with image name \"" + imageToDeploy + "\"");
                 try {
-                    exec.exec('docker', ['build', '--tag', "" + imageToDeploy, '--file', "" + dockerfilePath, "" + appSourcePath]);
+                    exec.exec('docker', ['buildx', 'build', '--file', "" + dockerfilePath, "" + appSourcePath, '--tag', "" + imageToDeploy]);
                 }
                 catch (err) {
                     core.error(err.message);
