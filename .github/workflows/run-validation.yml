@@ -90,11 +90,6 @@ jobs:
         with:
           creds: ${{ secrets.TEST_AZURE_CREDENTIALS }}
 
-      - name: Install Dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get -y install brotli lbrotlienc libbrotli-dev libbrotlicommon
-
       - name: Execute Azure Container Apps Build and Deploy Action
         uses: ./
         with:
