@@ -5,6 +5,7 @@ import * as path from 'path';
 import * as os from 'os';
 import { CommandHelper } from './CommandHelper';
 import { Utility } from './Utility';
+import { pathToFileURL } from 'url';
 
 const ORYX_CLI_IMAGE: string = 'mcr.microsoft.com/oryx/cli:builder-debian-buster-20230208.1';
 const ORYX_BUILDER_IMAGE: string = 'mcr.microsoft.com/oryx/builder:20230208.1';
@@ -26,7 +27,7 @@ export class ContainerAppHelper {
      * @param imageToDeploy - the name of the runnable application image that the Container App will be based from
      * @param optionalCmdArgs - a set of optional command line arguments
      */
-     public createContainerApp(
+     public async createContainerApp(
         containerAppName: string,
         resourceGroup: string,
         environment: string,
@@ -34,12 +35,13 @@ export class ContainerAppHelper {
         optionalCmdArgs: string[]) {
             core.debug(`Attempting to create Container App with name "${containerAppName}" in resource group "${resourceGroup}" based from image "${imageToDeploy}"`);
             try {
-                let command = `az containerapp create -n ${containerAppName} -g ${resourceGroup} -i ${imageToDeploy} --environment ${environment}`;
+                let command = `containerapp create -n ${containerAppName} -g ${resourceGroup} -i ${imageToDeploy} --environment ${environment}`;
                 optionalCmdArgs.forEach(function (val: string) {
                     command += ` ${val}`;
                 });
 
                 new Utility().executeAndthrowIfError(
+                    await io.which('az', true),
                     command,
                     "Unable to create Azure Container App via 'az containerapp create' command."
                 );
@@ -55,15 +57,16 @@ export class ContainerAppHelper {
      * @param resourceGroup - the resource group that the Container App is found in
      * @param yamlConfigPath - the path to the YAML configuration file that the Container App properties will be based from
      */
-    public createContainerAppFromYaml(
+    public async createContainerAppFromYaml(
         containerAppName: string,
         resourceGroup: string,
         yamlConfigPath: string) {
             core.debug(`Attempting to create Container App with name "${containerAppName}" in resource group "${resourceGroup}" from provided YAML "${yamlConfigPath}"`);
             try {
-                let command = `az containerapp create -n ${containerAppName} -g ${resourceGroup} --yaml ${yamlConfigPath}`;
+                let command = `containerapp create -n ${containerAppName} -g ${resourceGroup} --yaml ${yamlConfigPath}`;
 
                 new Utility().executeAndthrowIfError(
+                    await io.which('az', true),
                     command,
                     "Unable to create Azure Container App from YAML configuration file via 'az containerapp create' command."
                 );
@@ -80,19 +83,21 @@ export class ContainerAppHelper {
      * @param imageToDeploy - the name of the runnable application image that the Container App will be based from
      * @param optionalCmdArgs - a set of optional command line arguments
      */
-    public updateContainerApp(
+    public async updateContainerApp(
         containerAppName: string,
         resourceGroup: string,
         imageToDeploy: string,
         optionalCmdArgs: string[]) {
             core.debug(`Attempting to update Container App with name "${containerAppName}" in resource group "${resourceGroup}" based from image "${imageToDeploy}"`);
             try {
-                let command = `az containerapp update -n ${containerAppName} -g ${resourceGroup} -i ${imageToDeploy}`;
+                let command = `containerapp update -n ${containerAppName} -g ${resourceGroup} -i ${imageToDeploy}`;
                 optionalCmdArgs.forEach(function (val: string) {
                     command += ` ${val}`;
                 });
+                const pathToTool = await io.which('az', true);
 
                 new Utility().executeAndthrowIfError(
+                    pathToTool,
                     command,
                     "Unable to update Azure Container App via 'az containerapp update' command."
                 );
@@ -111,7 +116,7 @@ export class ContainerAppHelper {
      * @param ingress - the ingress that the Container App will be exposed on
      * @param targetPort - the target port that the Container App will be exposed on
      */
-    public updateContainerAppWithUp(
+    public async updateContainerAppWithUp(
         containerAppName: string,
         resourceGroup: string,
         imageToDeploy: string,
@@ -121,7 +126,7 @@ export class ContainerAppHelper {
             core.debug(`Attempting to update Container App with name "${containerAppName}" in resource group "${resourceGroup}" based from image "${imageToDeploy}"`);
             const util = new Utility();
             try {
-                let command = `az containerapp up -n ${containerAppName} -g ${resourceGroup} -i ${imageToDeploy}`;
+                let command = `containerapp up -n ${containerAppName} -g ${resourceGroup} -i ${imageToDeploy}`;
                 optionalCmdArgs.forEach(function (val: string) {
                     command += ` ${val}`;
                 });
@@ -134,7 +139,10 @@ export class ContainerAppHelper {
                     command += ` --target-port ${targetPort}`;
                 }
 
+                const pathToTool = await io.which('az', true);
+
                 util.executeAndthrowIfError(
+                    pathToTool,
                     command,
                     "Unable to update Azure Container App via 'az containerapp up' command."
                 );
@@ -150,15 +158,16 @@ export class ContainerAppHelper {
      * @param resourceGroup - the resource group that the existing Container App is found in
      * @param yamlConfigPath - the path to the YAML configuration file that the Container App properties will be based from
      */
-    public updateContainerAppFromYaml(
+    public async updateContainerAppFromYaml(
         containerAppName: string,
         resourceGroup: string,
         yamlConfigPath: string) {
             core.debug(`Attempting to update Container App with name "${containerAppName}" in resource group "${resourceGroup}" from provided YAML "${yamlConfigPath}"`);
             try {
-                let command = `az containerapp update -n ${containerAppName} -g ${resourceGroup} --yaml ${yamlConfigPath}`;
-
+                let command = `containerapp update -n ${containerAppName} -g ${resourceGroup} --yaml ${yamlConfigPath}`;
+                const pathToTool = await io.which('az', true);
                 new Utility().executeAndthrowIfError(
+                    pathToTool,
                     command,
                     "Unable to update Azure Container App from YAML configuration file via 'az containerapp update' command."
                 );
@@ -177,8 +186,9 @@ export class ContainerAppHelper {
     public async doesContainerAppExist(containerAppName: string, resourceGroup: string): Promise<boolean> {
         core.debug(`Attempting to determine if Container App with name "${containerAppName}" exists in resource group "${resourceGroup}"`);
         try {
-            const command = `az containerapp show -n ${containerAppName} -g ${resourceGroup} -o none`;
-            const result = await exec.exec(command);
+            const command = `containerapp show -n ${containerAppName} -g ${resourceGroup} -o none`;
+            const pathToTool = await io.which('az', true);
+            const result = await exec.exec(pathToTool, [command]);
             return result == 0;
         } catch (err) {
             core.warning(err.message);
@@ -195,8 +205,9 @@ export class ContainerAppHelper {
     public async doesContainerAppEnvironmentExist(containerAppEnvironment: string, resourceGroup: string): Promise<boolean> {
         core.debug(`Attempting to determine if Container App Environment with name "${containerAppEnvironment}" exists in resource group "${resourceGroup}"`);
         try {
-            const command = `az containerapp env show -n ${containerAppEnvironment} -g ${resourceGroup} -o none`;
-            const result = await new Utility().executeAndReturnExitCode(command);
+            const command = `containerapp env show -n ${containerAppEnvironment} -g ${resourceGroup} -o none`;
+            const pathToTool = await io.which('az', true);
+            const result = await new Utility().executeAndReturnExitCode(pathToTool, command);
             return result == 0;
         } catch (err) {
             core.warning(err.message);
@@ -212,8 +223,9 @@ export class ContainerAppHelper {
     public async doesResourceGroupExist(resourceGroup: string): Promise<boolean> {
         core.debug(`Attempting to determine if resource group "${resourceGroup}" exists`);
         try {
-            const command = `az group show -n ${resourceGroup} -o none`;
-            const result = await new Utility().executeAndReturnExitCode(command);
+            const command = `group show -n ${resourceGroup} -o none`;
+            const pathToTool = await io.which('az', true);
+            const result = await new Utility().executeAndReturnExitCode(pathToTool, command);
             return result == 0;
         } catch (err) {
             core.warning(err.message);
@@ -228,9 +240,10 @@ export class ContainerAppHelper {
     public async getDefaultContainerAppLocation(): Promise<string> {
         core.debug(`Attempting to get the default location for the Container App service for the subscription.`);
         try {
-            const command = `az provider show -n Microsoft.App --query "resourceTypes[?resourceType=='containerApps'].locations[] | [0]"`
-            const exitCode = await new Utility().executeAndReturnExitCode(command);
-            const result = await new Utility().executeAndReturnOutput(command);
+            const command = `provider show -n Microsoft.App --query "resourceTypes[?resourceType=='containerApps'].locations[] | [0]"`
+            const pathToTool = await io.which('az', true);
+            const exitCode = await new Utility().executeAndReturnExitCode(pathToTool, command);
+            const result = await new Utility().executeAndReturnOutput(pathToTool, command);
 
             // If successful, strip out double quotes, spaces and parentheses from the first location returned
             return exitCode == 0 ? result.toLowerCase().replace(/["() ]/g, "") : `eastus2`;
@@ -245,11 +258,12 @@ export class ContainerAppHelper {
      * @param name - the name of the resource group to create
      * @param location - the location to create the resource group in
      */
-    public createResourceGroup(name: string, location: string) {
+    public async createResourceGroup(name: string, location: string) {
         core.debug(`Attempting to create resource group "${name}" in location "${location}"`);
         try {
-            const command = `az group create -n ${name} -l ${location}`;
-            new Utility().executeAndReturnExitCode(
+            const command = `group create -n ${name} -l ${location}`;
+            new Utility().executeAndthrowIfError(
+                await io.which('az', true),
                 command,
                 `Unable to create resource group "${name}" in location "${location}".`
             );
@@ -267,12 +281,14 @@ export class ContainerAppHelper {
     public async getExistingContainerAppEnvironment(resourceGroup: string) {
         core.debug(`Attempting to get the existing Container App Environment in resource group "${resourceGroup}"`);
         try {
-            const command = `az containerapp env list -g ${resourceGroup} --query [0].name"`;
+            const command = `containerapp env list -g ${resourceGroup} --query [0].name"`;
+            const pathToTool = await io.which('az', true);
             const result = await new Utility().executeAndReturnExitCode(
+                pathToTool,
                 command,
                 `Unable to get the existing Container App Environment in resource group "${resourceGroup}".`
             );
-            const output = await new Utility().executeAndReturnOutput(command);
+            const output = await new Utility().executeAndReturnOutput(pathToTool, command);
             return result == 0 ? output : null;
         } catch (err) {
             core.warning(err.message);
@@ -286,16 +302,17 @@ export class ContainerAppHelper {
      * @param resourceGroup - the resource group that the Container App Environment will be created in
      * @param location - the location that the Container App Environment will be created in
      */
-    public createContainerAppEnvironment(name: string, resourceGroup: string, location?: string) {
+    public async createContainerAppEnvironment(name: string, resourceGroup: string, location?: string) {
         const util = new Utility();
         core.debug(`Attempting to create Container App Environment with name "${name}" in resource group "${resourceGroup}"`);
         try {
-            let command = `az containerapp env create -n ${name} -g ${resourceGroup}`;
+            let command = `containerapp env create -n ${name} -g ${resourceGroup}`;
             if (!util.isNullOrEmpty(location)) {
                 command += ` -l ${location}`;
             }
 
-            util.executeAndReturnExitCode(
+            util.executeAndthrowIfError(
+                await io.which('az', true),
                 command,
                 `Unable to create Azure Container App Environment via 'az containerapp env create' command.`
             );
@@ -310,11 +327,12 @@ export class ContainerAppHelper {
      * @param name - the name of the Container App
      * @param resourceGroup - the resource group that the Container App is found in
      */
-    public disableContainerAppIngress(name: string, resourceGroup: string) {
+    public async disableContainerAppIngress(name: string, resourceGroup: string) {
         core.debug(`Attempting to disable ingress for Container App with name "${name}" in resource group "${resourceGroup}"`);
         try {
-            const command = `az containerapp ingress disable -n ${name} -g ${resourceGroup}`;
-            new Utility().executeAndReturnExitCode(
+            const command = `containerapp ingress disable -n ${name} -g ${resourceGroup}`;
+            new Utility().executeAndthrowIfError(
+                await io.which('az', true),
                 command,
                 `Unable to disable ingress for Container App via 'az containerapp ingress disable' command.`
             );
@@ -332,11 +350,13 @@ export class ContainerAppHelper {
      * @param acrUsername - the username used to authenticate with the Azure Container Registry
      * @param acrPassword - the password used to authenticate with the Azure Container Registry
      */
-    public updateContainerAppRegistryDetails(name: string, resourceGroup: string, acrName: string, acrUsername: string, acrPassword: string) {
+    public async updateContainerAppRegistryDetails(name: string, resourceGroup: string, acrName: string, acrUsername: string, acrPassword: string) {
         core.debug(`Attempting to set the ACR details for Container App with name "${name}" in resource group "${resourceGroup}"`);
         try {
-            const command = `az containerapp registry set -n ${name} -g ${resourceGroup} --server ${acrName}.azurecr.io --username ${acrUsername} --password ${acrPassword}`;
-            new Utility().executeAndReturnExitCode(
+            const command = `containerapp registry set -n ${name} -g ${resourceGroup} --server ${acrName}.azurecr.io --username ${acrUsername} --password ${acrPassword}`;
+            const pathToTool = await io.which('az', true);
+            new Utility().executeAndthrowIfError(
+                pathToTool,
                 command,
                 `Unable to set the ACR details for Container App via 'az containerapp registry set' command.`
             );
@@ -364,7 +384,8 @@ export class ContainerAppHelper {
                 }
 
                 new Utility().executeAndthrowIfError(
-                    `${PACK_CMD} build ${imageToDeploy} --path ${appSourcePath} --builder ${ORYX_BUILDER_IMAGE} --run-image mcr.microsoft.com/oryx/${runtimeStack} ${telemetryArg}`,
+                    `${PACK_CMD}`,
+                    `build ${imageToDeploy} --path ${appSourcePath} --builder ${ORYX_BUILDER_IMAGE} --run-image mcr.microsoft.com/oryx/${runtimeStack} ${telemetryArg}`,
                     `Unable to create runnable application image using the Oryx++ Builder with image name "${imageToDeploy}".`
                 );
             } catch (err) {
@@ -388,7 +409,8 @@ export class ContainerAppHelper {
             try {
                 const dockerTool: string = await io.which("docker", true);
                 new Utility().executeAndthrowIfError(
-                     `${dockerTool} build --tag ${imageToDeploy} --file ${dockerfilePath} ${appSourcePath}`,
+                    `${dockerTool}`,
+                     `build --tag ${imageToDeploy} --file ${dockerfilePath} ${appSourcePath}`,
                     `Unable to create runnable application image from the provided/found Dockerfile "${dockerfilePath}" with image name "${imageToDeploy}".`
                 );
             } catch (err) {
@@ -409,7 +431,8 @@ export class ContainerAppHelper {
             // Use 'oryx dockerfile' command to determine the runtime stack to use and write it to a temp file
             const dockerCommand: string = `run --rm -v ${appSourcePath}:/app ${ORYX_CLI_IMAGE} /bin/bash -c "oryx dockerfile /app | head -n 1 | sed 's/ARG RUNTIME=//' >> /app/oryx-runtime.txt"`;
             new Utility().executeAndthrowIfError(
-                `${dockerTool} ${dockerCommand}`,
+                `${dockerTool}`,
+                `${dockerCommand}`,
                 `Unable to determine the runtime stack needed for the provided application source.`
             );
 
@@ -445,7 +468,8 @@ export class ContainerAppHelper {
         core.debug('Setting the Oryx++ Builder as the default builder via the pack CLI');
         try {
             new Utility().executeAndthrowIfError(
-                `${PACK_CMD} config default-builder ${ORYX_BUILDER_IMAGE}`,
+                `${PACK_CMD}`,
+                `config default-builder ${ORYX_BUILDER_IMAGE}`,
                 `Unable to set the Oryx++ Builder as the default builder via the pack CLI.`
             );
 

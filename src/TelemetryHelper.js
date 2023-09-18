@@ -137,7 +137,7 @@ var executeDockerCommand = function (command, continueOnError) {
                     _a.label = 2;
                 case 2:
                     _a.trys.push([2, 4, 5, 6]);
-                    return [4 /*yield*/, exec.exec(dockerCommand, [], execOptions)];
+                    return [4 /*yield*/, exec.exec(dockerTool, [command], execOptions)];
                 case 3:
                     exitCode = _a.sent();
                     return [3 /*break*/, 6];

@@ -6,7 +6,7 @@ export class Utility {
      * @param errormsg - the error message to display if the command failed
      */
 
-     public async executeAndthrowIfError(command: string, errormsg?: string): Promise<void> {
+     public async executeAndthrowIfError(commandToolPath: string, command: string, errormsg?: string): Promise<void> {
         try {
             let stdout = '';
             let stderr = '';
@@ -22,7 +22,7 @@ export class Utility {
               },
             };
 
-            const exitCode = await exec.exec(command, [], options);
+            const exitCode = await exec.exec(commandToolPath, [command], options);
 
             if (exitCode!== 0) {
               core.error(`Command failed with exit code ${exitCode}`);
@@ -37,7 +37,7 @@ export class Utility {
           }
     }
 
-    public async executeAndReturnExitCode(command: string, errormsg?: string): Promise<number> {
+    public async executeAndReturnExitCode(pathToTool: string, command: string, errormsg?: string): Promise<number> {
         try {
             let stdout = '';
             let stderr = '';
@@ -53,7 +53,7 @@ export class Utility {
               },
             };
 
-            const exitCode = await exec.exec(command, [], options);
+            const exitCode = await exec.exec(pathToTool, [command], options);
 
             if (exitCode!== 0) {
               core.error(`Command failed with exit code ${exitCode}`);
@@ -69,7 +69,7 @@ export class Utility {
           }
     }
 
-    public async executeAndReturnOutput(command: string, errormsg?: string): Promise<string> {
+    public async executeAndReturnOutput(pathToTool: string, command: string, errormsg?: string): Promise<string> {
         try {
             let stdout = '';
             let stderr = '';
@@ -85,7 +85,7 @@ export class Utility {
               },
             };
 
-            const exitCode = await exec.exec(command, [], options);
+            const exitCode = await exec.exec(pathToTool, [command], options);
 
             if (exitCode!== 0) {
               core.error(`Command failed with exit code ${exitCode}`);

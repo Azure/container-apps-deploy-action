@@ -46,7 +46,7 @@ var Utility = /** @class */ (function () {
      * @param command - the command to execute
      * @param errormsg - the error message to display if the command failed
      */
-    Utility.prototype.executeAndthrowIfError = function (command, errormsg) {
+    Utility.prototype.executeAndthrowIfError = function (commandToolPath, command, errormsg) {
         return __awaiter(this, void 0, void 0, function () {
             var stdout_1, stderr_1, options, exitCode, error_1;
             return __generator(this, function (_a) {
@@ -65,7 +65,7 @@ var Utility = /** @class */ (function () {
                                 }
                             }
                         };
-                        return [4 /*yield*/, exec.exec(command, [], options)];
+                        return [4 /*yield*/, exec.exec(commandToolPath, [command], options)];
                     case 1:
                         exitCode = _a.sent();
                         if (exitCode !== 0) {
@@ -85,7 +85,7 @@ var Utility = /** @class */ (function () {
             });
         });
     };
-    Utility.prototype.executeAndReturnExitCode = function (command, errormsg) {
+    Utility.prototype.executeAndReturnExitCode = function (pathToTool, command, errormsg) {
         return __awaiter(this, void 0, void 0, function () {
             var stdout_2, stderr_2, options, exitCode, error_2;
             return __generator(this, function (_a) {
@@ -104,7 +104,7 @@ var Utility = /** @class */ (function () {
                                 }
                             }
                         };
-                        return [4 /*yield*/, exec.exec(command, [], options)];
+                        return [4 /*yield*/, exec.exec(pathToTool, [command], options)];
                     case 1:
                         exitCode = _a.sent();
                         if (exitCode !== 0) {
@@ -124,7 +124,7 @@ var Utility = /** @class */ (function () {
             });
         });
     };
-    Utility.prototype.executeAndReturnOutput = function (command, errormsg) {
+    Utility.prototype.executeAndReturnOutput = function (pathToTool, command, errormsg) {
         return __awaiter(this, void 0, void 0, function () {
             var stdout_3, stderr_3, options, exitCode, error_3;
             return __generator(this, function (_a) {
@@ -143,7 +143,7 @@ var Utility = /** @class */ (function () {
                                 }
                             }
                         };
-                        return [4 /*yield*/, exec.exec(command, [], options)];
+                        return [4 /*yield*/, exec.exec(pathToTool, [command], options)];
                     case 1:
                         exitCode = _a.sent();
                         if (exitCode !== 0) {

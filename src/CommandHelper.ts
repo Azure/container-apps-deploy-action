@@ -1,6 +1,7 @@
 import * as os from 'os'
 import * as core from '@actions/core';
 import * as exec from '@actions/exec';
+import * as io from '@actions/io';
 
 export class CommandHelper {
 
@@ -38,7 +39,8 @@ export class CommandHelper {
             outStream: process.stdout,
         }
         try {
-            await exec.exec('/bin/bash',['-c', command], options);
+            const pathToTool = await io.which('bash', true)
+            await exec.exec(pathToTool,['-c', command], options);
             return bashOutput.trim();
         } catch (err) {
             core.error('Unable to run provided bash command ${command}');
@@ -69,7 +71,8 @@ export class CommandHelper {
             outStream: process.stdout,
         }
         try {
-            await exec.exec('pwsh',['-c', command], options);
+            const pathToTool = await io.which('pwsh', true)
+            await exec.exec(pathToTool,[command], options);
             return pwshOutput.trim();
         } catch (err) {
             core.error('Unable to run provided PowerShell command ${command}');
