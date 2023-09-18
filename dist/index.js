@@ -4798,7 +4798,7 @@ var ContainerAppHelper = /** @class */ (function () {
                         _a.trys.push([1, 3, , 4]);
                         command_1 = "az containerapp create -n " + containerAppName + " -g " + resourceGroup + " -i " + imageToDeploy + " --environment " + environment;
                         optionalCmdArgs.forEach(function (val) {
-                            command_1 += " " + val;
+                            command_1 += "" + val;
                         });
                         return [4 /*yield*/, cpExec("" + command_1)];
                     case 2:

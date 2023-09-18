@@ -40,7 +40,7 @@ export class ContainerAppHelper {
             try {
                 let command = `az containerapp create -n ${containerAppName} -g ${resourceGroup} -i ${imageToDeploy} --environment ${environment}`;
                 optionalCmdArgs.forEach(function (val: string) {
-                    command += ` ${val}`;
+                    command += `${val}`;
                 });
                 await cpExec(`${command}`);
             } catch (err) {
