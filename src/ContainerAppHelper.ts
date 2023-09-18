@@ -42,7 +42,7 @@ export class ContainerAppHelper {
                 optionalCmdArgs.forEach(function (val: string) {
                     command += ` ${val}`;
                 });
-                await cpExec(`${command}`);
+                await cpExec({command});
             } catch (err) {
                 core.error(err.message);
                 throw err;

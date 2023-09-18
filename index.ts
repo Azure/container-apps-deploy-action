@@ -238,7 +238,7 @@ export class azurecontainerapps {
      * @param location - The location to deploy resources to.
      * @returns The name of the resource group to use for the task.
      */
-    private static getOrCreateResourceGroup(containerAppName: string, location: string): string {
+    private static async getOrCreateResourceGroup(containerAppName: string, location: string): string {
         // Get the resource group to deploy to if it was provided, or generate it from the Container App name
         let resourceGroup: string = core.getInput('resourceGroup', {required: false});
         if (util.isNullOrEmpty(resourceGroup)) {
@@ -246,9 +246,9 @@ export class azurecontainerapps {
             console.log(`Default resource group name: ${resourceGroup}`);
 
             // Ensure that the resource group that the Container App will be created in exists
-            const resourceGroupExists = this.appHelper.doesResourceGroupExist(resourceGroup);
+            const resourceGroupExists = await this.appHelper.doesResourceGroupExist(resourceGroup);
             if (!resourceGroupExists) {
-                this.appHelper.createResourceGroup(resourceGroup, location);
+                await this.appHelper.createResourceGroup(resourceGroup, location);
             }
         }
 

@@ -259,18 +259,27 @@ var azurecontainerapps = /** @class */ (function () {
      * @returns The name of the resource group to use for the task.
      */
     azurecontainerapps.getOrCreateResourceGroup = function (containerAppName, location) {
-        // Get the resource group to deploy to if it was provided, or generate it from the Container App name
-        var resourceGroup = core.getInput('resourceGroup', { required: false });
-        if (util.isNullOrEmpty(resourceGroup)) {
-            resourceGroup = containerAppName + "-rg";
-            console.log("Default resource group name: " + resourceGroup);
-            // Ensure that the resource group that the Container App will be created in exists
-            var resourceGroupExists = this.appHelper.doesResourceGroupExist(resourceGroup);
-            if (!resourceGroupExists) {
-                this.appHelper.createResourceGroup(resourceGroup, location);
-            }
-        }
-        return resourceGroup;
+        return __awaiter(this, void 0, void 0, function () {
+            var resourceGroup, resourceGroupExists;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        resourceGroup = core.getInput('resourceGroup', { required: false });
+                        if (!util.isNullOrEmpty(resourceGroup)) return [3 /*break*/, 3];
+                        resourceGroup = containerAppName + "-rg";
+                        console.log("Default resource group name: " + resourceGroup);
+                        return [4 /*yield*/, this.appHelper.doesResourceGroupExist(resourceGroup)];
+                    case 1:
+                        resourceGroupExists = _a.sent();
+                        if (!!resourceGroupExists) return [3 /*break*/, 3];
+                        return [4 /*yield*/, this.appHelper.createResourceGroup(resourceGroup, location)];
+                    case 2:
+                        _a.sent();
+                        _a.label = 3;
+                    case 3: return [2 /*return*/, resourceGroup];
+                }
+            });
+        });
     };
     /**
      * Gets the name of the Container App Environment to use for the task. If the 'containerAppEnvironment' argument

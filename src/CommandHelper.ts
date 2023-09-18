@@ -12,8 +12,8 @@ export class CommandHelper {
      */
     public async execCommandAsync(command: string): Promise<string> {
         return os.platform() == 'win32' ?
-            this.execPwshCommandAsync(command) :
-            this.execBashCommandAsync(command);
+           await this.execPwshCommandAsync(command) :
+           await this.execBashCommandAsync(command);
     }
 
     /**
@@ -39,8 +39,8 @@ export class CommandHelper {
             outStream: process.stdout,
         }
         try {
-            const pathToTool = await io.which('bash', true)
-            await exec.exec(pathToTool,['-c', command], options);
+           // const pathToTool = await io.which('bash', true)
+            await exec.exec('bash',['-c', command], options);
             return bashOutput.trim();
         } catch (err) {
             core.error('Unable to run provided bash command ${command}');
@@ -71,8 +71,7 @@ export class CommandHelper {
             outStream: process.stdout,
         }
         try {
-            const pathToTool = await io.which('pwsh', true)
-            await exec.exec(pathToTool,[command], options);
+            await exec.exec('pwsh',[command], options);
             return pwshOutput.trim();
         } catch (err) {
             core.error('Unable to run provided PowerShell command ${command}');

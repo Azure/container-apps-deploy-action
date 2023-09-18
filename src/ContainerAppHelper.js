@@ -77,7 +77,7 @@ var ContainerAppHelper = /** @class */ (function () {
                         optionalCmdArgs.forEach(function (val) {
                             command_1 += " " + val;
                         });
-                        return [4 /*yield*/, cpExec("" + command_1)];
+                        return [4 /*yield*/, cpExec({ command: command_1 })];
                     case 2:
                         _a.sent();
                         return [3 /*break*/, 4];
