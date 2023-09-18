@@ -92,7 +92,7 @@ jobs:
       - name: Execute Azure Container Apps Build and Deploy Action
         uses: ./
         with:
-          appSourcePath: '${{ github.workspace }}/oryx/tests/SampleApps/DotNetCore/Blazor_Function_Sample/blazor-sample-app'
+          appSourcePath: '${{ github.workspace }}/oryx/tests/SampleApps/Python/microblog'
           acrName: ${{ vars.TEST_ACR_NAME }}
           acrUsername: ${{ secrets.TEST_REGISTRY_USERNAME }}
           acrPassword: ${{ secrets.TEST_REGISTRY_PASSWORD }}
@@ -139,7 +139,7 @@ jobs:
       - name: Execute Azure Container Apps Build and Deploy Action
         uses: ./
         with:
-          appSourcePath: '${{ github.workspace }}/oryx/tests/SampleApps/Python/microblog'
+          appSourcePath: '${{ github.workspace }}/oryx/tests/SampleApps/DotNetCore/Blazor_Function_Sample/blazor-sample-app'
           dockerfilePath: 'Dockerfile'
           acrName: ${{ vars.TEST_ACR_NAME }}
           acrUsername: ${{ secrets.TEST_REGISTRY_USERNAME }}
