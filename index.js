@@ -387,12 +387,19 @@ var azurecontainerapps = /** @class */ (function () {
                         dockerfilePath = path.join(this.appSourcePath, dockerfilePath);
                         _a.label = 5;
                     case 5:
-                        if (!util.isNullOrEmpty(dockerfilePath)) {
-                            // Build the image from the provided/discovered Dockerfile
-                            this.builderImageFromDockerfile(this.appSourcePath, dockerfilePath, this.imageToBuild);
-                        }
+                        if (!!util.isNullOrEmpty(dockerfilePath)) return [3 /*break*/, 7];
+                        // Build the image from the provided/discovered Dockerfile
+                        return [4 /*yield*/, this.builderImageFromDockerfile(this.appSourcePath, dockerfilePath, this.imageToBuild)];
+                    case 6:
+                        // Build the image from the provided/discovered Dockerfile
+                        _a.sent();
+                        _a.label = 7;
+                    case 7: 
+                    // Push the image to ACR
+                    return [4 /*yield*/, this.registryHelper.pushImageToAcr(this.imageToBuild)];
+                    case 8:
                         // Push the image to ACR
-                        this.registryHelper.pushImageToAcr(this.imageToBuild);
+                        _a.sent();
                         return [2 /*return*/];
                 }
             });
@@ -443,10 +450,20 @@ var azurecontainerapps = /** @class */ (function () {
      * @param imageToBuild - The name of the image to build.
      */
     azurecontainerapps.builderImageFromDockerfile = function (appSourcePath, dockerfilePath, imageToBuild) {
-        console.log("Building image \"" + imageToBuild + "\" using the provided Dockerfile");
-        this.appHelper.createRunnableAppImageFromDockerfile(imageToBuild, appSourcePath, dockerfilePath);
-        // If telemetry is enabled, log that the Dockerfile scenario was targeted for this task
-        this.telemetryHelper.setDockerfileScenario();
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        console.log("Building image \"" + imageToBuild + "\" using the provided Dockerfile");
+                        return [4 /*yield*/, this.appHelper.createRunnableAppImageFromDockerfile(imageToBuild, appSourcePath, dockerfilePath)];
+                    case 1:
+                        _a.sent();
+                        // If telemetry is enabled, log that the Dockerfile scenario was targeted for this task
+                        this.telemetryHelper.setDockerfileScenario();
+                        return [2 /*return*/];
+                }
+            });
+        });
     };
     /**
      * Sets up the Container App properties that will be passed through to the Azure CLI when a YAML configuration

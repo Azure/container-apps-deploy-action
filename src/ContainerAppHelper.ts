@@ -402,7 +402,7 @@ export class ContainerAppHelper {
             core.debug(`Attempting to create a runnable application image from the provided/found Dockerfile "${dockerfilePath}" with image name "${imageToDeploy}"`);
             try {
                 const dockerTool = await io.which("docker", true);
-                exec.exec(dockerTool, ['build', '--file', `${dockerfilePath}`, `${appSourcePath}`, '--tag', `${imageToDeploy}`])
+                await exec.exec(dockerTool, ['build', '--file', `${dockerfilePath}`, `${appSourcePath}`, '--tag', `${imageToDeploy}`])
                 core.info(`Successfully created runnable application image from the provided/found Dockerfile "${dockerfilePath}" with image name "${imageToDeploy}"`);
             } catch (err) {
                 core.error(err.message);

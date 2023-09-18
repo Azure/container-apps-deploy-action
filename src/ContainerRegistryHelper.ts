@@ -45,7 +45,7 @@ export class ContainerRegistryHelper {
         core.debug(`Attempting to push image "${imageToPush}" to ACR`);
         try {
             const dockerTool: string = await io.which("docker", true);
-            exec.exec(dockerTool, [`push`, `${imageToPush}`])
+            await exec.exec(dockerTool, [`push`, `${imageToPush}`])
             core.info(`Successfully pushed image "${imageToPush}" to ACR`);
             // const dockerTool: string = await io.which("docker", true);
             // new Utility().executeAndthrowIfError(

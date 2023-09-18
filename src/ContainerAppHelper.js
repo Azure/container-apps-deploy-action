@@ -543,18 +543,20 @@ var ContainerAppHelper = /** @class */ (function () {
                         core.debug("Attempting to create a runnable application image from the provided/found Dockerfile \"" + dockerfilePath + "\" with image name \"" + imageToDeploy + "\"");
                         _a.label = 1;
                     case 1:
-                        _a.trys.push([1, 3, , 4]);
+                        _a.trys.push([1, 4, , 5]);
                         return [4 /*yield*/, io.which("docker", true)];
                     case 2:
                         dockerTool = _a.sent();
-                        exec.exec(dockerTool, ['build', '--file', "" + dockerfilePath, "" + appSourcePath, '--tag', "" + imageToDeploy]);
-                        core.info("Successfully created runnable application image from the provided/found Dockerfile \"" + dockerfilePath + "\" with image name \"" + imageToDeploy + "\"");
-                        return [3 /*break*/, 4];
+                        return [4 /*yield*/, exec.exec(dockerTool, ['build', '--file', "" + dockerfilePath, "" + appSourcePath, '--tag', "" + imageToDeploy])];
                     case 3:
+                        _a.sent();
+                        core.info("Successfully created runnable application image from the provided/found Dockerfile \"" + dockerfilePath + "\" with image name \"" + imageToDeploy + "\"");
+                        return [3 /*break*/, 5];
+                    case 4:
                         err_15 = _a.sent();
                         core.error(err_15.message);
                         throw err_15;
-                    case 4: return [2 /*return*/];
+                    case 5: return [2 /*return*/];
                 }
             });
         });

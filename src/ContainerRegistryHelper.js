@@ -102,19 +102,21 @@ var ContainerRegistryHelper = /** @class */ (function () {
                         core.debug("Attempting to push image \"" + imageToPush + "\" to ACR");
                         _a.label = 1;
                     case 1:
-                        _a.trys.push([1, 3, , 4]);
+                        _a.trys.push([1, 4, , 5]);
                         return [4 /*yield*/, io.which("docker", true)];
                     case 2:
                         dockerTool = _a.sent();
-                        exec.exec(dockerTool, ["push", "" + imageToPush]);
-                        core.info("Successfully pushed image \"" + imageToPush + "\" to ACR");
-                        return [3 /*break*/, 4];
+                        return [4 /*yield*/, exec.exec(dockerTool, ["push", "" + imageToPush])];
                     case 3:
+                        _a.sent();
+                        core.info("Successfully pushed image \"" + imageToPush + "\" to ACR");
+                        return [3 /*break*/, 5];
+                    case 4:
                         err_2 = _a.sent();
                         core.error("Failed to push image \"" + imageToPush + "\" to ACR");
                         core.error(err_2.message);
                         throw err_2;
-                    case 4: return [2 /*return*/];
+                    case 5: return [2 /*return*/];
                 }
             });
         });

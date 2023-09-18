@@ -356,11 +356,11 @@ export class azurecontainerapps {
 
         if (!util.isNullOrEmpty(dockerfilePath)) {
             // Build the image from the provided/discovered Dockerfile
-            this.builderImageFromDockerfile(this.appSourcePath, dockerfilePath, this.imageToBuild);
+            await this.builderImageFromDockerfile(this.appSourcePath, dockerfilePath, this.imageToBuild);
         }
 
         // Push the image to ACR
-        this.registryHelper.pushImageToAcr(this.imageToBuild);
+        await this.registryHelper.pushImageToAcr(this.imageToBuild);
     }
 
     /**
@@ -397,9 +397,9 @@ export class azurecontainerapps {
      * @param dockerfilePath - The path to the Dockerfile to build.
      * @param imageToBuild - The name of the image to build.
      */
-    private static builderImageFromDockerfile(appSourcePath: string, dockerfilePath: string, imageToBuild: string) {
+    private static async builderImageFromDockerfile(appSourcePath: string, dockerfilePath: string, imageToBuild: string) {
         console.log(`Building image "${imageToBuild}" using the provided Dockerfile`);
-        this.appHelper.createRunnableAppImageFromDockerfile(imageToBuild, appSourcePath, dockerfilePath);
+        await this.appHelper.createRunnableAppImageFromDockerfile(imageToBuild, appSourcePath, dockerfilePath);
 
         // If telemetry is enabled, log that the Dockerfile scenario was targeted for this task
         this.telemetryHelper.setDockerfileScenario();

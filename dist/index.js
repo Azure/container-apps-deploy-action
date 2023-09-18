@@ -394,12 +394,19 @@ var azurecontainerapps = /** @class */ (function () {
                         dockerfilePath = path.join(this.appSourcePath, dockerfilePath);
                         _a.label = 5;
                     case 5:
-                        if (!util.isNullOrEmpty(dockerfilePath)) {
-                            // Build the image from the provided/discovered Dockerfile
-                            this.builderImageFromDockerfile(this.appSourcePath, dockerfilePath, this.imageToBuild);
-                        }
+                        if (!!util.isNullOrEmpty(dockerfilePath)) return [3 /*break*/, 7];
+                        // Build the image from the provided/discovered Dockerfile
+                        return [4 /*yield*/, this.builderImageFromDockerfile(this.appSourcePath, dockerfilePath, this.imageToBuild)];
+                    case 6:
+                        // Build the image from the provided/discovered Dockerfile
+                        _a.sent();
+                        _a.label = 7;
+                    case 7: 
+                    // Push the image to ACR
+                    return [4 /*yield*/, this.registryHelper.pushImageToAcr(this.imageToBuild)];
+                    case 8:
                         // Push the image to ACR
-                        this.registryHelper.pushImageToAcr(this.imageToBuild);
+                        _a.sent();
                         return [2 /*return*/];
                 }
             });
@@ -450,10 +457,20 @@ var azurecontainerapps = /** @class */ (function () {
      * @param imageToBuild - The name of the image to build.
      */
     azurecontainerapps.builderImageFromDockerfile = function (appSourcePath, dockerfilePath, imageToBuild) {
-        console.log("Building image \"" + imageToBuild + "\" using the provided Dockerfile");
-        this.appHelper.createRunnableAppImageFromDockerfile(imageToBuild, appSourcePath, dockerfilePath);
-        // If telemetry is enabled, log that the Dockerfile scenario was targeted for this task
-        this.telemetryHelper.setDockerfileScenario();
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        console.log("Building image \"" + imageToBuild + "\" using the provided Dockerfile");
+                        return [4 /*yield*/, this.appHelper.createRunnableAppImageFromDockerfile(imageToBuild, appSourcePath, dockerfilePath)];
+                    case 1:
+                        _a.sent();
+                        // If telemetry is enabled, log that the Dockerfile scenario was targeted for this task
+                        this.telemetryHelper.setDockerfileScenario();
+                        return [2 /*return*/];
+                }
+            });
+        });
     };
     /**
      * Sets up the Container App properties that will be passed through to the Azure CLI when a YAML configuration
@@ -5249,18 +5266,20 @@ var ContainerAppHelper = /** @class */ (function () {
                         core.debug("Attempting to create a runnable application image from the provided/found Dockerfile \"" + dockerfilePath + "\" with image name \"" + imageToDeploy + "\"");
                         _a.label = 1;
                     case 1:
-                        _a.trys.push([1, 3, , 4]);
+                        _a.trys.push([1, 4, , 5]);
                         return [4 /*yield*/, io.which("docker", true)];
                     case 2:
                         dockerTool = _a.sent();
-                        exec.exec(dockerTool, ['build', '--file', "" + dockerfilePath, "" + appSourcePath, '--tag', "" + imageToDeploy]);
-                        core.info("Successfully created runnable application image from the provided/found Dockerfile \"" + dockerfilePath + "\" with image name \"" + imageToDeploy + "\"");
-                        return [3 /*break*/, 4];
+                        return [4 /*yield*/, exec.exec(dockerTool, ['build', '--file', "" + dockerfilePath, "" + appSourcePath, '--tag', "" + imageToDeploy])];
                     case 3:
+                        _a.sent();
+                        core.info("Successfully created runnable application image from the provided/found Dockerfile \"" + dockerfilePath + "\" with image name \"" + imageToDeploy + "\"");
+                        return [3 /*break*/, 5];
+                    case 4:
                         err_15 = _a.sent();
                         core.error(err_15.message);
                         throw err_15;
-                    case 4: return [2 /*return*/];
+                    case 5: return [2 /*return*/];
                 }
             });
         });
@@ -5481,19 +5500,21 @@ var ContainerRegistryHelper = /** @class */ (function () {
                         core.debug("Attempting to push image \"" + imageToPush + "\" to ACR");
                         _a.label = 1;
                     case 1:
-                        _a.trys.push([1, 3, , 4]);
+                        _a.trys.push([1, 4, , 5]);
                         return [4 /*yield*/, io.which("docker", true)];
                     case 2:
                         dockerTool = _a.sent();
-                        exec.exec(dockerTool, ["push", "" + imageToPush]);
-                        core.info("Successfully pushed image \"" + imageToPush + "\" to ACR");
-                        return [3 /*break*/, 4];
+                        return [4 /*yield*/, exec.exec(dockerTool, ["push", "" + imageToPush])];
                     case 3:
+                        _a.sent();
+                        core.info("Successfully pushed image \"" + imageToPush + "\" to ACR");
+                        return [3 /*break*/, 5];
+                    case 4:
                         err_2 = _a.sent();
                         core.error("Failed to push image \"" + imageToPush + "\" to ACR");
                         core.error(err_2.message);
                         throw err_2;
-                    case 4: return [2 /*return*/];
+                    case 5: return [2 /*return*/];
                 }
             });
         });
