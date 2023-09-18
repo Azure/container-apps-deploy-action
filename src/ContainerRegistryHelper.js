@@ -107,7 +107,7 @@ var ContainerRegistryHelper = /** @class */ (function () {
                         return [4 /*yield*/, io.which("docker", true)];
                     case 2:
                         dockerTool = _a.sent();
-                        new Utility_1.Utility().executeAndthrowIfError(dockerTool + " push " + imageToPush, "Failed to push image \"" + imageToPush + "\" to ACR");
+                        new Utility_1.Utility().executeAndthrowIfError("" + dockerTool, "push " + imageToPush, "Failed to push image \"" + imageToPush + "\" to ACR");
                         return [3 /*break*/, 4];
                     case 3:
                         err_2 = _a.sent();

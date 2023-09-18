@@ -507,38 +507,52 @@ var azurecontainerapps = /** @class */ (function () {
      * Creates or updates the Container App.
      */
     azurecontainerapps.createOrUpdateContainerApp = function () {
-        if (!this.containerAppExists) {
-            if (!util.isNullOrEmpty(this.yamlConfigPath)) {
-                // Create the Container App from the YAML configuration file
-                this.appHelper.createContainerAppFromYaml(this.containerAppName, this.resourceGroup, this.yamlConfigPath);
-            }
-            else {
-                // Create the Container App from command line arguments
-                this.appHelper.createContainerApp(this.containerAppName, this.resourceGroup, this.containerAppEnvironment, this.imageToDeploy, this.commandLineArgs);
-            }
-            return;
-        }
-        if (!util.isNullOrEmpty(this.yamlConfigPath)) {
-            // Update the Container App from the YAML configuration file
-            this.appHelper.updateContainerAppFromYaml(this.containerAppName, this.resourceGroup, this.yamlConfigPath);
-            return;
-        }
-        if (this.shouldUseUpdateCommand) {
-            // Update the ACR details on the existing Container App, if provided as an input
-            if (!util.isNullOrEmpty(this.acrName) && !util.isNullOrEmpty(this.acrUsername) && !util.isNullOrEmpty(this.acrPassword)) {
-                this.appHelper.updateContainerAppRegistryDetails(this.containerAppName, this.resourceGroup, this.acrName, this.acrUsername, this.acrPassword);
-            }
-            // Update the Container App using the 'update' command
-            this.appHelper.updateContainerApp(this.containerAppName, this.resourceGroup, this.imageToDeploy, this.commandLineArgs);
-        }
-        else {
-            // Update the Container App using the 'up' command
-            this.appHelper.updateContainerAppWithUp(this.containerAppName, this.resourceGroup, this.imageToDeploy, this.commandLineArgs, this.ingress, this.targetPort);
-        }
-        // Disable ingress on the existing Container App, if provided as an input
-        if (this.ingress == 'disabled') {
-            this.appHelper.disableContainerAppIngress(this.containerAppName, this.resourceGroup);
-        }
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        if (!!this.containerAppExists) return [3 /*break*/, 5];
+                        if (!!util.isNullOrEmpty(this.yamlConfigPath)) return [3 /*break*/, 2];
+                        // Create the Container App from the YAML configuration file
+                        return [4 /*yield*/, this.appHelper.createContainerAppFromYaml(this.containerAppName, this.resourceGroup, this.yamlConfigPath)];
+                    case 1:
+                        // Create the Container App from the YAML configuration file
+                        _a.sent();
+                        return [3 /*break*/, 4];
+                    case 2: 
+                    // Create the Container App from command line arguments
+                    return [4 /*yield*/, this.appHelper.createContainerApp(this.containerAppName, this.resourceGroup, this.containerAppEnvironment, this.imageToDeploy, this.commandLineArgs)];
+                    case 3:
+                        // Create the Container App from command line arguments
+                        _a.sent();
+                        _a.label = 4;
+                    case 4: return [2 /*return*/];
+                    case 5:
+                        if (!util.isNullOrEmpty(this.yamlConfigPath)) {
+                            // Update the Container App from the YAML configuration file
+                            this.appHelper.updateContainerAppFromYaml(this.containerAppName, this.resourceGroup, this.yamlConfigPath);
+                            return [2 /*return*/];
+                        }
+                        if (this.shouldUseUpdateCommand) {
+                            // Update the ACR details on the existing Container App, if provided as an input
+                            if (!util.isNullOrEmpty(this.acrName) && !util.isNullOrEmpty(this.acrUsername) && !util.isNullOrEmpty(this.acrPassword)) {
+                                this.appHelper.updateContainerAppRegistryDetails(this.containerAppName, this.resourceGroup, this.acrName, this.acrUsername, this.acrPassword);
+                            }
+                            // Update the Container App using the 'update' command
+                            this.appHelper.updateContainerApp(this.containerAppName, this.resourceGroup, this.imageToDeploy, this.commandLineArgs);
+                        }
+                        else {
+                            // Update the Container App using the 'up' command
+                            this.appHelper.updateContainerAppWithUp(this.containerAppName, this.resourceGroup, this.imageToDeploy, this.commandLineArgs, this.ingress, this.targetPort);
+                        }
+                        // Disable ingress on the existing Container App, if provided as an input
+                        if (this.ingress == 'disabled') {
+                            this.appHelper.disableContainerAppIngress(this.containerAppName, this.resourceGroup);
+                        }
+                        return [2 /*return*/];
+                }
+            });
+        });
     };
     // Azure DevOps build properties
     azurecontainerapps.buildId = process.env.GITHUB_RUN_ID;

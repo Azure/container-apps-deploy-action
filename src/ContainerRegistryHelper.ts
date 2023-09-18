@@ -46,7 +46,8 @@ export class ContainerRegistryHelper {
         try {
             const dockerTool: string = await io.which("docker", true);
             new Utility().executeAndthrowIfError(
-                `${dockerTool} push ${imageToPush}`,
+                `${dockerTool}`,
+                `push ${imageToPush}`,
                 `Failed to push image "${imageToPush}" to ACR`
             );
 

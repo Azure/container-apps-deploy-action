@@ -491,14 +491,14 @@ export class azurecontainerapps {
     /**
      * Creates or updates the Container App.
      */
-    private static createOrUpdateContainerApp() {
+    private static async createOrUpdateContainerApp() {
         if (!this.containerAppExists) {
             if (!util.isNullOrEmpty(this.yamlConfigPath)) {
                 // Create the Container App from the YAML configuration file
-                this.appHelper.createContainerAppFromYaml(this.containerAppName, this.resourceGroup, this.yamlConfigPath);
+                await this.appHelper.createContainerAppFromYaml(this.containerAppName, this.resourceGroup, this.yamlConfigPath);
             } else {
                 // Create the Container App from command line arguments
-                this.appHelper.createContainerApp(this.containerAppName, this.resourceGroup, this.containerAppEnvironment, this.imageToDeploy, this.commandLineArgs);
+                await this.appHelper.createContainerApp(this.containerAppName, this.resourceGroup, this.containerAppEnvironment, this.imageToDeploy, this.commandLineArgs);
             }
 
             return;
