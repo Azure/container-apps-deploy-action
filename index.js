@@ -583,28 +583,41 @@ var azurecontainerapps = /** @class */ (function () {
                         _a.label = 4;
                     case 4: return [2 /*return*/];
                     case 5:
-                        if (!util.isNullOrEmpty(this.yamlConfigPath)) {
-                            // Update the Container App from the YAML configuration file
-                            this.appHelper.updateContainerAppFromYaml(this.containerAppName, this.resourceGroup, this.yamlConfigPath);
-                            return [2 /*return*/];
-                        }
-                        if (this.shouldUseUpdateCommand) {
-                            // Update the ACR details on the existing Container App, if provided as an input
-                            if (!util.isNullOrEmpty(this.acrName) && !util.isNullOrEmpty(this.acrUsername) && !util.isNullOrEmpty(this.acrPassword)) {
-                                this.appHelper.updateContainerAppRegistryDetails(this.containerAppName, this.resourceGroup, this.acrName, this.acrUsername, this.acrPassword);
-                            }
-                            // Update the Container App using the 'update' command
-                            this.appHelper.updateContainerApp(this.containerAppName, this.resourceGroup, this.imageToDeploy, this.commandLineArgs);
-                        }
-                        else {
-                            // Update the Container App using the 'up' command
-                            this.appHelper.updateContainerAppWithUp(this.containerAppName, this.resourceGroup, this.imageToDeploy, this.commandLineArgs, this.ingress, this.targetPort);
-                        }
-                        // Disable ingress on the existing Container App, if provided as an input
-                        if (this.ingress == 'disabled') {
-                            this.appHelper.disableContainerAppIngress(this.containerAppName, this.resourceGroup);
-                        }
+                        if (!!util.isNullOrEmpty(this.yamlConfigPath)) return [3 /*break*/, 7];
+                        // Update the Container App from the YAML configuration file
+                        return [4 /*yield*/, this.appHelper.updateContainerAppFromYaml(this.containerAppName, this.resourceGroup, this.yamlConfigPath)];
+                    case 6:
+                        // Update the Container App from the YAML configuration file
+                        _a.sent();
                         return [2 /*return*/];
+                    case 7:
+                        if (!this.shouldUseUpdateCommand) return [3 /*break*/, 11];
+                        if (!(!util.isNullOrEmpty(this.acrName) && !util.isNullOrEmpty(this.acrUsername) && !util.isNullOrEmpty(this.acrPassword))) return [3 /*break*/, 9];
+                        return [4 /*yield*/, this.appHelper.updateContainerAppRegistryDetails(this.containerAppName, this.resourceGroup, this.acrName, this.acrUsername, this.acrPassword)];
+                    case 8:
+                        _a.sent();
+                        _a.label = 9;
+                    case 9: 
+                    // Update the Container App using the 'update' command
+                    return [4 /*yield*/, this.appHelper.updateContainerApp(this.containerAppName, this.resourceGroup, this.imageToDeploy, this.commandLineArgs)];
+                    case 10:
+                        // Update the Container App using the 'update' command
+                        _a.sent();
+                        return [3 /*break*/, 13];
+                    case 11: 
+                    // Update the Container App using the 'up' command
+                    return [4 /*yield*/, this.appHelper.updateContainerAppWithUp(this.containerAppName, this.resourceGroup, this.imageToDeploy, this.commandLineArgs, this.ingress, this.targetPort)];
+                    case 12:
+                        // Update the Container App using the 'up' command
+                        _a.sent();
+                        _a.label = 13;
+                    case 13:
+                        if (!(this.ingress == 'disabled')) return [3 /*break*/, 15];
+                        return [4 /*yield*/, this.appHelper.disableContainerAppIngress(this.containerAppName, this.resourceGroup)];
+                    case 14:
+                        _a.sent();
+                        _a.label = 15;
+                    case 15: return [2 /*return*/];
                 }
             });
         });

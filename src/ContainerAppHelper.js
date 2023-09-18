@@ -77,7 +77,7 @@ var ContainerAppHelper = /** @class */ (function () {
                         optionalCmdArgs.forEach(function (val) {
                             command_1 += " " + val;
                         });
-                        return [4 /*yield*/, cpExec({ command: command_1 })];
+                        return [4 /*yield*/, cpExec("" + command_1)];
                     case 2:
                         _a.sent();
                         return [3 /*break*/, 4];
@@ -129,25 +129,28 @@ var ContainerAppHelper = /** @class */ (function () {
      */
     ContainerAppHelper.prototype.updateContainerApp = function (containerAppName, resourceGroup, imageToDeploy, optionalCmdArgs) {
         return __awaiter(this, void 0, void 0, function () {
-            var command_2, pathToTool, err_3;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
+            var command_2, _a, stdout, stderr, err_3;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
                     case 0:
                         core.debug("Attempting to update Container App with name \"" + containerAppName + "\" in resource group \"" + resourceGroup + "\" based from image \"" + imageToDeploy + "\"");
-                        _a.label = 1;
+                        _b.label = 1;
                     case 1:
-                        _a.trys.push([1, 3, , 4]);
-                        command_2 = "containerapp update -n " + containerAppName + " -g " + resourceGroup + " -i " + imageToDeploy;
+                        _b.trys.push([1, 3, , 4]);
+                        command_2 = "az containerapp update -n " + containerAppName + " -g " + resourceGroup + " -i " + imageToDeploy;
                         optionalCmdArgs.forEach(function (val) {
                             command_2 += " " + val;
                         });
-                        return [4 /*yield*/, io.which('az', true)];
+                        return [4 /*yield*/, cpExec("" + command_2)];
                     case 2:
-                        pathToTool = _a.sent();
-                        new Utility_1.Utility().executeAndthrowIfError(pathToTool, command_2, "Unable to update Azure Container App via 'az containerapp update' command.");
+                        _a = _b.sent(), stdout = _a.stdout, stderr = _a.stderr;
+                        if (stderr) {
+                            core.warning(stderr);
+                            throw new Error(stderr);
+                        }
                         return [3 /*break*/, 4];
                     case 3:
-                        err_3 = _a.sent();
+                        err_3 = _b.sent();
                         core.error(err_3.message);
                         throw err_3;
                     case 4: return [2 /*return*/];
@@ -166,16 +169,16 @@ var ContainerAppHelper = /** @class */ (function () {
      */
     ContainerAppHelper.prototype.updateContainerAppWithUp = function (containerAppName, resourceGroup, imageToDeploy, optionalCmdArgs, ingress, targetPort) {
         return __awaiter(this, void 0, void 0, function () {
-            var util, command_3, pathToTool, err_4;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
+            var util, command_3, _a, stdout, stderr, err_4;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
                     case 0:
                         core.debug("Attempting to update Container App with name \"" + containerAppName + "\" in resource group \"" + resourceGroup + "\" based from image \"" + imageToDeploy + "\"");
                         util = new Utility_1.Utility();
-                        _a.label = 1;
+                        _b.label = 1;
                     case 1:
-                        _a.trys.push([1, 3, , 4]);
-                        command_3 = "containerapp up -n " + containerAppName + " -g " + resourceGroup + " -i " + imageToDeploy;
+                        _b.trys.push([1, 3, , 4]);
+                        command_3 = "az containerapp up -n " + containerAppName + " -g " + resourceGroup + " -i " + imageToDeploy;
                         optionalCmdArgs.forEach(function (val) {
                             command_3 += " " + val;
                         });
@@ -185,13 +188,16 @@ var ContainerAppHelper = /** @class */ (function () {
                         if (!util.isNullOrEmpty(targetPort)) {
                             command_3 += " --target-port " + targetPort;
                         }
-                        return [4 /*yield*/, io.which('az', true)];
+                        return [4 /*yield*/, cpExec("" + command_3)];
                     case 2:
-                        pathToTool = _a.sent();
-                        util.executeAndthrowIfError(pathToTool, command_3, "Unable to update Azure Container App via 'az containerapp up' command.");
+                        _a = _b.sent(), stdout = _a.stdout, stderr = _a.stderr;
+                        if (stderr) {
+                            core.warning(stderr);
+                            throw new Error(stderr);
+                        }
                         return [3 /*break*/, 4];
                     case 3:
-                        err_4 = _a.sent();
+                        err_4 = _b.sent();
                         core.error(err_4.message);
                         throw err_4;
                     case 4: return [2 /*return*/];
@@ -207,22 +213,25 @@ var ContainerAppHelper = /** @class */ (function () {
      */
     ContainerAppHelper.prototype.updateContainerAppFromYaml = function (containerAppName, resourceGroup, yamlConfigPath) {
         return __awaiter(this, void 0, void 0, function () {
-            var command, pathToTool, err_5;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
+            var command, _a, stdout, stderr, err_5;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
                     case 0:
                         core.debug("Attempting to update Container App with name \"" + containerAppName + "\" in resource group \"" + resourceGroup + "\" from provided YAML \"" + yamlConfigPath + "\"");
-                        _a.label = 1;
+                        _b.label = 1;
                     case 1:
-                        _a.trys.push([1, 3, , 4]);
-                        command = "containerapp update -n " + containerAppName + " -g " + resourceGroup + " --yaml " + yamlConfigPath;
-                        return [4 /*yield*/, io.which('az', true)];
+                        _b.trys.push([1, 3, , 4]);
+                        command = "az containerapp update -n " + containerAppName + " -g " + resourceGroup + " --yaml " + yamlConfigPath;
+                        return [4 /*yield*/, cpExec("" + command)];
                     case 2:
-                        pathToTool = _a.sent();
-                        new Utility_1.Utility().executeAndthrowIfError(pathToTool, command, "Unable to update Azure Container App from YAML configuration file via 'az containerapp update' command.");
+                        _a = _b.sent(), stdout = _a.stdout, stderr = _a.stderr;
+                        if (stderr) {
+                            core.warning(stderr);
+                            throw new Error(stderr);
+                        }
                         return [3 /*break*/, 4];
                     case 3:
-                        err_5 = _a.sent();
+                        err_5 = _b.sent();
                         core.error(err_5.message);
                         throw err_5;
                     case 4: return [2 /*return*/];
@@ -447,22 +456,25 @@ var ContainerAppHelper = /** @class */ (function () {
      */
     ContainerAppHelper.prototype.disableContainerAppIngress = function (name, resourceGroup) {
         return __awaiter(this, void 0, void 0, function () {
-            var command, _a, _b, err_13;
-            return __generator(this, function (_c) {
-                switch (_c.label) {
+            var command, _a, stdout, stderr, err_13;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
                     case 0:
                         core.debug("Attempting to disable ingress for Container App with name \"" + name + "\" in resource group \"" + resourceGroup + "\"");
-                        _c.label = 1;
+                        _b.label = 1;
                     case 1:
-                        _c.trys.push([1, 3, , 4]);
-                        command = "containerapp ingress disable -n " + name + " -g " + resourceGroup;
-                        _b = (_a = new Utility_1.Utility()).executeAndthrowIfError;
-                        return [4 /*yield*/, io.which('az', true)];
+                        _b.trys.push([1, 3, , 4]);
+                        command = "az containerapp ingress disable -n " + name + " -g " + resourceGroup;
+                        return [4 /*yield*/, cpExec("" + command)];
                     case 2:
-                        _b.apply(_a, [_c.sent(), command, "Unable to disable ingress for Container App via 'az containerapp ingress disable' command."]);
+                        _a = _b.sent(), stdout = _a.stdout, stderr = _a.stderr;
+                        if (stderr) {
+                            core.warning(stderr);
+                            throw new Error(stderr);
+                        }
                         return [3 /*break*/, 4];
                     case 3:
-                        err_13 = _c.sent();
+                        err_13 = _b.sent();
                         core.error(err_13.message);
                         throw err_13;
                     case 4: return [2 /*return*/];
@@ -480,22 +492,25 @@ var ContainerAppHelper = /** @class */ (function () {
      */
     ContainerAppHelper.prototype.updateContainerAppRegistryDetails = function (name, resourceGroup, acrName, acrUsername, acrPassword) {
         return __awaiter(this, void 0, void 0, function () {
-            var command, pathToTool, err_14;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
+            var command, _a, stdout, stderr, err_14;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
                     case 0:
                         core.debug("Attempting to set the ACR details for Container App with name \"" + name + "\" in resource group \"" + resourceGroup + "\"");
-                        _a.label = 1;
+                        _b.label = 1;
                     case 1:
-                        _a.trys.push([1, 3, , 4]);
-                        command = "containerapp registry set -n " + name + " -g " + resourceGroup + " --server " + acrName + ".azurecr.io --username " + acrUsername + " --password " + acrPassword;
-                        return [4 /*yield*/, io.which('az', true)];
+                        _b.trys.push([1, 3, , 4]);
+                        command = "az containerapp registry set -n " + name + " -g " + resourceGroup + " --server " + acrName + ".azurecr.io --username " + acrUsername + " --password " + acrPassword;
+                        return [4 /*yield*/, cpExec("" + command)];
                     case 2:
-                        pathToTool = _a.sent();
-                        new Utility_1.Utility().executeAndthrowIfError(pathToTool, command, "Unable to set the ACR details for Container App via 'az containerapp registry set' command.");
+                        _a = _b.sent(), stdout = _a.stdout, stderr = _a.stderr;
+                        if (stderr) {
+                            core.warning(stderr);
+                            throw new Error(stderr);
+                        }
                         return [3 /*break*/, 4];
                     case 3:
-                        err_14 = _a.sent();
+                        err_14 = _b.sent();
                         core.error(err_14.message);
                         throw err_14;
                     case 4: return [2 /*return*/];

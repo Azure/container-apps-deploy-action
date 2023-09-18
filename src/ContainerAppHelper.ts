@@ -42,7 +42,7 @@ export class ContainerAppHelper {
                 optionalCmdArgs.forEach(function (val: string) {
                     command += ` ${val}`;
                 });
-                await cpExec({command});
+                await cpExec(`${command}`);
             } catch (err) {
                 core.error(err.message);
                 throw err;
@@ -88,17 +88,23 @@ export class ContainerAppHelper {
         optionalCmdArgs: string[]) {
             core.debug(`Attempting to update Container App with name "${containerAppName}" in resource group "${resourceGroup}" based from image "${imageToDeploy}"`);
             try {
-                let command = `containerapp update -n ${containerAppName} -g ${resourceGroup} -i ${imageToDeploy}`;
+                let command = `az containerapp update -n ${containerAppName} -g ${resourceGroup} -i ${imageToDeploy}`;
                 optionalCmdArgs.forEach(function (val: string) {
                     command += ` ${val}`;
                 });
-                const pathToTool = await io.which('az', true);
 
-                new Utility().executeAndthrowIfError(
-                    pathToTool,
-                    command,
-                    "Unable to update Azure Container App via 'az containerapp update' command."
-                );
+                const {stdout, stderr} = await cpExec(`${command}`);
+                if (stderr) {
+                    core.warning(stderr);
+                    throw new Error(stderr);
+                }
+                // const pathToTool = await io.which('az', true);
+
+                // new Utility().executeAndthrowIfError(
+                //     pathToTool,
+                //     command,
+                //     "Unable to update Azure Container App via 'az containerapp update' command."
+                // );
             } catch (err) {
                 core.error(err.message);
                 throw err;
@@ -124,7 +130,7 @@ export class ContainerAppHelper {
             core.debug(`Attempting to update Container App with name "${containerAppName}" in resource group "${resourceGroup}" based from image "${imageToDeploy}"`);
             const util = new Utility();
             try {
-                let command = `containerapp up -n ${containerAppName} -g ${resourceGroup} -i ${imageToDeploy}`;
+                let command = `az containerapp up -n ${containerAppName} -g ${resourceGroup} -i ${imageToDeploy}`;
                 optionalCmdArgs.forEach(function (val: string) {
                     command += ` ${val}`;
                 });
@@ -137,13 +143,19 @@ export class ContainerAppHelper {
                     command += ` --target-port ${targetPort}`;
                 }
 
-                const pathToTool = await io.which('az', true);
+                const {stdout, stderr} = await cpExec(`${command}`);
+                if (stderr) {
+                    core.warning(stderr);
+                    throw new Error(stderr);
+                }
 
-                util.executeAndthrowIfError(
-                    pathToTool,
-                    command,
-                    "Unable to update Azure Container App via 'az containerapp up' command."
-                );
+                // const pathToTool = await io.which('az', true);
+
+                // util.executeAndthrowIfError(
+                //     pathToTool,
+                //     command,
+                //     "Unable to update Azure Container App via 'az containerapp up' command."
+                // );
             } catch (err) {
                 core.error(err.message);
                 throw err;
@@ -162,13 +174,18 @@ export class ContainerAppHelper {
         yamlConfigPath: string) {
             core.debug(`Attempting to update Container App with name "${containerAppName}" in resource group "${resourceGroup}" from provided YAML "${yamlConfigPath}"`);
             try {
-                let command = `containerapp update -n ${containerAppName} -g ${resourceGroup} --yaml ${yamlConfigPath}`;
-                const pathToTool = await io.which('az', true);
-                new Utility().executeAndthrowIfError(
-                    pathToTool,
-                    command,
-                    "Unable to update Azure Container App from YAML configuration file via 'az containerapp update' command."
-                );
+                let command = `az containerapp update -n ${containerAppName} -g ${resourceGroup} --yaml ${yamlConfigPath}`;
+                const {stdout, stderr} = await cpExec(`${command}`);
+                if (stderr) {
+                    core.warning(stderr);
+                    throw new Error(stderr);
+                }
+                // const pathToTool = await io.which('az', true);
+                // new Utility().executeAndthrowIfError(
+                //     pathToTool,
+                //     command,
+                //     "Unable to update Azure Container App from YAML configuration file via 'az containerapp update' command."
+                // );
             } catch (err) {
                 core.error(err.message);
                 throw err;
@@ -321,12 +338,18 @@ export class ContainerAppHelper {
     public async disableContainerAppIngress(name: string, resourceGroup: string) {
         core.debug(`Attempting to disable ingress for Container App with name "${name}" in resource group "${resourceGroup}"`);
         try {
-            const command = `containerapp ingress disable -n ${name} -g ${resourceGroup}`;
-            new Utility().executeAndthrowIfError(
-                await io.which('az', true),
-                command,
-                `Unable to disable ingress for Container App via 'az containerapp ingress disable' command.`
-            );
+            const command = `az containerapp ingress disable -n ${name} -g ${resourceGroup}`;
+            const {stdout, stderr} = await cpExec(`${command}`);
+            if (stderr) {
+                core.warning(stderr);
+                throw new Error(stderr);
+            }
+
+            // new Utility().executeAndthrowIfError(
+            //     await io.which('az', true),
+            //     command,
+            //     `Unable to disable ingress for Container App via 'az containerapp ingress disable' command.`
+            // );
         } catch (err) {
             core.error(err.message);
             throw err;
@@ -344,13 +367,18 @@ export class ContainerAppHelper {
     public async updateContainerAppRegistryDetails(name: string, resourceGroup: string, acrName: string, acrUsername: string, acrPassword: string) {
         core.debug(`Attempting to set the ACR details for Container App with name "${name}" in resource group "${resourceGroup}"`);
         try {
-            const command = `containerapp registry set -n ${name} -g ${resourceGroup} --server ${acrName}.azurecr.io --username ${acrUsername} --password ${acrPassword}`;
-            const pathToTool = await io.which('az', true);
-            new Utility().executeAndthrowIfError(
-                pathToTool,
-                command,
-                `Unable to set the ACR details for Container App via 'az containerapp registry set' command.`
-            );
+            const command = `az containerapp registry set -n ${name} -g ${resourceGroup} --server ${acrName}.azurecr.io --username ${acrUsername} --password ${acrPassword}`;
+            const {stdout, stderr} = await cpExec(`${command}`);
+            if (stderr) {
+                core.warning(stderr);
+                throw new Error(stderr);
+            }
+            // const pathToTool = await io.which('az', true);
+            // new Utility().executeAndthrowIfError(
+            //     pathToTool,
+            //     command,
+            //     `Unable to set the ACR details for Container App via 'az containerapp registry set' command.`
+            // );
         } catch (err) {
             core.error(err.message);
             throw err;
