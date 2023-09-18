@@ -302,16 +302,11 @@ export class ContainerAppHelper {
         const util = new Utility();
         core.debug(`Attempting to create Container App Environment with name "${name}" in resource group "${resourceGroup}"`);
         try {
-            let command = `containerapp env create -n ${name} -g ${resourceGroup}`;
+            let command = `az containerapp env create -n ${name} -g ${resourceGroup}`;
             if (!util.isNullOrEmpty(location)) {
                 command += ` -l ${location}`;
             }
-
-            util.executeAndthrowIfError(
-                await io.which('az', true),
-                command,
-                `Unable to create Azure Container App Environment via 'az containerapp env create' command.`
-            );
+            await cpExec(`${command}`);
         } catch (err) {
             core.error(err.message);
             throw err;

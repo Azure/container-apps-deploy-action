@@ -189,9 +189,9 @@ var azurecontainerapps = /** @class */ (function () {
      */
     azurecontainerapps.setupResources = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var _a, _b, _c;
-            return __generator(this, function (_d) {
-                switch (_d.label) {
+            var _a, _b, _c, _d;
+            return __generator(this, function (_e) {
+                switch (_e.label) {
                     case 0:
                         // Get the Container App name if it was provided, or generate it from build variables
                         this.containerAppName = this.getContainerAppName();
@@ -200,22 +200,26 @@ var azurecontainerapps = /** @class */ (function () {
                         return [4 /*yield*/, this.getLocation()];
                     case 1:
                         // Get the location to deploy resources to, if provided, or use the default location
-                        _a.location = _d.sent();
+                        _a.location = _e.sent();
                         // Get the resource group to deploy to if it was provided, or generate it from the Container App name
-                        this.resourceGroup = this.getOrCreateResourceGroup(this.containerAppName, this.location);
-                        // Determine if the Container App currently exists
                         _b = this;
-                        return [4 /*yield*/, this.appHelper.doesContainerAppExist(this.containerAppName, this.resourceGroup)];
+                        return [4 /*yield*/, this.getOrCreateResourceGroup(this.containerAppName, this.location)];
                     case 2:
+                        // Get the resource group to deploy to if it was provided, or generate it from the Container App name
+                        _b.resourceGroup = _e.sent();
                         // Determine if the Container App currently exists
-                        _b.containerAppExists = _d.sent();
-                        if (!!this.containerAppExists) return [3 /*break*/, 4];
                         _c = this;
-                        return [4 /*yield*/, this.getOrCreateContainerAppEnvironment(this.containerAppName, this.resourceGroup, this.location)];
+                        return [4 /*yield*/, this.appHelper.doesContainerAppExist(this.containerAppName, this.resourceGroup)];
                     case 3:
-                        _c.containerAppEnvironment = _d.sent();
-                        _d.label = 4;
-                    case 4: return [2 /*return*/];
+                        // Determine if the Container App currently exists
+                        _c.containerAppExists = _e.sent();
+                        if (!!this.containerAppExists) return [3 /*break*/, 5];
+                        _d = this;
+                        return [4 /*yield*/, this.getOrCreateContainerAppEnvironment(this.containerAppName, this.resourceGroup, this.location)];
+                    case 4:
+                        _d.containerAppEnvironment = _e.sent();
+                        _e.label = 5;
+                    case 5: return [2 /*return*/];
                 }
             });
         });
@@ -5152,26 +5156,25 @@ var ContainerAppHelper = /** @class */ (function () {
      */
     ContainerAppHelper.prototype.createContainerAppEnvironment = function (name, resourceGroup, location) {
         return __awaiter(this, void 0, void 0, function () {
-            var util, command, _a, _b, err_12;
-            return __generator(this, function (_c) {
-                switch (_c.label) {
+            var util, command, err_12;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
                     case 0:
                         util = new Utility_1.Utility();
                         core.debug("Attempting to create Container App Environment with name \"" + name + "\" in resource group \"" + resourceGroup + "\"");
-                        _c.label = 1;
+                        _a.label = 1;
                     case 1:
-                        _c.trys.push([1, 3, , 4]);
-                        command = "containerapp env create -n " + name + " -g " + resourceGroup;
+                        _a.trys.push([1, 3, , 4]);
+                        command = "az containerapp env create -n " + name + " -g " + resourceGroup;
                         if (!util.isNullOrEmpty(location)) {
                             command += " -l " + location;
                         }
-                        _b = (_a = util).executeAndthrowIfError;
-                        return [4 /*yield*/, io.which('az', true)];
+                        return [4 /*yield*/, cpExec("" + command)];
                     case 2:
-                        _b.apply(_a, [_c.sent(), command, "Unable to create Azure Container App Environment via 'az containerapp env create' command."]);
+                        _a.sent();
                         return [3 /*break*/, 4];
                     case 3:
-                        err_12 = _c.sent();
+                        err_12 = _a.sent();
                         core.error(err_12.message);
                         throw err_12;
                     case 4: return [2 /*return*/];

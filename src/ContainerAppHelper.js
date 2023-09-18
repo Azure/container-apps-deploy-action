@@ -414,26 +414,25 @@ var ContainerAppHelper = /** @class */ (function () {
      */
     ContainerAppHelper.prototype.createContainerAppEnvironment = function (name, resourceGroup, location) {
         return __awaiter(this, void 0, void 0, function () {
-            var util, command, _a, _b, err_12;
-            return __generator(this, function (_c) {
-                switch (_c.label) {
+            var util, command, err_12;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
                     case 0:
                         util = new Utility_1.Utility();
                         core.debug("Attempting to create Container App Environment with name \"" + name + "\" in resource group \"" + resourceGroup + "\"");
-                        _c.label = 1;
+                        _a.label = 1;
                     case 1:
-                        _c.trys.push([1, 3, , 4]);
-                        command = "containerapp env create -n " + name + " -g " + resourceGroup;
+                        _a.trys.push([1, 3, , 4]);
+                        command = "az containerapp env create -n " + name + " -g " + resourceGroup;
                         if (!util.isNullOrEmpty(location)) {
                             command += " -l " + location;
                         }
-                        _b = (_a = util).executeAndthrowIfError;
-                        return [4 /*yield*/, io.which('az', true)];
+                        return [4 /*yield*/, cpExec("" + command)];
                     case 2:
-                        _b.apply(_a, [_c.sent(), command, "Unable to create Azure Container App Environment via 'az containerapp env create' command."]);
+                        _a.sent();
                         return [3 /*break*/, 4];
                     case 3:
-                        err_12 = _c.sent();
+                        err_12 = _a.sent();
                         core.error(err_12.message);
                         throw err_12;
                     case 4: return [2 /*return*/];
