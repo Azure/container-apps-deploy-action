@@ -268,27 +268,24 @@ var ContainerAppHelper = /** @class */ (function () {
      */
     ContainerAppHelper.prototype.doesContainerAppEnvironmentExist = function (containerAppEnvironment, resourceGroup) {
         return __awaiter(this, void 0, void 0, function () {
-            var command, pathToTool, result, err_7;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
+            var command, _a, stdout, stderr, err_7;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
                     case 0:
                         core.debug("Attempting to determine if Container App Environment with name \"" + containerAppEnvironment + "\" exists in resource group \"" + resourceGroup + "\"");
-                        _a.label = 1;
+                        _b.label = 1;
                     case 1:
-                        _a.trys.push([1, 4, , 5]);
-                        command = "containerapp env show -n " + containerAppEnvironment + " -g " + resourceGroup + " -o none";
-                        return [4 /*yield*/, io.which('az', true)];
+                        _b.trys.push([1, 3, , 4]);
+                        command = "az containerapp env show -n " + containerAppEnvironment + " -g " + resourceGroup + " -o none";
+                        return [4 /*yield*/, cpExec("" + command)];
                     case 2:
-                        pathToTool = _a.sent();
-                        return [4 /*yield*/, new Utility_1.Utility().executeAndReturnExitCode(pathToTool, command)];
+                        _a = _b.sent(), stdout = _a.stdout, stderr = _a.stderr;
+                        return [2 /*return*/, !stderr];
                     case 3:
-                        result = _a.sent();
-                        return [2 /*return*/, result == 0];
-                    case 4:
-                        err_7 = _a.sent();
+                        err_7 = _b.sent();
                         core.warning(err_7.message);
                         return [2 /*return*/, false];
-                    case 5: return [2 /*return*/];
+                    case 4: return [2 /*return*/];
                 }
             });
         });

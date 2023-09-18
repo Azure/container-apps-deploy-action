@@ -202,10 +202,12 @@ export class ContainerAppHelper {
     public async doesContainerAppEnvironmentExist(containerAppEnvironment: string, resourceGroup: string): Promise<boolean> {
         core.debug(`Attempting to determine if Container App Environment with name "${containerAppEnvironment}" exists in resource group "${resourceGroup}"`);
         try {
-            const command = `containerapp env show -n ${containerAppEnvironment} -g ${resourceGroup} -o none`;
-            const pathToTool = await io.which('az', true);
-            const result = await new Utility().executeAndReturnExitCode(pathToTool, command);
-            return result == 0;
+            const command = `az containerapp env show -n ${containerAppEnvironment} -g ${resourceGroup} -o none`;
+            const {stdout, stderr} = await cpExec(`${command}`);
+            return !stderr;
+            // const pathToTool = await io.which('az', true);
+            // const result = await new Utility().executeAndReturnExitCode(pathToTool, command);
+            // return result == 0;
         } catch (err) {
             core.warning(err.message);
             return false;
