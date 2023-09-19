@@ -271,6 +271,11 @@ jobs:
           WORKSPACE_NAME=$(az monitor log-analytics workspace list -g ${{ vars.TEST_RESOURCE_GROUP_NAME }} --query '[?customerId == `${{ env.CUSTOMER_ID }}`].name | [0]')
           echo "WORKSPACE_NAME=${WORKSPACE_NAME}" >> $GITHUB_ENV
 
+      - name: Delete created Azure Container App environment
+        if: ${{ always() }}
+        shell: bash
+        run: az containerapp env delete -g ${{ vars.TEST_RESOURCE_GROUP_NAME }} -n ${{ env.TEST_NEW_CONTAINER_APP_ENV }} -y
+
       - name: Delete created workspace
         if: ${{ always() }}
         shell: bash
