@@ -306,7 +306,7 @@ export class azurecontainerapps {
         // Login to ACR if credentials were provided
         if (!util.isNullOrEmpty(this.acrUsername) && !util.isNullOrEmpty(this.acrPassword)) {
             console.log(`Logging in to ACR instance "${this.acrName}" with username and password credentials`);
-            this.registryHelper.loginAcrWithUsernamePassword(this.acrName, this.acrUsername, this.acrPassword);
+            await this.registryHelper.loginAcrWithUsernamePassword(this.acrName, this.acrUsername, this.acrPassword);
         } else {
             console.log(`No ACR credentials provided; attempting to log in to ACR instance "${this.acrName}" with access token`);
             await this.registryHelper.loginAcrWithAccessTokenAsync(this.acrName);

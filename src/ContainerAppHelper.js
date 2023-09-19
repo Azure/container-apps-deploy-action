@@ -599,19 +599,28 @@ var ContainerAppHelper = /** @class */ (function () {
                         core.debug('Attempting to determine the runtime stack needed for the provided application source');
                         _a.label = 1;
                     case 1:
-                        _a.trys.push([1, 5, , 6]);
+                        _a.trys.push([1, 6, , 7]);
                         return [4 /*yield*/, io.which("docker", true)];
                     case 2:
                         dockerTool = _a.sent();
                         dockerCommand = "run --rm -v " + appSourcePath + ":/app " + ORYX_CLI_IMAGE + " /bin/bash -c \"oryx dockerfile /app | head -n 1 | sed 's/ARG RUNTIME=//' >> /app/oryx-runtime.txt\"";
-                        exec.exec('docker', ['run', '--rm', '-v', appSourcePath + ":/app", "" + ORYX_CLI_IMAGE, '/bin/bash', '-c', "\"oryx dockerfile /app | head -n 1 | sed 's/ARG RUNTIME=//' >> /app/oryx-runtime.txt\""]);
+                        return [4 /*yield*/, exec.exec('docker', ['run', '--rm', '-v', appSourcePath + ":/app", "" + ORYX_CLI_IMAGE, '/bin/bash', '-c', "\"oryx dockerfile /app | head -n 1 | sed 's/ARG RUNTIME=//' >> /app/oryx-runtime.txt\""])
+                            // new Utility().executeAndthrowIfError(
+                            //     `${dockerTool}`,
+                            //     `${dockerCommand}`,
+                            //     `Unable to determine the runtime stack needed for the provided application source.`
+                            // );
+                            // Read the temp file to get the runtime stack into a variable
+                        ];
+                    case 3:
+                        _a.sent();
                         oryxRuntimeTxtPath = path.join(appSourcePath, 'oryx-runtime.txt');
                         command = "head -n 1 " + oryxRuntimeTxtPath;
                         if (IS_WINDOWS_AGENT) {
                             command = "Get-Content -Path " + oryxRuntimeTxtPath + " -Head 1";
                         }
                         return [4 /*yield*/, new CommandHelper_1.CommandHelper().execCommandAsync(command)];
-                    case 3:
+                    case 4:
                         runtimeStack = _a.sent();
                         // Delete the temp file
                         command = "rm " + oryxRuntimeTxtPath;
@@ -619,14 +628,14 @@ var ContainerAppHelper = /** @class */ (function () {
                             command = "Remove-Item -Path " + oryxRuntimeTxtPath;
                         }
                         return [4 /*yield*/, new CommandHelper_1.CommandHelper().execCommandAsync(command)];
-                    case 4:
+                    case 5:
                         _a.sent();
                         return [2 /*return*/, runtimeStack];
-                    case 5:
+                    case 6:
                         err_17 = _a.sent();
                         core.error(err_17.message);
                         throw err_17;
-                    case 6: return [2 /*return*/];
+                    case 7: return [2 /*return*/];
                 }
             });
         });

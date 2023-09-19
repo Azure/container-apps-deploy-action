@@ -358,17 +358,19 @@ var azurecontainerapps = /** @class */ (function () {
                     case 0:
                         this.acrUsername = core.getInput('acrUsername', { required: false });
                         this.acrPassword = core.getInput('acrPassword', { required: false });
-                        if (!(!util.isNullOrEmpty(this.acrUsername) && !util.isNullOrEmpty(this.acrPassword))) return [3 /*break*/, 1];
+                        if (!(!util.isNullOrEmpty(this.acrUsername) && !util.isNullOrEmpty(this.acrPassword))) return [3 /*break*/, 2];
                         console.log("Logging in to ACR instance \"" + this.acrName + "\" with username and password credentials");
-                        this.registryHelper.loginAcrWithUsernamePassword(this.acrName, this.acrUsername, this.acrPassword);
-                        return [3 /*break*/, 3];
+                        return [4 /*yield*/, this.registryHelper.loginAcrWithUsernamePassword(this.acrName, this.acrUsername, this.acrPassword)];
                     case 1:
+                        _a.sent();
+                        return [3 /*break*/, 4];
+                    case 2:
                         console.log("No ACR credentials provided; attempting to log in to ACR instance \"" + this.acrName + "\" with access token");
                         return [4 /*yield*/, this.registryHelper.loginAcrWithAccessTokenAsync(this.acrName)];
-                    case 2:
+                    case 3:
                         _a.sent();
-                        _a.label = 3;
-                    case 3: return [2 /*return*/];
+                        _a.label = 4;
+                    case 4: return [2 /*return*/];
                 }
             });
         });
@@ -5372,19 +5374,28 @@ var ContainerAppHelper = /** @class */ (function () {
                         core.debug('Attempting to determine the runtime stack needed for the provided application source');
                         _a.label = 1;
                     case 1:
-                        _a.trys.push([1, 5, , 6]);
+                        _a.trys.push([1, 6, , 7]);
                         return [4 /*yield*/, io.which("docker", true)];
                     case 2:
                         dockerTool = _a.sent();
                         dockerCommand = "run --rm -v " + appSourcePath + ":/app " + ORYX_CLI_IMAGE + " /bin/bash -c \"oryx dockerfile /app | head -n 1 | sed 's/ARG RUNTIME=//' >> /app/oryx-runtime.txt\"";
-                        exec.exec('docker', ['run', '--rm', '-v', appSourcePath + ":/app", "" + ORYX_CLI_IMAGE, '/bin/bash', '-c', "\"oryx dockerfile /app | head -n 1 | sed 's/ARG RUNTIME=//' >> /app/oryx-runtime.txt\""]);
+                        return [4 /*yield*/, exec.exec('docker', ['run', '--rm', '-v', appSourcePath + ":/app", "" + ORYX_CLI_IMAGE, '/bin/bash', '-c', "\"oryx dockerfile /app | head -n 1 | sed 's/ARG RUNTIME=//' >> /app/oryx-runtime.txt\""])
+                            // new Utility().executeAndthrowIfError(
+                            //     `${dockerTool}`,
+                            //     `${dockerCommand}`,
+                            //     `Unable to determine the runtime stack needed for the provided application source.`
+                            // );
+                            // Read the temp file to get the runtime stack into a variable
+                        ];
+                    case 3:
+                        _a.sent();
                         oryxRuntimeTxtPath = path.join(appSourcePath, 'oryx-runtime.txt');
                         command = "head -n 1 " + oryxRuntimeTxtPath;
                         if (IS_WINDOWS_AGENT) {
                             command = "Get-Content -Path " + oryxRuntimeTxtPath + " -Head 1";
                         }
                         return [4 /*yield*/, new CommandHelper_1.CommandHelper().execCommandAsync(command)];
-                    case 3:
+                    case 4:
                         runtimeStack = _a.sent();
                         // Delete the temp file
                         command = "rm " + oryxRuntimeTxtPath;
@@ -5392,14 +5403,14 @@ var ContainerAppHelper = /** @class */ (function () {
                             command = "Remove-Item -Path " + oryxRuntimeTxtPath;
                         }
                         return [4 /*yield*/, new CommandHelper_1.CommandHelper().execCommandAsync(command)];
-                    case 4:
+                    case 5:
                         _a.sent();
                         return [2 /*return*/, runtimeStack];
-                    case 5:
+                    case 6:
                         err_17 = _a.sent();
                         core.error(err_17.message);
                         throw err_17;
-                    case 6: return [2 /*return*/];
+                    case 7: return [2 /*return*/];
                 }
             });
         });
@@ -5536,14 +5547,27 @@ var ContainerRegistryHelper = /** @class */ (function () {
      * @param acrPassword - the password for authentication
      */
     ContainerRegistryHelper.prototype.loginAcrWithUsernamePassword = function (acrName, acrUsername, acrPassword) {
-        core.debug("Attempting to log in to ACR instance \"" + acrName + "\" with username and password credentials");
-        try {
-            exec.exec('docker', ["login", "--password-stdin", "--username", "" + acrUsername, acrName + ".azurecr.io"], { input: Buffer.from(acrPassword) });
-        }
-        catch (err) {
-            core.error("Failed to log in to ACR instance \"" + acrName + "\" with username and password credentials");
-            throw err;
-        }
+        return __awaiter(this, void 0, void 0, function () {
+            var err_1;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        core.debug("Attempting to log in to ACR instance \"" + acrName + "\" with username and password credentials");
+                        _a.label = 1;
+                    case 1:
+                        _a.trys.push([1, 3, , 4]);
+                        return [4 /*yield*/, exec.exec('docker', ["login", "--password-stdin", "--username", "" + acrUsername, acrName + ".azurecr.io"], { input: Buffer.from(acrPassword) })];
+                    case 2:
+                        _a.sent();
+                        return [3 /*break*/, 4];
+                    case 3:
+                        err_1 = _a.sent();
+                        core.error("Failed to log in to ACR instance \"" + acrName + "\" with username and password credentials");
+                        throw err_1;
+                    case 4: return [2 /*return*/];
+                }
+            });
+        });
     };
     /**
      * Authorizes Docker to make calls to the provided ACR instance using an access token that is generated via
@@ -5552,7 +5576,7 @@ var ContainerRegistryHelper = /** @class */ (function () {
      */
     ContainerRegistryHelper.prototype.loginAcrWithAccessTokenAsync = function (acrName) {
         return __awaiter(this, void 0, void 0, function () {
-            var command, err_1;
+            var command, err_2;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -5566,9 +5590,9 @@ var ContainerRegistryHelper = /** @class */ (function () {
                         _a.sent();
                         return [3 /*break*/, 4];
                     case 3:
-                        err_1 = _a.sent();
+                        err_2 = _a.sent();
                         core.error("Failed to log in to ACR instance \"" + acrName + "\" with access token");
-                        throw err_1;
+                        throw err_2;
                     case 4: return [2 /*return*/];
                 }
             });
@@ -5580,7 +5604,7 @@ var ContainerRegistryHelper = /** @class */ (function () {
      */
     ContainerRegistryHelper.prototype.pushImageToAcr = function (imageToPush) {
         return __awaiter(this, void 0, void 0, function () {
-            var dockerTool, err_2;
+            var dockerTool, err_3;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -5597,10 +5621,10 @@ var ContainerRegistryHelper = /** @class */ (function () {
                         core.info("Successfully pushed image \"" + imageToPush + "\" to ACR");
                         return [3 /*break*/, 5];
                     case 4:
-                        err_2 = _a.sent();
+                        err_3 = _a.sent();
                         core.error("Failed to push image \"" + imageToPush + "\" to ACR");
-                        core.error(err_2.message);
-                        throw err_2;
+                        core.error(err_3.message);
+                        throw err_3;
                     case 5: return [2 /*return*/];
                 }
             });

@@ -51,14 +51,27 @@ var ContainerRegistryHelper = /** @class */ (function () {
      * @param acrPassword - the password for authentication
      */
     ContainerRegistryHelper.prototype.loginAcrWithUsernamePassword = function (acrName, acrUsername, acrPassword) {
-        core.debug("Attempting to log in to ACR instance \"" + acrName + "\" with username and password credentials");
-        try {
-            exec.exec('docker', ["login", "--password-stdin", "--username", "" + acrUsername, acrName + ".azurecr.io"], { input: Buffer.from(acrPassword) });
-        }
-        catch (err) {
-            core.error("Failed to log in to ACR instance \"" + acrName + "\" with username and password credentials");
-            throw err;
-        }
+        return __awaiter(this, void 0, void 0, function () {
+            var err_1;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        core.debug("Attempting to log in to ACR instance \"" + acrName + "\" with username and password credentials");
+                        _a.label = 1;
+                    case 1:
+                        _a.trys.push([1, 3, , 4]);
+                        return [4 /*yield*/, exec.exec('docker', ["login", "--password-stdin", "--username", "" + acrUsername, acrName + ".azurecr.io"], { input: Buffer.from(acrPassword) })];
+                    case 2:
+                        _a.sent();
+                        return [3 /*break*/, 4];
+                    case 3:
+                        err_1 = _a.sent();
+                        core.error("Failed to log in to ACR instance \"" + acrName + "\" with username and password credentials");
+                        throw err_1;
+                    case 4: return [2 /*return*/];
+                }
+            });
+        });
     };
     /**
      * Authorizes Docker to make calls to the provided ACR instance using an access token that is generated via
@@ -67,7 +80,7 @@ var ContainerRegistryHelper = /** @class */ (function () {
      */
     ContainerRegistryHelper.prototype.loginAcrWithAccessTokenAsync = function (acrName) {
         return __awaiter(this, void 0, void 0, function () {
-            var command, err_1;
+            var command, err_2;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -81,9 +94,9 @@ var ContainerRegistryHelper = /** @class */ (function () {
                         _a.sent();
                         return [3 /*break*/, 4];
                     case 3:
-                        err_1 = _a.sent();
+                        err_2 = _a.sent();
                         core.error("Failed to log in to ACR instance \"" + acrName + "\" with access token");
-                        throw err_1;
+                        throw err_2;
                     case 4: return [2 /*return*/];
                 }
             });
@@ -95,7 +108,7 @@ var ContainerRegistryHelper = /** @class */ (function () {
      */
     ContainerRegistryHelper.prototype.pushImageToAcr = function (imageToPush) {
         return __awaiter(this, void 0, void 0, function () {
-            var dockerTool, err_2;
+            var dockerTool, err_3;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -112,10 +125,10 @@ var ContainerRegistryHelper = /** @class */ (function () {
                         core.info("Successfully pushed image \"" + imageToPush + "\" to ACR");
                         return [3 /*break*/, 5];
                     case 4:
-                        err_2 = _a.sent();
+                        err_3 = _a.sent();
                         core.error("Failed to push image \"" + imageToPush + "\" to ACR");
-                        core.error(err_2.message);
-                        throw err_2;
+                        core.error(err_3.message);
+                        throw err_3;
                     case 5: return [2 /*return*/];
                 }
             });

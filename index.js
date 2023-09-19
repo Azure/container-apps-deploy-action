@@ -351,17 +351,19 @@ var azurecontainerapps = /** @class */ (function () {
                     case 0:
                         this.acrUsername = core.getInput('acrUsername', { required: false });
                         this.acrPassword = core.getInput('acrPassword', { required: false });
-                        if (!(!util.isNullOrEmpty(this.acrUsername) && !util.isNullOrEmpty(this.acrPassword))) return [3 /*break*/, 1];
+                        if (!(!util.isNullOrEmpty(this.acrUsername) && !util.isNullOrEmpty(this.acrPassword))) return [3 /*break*/, 2];
                         console.log("Logging in to ACR instance \"" + this.acrName + "\" with username and password credentials");
-                        this.registryHelper.loginAcrWithUsernamePassword(this.acrName, this.acrUsername, this.acrPassword);
-                        return [3 /*break*/, 3];
+                        return [4 /*yield*/, this.registryHelper.loginAcrWithUsernamePassword(this.acrName, this.acrUsername, this.acrPassword)];
                     case 1:
+                        _a.sent();
+                        return [3 /*break*/, 4];
+                    case 2:
                         console.log("No ACR credentials provided; attempting to log in to ACR instance \"" + this.acrName + "\" with access token");
                         return [4 /*yield*/, this.registryHelper.loginAcrWithAccessTokenAsync(this.acrName)];
-                    case 2:
+                    case 3:
                         _a.sent();
-                        _a.label = 3;
-                    case 3: return [2 /*return*/];
+                        _a.label = 4;
+                    case 4: return [2 /*return*/];
                 }
             });
         });

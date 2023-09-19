@@ -11,10 +11,10 @@ export class ContainerRegistryHelper {
      * @param acrUsername - the username for authentication
      * @param acrPassword - the password for authentication
      */
-     public loginAcrWithUsernamePassword(acrName: string, acrUsername: string, acrPassword: string) {
+     public async loginAcrWithUsernamePassword(acrName: string, acrUsername: string, acrPassword: string) {
         core.debug(`Attempting to log in to ACR instance "${acrName}" with username and password credentials`);
         try {
-            exec.exec('docker', [`login`, `--password-stdin`, `--username`, `${acrUsername}`, `${acrName}.azurecr.io`], { input: Buffer.from(acrPassword) });
+           await exec.exec('docker', [`login`, `--password-stdin`, `--username`, `${acrUsername}`, `${acrName}.azurecr.io`], { input: Buffer.from(acrPassword) });
         } catch (err) {
             core.error(`Failed to log in to ACR instance "${acrName}" with username and password credentials`);
             throw err;
