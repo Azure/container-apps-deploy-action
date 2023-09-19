@@ -55,6 +55,11 @@ jobs:
           imageToBuild: ${{ env.TEST_FULL_ACR_NAME }}/${{ env.TEST_IMAGE_REPOSITORY }}:${{ env.TEST_IMAGE_TAG }}
           disableTelemetry: ${{ vars.TEST_DISABLE_TELEMETRY }}
 
+      - name: Delete created Azure Container App Environment
+        if: ${{ always() }}
+        shell: bash
+        run: az containerapp env delete -n ${{ vars.TEST_EXISTING_CONTAINER_APP_ENV }} -g ${{ vars.TEST_RESOURCE_GROUP_NAME }} -y
+
       - name: Delete created Azure Container App
         if: ${{ always() }}
         shell: bash
@@ -102,6 +107,11 @@ jobs:
           resourceGroup: ${{ vars.TEST_RESOURCE_GROUP_NAME }}
           imageToBuild: ${{ env.TEST_FULL_ACR_NAME }}/${{ env.TEST_IMAGE_REPOSITORY }}:${{ env.TEST_IMAGE_TAG }}
           disableTelemetry: ${{ vars.TEST_DISABLE_TELEMETRY }}
+
+      - name: Delete created Azure Container App Environment
+        if: ${{ always() }}
+        shell: bash
+        run: az containerapp env delete -n ${{ vars.TEST_EXISTING_CONTAINER_APP_ENV }} -g ${{ vars.TEST_RESOURCE_GROUP_NAME }} -y
 
       - name: Delete created Azure Container App
         if: ${{ always() }}
@@ -152,6 +162,11 @@ jobs:
           imageToBuild: ${{ env.TEST_FULL_ACR_NAME }}/${{ env.TEST_IMAGE_REPOSITORY }}:${{ env.TEST_IMAGE_TAG }}
           disableTelemetry: ${{ vars.TEST_DISABLE_TELEMETRY }}
 
+      - name: Delete created Azure Container App Environment
+        if: ${{ always() }}
+        shell: bash
+        run: az containerapp env delete -n ${{ vars.TEST_EXISTING_CONTAINER_APP_ENV }} -g ${{ vars.TEST_RESOURCE_GROUP_NAME }} -y
+
       - name: Delete created Azure Container App
         if: ${{ always() }}
         shell: bash
@@ -189,6 +204,11 @@ jobs:
           resourceGroup: ${{ vars.TEST_RESOURCE_GROUP_NAME }}
           disableTelemetry: ${{ vars.TEST_DISABLE_TELEMETRY }}
 
+      - name: Delete created Azure Container App Environment
+        if: ${{ always() }}
+        shell: bash
+        run: az containerapp env delete -n ${{ vars.TEST_EXISTING_CONTAINER_APP_ENV }} -g ${{ vars.TEST_RESOURCE_GROUP_NAME }} -y
+
       - name: Delete created Azure Container App
         if: ${{ always() }}
         shell: bash
@@ -220,6 +240,11 @@ jobs:
           containerAppEnvironment: ${{ vars.TEST_EXISTING_CONTAINER_APP_ENV }}
           resourceGroup: ${{ vars.TEST_RESOURCE_GROUP_NAME }}
           disableTelemetry: ${{ vars.TEST_DISABLE_TELEMETRY }}
+
+      - name: Delete created Azure Container App Environment
+        if: ${{ always() }}
+        shell: bash
+        run: az containerapp env delete -n ${{ vars.TEST_EXISTING_CONTAINER_APP_ENV }} -g ${{ vars.TEST_RESOURCE_GROUP_NAME }} -y
 
       - name: Delete created Azure Container App
         if: ${{ always() }}
@@ -253,6 +278,11 @@ jobs:
           containerAppEnvironment: ${{ env.TEST_NEW_CONTAINER_APP_ENV }}
           resourceGroup: ${{ vars.TEST_RESOURCE_GROUP_NAME }}
           disableTelemetry: ${{ vars.TEST_DISABLE_TELEMETRY }}
+
+      - name: Delete created Azure Container App Environment
+        if: ${{ always() }}
+        shell: bash
+        run: az containerapp env delete -n ${{ vars.TEST_EXISTING_CONTAINER_APP_ENV }} -g ${{ vars.TEST_RESOURCE_GROUP_NAME }} -y
 
       - name: Delete created Azure Container App
         if: ${{ always() }}
@@ -478,6 +508,11 @@ jobs:
         shell: bash
         run: az containerapp update -n ${{ env.TEST_CONTAINER_APP_NAME }} -g ${{ vars.TEST_RESOURCE_GROUP_NAME }} -i mcr.microsoft.com/azuredocs/containerapps-helloworld:latest
 
+      - name: Delete created Azure Container App Environment
+        if: ${{ always() }}
+        shell: bash
+        run: az containerapp env delete -n ${{ vars.TEST_EXISTING_CONTAINER_APP_ENV }} -g ${{ vars.TEST_RESOURCE_GROUP_NAME }} -y
+
   update-using-image:
 
     name: 'Update app using image'
@@ -504,6 +539,11 @@ jobs:
           containerAppEnvironment: ${{ vars.TEST_EXISTING_CONTAINER_APP_ENV }}
           resourceGroup: ${{ vars.TEST_RESOURCE_GROUP_NAME }}
           disableTelemetry: ${{ vars.TEST_DISABLE_TELEMETRY }}
+
+      - name: Delete created Azure Container App Environment
+        if: ${{ always() }}
+        shell: bash
+        run: az containerapp env delete -n ${{ vars.TEST_EXISTING_CONTAINER_APP_ENV }} -g ${{ vars.TEST_RESOURCE_GROUP_NAME }} -y
 
   update-using-image-yaml:
 

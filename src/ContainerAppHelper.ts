@@ -485,7 +485,7 @@ export class ContainerAppHelper {
         core.debug('Setting the Oryx++ Builder as the default builder via the pack CLI');
         try {
             new Utility().executeAndthrowIfError(
-                `${PACK_CMD}`,
+                `pack`,
                 `config default-builder ${ORYX_BUILDER_IMAGE}`,
                 `Unable to set the Oryx++ Builder as the default builder via the pack CLI.`
             );

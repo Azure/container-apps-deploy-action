@@ -452,10 +452,10 @@ var azurecontainerapps = /** @class */ (function () {
                         return [4 /*yield*/, this.appHelper.determineRuntimeStackAsync(appSourcePath)];
                     case 2:
                         _a.runtimeStack = _b.sent();
-                        console.log("Runtime stack determined to be: " + this.runtimeStack);
+                        core.info("Runtime stack determined to be: " + this.runtimeStack);
                         _b.label = 3;
                     case 3:
-                        console.log("Building image \"" + imageToBuild + "\" using the Oryx++ Builder");
+                        core.info("Building image \"" + imageToBuild + "\" using the Oryx++ Builder");
                         // Set the Oryx++ Builder as the default builder locally
                         this.appHelper.setDefaultBuilder();
                         // Create a runnable application image

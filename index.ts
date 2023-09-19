@@ -376,10 +376,10 @@ export class azurecontainerapps {
         this.runtimeStack = core.getInput('runtimeStack', {required: false});
         if (util.isNullOrEmpty(this.runtimeStack)) {
             this.runtimeStack = await this.appHelper.determineRuntimeStackAsync(appSourcePath);
-            console.log(`Runtime stack determined to be: ${this.runtimeStack}`);
+            core.info(`Runtime stack determined to be: ${this.runtimeStack}`);
         }
 
-        console.log(`Building image "${imageToBuild}" using the Oryx++ Builder`);
+        core.info(`Building image "${imageToBuild}" using the Oryx++ Builder`);
 
         // Set the Oryx++ Builder as the default builder locally
         this.appHelper.setDefaultBuilder();

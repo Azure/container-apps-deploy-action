@@ -459,10 +459,10 @@ var azurecontainerapps = /** @class */ (function () {
                         return [4 /*yield*/, this.appHelper.determineRuntimeStackAsync(appSourcePath)];
                     case 2:
                         _a.runtimeStack = _b.sent();
-                        console.log("Runtime stack determined to be: " + this.runtimeStack);
+                        core.info("Runtime stack determined to be: " + this.runtimeStack);
                         _b.label = 3;
                     case 3:
-                        console.log("Building image \"" + imageToBuild + "\" using the Oryx++ Builder");
+                        core.info("Building image \"" + imageToBuild + "\" using the Oryx++ Builder");
                         // Set the Oryx++ Builder as the default builder locally
                         this.appHelper.setDefaultBuilder();
                         // Create a runnable application image
@@ -5389,7 +5389,7 @@ var ContainerAppHelper = /** @class */ (function () {
     ContainerAppHelper.prototype.setDefaultBuilder = function () {
         core.debug('Setting the Oryx++ Builder as the default builder via the pack CLI');
         try {
-            new Utility_1.Utility().executeAndthrowIfError("" + PACK_CMD, "config default-builder " + ORYX_BUILDER_IMAGE, "Unable to set the Oryx++ Builder as the default builder via the pack CLI.");
+            new Utility_1.Utility().executeAndthrowIfError("pack", "config default-builder " + ORYX_BUILDER_IMAGE, "Unable to set the Oryx++ Builder as the default builder via the pack CLI.");
         }
         catch (err) {
             core.error(err.message);

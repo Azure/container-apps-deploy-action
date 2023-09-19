@@ -625,7 +625,7 @@ var ContainerAppHelper = /** @class */ (function () {
     ContainerAppHelper.prototype.setDefaultBuilder = function () {
         core.debug('Setting the Oryx++ Builder as the default builder via the pack CLI');
         try {
-            new Utility_1.Utility().executeAndthrowIfError("" + PACK_CMD, "config default-builder " + ORYX_BUILDER_IMAGE, "Unable to set the Oryx++ Builder as the default builder via the pack CLI.");
+            new Utility_1.Utility().executeAndthrowIfError("pack", "config default-builder " + ORYX_BUILDER_IMAGE, "Unable to set the Oryx++ Builder as the default builder via the pack CLI.");
         }
         catch (err) {
             core.error(err.message);
