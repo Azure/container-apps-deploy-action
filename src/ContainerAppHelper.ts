@@ -391,7 +391,7 @@ export class ContainerAppHelper {
      * @param appSourcePath - the path to the application source on the machine
      * @param runtimeStack - the runtime stack to use in the image layer that runs the application
      */
-    public createRunnableAppImage(
+    public async createRunnableAppImage(
         imageToDeploy: string,
         appSourcePath: string,
         runtimeStack: string) {
@@ -401,12 +401,13 @@ export class ContainerAppHelper {
                 if (this.disableTelemetry) {
                     telemetryArg = `--env "ORYX_DISABLE_TELEMETRY=true"`;
                 }
+                await cpExec(`${PACK_CMD} build ${imageToDeploy} --path ${appSourcePath} --builder ${ORYX_BUILDER_IMAGE} --run-image mcr.microsoft.com/oryx/${runtimeStack} ${telemetryArg}`);
 
-                new Utility().executeAndthrowIfError(
-                    `${PACK_CMD}`,
-                    `build ${imageToDeploy} --path ${appSourcePath} --builder ${ORYX_BUILDER_IMAGE} --run-image mcr.microsoft.com/oryx/${runtimeStack} ${telemetryArg}`,
-                    `Unable to create runnable application image using the Oryx++ Builder with image name "${imageToDeploy}".`
-                );
+                // new Utility().executeAndthrowIfError(
+                //     `${PACK_CMD}`,
+                //     `build ${imageToDeploy} --path ${appSourcePath} --builder ${ORYX_BUILDER_IMAGE} --run-image mcr.microsoft.com/oryx/${runtimeStack} ${telemetryArg}`,
+                //     `Unable to create runnable application image using the Oryx++ Builder with image name "${imageToDeploy}".`
+                // );
             } catch (err) {
                 core.error(err.message);
                 throw err;
@@ -481,14 +482,15 @@ export class ContainerAppHelper {
      * Sets the default builder on the machine to the Oryx++ Builder to prevent an exception from being thrown due
      * to no default builder set.
      */
-     public setDefaultBuilder() {
-        core.debug('Setting the Oryx++ Builder as the default builder via the pack CLI');
+     public async setDefaultBuilder() {
+        console.log('Setting the Oryx++ Builder as the default builder via the pack CLI');
         try {
-            new Utility().executeAndthrowIfError(
-                `pack`,
-                `config default-builder ${ORYX_BUILDER_IMAGE}`,
-                `Unable to set the Oryx++ Builder as the default builder via the pack CLI.`
-            );
+            await cpExec(`pack config default-builder ${ORYX_BUILDER_IMAGE}`);
+            // new Utility().executeAndthrowIfError(
+            //     `pack`,
+            //     `config default-builder ${ORYX_BUILDER_IMAGE}`,
+            //     `Unable to set the Oryx++ Builder as the default builder via the pack CLI.`
+            // );
 
         } catch (err) {
             core.error(err.message);

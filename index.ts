@@ -290,7 +290,7 @@ export class azurecontainerapps {
         // Determine if the Container App environment currently exists and create one if it doesn't
         const containerAppEnvironmentExists: boolean = await this.appHelper.doesContainerAppEnvironmentExist(containerAppEnvironment, resourceGroup);
         if (!containerAppEnvironmentExists) {
-            this.appHelper.createContainerAppEnvironment(containerAppEnvironment, resourceGroup, location);
+            await this.appHelper.createContainerAppEnvironment(containerAppEnvironment, resourceGroup, location);
         }
 
         return containerAppEnvironment;
@@ -371,6 +371,7 @@ export class azurecontainerapps {
     private static async buildImageFromBuilderAsync(appSourcePath: string, imageToBuild: string) {
         // Install the pack CLI
         await this.appHelper.installPackCliAsync();
+        console.log(`Successfully installed the pack CLI.`)
 
         // Get the runtime stack if provided, or determine it using Oryx
         this.runtimeStack = core.getInput('runtimeStack', {required: false});
@@ -379,13 +380,13 @@ export class azurecontainerapps {
             core.info(`Runtime stack determined to be: ${this.runtimeStack}`);
         }
 
-        core.info(`Building image "${imageToBuild}" using the Oryx++ Builder`);
+        console.log(`Building image "${imageToBuild}" using the Oryx++ Builder`);
 
         // Set the Oryx++ Builder as the default builder locally
-        this.appHelper.setDefaultBuilder();
+        await this.appHelper.setDefaultBuilder();
 
         // Create a runnable application image
-        this.appHelper.createRunnableAppImage(imageToBuild, appSourcePath, this.runtimeStack);
+        await this.appHelper.createRunnableAppImage(imageToBuild, appSourcePath, this.runtimeStack);
 
         // If telemetry is enabled, log that the builder scenario was targeted for this task
         this.telemetryHelper.setBuilderScenario();

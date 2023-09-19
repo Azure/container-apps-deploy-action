@@ -331,10 +331,12 @@ var azurecontainerapps = /** @class */ (function () {
                         return [4 /*yield*/, this.appHelper.doesContainerAppEnvironmentExist(containerAppEnvironment, resourceGroup)];
                     case 3:
                         containerAppEnvironmentExists = _a.sent();
-                        if (!containerAppEnvironmentExists) {
-                            this.appHelper.createContainerAppEnvironment(containerAppEnvironment, resourceGroup, location);
-                        }
-                        return [2 /*return*/, containerAppEnvironment];
+                        if (!!containerAppEnvironmentExists) return [3 /*break*/, 5];
+                        return [4 /*yield*/, this.appHelper.createContainerAppEnvironment(containerAppEnvironment, resourceGroup, location)];
+                    case 4:
+                        _a.sent();
+                        _a.label = 5;
+                    case 5: return [2 /*return*/, containerAppEnvironment];
                 }
             });
         });
@@ -445,6 +447,7 @@ var azurecontainerapps = /** @class */ (function () {
                     case 1:
                         // Install the pack CLI
                         _b.sent();
+                        console.log("Successfully installed the pack CLI.");
                         // Get the runtime stack if provided, or determine it using Oryx
                         this.runtimeStack = core.getInput('runtimeStack', { required: false });
                         if (!util.isNullOrEmpty(this.runtimeStack)) return [3 /*break*/, 3];
@@ -455,11 +458,17 @@ var azurecontainerapps = /** @class */ (function () {
                         core.info("Runtime stack determined to be: " + this.runtimeStack);
                         _b.label = 3;
                     case 3:
-                        core.info("Building image \"" + imageToBuild + "\" using the Oryx++ Builder");
+                        console.log("Building image \"" + imageToBuild + "\" using the Oryx++ Builder");
                         // Set the Oryx++ Builder as the default builder locally
-                        this.appHelper.setDefaultBuilder();
+                        return [4 /*yield*/, this.appHelper.setDefaultBuilder()];
+                    case 4:
+                        // Set the Oryx++ Builder as the default builder locally
+                        _b.sent();
                         // Create a runnable application image
-                        this.appHelper.createRunnableAppImage(imageToBuild, appSourcePath, this.runtimeStack);
+                        return [4 /*yield*/, this.appHelper.createRunnableAppImage(imageToBuild, appSourcePath, this.runtimeStack)];
+                    case 5:
+                        // Create a runnable application image
+                        _b.sent();
                         // If telemetry is enabled, log that the builder scenario was targeted for this task
                         this.telemetryHelper.setBuilderScenario();
                         return [2 /*return*/];

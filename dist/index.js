@@ -338,10 +338,12 @@ var azurecontainerapps = /** @class */ (function () {
                         return [4 /*yield*/, this.appHelper.doesContainerAppEnvironmentExist(containerAppEnvironment, resourceGroup)];
                     case 3:
                         containerAppEnvironmentExists = _a.sent();
-                        if (!containerAppEnvironmentExists) {
-                            this.appHelper.createContainerAppEnvironment(containerAppEnvironment, resourceGroup, location);
-                        }
-                        return [2 /*return*/, containerAppEnvironment];
+                        if (!!containerAppEnvironmentExists) return [3 /*break*/, 5];
+                        return [4 /*yield*/, this.appHelper.createContainerAppEnvironment(containerAppEnvironment, resourceGroup, location)];
+                    case 4:
+                        _a.sent();
+                        _a.label = 5;
+                    case 5: return [2 /*return*/, containerAppEnvironment];
                 }
             });
         });
@@ -452,6 +454,7 @@ var azurecontainerapps = /** @class */ (function () {
                     case 1:
                         // Install the pack CLI
                         _b.sent();
+                        console.log("Successfully installed the pack CLI.");
                         // Get the runtime stack if provided, or determine it using Oryx
                         this.runtimeStack = core.getInput('runtimeStack', { required: false });
                         if (!util.isNullOrEmpty(this.runtimeStack)) return [3 /*break*/, 3];
@@ -462,11 +465,17 @@ var azurecontainerapps = /** @class */ (function () {
                         core.info("Runtime stack determined to be: " + this.runtimeStack);
                         _b.label = 3;
                     case 3:
-                        core.info("Building image \"" + imageToBuild + "\" using the Oryx++ Builder");
+                        console.log("Building image \"" + imageToBuild + "\" using the Oryx++ Builder");
                         // Set the Oryx++ Builder as the default builder locally
-                        this.appHelper.setDefaultBuilder();
+                        return [4 /*yield*/, this.appHelper.setDefaultBuilder()];
+                    case 4:
+                        // Set the Oryx++ Builder as the default builder locally
+                        _b.sent();
                         // Create a runnable application image
-                        this.appHelper.createRunnableAppImage(imageToBuild, appSourcePath, this.runtimeStack);
+                        return [4 /*yield*/, this.appHelper.createRunnableAppImage(imageToBuild, appSourcePath, this.runtimeStack)];
+                    case 5:
+                        // Create a runnable application image
+                        _b.sent();
                         // If telemetry is enabled, log that the builder scenario was targeted for this task
                         this.telemetryHelper.setBuilderScenario();
                         return [2 /*return*/];
@@ -5289,18 +5298,31 @@ var ContainerAppHelper = /** @class */ (function () {
      * @param runtimeStack - the runtime stack to use in the image layer that runs the application
      */
     ContainerAppHelper.prototype.createRunnableAppImage = function (imageToDeploy, appSourcePath, runtimeStack) {
-        core.debug("Attempting to create a runnable application image using the Oryx++ Builder with image name \"" + imageToDeploy + "\"");
-        try {
-            var telemetryArg = "--env \"CALLER_ID=azure-pipelines-rc-v1\"";
-            if (this.disableTelemetry) {
-                telemetryArg = "--env \"ORYX_DISABLE_TELEMETRY=true\"";
-            }
-            new Utility_1.Utility().executeAndthrowIfError("" + PACK_CMD, "build " + imageToDeploy + " --path " + appSourcePath + " --builder " + ORYX_BUILDER_IMAGE + " --run-image mcr.microsoft.com/oryx/" + runtimeStack + " " + telemetryArg, "Unable to create runnable application image using the Oryx++ Builder with image name \"" + imageToDeploy + "\".");
-        }
-        catch (err) {
-            core.error(err.message);
-            throw err;
-        }
+        return __awaiter(this, void 0, void 0, function () {
+            var telemetryArg, err_15;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        core.debug("Attempting to create a runnable application image using the Oryx++ Builder with image name \"" + imageToDeploy + "\"");
+                        _a.label = 1;
+                    case 1:
+                        _a.trys.push([1, 3, , 4]);
+                        telemetryArg = "--env \"CALLER_ID=azure-pipelines-rc-v1\"";
+                        if (this.disableTelemetry) {
+                            telemetryArg = "--env \"ORYX_DISABLE_TELEMETRY=true\"";
+                        }
+                        return [4 /*yield*/, cpExec(PACK_CMD + " build " + imageToDeploy + " --path " + appSourcePath + " --builder " + ORYX_BUILDER_IMAGE + " --run-image mcr.microsoft.com/oryx/" + runtimeStack + " " + telemetryArg)];
+                    case 2:
+                        _a.sent();
+                        return [3 /*break*/, 4];
+                    case 3:
+                        err_15 = _a.sent();
+                        core.error(err_15.message);
+                        throw err_15;
+                    case 4: return [2 /*return*/];
+                }
+            });
+        });
     };
     /**
      * Using a Dockerfile that was provided or found at the root of the application source,
@@ -5311,7 +5333,7 @@ var ContainerAppHelper = /** @class */ (function () {
      */
     ContainerAppHelper.prototype.createRunnableAppImageFromDockerfile = function (imageToDeploy, appSourcePath, dockerfilePath) {
         return __awaiter(this, void 0, void 0, function () {
-            var dockerTool, err_15;
+            var dockerTool, err_16;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -5328,9 +5350,9 @@ var ContainerAppHelper = /** @class */ (function () {
                         core.info("Successfully created runnable application image from the provided/found Dockerfile \"" + dockerfilePath + "\" with image name \"" + imageToDeploy + "\"");
                         return [3 /*break*/, 5];
                     case 4:
-                        err_15 = _a.sent();
-                        core.error(err_15.message);
-                        throw err_15;
+                        err_16 = _a.sent();
+                        core.error(err_16.message);
+                        throw err_16;
                     case 5: return [2 /*return*/];
                 }
             });
@@ -5343,7 +5365,7 @@ var ContainerAppHelper = /** @class */ (function () {
      */
     ContainerAppHelper.prototype.determineRuntimeStackAsync = function (appSourcePath) {
         return __awaiter(this, void 0, void 0, function () {
-            var dockerTool, dockerCommand, oryxRuntimeTxtPath, command, runtimeStack, err_16;
+            var dockerTool, dockerCommand, oryxRuntimeTxtPath, command, runtimeStack, err_17;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -5374,9 +5396,9 @@ var ContainerAppHelper = /** @class */ (function () {
                         _a.sent();
                         return [2 /*return*/, runtimeStack];
                     case 5:
-                        err_16 = _a.sent();
-                        core.error(err_16.message);
-                        throw err_16;
+                        err_17 = _a.sent();
+                        core.error(err_17.message);
+                        throw err_17;
                     case 6: return [2 /*return*/];
                 }
             });
@@ -5387,14 +5409,27 @@ var ContainerAppHelper = /** @class */ (function () {
      * to no default builder set.
      */
     ContainerAppHelper.prototype.setDefaultBuilder = function () {
-        core.debug('Setting the Oryx++ Builder as the default builder via the pack CLI');
-        try {
-            new Utility_1.Utility().executeAndthrowIfError("pack", "config default-builder " + ORYX_BUILDER_IMAGE, "Unable to set the Oryx++ Builder as the default builder via the pack CLI.");
-        }
-        catch (err) {
-            core.error(err.message);
-            throw err;
-        }
+        return __awaiter(this, void 0, void 0, function () {
+            var err_18;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        console.log('Setting the Oryx++ Builder as the default builder via the pack CLI');
+                        _a.label = 1;
+                    case 1:
+                        _a.trys.push([1, 3, , 4]);
+                        return [4 /*yield*/, cpExec("pack config default-builder " + ORYX_BUILDER_IMAGE)];
+                    case 2:
+                        _a.sent();
+                        return [3 /*break*/, 4];
+                    case 3:
+                        err_18 = _a.sent();
+                        core.error(err_18.message);
+                        throw err_18;
+                    case 4: return [2 /*return*/];
+                }
+            });
+        });
     };
     /**
      * Installs the pack CLI that will be used to build a runnable application image.
@@ -5402,7 +5437,7 @@ var ContainerAppHelper = /** @class */ (function () {
      */
     ContainerAppHelper.prototype.installPackCliAsync = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var command, packZipDownloadUri, packZipDownloadFilePath, tgzSuffix, err_17;
+            var command, packZipDownloadUri, packZipDownloadFilePath, tgzSuffix, err_19;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -5429,9 +5464,9 @@ var ContainerAppHelper = /** @class */ (function () {
                         _a.sent();
                         return [3 /*break*/, 4];
                     case 3:
-                        err_17 = _a.sent();
+                        err_19 = _a.sent();
                         core.error("Unable to install the pack CLI.");
-                        throw err_17;
+                        throw err_19;
                     case 4: return [2 /*return*/];
                 }
             });
