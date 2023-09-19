@@ -1,7 +1,6 @@
 import * as os from 'os'
 import * as core from '@actions/core';
 import * as exec from '@actions/exec';
-import * as io from '@actions/io';
 
 export class CommandHelper {
 
@@ -12,8 +11,8 @@ export class CommandHelper {
      */
     public async execCommandAsync(command: string): Promise<string> {
         return os.platform() == 'win32' ?
-           await this.execPwshCommandAsync(command) :
-           await this.execBashCommandAsync(command);
+            await this.execPwshCommandAsync(command) :
+            await this.execBashCommandAsync(command);
     }
 
     /**
@@ -22,15 +21,17 @@ export class CommandHelper {
      */
     private async execBashCommandAsync(command: string): Promise<string> {
         var bashOutput: string = '';
+        var errorStream: string = '';
 
         const options: any = {
             listeners: {
                 stdout: (data: Buffer) => {
-                    process.stdout.write(data);
                     bashOutput += data.toString();
+                    core.info(data.toString());
                 },
                 stderr: (data: Buffer) => {
-                    process.stderr.write(data);
+                    errorStream += data.toString();
+                    core.error(data.toString());
                 }
             },
             failOnStdErr: true,
@@ -39,10 +40,13 @@ export class CommandHelper {
             outStream: process.stdout,
         }
         try {
-            await exec.exec('bash', ['-c', command], options);
+            var exitCode = await exec.exec('bash', ['-c', command], options);
+            if (exitCode !== 0) {
+                throw new Error(`Command failed with exit code ${exitCode}. Error stream: ${errorStream}`);
+            }
             return bashOutput.trim();
         } catch (err) {
-            core.error('Unable to run provided bash command ${command}');
+            core.setFailed(err.message);
             throw err;
         }
     }
@@ -54,14 +58,16 @@ export class CommandHelper {
      */
     private async execPwshCommandAsync(command: string): Promise<string> {
         var pwshOutput: string = '';
+        var errorStream: string = '';
         const options: any = <exec.ExecOptions>{
             listeners: {
                 stdout: (data: Buffer) => {
-                    process.stdout.write(data);
                     pwshOutput += data.toString();
+                    core.info(data.toString());
                 },
                 stderr: (data: Buffer) => {
-                    process.stderr.write(data);
+                    errorStream += data.toString();
+                    core.error(data.toString());
                 }
             },
             failOnStdErr: true,
@@ -70,10 +76,13 @@ export class CommandHelper {
             outStream: process.stdout,
         }
         try {
-            await exec.exec('pwsh',[command], options);
+            var exitCode = await exec.exec('pwsh', [command], options);
+            if (exitCode !== 0) {
+                throw new Error(`Command failed with exit code ${exitCode}. Error stream: ${errorStream}`);
+            }
             return pwshOutput.trim();
         } catch (err) {
-            core.error('Unable to run provided PowerShell command ${command}');
+            core.setFailed(err.message);
             throw err;
         }
     }

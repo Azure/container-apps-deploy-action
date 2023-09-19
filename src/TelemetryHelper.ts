@@ -1,6 +1,5 @@
 import * as core from '@actions/core';
 import { Utility } from './Utility';
-import * as exec from '@actions/exec';
 import * as io from '@actions/io';
 
 const ORYX_CLI_IMAGE: string = "mcr.microsoft.com/oryx/cli:debian-buster-20230207.2";
@@ -69,7 +68,7 @@ export class TelemetryHelper {
     public async sendLogs() {
         const taskLengthMilliseconds: number = Date.now() - this.taskStartMilliseconds;
         if (!this.disableTelemetry) {
-            core.debug(`Telemetry enabled; logging metadata about task result, length and scenario targeted.`);
+            core.info(`Telemetry enabled; logging metadata about task result, length and scenario targeted.`);
             try {
                 let resultArg: string = '';
                 if (!util.isNullOrEmpty(this.result)) {
@@ -87,8 +86,6 @@ export class TelemetryHelper {
                 }
 
                 let args: string[] = [`run`, `--rm`, `${ORYX_CLI_IMAGE}`, `/bin/bash`, `-c`, `oryx telemetry --event-name 'ContainerAppsPipelinesTaskRCV1' ` + `--processing-time '${taskLengthMilliseconds}' ${resultArg} ${scenarioArg} ${errorMessageArg}"`];
-                // const dockerCommand = `run --rm ${ORYX_CLI_IMAGE} /bin/bash -c "oryx telemetry --event-name 'ContainerAppsPipelinesTaskRCV1' ` +
-                // `--processing-time '${taskLengthMilliseconds}' ${resultArg} ${scenarioArg} ${errorMessageArg}"`
 
                 // Don't use Utility's throwIfError() since it will still record an error in the pipeline logs, but won't fail the task
                 await executeDockerCommand(args, true)
@@ -100,26 +97,12 @@ export class TelemetryHelper {
 }
 
 const executeDockerCommand = async (args: string[], continueOnError: boolean = false): Promise<void> => {
-    const dockerTool: string = await io.which("docker", true);
-    var errorStream: string = '';
-    var execOptions: any = {
-        listeners: {
-            stdout: (data: any) => console.log(data.toString()), //to log the script output while the script is running.
-        }
-    };
-    var exitCode;
     try {
-        exitCode = await exec.exec(dockerTool, args, execOptions);
-    } catch (error) {
-        if (!continueOnError) {
-            throw error;
-        }
-        core.warning(error);
+        const dockerTool: string = await io.which("docker", true);
+        await new Utility().executeAndthrowIfError(dockerTool, args, continueOnError);
     }
-    finally {
-        if (exitCode !== 0 && !continueOnError) {
-            throw new Error(errorStream || 'az cli script failed.');
-        }
-        core.warning(errorStream)
+    catch (err) {
+        core.setFailed(`Error: ${err.message}`);
+        throw err; // Re-throw the error
     }
 }

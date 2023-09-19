@@ -83,7 +83,6 @@ jobs:
         with:
           repository: microsoft/Oryx
           path: oryx
-          ref: snehapar/Add-libbrotli-dev
 
       - name: Log in to Azure
         uses: azure/login@v1
@@ -131,7 +130,6 @@ jobs:
         with:
           repository: microsoft/Oryx
           path: oryx
-          ref: snehapar/Add-libbrotli-dev
 
       - name: Log in to Azure
         uses: azure/login@v1

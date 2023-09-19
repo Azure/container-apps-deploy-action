@@ -38,7 +38,6 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 exports.__esModule = true;
 exports.ContainerAppHelper = void 0;
 var core = require("@actions/core");
-var exec = require("@actions/exec");
 var io = require("@actions/io");
 var path = require("path");
 var os = require("os");
@@ -364,22 +363,26 @@ var ContainerAppHelper = /** @class */ (function () {
      */
     ContainerAppHelper.prototype.createResourceGroup = function (name, location) {
         return __awaiter(this, void 0, void 0, function () {
-            var command, err_10;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
+            var command, _a, stdout, stderr, err_10;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
                     case 0:
                         core.debug("Attempting to create resource group \"" + name + "\" in location \"" + location + "\"");
-                        _a.label = 1;
+                        _b.label = 1;
                     case 1:
-                        _a.trys.push([1, 3, , 4]);
+                        _b.trys.push([1, 3, , 4]);
                         command = "az group create -n " + name + " -l " + location;
                         return [4 /*yield*/, cpExec("" + command)];
                     case 2:
-                        _a.sent();
+                        _a = _b.sent(), stdout = _a.stdout, stderr = _a.stderr;
+                        if (stderr) {
+                            core.error('Failed to create resource group, Error: ' + stderr);
+                            throw new Error(stderr);
+                        }
                         return [3 /*break*/, 4];
                     case 3:
-                        err_10 = _a.sent();
-                        core.error(err_10.message);
+                        err_10 = _b.sent();
+                        core.setFailed(err_10.message);
                         throw err_10;
                     case 4: return [2 /*return*/];
                 }
@@ -408,7 +411,7 @@ var ContainerAppHelper = /** @class */ (function () {
                         return [2 /*return*/, !stderr ? stdout : null];
                     case 3:
                         err_11 = _b.sent();
-                        core.warning(err_11.message);
+                        core.error(err_11.message);
                         return [2 /*return*/, null];
                     case 4: return [2 /*return*/];
                 }
@@ -423,26 +426,30 @@ var ContainerAppHelper = /** @class */ (function () {
      */
     ContainerAppHelper.prototype.createContainerAppEnvironment = function (name, resourceGroup, location) {
         return __awaiter(this, void 0, void 0, function () {
-            var util, command, err_12;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
+            var util, command, _a, stdout, stderr, err_12;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
                     case 0:
                         util = new Utility_1.Utility();
                         core.debug("Attempting to create Container App Environment with name \"" + name + "\" in resource group \"" + resourceGroup + "\"");
-                        _a.label = 1;
+                        _b.label = 1;
                     case 1:
-                        _a.trys.push([1, 3, , 4]);
+                        _b.trys.push([1, 3, , 4]);
                         command = "az containerapp env create -n " + name + " -g " + resourceGroup;
                         if (!util.isNullOrEmpty(location)) {
                             command += " -l " + location;
                         }
                         return [4 /*yield*/, cpExec("" + command)];
                     case 2:
-                        _a.sent();
+                        _a = _b.sent(), stdout = _a.stdout, stderr = _a.stderr;
+                        if (stderr) {
+                            core.error('Failed to create Container App Environment, Error: ' + stderr);
+                            throw new Error(stderr);
+                        }
                         return [3 /*break*/, 4];
                     case 3:
-                        err_12 = _a.sent();
-                        core.error(err_12.message);
+                        err_12 = _b.sent();
+                        core.setFailed(err_12.message);
                         throw err_12;
                     case 4: return [2 /*return*/];
                 }
@@ -469,13 +476,13 @@ var ContainerAppHelper = /** @class */ (function () {
                     case 2:
                         _a = _b.sent(), stdout = _a.stdout, stderr = _a.stderr;
                         if (stderr) {
-                            core.warning(stderr);
+                            core.error('Failed to disable ingress for Container App, Error: ' + stderr);
                             throw new Error(stderr);
                         }
                         return [3 /*break*/, 4];
                     case 3:
                         err_13 = _b.sent();
-                        core.error(err_13.message);
+                        core.setFailed(err_13.message);
                         throw err_13;
                     case 4: return [2 /*return*/];
                 }
@@ -505,13 +512,13 @@ var ContainerAppHelper = /** @class */ (function () {
                     case 2:
                         _a = _b.sent(), stdout = _a.stdout, stderr = _a.stderr;
                         if (stderr) {
-                            core.warning(stderr);
+                            core.error('Failed to set the ACR details for Container App, Error: ' + stderr);
                             throw new Error(stderr);
                         }
                         return [3 /*break*/, 4];
                     case 3:
                         err_14 = _b.sent();
-                        core.error(err_14.message);
+                        core.setFailed(err_14.message);
                         throw err_14;
                     case 4: return [2 /*return*/];
                 }
@@ -526,25 +533,29 @@ var ContainerAppHelper = /** @class */ (function () {
      */
     ContainerAppHelper.prototype.createRunnableAppImage = function (imageToDeploy, appSourcePath, runtimeStack) {
         return __awaiter(this, void 0, void 0, function () {
-            var telemetryArg, err_15;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
+            var telemetryArg, _a, stdout, stderr, err_15;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
                     case 0:
                         core.debug("Attempting to create a runnable application image using the Oryx++ Builder with image name \"" + imageToDeploy + "\"");
-                        _a.label = 1;
+                        _b.label = 1;
                     case 1:
-                        _a.trys.push([1, 3, , 4]);
+                        _b.trys.push([1, 3, , 4]);
                         telemetryArg = "--env \"CALLER_ID=azure-pipelines-rc-v1\"";
                         if (this.disableTelemetry) {
                             telemetryArg = "--env \"ORYX_DISABLE_TELEMETRY=true\"";
                         }
                         return [4 /*yield*/, cpExec(PACK_CMD + " build " + imageToDeploy + " --path " + appSourcePath + " --builder " + ORYX_BUILDER_IMAGE + " --run-image mcr.microsoft.com/oryx/" + runtimeStack + " " + telemetryArg)];
                     case 2:
-                        _a.sent();
+                        _a = _b.sent(), stdout = _a.stdout, stderr = _a.stderr;
+                        if (stderr) {
+                            core.error("Failed to create runnable application image using the Oryx++ Builder with image name \"" + imageToDeploy + "\". Error: " + stderr);
+                            throw new Error(stderr);
+                        }
                         return [3 /*break*/, 4];
                     case 3:
-                        err_15 = _a.sent();
-                        core.error(err_15.message);
+                        err_15 = _b.sent();
+                        core.setFailed(err_15.message);
                         throw err_15;
                     case 4: return [2 /*return*/];
                 }
@@ -571,14 +582,14 @@ var ContainerAppHelper = /** @class */ (function () {
                         return [4 /*yield*/, io.which("docker", true)];
                     case 2:
                         dockerTool = _a.sent();
-                        return [4 /*yield*/, exec.exec(dockerTool, ['build', '--file', "" + dockerfilePath, "" + appSourcePath, '--tag', "" + imageToDeploy])];
+                        return [4 /*yield*/, new Utility_1.Utility().executeAndthrowIfError(dockerTool, ['build', '--file', "" + dockerfilePath, "" + appSourcePath, '--tag', "" + imageToDeploy])];
                     case 3:
                         _a.sent();
-                        core.info("Successfully created runnable application image from the provided/found Dockerfile \"" + dockerfilePath + "\" with image name \"" + imageToDeploy + "\"");
+                        core.debug("Successfully created runnable application image from the provided/found Dockerfile \"" + dockerfilePath + "\" with image name \"" + imageToDeploy + "\"");
                         return [3 /*break*/, 5];
                     case 4:
                         err_16 = _a.sent();
-                        core.error(err_16.message);
+                        core.setFailed(err_16.message);
                         throw err_16;
                     case 5: return [2 /*return*/];
                 }
@@ -592,7 +603,7 @@ var ContainerAppHelper = /** @class */ (function () {
      */
     ContainerAppHelper.prototype.determineRuntimeStackAsync = function (appSourcePath) {
         return __awaiter(this, void 0, void 0, function () {
-            var dockerTool, dockerCommand, exitCode, oryxRuntimeTxtPath, command, runtimeStack, err_17;
+            var dockerTool, oryxRuntimeTxtPath, command, runtimeStack, err_17;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -603,24 +614,13 @@ var ContainerAppHelper = /** @class */ (function () {
                         return [4 /*yield*/, io.which("docker", true)];
                     case 2:
                         dockerTool = _a.sent();
-                        dockerCommand = "run --rm -v " + appSourcePath + ":/app " + ORYX_CLI_IMAGE + " /bin/bash -c \"oryx dockerfile /app | head -n 1 | sed 's/ARG RUNTIME=//' >> /app/oryx-runtime.txt\"";
-                        return [4 /*yield*/, exec.exec(dockerTool, ['run', '--rm', '-v', appSourcePath + ":/app", "" + ORYX_CLI_IMAGE, '/bin/bash', '-c', "oryx dockerfile /app | head -n 1 | sed 's/ARG RUNTIME=//' >> /app/oryx-runtime.txt"])
-                            // new Utility().executeAndthrowIfError(
-                            //     `${dockerTool}`,
-                            //     `${dockerCommand}`,
-                            //     `Unable to determine the runtime stack needed for the provided application source.`
-                            // );
+                        // Use 'oryx dockerfile' command to determine the runtime stack to use and write it to a temp file
+                        return [4 /*yield*/, new Utility_1.Utility().executeAndthrowIfError(dockerTool, ['run', '--rm', '-v', appSourcePath + ":/app", "" + ORYX_CLI_IMAGE, '/bin/bash', '-c', "oryx dockerfile /app | head -n 1 | sed 's/ARG RUNTIME=//' >> /app/oryx-runtime.txt"])
+                            // Read the temp file to get the runtime stack into a variable
                         ];
                     case 3:
-                        exitCode = _a.sent();
-                        // new Utility().executeAndthrowIfError(
-                        //     `${dockerTool}`,
-                        //     `${dockerCommand}`,
-                        //     `Unable to determine the runtime stack needed for the provided application source.`
-                        // );
-                        if (exitCode != 0) {
-                            throw new Error("Unable to determine the runtime stack needed for the provided application source.");
-                        }
+                        // Use 'oryx dockerfile' command to determine the runtime stack to use and write it to a temp file
+                        _a.sent();
                         oryxRuntimeTxtPath = path.join(appSourcePath, 'oryx-runtime.txt');
                         command = "head -n 1 " + oryxRuntimeTxtPath;
                         if (IS_WINDOWS_AGENT) {
@@ -640,7 +640,7 @@ var ContainerAppHelper = /** @class */ (function () {
                         return [2 /*return*/, runtimeStack];
                     case 6:
                         err_17 = _a.sent();
-                        core.error(err_17.message);
+                        core.setFailed(err_17.message);
                         throw err_17;
                     case 7: return [2 /*return*/];
                 }
@@ -653,21 +653,25 @@ var ContainerAppHelper = /** @class */ (function () {
      */
     ContainerAppHelper.prototype.setDefaultBuilder = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var err_18;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
+            var _a, stdout, stderr, err_18;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
                     case 0:
-                        console.log('Setting the Oryx++ Builder as the default builder via the pack CLI');
-                        _a.label = 1;
+                        core.info('Setting the Oryx++ Builder as the default builder via the pack CLI');
+                        _b.label = 1;
                     case 1:
-                        _a.trys.push([1, 3, , 4]);
+                        _b.trys.push([1, 3, , 4]);
                         return [4 /*yield*/, cpExec("pack config default-builder " + ORYX_BUILDER_IMAGE)];
                     case 2:
-                        _a.sent();
+                        _a = _b.sent(), stdout = _a.stdout, stderr = _a.stderr;
+                        if (stderr) {
+                            core.error("Failed to set the Oryx++ Builder as the default builder via the pack CLI. Error: " + stderr);
+                            throw new Error(stderr);
+                        }
                         return [3 /*break*/, 4];
                     case 3:
-                        err_18 = _a.sent();
-                        core.error(err_18.message);
+                        err_18 = _b.sent();
+                        core.setFailed(err_18.message);
                         throw err_18;
                     case 4: return [2 /*return*/];
                 }
@@ -708,7 +712,8 @@ var ContainerAppHelper = /** @class */ (function () {
                         return [3 /*break*/, 4];
                     case 3:
                         err_19 = _a.sent();
-                        core.error("Unable to install the pack CLI.");
+                        core.error("Unable to install the pack CLI. Error: " + err_19.message);
+                        core.setFailed(err_19.message);
                         throw err_19;
                     case 4: return [2 /*return*/];
                 }

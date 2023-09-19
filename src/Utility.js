@@ -39,16 +39,18 @@ exports.__esModule = true;
 exports.Utility = void 0;
 var core = require("@actions/core");
 var exec = require("@actions/exec");
-var util = require('util');
+var util = require("util");
 var cpExec = util.promisify(require('child_process').exec);
 var Utility = /** @class */ (function () {
     function Utility() {
     }
     /**
-     * @param command - the command to execute
-     * @param errormsg - the error message to display if the command failed
+     * @param commandLine - the command to execute
+     * @param args - the arguments to pass to the command
+     * @param continueOnError - whether or not to continue execution if the command fails
      */
-    Utility.prototype.executeAndthrowIfError = function (commandToolPath, command, errormsg) {
+    Utility.prototype.executeAndthrowIfError = function (commandLine, args, continueOnError) {
+        if (continueOnError === void 0) { continueOnError = false; }
         return __awaiter(this, void 0, void 0, function () {
             var stdout_1, stderr_1, options, exitCode, error_1;
             return __generator(this, function (_a) {
@@ -61,21 +63,20 @@ var Utility = /** @class */ (function () {
                             listeners: {
                                 stdout: function (data) {
                                     stdout_1 += data.toString();
+                                    core.info(data.toString());
                                 },
                                 stderr: function (data) {
                                     stderr_1 += data.toString();
+                                    core.error(data.toString());
                                 }
                             }
                         };
-                        return [4 /*yield*/, exec.exec(commandToolPath, [command], options)];
+                        return [4 /*yield*/, exec.exec(commandLine, args, options)];
                     case 1:
                         exitCode = _a.sent();
-                        if (exitCode !== 0) {
-                            core.error("Command failed with exit code " + exitCode);
-                            if (errormsg) {
-                                core.error("Error Message: " + errormsg);
-                            }
-                            throw new Error("Command failed with exit code " + exitCode);
+                        if (!continueOnError && exitCode !== 0) {
+                            core.error("Command failed with exit code " + exitCode + ". Error stream: " + stderr_1);
+                            throw new Error("Command failed with exit code " + exitCode + ". Error stream: " + stderr_1);
                         }
                         return [3 /*break*/, 3];
                     case 2:
@@ -87,96 +88,30 @@ var Utility = /** @class */ (function () {
             });
         });
     };
-    Utility.prototype.executeAndReturnExitCode = function (pathToTool, command, errormsg) {
-        return __awaiter(this, void 0, void 0, function () {
-            var stdout_2, stderr_2, options, exitCode, error_2;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        _a.trys.push([0, 2, , 3]);
-                        stdout_2 = '';
-                        stderr_2 = '';
-                        options = {
-                            listeners: {
-                                stdout: function (data) {
-                                    stdout_2 += data.toString();
-                                },
-                                stderr: function (data) {
-                                    stderr_2 += data.toString();
-                                }
-                            }
-                        };
-                        return [4 /*yield*/, exec.exec(pathToTool, [command], options)];
-                    case 1:
-                        exitCode = _a.sent();
-                        if (exitCode !== 0) {
-                            core.error("Command failed with exit code " + exitCode);
-                            if (errormsg) {
-                                core.error("Error Message: " + errormsg);
-                            }
-                            throw new Error("Command failed with exit code " + exitCode);
-                        }
-                        return [2 /*return*/, exitCode];
-                    case 2:
-                        error_2 = _a.sent();
-                        core.setFailed("Error: " + error_2.message);
-                        throw error_2; // Re-throw the error
-                    case 3: return [2 /*return*/];
-                }
-            });
-        });
-    };
-    Utility.prototype.executeAndReturnOutput = function (pathToTool, command, errormsg) {
-        return __awaiter(this, void 0, void 0, function () {
-            var stdout_3, stderr_3, options, exitCode, error_3;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        _a.trys.push([0, 2, , 3]);
-                        stdout_3 = '';
-                        stderr_3 = '';
-                        options = {
-                            listeners: {
-                                stdout: function (data) {
-                                    stdout_3 += data.toString();
-                                },
-                                stderr: function (data) {
-                                    stderr_3 += data.toString();
-                                }
-                            }
-                        };
-                        return [4 /*yield*/, exec.exec(pathToTool, [command], options)];
-                    case 1:
-                        exitCode = _a.sent();
-                        if (exitCode !== 0) {
-                            core.error("Command failed with exit code " + exitCode);
-                            if (errormsg) {
-                                core.error("Error Message: " + errormsg);
-                            }
-                            throw new Error("Command failed with exit code " + exitCode);
-                        }
-                        return [2 /*return*/, stdout_3];
-                    case 2:
-                        error_3 = _a.sent();
-                        core.setFailed("Error: " + error_3.message);
-                        throw error_3; // Re-throw the error
-                    case 3: return [2 /*return*/];
-                }
-            });
-        });
-    };
     /**
      * Sets the Azure CLI to dynamically install extensions that are missing. In this case, we care about the
      * Azure Container Apps module being dynamically installed while it's still in preview.
      */
     Utility.prototype.setAzureCliDynamicInstall = function () {
         return __awaiter(this, void 0, void 0, function () {
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, cpExec("az config set extension.use_dynamic_install=yes_without_prompt")];
+            var _a, stdout, stderr, error_2;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        _b.trys.push([0, 2, , 3]);
+                        return [4 /*yield*/, cpExec("az config set extension.use_dynamic_install=yes_without_prompt")];
                     case 1:
-                        _a.sent();
-                        return [2 /*return*/];
+                        _a = _b.sent(), stdout = _a.stdout, stderr = _a.stderr;
+                        if (stderr) {
+                            core.error("Unable to set Azure CLI to dynamically install extensions. Error: " + stderr);
+                            throw new Error("Unable to set Azure CLI to dynamically install extensions. Error: " + stderr);
+                        }
+                        return [3 /*break*/, 3];
+                    case 2:
+                        error_2 = _b.sent();
+                        core.setFailed("Error: " + error_2.message);
+                        throw error_2; // Re-throw the error
+                    case 3: return [2 /*return*/];
                 }
             });
         });

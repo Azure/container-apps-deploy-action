@@ -1,5 +1,4 @@
 import * as core from '@actions/core';
-import * as exec from '@actions/exec'
 import * as io from '@actions/io';
 import * as path from 'path';
 import * as os from 'os';
@@ -7,8 +6,6 @@ import { CommandHelper } from './CommandHelper';
 import { Utility } from './Utility';
 const util = require('util');
 const cpExec = util.promisify(require('child_process').exec);
-import { pathToFileURL } from 'url';
-import { cp } from 'fs';
 
 const ORYX_CLI_IMAGE: string = 'mcr.microsoft.com/oryx/cli:builder-debian-buster-20230208.1';
 const ORYX_BUILDER_IMAGE: string = 'mcr.microsoft.com/oryx/builder:20230208.1';
@@ -63,11 +60,6 @@ export class ContainerAppHelper {
             try {
                 let command = `az containerapp create -n ${containerAppName} -g ${resourceGroup} --yaml ${yamlConfigPath}`;
                 await cpExec(`${command}`);
-                // new Utility().executeAndthrowIfError(
-                //     await io.which('az', true),
-                //     command,
-                //     "Unable to create Azure Container App from YAML configuration file via 'az containerapp create' command."
-                // );
             } catch (err) {
                 core.error(err.message);
                 throw err;
@@ -98,13 +90,6 @@ export class ContainerAppHelper {
                     core.warning(stderr);
                     throw new Error(stderr);
                 }
-                // const pathToTool = await io.which('az', true);
-
-                // new Utility().executeAndthrowIfError(
-                //     pathToTool,
-                //     command,
-                //     "Unable to update Azure Container App via 'az containerapp update' command."
-                // );
             } catch (err) {
                 core.error(err.message);
                 throw err;
@@ -148,14 +133,6 @@ export class ContainerAppHelper {
                     core.warning(stderr);
                     throw new Error(stderr);
                 }
-
-                // const pathToTool = await io.which('az', true);
-
-                // util.executeAndthrowIfError(
-                //     pathToTool,
-                //     command,
-                //     "Unable to update Azure Container App via 'az containerapp up' command."
-                // );
             } catch (err) {
                 core.error(err.message);
                 throw err;
@@ -180,12 +157,6 @@ export class ContainerAppHelper {
                     core.warning(stderr);
                     throw new Error(stderr);
                 }
-                // const pathToTool = await io.which('az', true);
-                // new Utility().executeAndthrowIfError(
-                //     pathToTool,
-                //     command,
-                //     "Unable to update Azure Container App from YAML configuration file via 'az containerapp update' command."
-                // );
             } catch (err) {
                 core.error(err.message);
                 throw err;
@@ -222,9 +193,6 @@ export class ContainerAppHelper {
             const command = `az containerapp env show -n ${containerAppEnvironment} -g ${resourceGroup} -o none`;
             const {stdout, stderr} = await cpExec(`${command}`);
             return !stderr;
-            // const pathToTool = await io.which('az', true);
-            // const result = await new Utility().executeAndReturnExitCode(pathToTool, command);
-            // return result == 0;
         } catch (err) {
             core.warning(err.message);
             return false;
@@ -242,9 +210,6 @@ export class ContainerAppHelper {
             const command = `az group show -n ${resourceGroup} -o none`;
             const {stdout, stderr} = await cpExec(`${command}`);
             return !stderr;
-            // const pathToTool = await io.which('az', true);
-            // const result = await new Utility().executeAndReturnExitCode(pathToTool, command);
-            // return result == 0;
         } catch (err) {
             core.warning(err.message);
             return false;
@@ -277,9 +242,13 @@ export class ContainerAppHelper {
         core.debug(`Attempting to create resource group "${name}" in location "${location}"`);
         try {
             const command = `az group create -n ${name} -l ${location}`;
-            await cpExec(`${command}`);
+            const {stdout, stderr} = await cpExec(`${command}`);
+            if (stderr) {
+                core.error('Failed to create resource group, Error: ' + stderr);
+                throw new Error(stderr);
+            }
         } catch (err) {
-            core.error(err.message);
+            core.setFailed(err.message);
             throw err;
         }
     }
@@ -295,16 +264,8 @@ export class ContainerAppHelper {
             const command = `az containerapp env list -g ${resourceGroup} --query [0].name"`;
             const {stdout, stderr} = await cpExec(`${command}`);
             return !stderr ? stdout : null;
-            // const pathToTool = await io.which('az', true);
-            // const result = await new Utility().executeAndReturnExitCode(
-            //     pathToTool,
-            //     command,
-            //     `Unable to get the existing Container App Environment in resource group "${resourceGroup}".`
-            // );
-            // const output = await new Utility().executeAndReturnOutput(pathToTool, command);
-            // return result == 0 ? output : null;
         } catch (err) {
-            core.warning(err.message);
+            core.error(err.message);
             return null;
         }
     }
@@ -323,9 +284,13 @@ export class ContainerAppHelper {
             if (!util.isNullOrEmpty(location)) {
                 command += ` -l ${location}`;
             }
-            await cpExec(`${command}`);
+            const {stdout, stderr} = await cpExec(`${command}`);
+            if (stderr) {
+                core.error('Failed to create Container App Environment, Error: ' + stderr);
+                throw new Error(stderr);
+            }
         } catch (err) {
-            core.error(err.message);
+            core.setFailed(err.message);
             throw err;
         }
     }
@@ -341,17 +306,11 @@ export class ContainerAppHelper {
             const command = `az containerapp ingress disable -n ${name} -g ${resourceGroup}`;
             const {stdout, stderr} = await cpExec(`${command}`);
             if (stderr) {
-                core.warning(stderr);
+                core.error('Failed to disable ingress for Container App, Error: ' + stderr);
                 throw new Error(stderr);
             }
-
-            // new Utility().executeAndthrowIfError(
-            //     await io.which('az', true),
-            //     command,
-            //     `Unable to disable ingress for Container App via 'az containerapp ingress disable' command.`
-            // );
         } catch (err) {
-            core.error(err.message);
+            core.setFailed(err.message);
             throw err;
         }
     }
@@ -370,17 +329,11 @@ export class ContainerAppHelper {
             const command = `az containerapp registry set -n ${name} -g ${resourceGroup} --server ${acrName}.azurecr.io --username ${acrUsername} --password ${acrPassword}`;
             const {stdout, stderr} = await cpExec(`${command}`);
             if (stderr) {
-                core.warning(stderr);
+                core.error('Failed to set the ACR details for Container App, Error: ' + stderr);
                 throw new Error(stderr);
             }
-            // const pathToTool = await io.which('az', true);
-            // new Utility().executeAndthrowIfError(
-            //     pathToTool,
-            //     command,
-            //     `Unable to set the ACR details for Container App via 'az containerapp registry set' command.`
-            // );
         } catch (err) {
-            core.error(err.message);
+            core.setFailed(err.message);
             throw err;
         }
     }
@@ -401,15 +354,13 @@ export class ContainerAppHelper {
                 if (this.disableTelemetry) {
                     telemetryArg = `--env "ORYX_DISABLE_TELEMETRY=true"`;
                 }
-                await cpExec(`${PACK_CMD} build ${imageToDeploy} --path ${appSourcePath} --builder ${ORYX_BUILDER_IMAGE} --run-image mcr.microsoft.com/oryx/${runtimeStack} ${telemetryArg}`);
-
-                // new Utility().executeAndthrowIfError(
-                //     `${PACK_CMD}`,
-                //     `build ${imageToDeploy} --path ${appSourcePath} --builder ${ORYX_BUILDER_IMAGE} --run-image mcr.microsoft.com/oryx/${runtimeStack} ${telemetryArg}`,
-                //     `Unable to create runnable application image using the Oryx++ Builder with image name "${imageToDeploy}".`
-                // );
+                const {stdout, stderr} = await cpExec(`${PACK_CMD} build ${imageToDeploy} --path ${appSourcePath} --builder ${ORYX_BUILDER_IMAGE} --run-image mcr.microsoft.com/oryx/${runtimeStack} ${telemetryArg}`);
+                if (stderr) {
+                    core.error(`Failed to create runnable application image using the Oryx++ Builder with image name "${imageToDeploy}". Error: ${stderr}`);
+                    throw new Error(stderr);
+                }
             } catch (err) {
-                core.error(err.message);
+                core.setFailed(err.message);
                 throw err;
             }
     }
@@ -428,10 +379,10 @@ export class ContainerAppHelper {
             core.debug(`Attempting to create a runnable application image from the provided/found Dockerfile "${dockerfilePath}" with image name "${imageToDeploy}"`);
             try {
                 const dockerTool = await io.which("docker", true);
-                await exec.exec(dockerTool, ['build', '--file', `${dockerfilePath}`, `${appSourcePath}`, '--tag', `${imageToDeploy}`])
-                core.info(`Successfully created runnable application image from the provided/found Dockerfile "${dockerfilePath}" with image name "${imageToDeploy}"`);
+                await new Utility().executeAndthrowIfError(dockerTool, ['build', '--file', `${dockerfilePath}`, `${appSourcePath}`, '--tag', `${imageToDeploy}`]);
+                core.debug(`Successfully created runnable application image from the provided/found Dockerfile "${dockerfilePath}" with image name "${imageToDeploy}"`);
             } catch (err) {
-                core.error(err.message);
+                core.setFailed(err.message);
                 throw err;
             }
     }
@@ -446,16 +397,7 @@ export class ContainerAppHelper {
         try {
             const dockerTool: string = await io.which("docker", true);
             // Use 'oryx dockerfile' command to determine the runtime stack to use and write it to a temp file
-            const dockerCommand: string = `run --rm -v ${appSourcePath}:/app ${ORYX_CLI_IMAGE} /bin/bash -c "oryx dockerfile /app | head -n 1 | sed 's/ARG RUNTIME=//' >> /app/oryx-runtime.txt"`;
-            const exitCode = await exec.exec(dockerTool, ['run', '--rm', '-v', `${appSourcePath}:/app`, `${ORYX_CLI_IMAGE}`, '/bin/bash', '-c', `oryx dockerfile /app | head -n 1 | sed 's/ARG RUNTIME=//' >> /app/oryx-runtime.txt`])
-            // new Utility().executeAndthrowIfError(
-            //     `${dockerTool}`,
-            //     `${dockerCommand}`,
-            //     `Unable to determine the runtime stack needed for the provided application source.`
-            // );
-            if (exitCode != 0) {
-                throw new Error(`Unable to determine the runtime stack needed for the provided application source.`);
-            }
+            await new Utility().executeAndthrowIfError(dockerTool, ['run', '--rm', '-v', `${appSourcePath}:/app`, `${ORYX_CLI_IMAGE}`, '/bin/bash', '-c', `oryx dockerfile /app | head -n 1 | sed 's/ARG RUNTIME=//' >> /app/oryx-runtime.txt`])
 
             // Read the temp file to get the runtime stack into a variable
             const oryxRuntimeTxtPath = path.join(appSourcePath, 'oryx-runtime.txt');
@@ -476,7 +418,7 @@ export class ContainerAppHelper {
 
             return runtimeStack;
         } catch (err) {
-            core.error(err.message);
+            core.setFailed(err.message);
             throw err;
         }
     }
@@ -486,17 +428,17 @@ export class ContainerAppHelper {
      * to no default builder set.
      */
      public async setDefaultBuilder() {
-        console.log('Setting the Oryx++ Builder as the default builder via the pack CLI');
-        try {
-            await cpExec(`pack config default-builder ${ORYX_BUILDER_IMAGE}`);
-            // new Utility().executeAndthrowIfError(
-            //     `pack`,
-            //     `config default-builder ${ORYX_BUILDER_IMAGE}`,
-            //     `Unable to set the Oryx++ Builder as the default builder via the pack CLI.`
-            // );
-
-        } catch (err) {
-            core.error(err.message);
+        core.info('Setting the Oryx++ Builder as the default builder via the pack CLI');
+        try
+        {
+            const {stdout, stderr} = await cpExec(`pack config default-builder ${ORYX_BUILDER_IMAGE}`);
+            if (stderr) {
+                core.error(`Failed to set the Oryx++ Builder as the default builder via the pack CLI. Error: ${stderr}`);
+                throw new Error(stderr);
+            }
+        }
+        catch (err) {
+            core.setFailed(err.message);
             throw err;
         }
     }
@@ -524,7 +466,8 @@ export class ContainerAppHelper {
             }
             await new CommandHelper().execCommandAsync(command);
         } catch (err) {
-            core.error(`Unable to install the pack CLI.`)
+            core.error(`Unable to install the pack CLI. Error: ${err.message}`);
+            core.setFailed(err.message);
             throw err;
         }
     }

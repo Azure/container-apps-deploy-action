@@ -74,19 +74,21 @@ var CommandHelper = /** @class */ (function () {
      */
     CommandHelper.prototype.execBashCommandAsync = function (command) {
         return __awaiter(this, void 0, void 0, function () {
-            var bashOutput, options, err_1;
+            var bashOutput, errorStream, options, exitCode, err_1;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         bashOutput = '';
+                        errorStream = '';
                         options = {
                             listeners: {
                                 stdout: function (data) {
-                                    process.stdout.write(data);
                                     bashOutput += data.toString();
+                                    core.info(data.toString());
                                 },
                                 stderr: function (data) {
-                                    process.stderr.write(data);
+                                    errorStream += data.toString();
+                                    core.error(data.toString());
                                 }
                             },
                             failOnStdErr: true,
@@ -99,11 +101,14 @@ var CommandHelper = /** @class */ (function () {
                         _a.trys.push([1, 3, , 4]);
                         return [4 /*yield*/, exec.exec('bash', ['-c', command], options)];
                     case 2:
-                        _a.sent();
+                        exitCode = _a.sent();
+                        if (exitCode !== 0) {
+                            throw new Error("Command failed with exit code " + exitCode + ". Error stream: " + errorStream);
+                        }
                         return [2 /*return*/, bashOutput.trim()];
                     case 3:
                         err_1 = _a.sent();
-                        core.error('Unable to run provided bash command ${command}');
+                        core.setFailed(err_1.message);
                         throw err_1;
                     case 4: return [2 /*return*/];
                 }
@@ -117,19 +122,21 @@ var CommandHelper = /** @class */ (function () {
      */
     CommandHelper.prototype.execPwshCommandAsync = function (command) {
         return __awaiter(this, void 0, void 0, function () {
-            var pwshOutput, options, err_2;
+            var pwshOutput, errorStream, options, exitCode, err_2;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         pwshOutput = '';
+                        errorStream = '';
                         options = {
                             listeners: {
                                 stdout: function (data) {
-                                    process.stdout.write(data);
                                     pwshOutput += data.toString();
+                                    core.info(data.toString());
                                 },
                                 stderr: function (data) {
-                                    process.stderr.write(data);
+                                    errorStream += data.toString();
+                                    core.error(data.toString());
                                 }
                             },
                             failOnStdErr: true,
@@ -142,11 +149,14 @@ var CommandHelper = /** @class */ (function () {
                         _a.trys.push([1, 3, , 4]);
                         return [4 /*yield*/, exec.exec('pwsh', [command], options)];
                     case 2:
-                        _a.sent();
+                        exitCode = _a.sent();
+                        if (exitCode !== 0) {
+                            throw new Error("Command failed with exit code " + exitCode + ". Error stream: " + errorStream);
+                        }
                         return [2 /*return*/, pwshOutput.trim()];
                     case 3:
                         err_2 = _a.sent();
-                        core.error('Unable to run provided PowerShell command ${command}');
+                        core.setFailed(err_2.message);
                         throw err_2;
                     case 4: return [2 /*return*/];
                 }

@@ -41,6 +41,7 @@ var core = require("@actions/core");
 var exec = require("@actions/exec");
 var io = require("@actions/io");
 var CommandHelper_1 = require("./CommandHelper");
+var Utility_1 = require("./Utility");
 var ContainerRegistryHelper = /** @class */ (function () {
     function ContainerRegistryHelper() {
     }
@@ -119,15 +120,14 @@ var ContainerRegistryHelper = /** @class */ (function () {
                         return [4 /*yield*/, io.which("docker", true)];
                     case 2:
                         dockerTool = _a.sent();
-                        return [4 /*yield*/, exec.exec(dockerTool, ["push", "" + imageToPush])];
+                        return [4 /*yield*/, new Utility_1.Utility().executeAndthrowIfError(dockerTool, ["push", "" + imageToPush])];
                     case 3:
                         _a.sent();
-                        core.info("Successfully pushed image \"" + imageToPush + "\" to ACR");
                         return [3 /*break*/, 5];
                     case 4:
                         err_3 = _a.sent();
-                        core.error("Failed to push image \"" + imageToPush + "\" to ACR");
-                        core.error(err_3.message);
+                        core.error("Failed to push image \"" + imageToPush + "\" to ACR. Error: " + err_3.message);
+                        core.setFailed(err_3.message);
                         throw err_3;
                     case 5: return [2 /*return*/];
                 }

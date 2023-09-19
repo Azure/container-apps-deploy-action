@@ -39,7 +39,6 @@ exports.__esModule = true;
 exports.TelemetryHelper = void 0;
 var core = require("@actions/core");
 var Utility_1 = require("./Utility");
-var exec = require("@actions/exec");
 var io = require("@actions/io");
 var ORYX_CLI_IMAGE = "mcr.microsoft.com/oryx/cli:debian-buster-20230207.2";
 var SUCCESSFUL_RESULT = "succeeded";
@@ -95,7 +94,7 @@ var TelemetryHelper = /** @class */ (function () {
                     case 0:
                         taskLengthMilliseconds = Date.now() - this.taskStartMilliseconds;
                         if (!!this.disableTelemetry) return [3 /*break*/, 4];
-                        core.debug("Telemetry enabled; logging metadata about task result, length and scenario targeted.");
+                        core.info("Telemetry enabled; logging metadata about task result, length and scenario targeted.");
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
@@ -112,13 +111,9 @@ var TelemetryHelper = /** @class */ (function () {
                             errorMessageArg = "--property 'errorMessage=" + this.errorMessage + "'";
                         }
                         args = ["run", "--rm", "" + ORYX_CLI_IMAGE, "/bin/bash", "-c", "oryx telemetry --event-name 'ContainerAppsPipelinesTaskRCV1' " + ("--processing-time '" + taskLengthMilliseconds + "' " + resultArg + " " + scenarioArg + " " + errorMessageArg + "\"")];
-                        // const dockerCommand = `run --rm ${ORYX_CLI_IMAGE} /bin/bash -c "oryx telemetry --event-name 'ContainerAppsPipelinesTaskRCV1' ` +
-                        // `--processing-time '${taskLengthMilliseconds}' ${resultArg} ${scenarioArg} ${errorMessageArg}"`
                         // Don't use Utility's throwIfError() since it will still record an error in the pipeline logs, but won't fail the task
                         return [4 /*yield*/, executeDockerCommand(args, true)];
                     case 2:
-                        // const dockerCommand = `run --rm ${ORYX_CLI_IMAGE} /bin/bash -c "oryx telemetry --event-name 'ContainerAppsPipelinesTaskRCV1' ` +
-                        // `--processing-time '${taskLengthMilliseconds}' ${resultArg} ${scenarioArg} ${errorMessageArg}"`
                         // Don't use Utility's throwIfError() since it will still record an error in the pipeline logs, but won't fail the task
                         _a.sent();
                         return [3 /*break*/, 4];
@@ -137,39 +132,23 @@ exports.TelemetryHelper = TelemetryHelper;
 var executeDockerCommand = function (args, continueOnError) {
     if (continueOnError === void 0) { continueOnError = false; }
     return __awaiter(void 0, void 0, void 0, function () {
-        var dockerTool, errorStream, execOptions, exitCode, error_1;
+        var dockerTool, err_2;
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0: return [4 /*yield*/, io.which("docker", true)];
+                case 0:
+                    _a.trys.push([0, 3, , 4]);
+                    return [4 /*yield*/, io.which("docker", true)];
                 case 1:
                     dockerTool = _a.sent();
-                    errorStream = '';
-                    execOptions = {
-                        listeners: {
-                            stdout: function (data) { return console.log(data.toString()); }
-                        }
-                    };
-                    _a.label = 2;
+                    return [4 /*yield*/, new Utility_1.Utility().executeAndthrowIfError(dockerTool, args, continueOnError)];
                 case 2:
-                    _a.trys.push([2, 4, 5, 6]);
-                    return [4 /*yield*/, exec.exec(dockerTool, args, execOptions)];
+                    _a.sent();
+                    return [3 /*break*/, 4];
                 case 3:
-                    exitCode = _a.sent();
-                    return [3 /*break*/, 6];
-                case 4:
-                    error_1 = _a.sent();
-                    if (!continueOnError) {
-                        throw error_1;
-                    }
-                    core.warning(error_1);
-                    return [3 /*break*/, 6];
-                case 5:
-                    if (exitCode !== 0 && !continueOnError) {
-                        throw new Error(errorStream || 'az cli script failed.');
-                    }
-                    core.warning(errorStream);
-                    return [7 /*endfinally*/];
-                case 6: return [2 /*return*/];
+                    err_2 = _a.sent();
+                    core.setFailed("Error: " + err_2.message);
+                    throw err_2; // Re-throw the error
+                case 4: return [2 /*return*/];
             }
         });
     });

@@ -40,7 +40,6 @@ exports.azurecontainerapps = void 0;
 var core = require("@actions/core");
 var fs = require("fs");
 var path = require("path");
-//import { AzureAuthenticationHelper } from './src/AzureAuthenticationHelper';
 var ContainerAppHelper_1 = require("./src/ContainerAppHelper");
 var ContainerRegistryHelper_1 = require("./src/ContainerRegistryHelper");
 var TelemetryHelper_1 = require("./src/TelemetryHelper");
@@ -60,10 +59,6 @@ var azurecontainerapps = /** @class */ (function () {
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 8, 9, 11]);
-                        // Get the current working directory
-                        //const cwd: string = core.getInput('cwd');
-                        //io.mkdirP(cwd);
-                        //exec.exec(`cd ${cwd}`);
                         // Validate that the arguments provided can be used for one of the supported scenarios
                         this.validateSupportedScenarioArguments();
                         // Set up the Azure CLI to be used for this task
@@ -168,15 +163,9 @@ var azurecontainerapps = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0: 
-                    // Log in to Azure with the service connection provided
-                    //  const connectedService: string = tl.getInput('connectedServiceNameARM', true);
-                    //  this.authHelper.loginAzureRM(connectedService);
                     // Set the Azure CLI to dynamically install missing extensions
                     return [4 /*yield*/, util.setAzureCliDynamicInstall()];
                     case 1:
-                        // Log in to Azure with the service connection provided
-                        //  const connectedService: string = tl.getInput('connectedServiceNameARM', true);
-                        //  this.authHelper.loginAzureRM(connectedService);
                         // Set the Azure CLI to dynamically install missing extensions
                         _a.sent();
                         return [2 /*return*/];
@@ -239,7 +228,7 @@ var azurecontainerapps = /** @class */ (function () {
             containerAppName = "app-" + this.buildId + "-" + this.buildNumber;
             // Replace all '.' characters with '-' characters in the Container App name
             containerAppName = containerAppName.replace(/\./gi, "-");
-            console.log("Default Container App name: " + containerAppName);
+            core.info("Default Container App name: " + containerAppName);
         }
         return containerAppName;
     };
@@ -282,7 +271,7 @@ var azurecontainerapps = /** @class */ (function () {
                         resourceGroup = core.getInput('resourceGroup', { required: false });
                         if (!util.isNullOrEmpty(resourceGroup)) return [3 /*break*/, 3];
                         resourceGroup = containerAppName + "-rg";
-                        console.log("Default resource group name: " + resourceGroup);
+                        core.info("Default resource group name: " + resourceGroup);
                         return [4 /*yield*/, this.appHelper.doesResourceGroupExist(resourceGroup)];
                     case 1:
                         resourceGroupExists = _a.sent();
@@ -318,7 +307,7 @@ var azurecontainerapps = /** @class */ (function () {
                     case 1:
                         existingContainerAppEnvironment = _a.sent();
                         if (!util.isNullOrEmpty(existingContainerAppEnvironment)) {
-                            console.log("Existing Container App environment found in resource group: " + existingContainerAppEnvironment);
+                            core.info("Existing Container App environment found in resource group: " + existingContainerAppEnvironment);
                             return [2 /*return*/, existingContainerAppEnvironment];
                         }
                         _a.label = 2;
@@ -326,7 +315,7 @@ var azurecontainerapps = /** @class */ (function () {
                         // Generate the Container App environment name if it was not provided
                         if (util.isNullOrEmpty(containerAppEnvironment)) {
                             containerAppEnvironment = containerAppName + "-env";
-                            console.log("Default Container App environment name: " + containerAppEnvironment);
+                            core.info("Default Container App environment name: " + containerAppEnvironment);
                         }
                         return [4 /*yield*/, this.appHelper.doesContainerAppEnvironmentExist(containerAppEnvironment, resourceGroup)];
                     case 3:
@@ -352,13 +341,13 @@ var azurecontainerapps = /** @class */ (function () {
                         this.acrUsername = core.getInput('acrUsername', { required: false });
                         this.acrPassword = core.getInput('acrPassword', { required: false });
                         if (!(!util.isNullOrEmpty(this.acrUsername) && !util.isNullOrEmpty(this.acrPassword))) return [3 /*break*/, 2];
-                        console.log("Logging in to ACR instance \"" + this.acrName + "\" with username and password credentials");
+                        core.info("Logging in to ACR instance \"" + this.acrName + "\" with username and password credentials");
                         return [4 /*yield*/, this.registryHelper.loginAcrWithUsernamePassword(this.acrName, this.acrUsername, this.acrPassword)];
                     case 1:
                         _a.sent();
                         return [3 /*break*/, 4];
                     case 2:
-                        console.log("No ACR credentials provided; attempting to log in to ACR instance \"" + this.acrName + "\" with access token");
+                        core.info("No ACR credentials provided; attempting to log in to ACR instance \"" + this.acrName + "\" with access token");
                         return [4 /*yield*/, this.registryHelper.loginAcrWithAccessTokenAsync(this.acrName)];
                     case 3:
                         _a.sent();
@@ -388,19 +377,19 @@ var azurecontainerapps = /** @class */ (function () {
                         this.imageToBuild = core.getInput('imageToBuild', { required: false });
                         if (util.isNullOrEmpty(this.imageToBuild)) {
                             this.imageToBuild = this.acrName + ".azurecr.io/ado-task/container-app:" + this.buildId + "." + this.buildNumber;
-                            console.log("Default image to build: " + this.imageToBuild);
+                            core.info("Default image to build: " + this.imageToBuild);
                         }
                         // Get the name of the image to deploy if it was provided, or set it to the value of 'imageToBuild'
                         if (util.isNullOrEmpty(this.imageToDeploy)) {
                             this.imageToDeploy = this.imageToBuild;
-                            console.log("Default image to deploy: " + this.imageToDeploy);
+                            core.info("Default image to deploy: " + this.imageToDeploy);
                         }
                         dockerfilePath = core.getInput('dockerfilePath', { required: false });
                         if (!util.isNullOrEmpty(dockerfilePath)) return [3 /*break*/, 4];
-                        console.log("No Dockerfile path provided; checking for Dockerfile at root of application source.");
+                        core.info("No Dockerfile path provided; checking for Dockerfile at root of application source.");
                         rootDockerfilePath = path.join(this.appSourcePath, 'Dockerfile');
                         if (!fs.existsSync(rootDockerfilePath)) return [3 /*break*/, 1];
-                        console.log("Dockerfile found at root of application source.");
+                        core.info("Dockerfile found at root of application source.");
                         dockerfilePath = rootDockerfilePath;
                         return [3 /*break*/, 3];
                     case 1: 
@@ -449,7 +438,7 @@ var azurecontainerapps = /** @class */ (function () {
                     case 1:
                         // Install the pack CLI
                         _b.sent();
-                        console.log("Successfully installed the pack CLI.");
+                        core.info("Successfully installed the pack CLI.");
                         // Get the runtime stack if provided, or determine it using Oryx
                         this.runtimeStack = core.getInput('runtimeStack', { required: false });
                         if (!util.isNullOrEmpty(this.runtimeStack)) return [3 /*break*/, 3];
@@ -460,7 +449,7 @@ var azurecontainerapps = /** @class */ (function () {
                         core.info("Runtime stack determined to be: " + this.runtimeStack);
                         _b.label = 3;
                     case 3:
-                        console.log("Building image \"" + imageToBuild + "\" using the Oryx++ Builder");
+                        core.info("Building image \"" + imageToBuild + "\" using the Oryx++ Builder");
                         // Set the Oryx++ Builder as the default builder locally
                         return [4 /*yield*/, this.appHelper.setDefaultBuilder()];
                     case 4:
@@ -489,7 +478,7 @@ var azurecontainerapps = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        console.log("Building image \"" + imageToBuild + "\" using the provided Dockerfile");
+                        core.info("Building image \"" + imageToBuild + "\" using the provided Dockerfile");
                         return [4 /*yield*/, this.appHelper.createRunnableAppImageFromDockerfile(imageToBuild, appSourcePath, dockerfilePath)];
                     case 1:
                         _a.sent();
@@ -525,12 +514,12 @@ var azurecontainerapps = /** @class */ (function () {
             // Set the ingress value to 'external' if it was not provided
             if (util.isNullOrEmpty(this.ingress)) {
                 this.ingress = 'external';
-                console.log("Default ingress value: " + this.ingress);
+                core.info("Default ingress value: " + this.ingress);
             }
             // Set the value of ingressEnabled to 'false' if ingress was provided as 'disabled'
             if (this.ingress == 'disabled') {
                 this.ingressEnabled = false;
-                console.log("Ingress is disabled for this Container App.");
+                core.info("Ingress is disabled for this Container App.");
             }
             // Handle setup for ingress values when enabled
             if (this.ingressEnabled) {
@@ -543,12 +532,12 @@ var azurecontainerapps = /** @class */ (function () {
                     else {
                         this.targetPort = '8080';
                     }
-                    console.log("Default target port: " + this.targetPort);
+                    core.info("Default target port: " + this.targetPort);
                 }
                 // Set the target port to 80 if it was not provided or determined
                 if (util.isNullOrEmpty(this.targetPort)) {
                     this.targetPort = '80';
-                    console.log("Default target port: " + this.targetPort);
+                    core.info("Default target port: " + this.targetPort);
                 }
                 // Add the ingress value and target port to the optional arguments array
                 // Note: this step should be skipped if we're updating an existing Container App (ingress is enabled via a separate command)

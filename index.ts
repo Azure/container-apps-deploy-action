@@ -1,10 +1,6 @@
 import * as core from '@actions/core';
-//import * as github from '@actions/github';
-import * as io from '@actions/io';
-import * as exec from '@actions/exec';
 import * as fs from 'fs';
 import * as path from 'path';
-//import { AzureAuthenticationHelper } from './src/AzureAuthenticationHelper';
 import { ContainerAppHelper } from './src/ContainerAppHelper';
 import { ContainerRegistryHelper } from './src/ContainerRegistryHelper';
 import { TelemetryHelper } from './src/TelemetryHelper';
@@ -19,11 +15,6 @@ export class azurecontainerapps {
         this.initializeHelpers(disableTelemetry);
 
         try {
-            // Get the current working directory
-            //const cwd: string = core.getInput('cwd');
-            //io.mkdirP(cwd);
-            //exec.exec(`cd ${cwd}`);
-
             // Validate that the arguments provided can be used for one of the supported scenarios
             this.validateSupportedScenarioArguments();
 
@@ -161,10 +152,6 @@ export class azurecontainerapps {
      * setting the Azure CLI to dynamically install missing extensions.
      */
     private static async setupAzureCli() {
-        // Log in to Azure with the service connection provided
-      //  const connectedService: string = tl.getInput('connectedServiceNameARM', true);
-      //  this.authHelper.loginAzureRM(connectedService);
-
         // Set the Azure CLI to dynamically install missing extensions
         await util.setAzureCliDynamicInstall();
     }
@@ -207,7 +194,7 @@ export class azurecontainerapps {
 
             // Replace all '.' characters with '-' characters in the Container App name
             containerAppName = containerAppName.replace(/\./gi, "-");
-            console.log(`Default Container App name: ${containerAppName}`);
+            core.info(`Default Container App name: ${containerAppName}`);
         }
 
         return containerAppName;
@@ -243,7 +230,7 @@ export class azurecontainerapps {
         let resourceGroup: string = core.getInput('resourceGroup', {required: false});
         if (util.isNullOrEmpty(resourceGroup)) {
             resourceGroup = `${containerAppName}-rg`;
-            console.log(`Default resource group name: ${resourceGroup}`);
+            core.info(`Default resource group name: ${resourceGroup}`);
 
             // Ensure that the resource group that the Container App will be created in exists
             const resourceGroupExists = await this.appHelper.doesResourceGroupExist(resourceGroup);
@@ -276,7 +263,7 @@ export class azurecontainerapps {
         if (util.isNullOrEmpty(containerAppEnvironment)) {
             const existingContainerAppEnvironment: string = await this.appHelper.getExistingContainerAppEnvironment(resourceGroup);
             if (!util.isNullOrEmpty(existingContainerAppEnvironment)) {
-                console.log(`Existing Container App environment found in resource group: ${existingContainerAppEnvironment}`);
+                core.info(`Existing Container App environment found in resource group: ${existingContainerAppEnvironment}`);
                 return existingContainerAppEnvironment
             }
         }
@@ -284,7 +271,7 @@ export class azurecontainerapps {
         // Generate the Container App environment name if it was not provided
         if (util.isNullOrEmpty(containerAppEnvironment)) {
             containerAppEnvironment = `${containerAppName}-env`;
-            console.log(`Default Container App environment name: ${containerAppEnvironment}`);
+            core.info(`Default Container App environment name: ${containerAppEnvironment}`);
         }
 
         // Determine if the Container App environment currently exists and create one if it doesn't
@@ -305,10 +292,10 @@ export class azurecontainerapps {
 
         // Login to ACR if credentials were provided
         if (!util.isNullOrEmpty(this.acrUsername) && !util.isNullOrEmpty(this.acrPassword)) {
-            console.log(`Logging in to ACR instance "${this.acrName}" with username and password credentials`);
+            core.info(`Logging in to ACR instance "${this.acrName}" with username and password credentials`);
             await this.registryHelper.loginAcrWithUsernamePassword(this.acrName, this.acrUsername, this.acrPassword);
         } else {
-            console.log(`No ACR credentials provided; attempting to log in to ACR instance "${this.acrName}" with access token`);
+            core.info(`No ACR credentials provided; attempting to log in to ACR instance "${this.acrName}" with access token`);
             await this.registryHelper.loginAcrWithAccessTokenAsync(this.acrName);
         }
     }
@@ -329,22 +316,22 @@ export class azurecontainerapps {
         this.imageToBuild = core.getInput('imageToBuild', {required: false});
         if (util.isNullOrEmpty(this.imageToBuild)) {
             this.imageToBuild = `${this.acrName}.azurecr.io/ado-task/container-app:${this.buildId}.${this.buildNumber}`;
-            console.log(`Default image to build: ${this.imageToBuild}`);
+            core.info(`Default image to build: ${this.imageToBuild}`);
         }
 
         // Get the name of the image to deploy if it was provided, or set it to the value of 'imageToBuild'
         if (util.isNullOrEmpty(this.imageToDeploy)) {
             this.imageToDeploy = this.imageToBuild;
-            console.log(`Default image to deploy: ${this.imageToDeploy}`);
+            core.info(`Default image to deploy: ${this.imageToDeploy}`);
         }
 
         // Get Dockerfile to build, if provided, or check if one exists at the root of the provided application
         let dockerfilePath: string = core.getInput('dockerfilePath', {required: false});
         if (util.isNullOrEmpty(dockerfilePath)) {
-            console.log(`No Dockerfile path provided; checking for Dockerfile at root of application source.`);
+            core.info(`No Dockerfile path provided; checking for Dockerfile at root of application source.`);
             const rootDockerfilePath = path.join(this.appSourcePath, 'Dockerfile');
             if (fs.existsSync(rootDockerfilePath)) {
-                console.log(`Dockerfile found at root of application source.`)
+                core.info(`Dockerfile found at root of application source.`)
                 dockerfilePath = rootDockerfilePath;
             } else {
                 // No Dockerfile found or provided, build the image using the builder
@@ -371,7 +358,7 @@ export class azurecontainerapps {
     private static async buildImageFromBuilderAsync(appSourcePath: string, imageToBuild: string) {
         // Install the pack CLI
         await this.appHelper.installPackCliAsync();
-        console.log(`Successfully installed the pack CLI.`)
+        core.info(`Successfully installed the pack CLI.`)
 
         // Get the runtime stack if provided, or determine it using Oryx
         this.runtimeStack = core.getInput('runtimeStack', {required: false});
@@ -380,7 +367,7 @@ export class azurecontainerapps {
             core.info(`Runtime stack determined to be: ${this.runtimeStack}`);
         }
 
-        console.log(`Building image "${imageToBuild}" using the Oryx++ Builder`);
+        core.info(`Building image "${imageToBuild}" using the Oryx++ Builder`);
 
         // Set the Oryx++ Builder as the default builder locally
         await this.appHelper.setDefaultBuilder();
@@ -399,7 +386,7 @@ export class azurecontainerapps {
      * @param imageToBuild - The name of the image to build.
      */
     private static async builderImageFromDockerfile(appSourcePath: string, dockerfilePath: string, imageToBuild: string) {
-        console.log(`Building image "${imageToBuild}" using the provided Dockerfile`);
+        core.info(`Building image "${imageToBuild}" using the provided Dockerfile`);
         await this.appHelper.createRunnableAppImageFromDockerfile(imageToBuild, appSourcePath, dockerfilePath);
 
         // If telemetry is enabled, log that the Dockerfile scenario was targeted for this task
@@ -439,13 +426,13 @@ export class azurecontainerapps {
             // Set the ingress value to 'external' if it was not provided
             if (util.isNullOrEmpty(this.ingress)) {
                 this.ingress = 'external';
-                console.log(`Default ingress value: ${this.ingress}`);
+                core.info(`Default ingress value: ${this.ingress}`);
             }
 
             // Set the value of ingressEnabled to 'false' if ingress was provided as 'disabled'
             if (this.ingress == 'disabled') {
                 this.ingressEnabled = false;
-                console.log(`Ingress is disabled for this Container App.`);
+                core.info(`Ingress is disabled for this Container App.`);
             }
 
             // Handle setup for ingress values when enabled
@@ -459,13 +446,13 @@ export class azurecontainerapps {
                         this.targetPort = '8080';
                     }
 
-                    console.log(`Default target port: ${this.targetPort}`);
+                    core.info(`Default target port: ${this.targetPort}`);
                 }
 
                 // Set the target port to 80 if it was not provided or determined
                 if (util.isNullOrEmpty(this.targetPort)) {
                     this.targetPort = '80';
-                    console.log(`Default target port: ${this.targetPort}`);
+                    core.info(`Default target port: ${this.targetPort}`);
                 }
 
                 // Add the ingress value and target port to the optional arguments array

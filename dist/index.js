@@ -47,7 +47,6 @@ exports.azurecontainerapps = void 0;
 var core = __nccwpck_require__(3195);
 var fs = __nccwpck_require__(7147);
 var path = __nccwpck_require__(1017);
-//import { AzureAuthenticationHelper } from './src/AzureAuthenticationHelper';
 var ContainerAppHelper_1 = __nccwpck_require__(2929);
 var ContainerRegistryHelper_1 = __nccwpck_require__(4769);
 var TelemetryHelper_1 = __nccwpck_require__(7166);
@@ -67,10 +66,6 @@ var azurecontainerapps = /** @class */ (function () {
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 8, 9, 11]);
-                        // Get the current working directory
-                        //const cwd: string = core.getInput('cwd');
-                        //io.mkdirP(cwd);
-                        //exec.exec(`cd ${cwd}`);
                         // Validate that the arguments provided can be used for one of the supported scenarios
                         this.validateSupportedScenarioArguments();
                         // Set up the Azure CLI to be used for this task
@@ -175,15 +170,9 @@ var azurecontainerapps = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0: 
-                    // Log in to Azure with the service connection provided
-                    //  const connectedService: string = tl.getInput('connectedServiceNameARM', true);
-                    //  this.authHelper.loginAzureRM(connectedService);
                     // Set the Azure CLI to dynamically install missing extensions
                     return [4 /*yield*/, util.setAzureCliDynamicInstall()];
                     case 1:
-                        // Log in to Azure with the service connection provided
-                        //  const connectedService: string = tl.getInput('connectedServiceNameARM', true);
-                        //  this.authHelper.loginAzureRM(connectedService);
                         // Set the Azure CLI to dynamically install missing extensions
                         _a.sent();
                         return [2 /*return*/];
@@ -246,7 +235,7 @@ var azurecontainerapps = /** @class */ (function () {
             containerAppName = "app-" + this.buildId + "-" + this.buildNumber;
             // Replace all '.' characters with '-' characters in the Container App name
             containerAppName = containerAppName.replace(/\./gi, "-");
-            console.log("Default Container App name: " + containerAppName);
+            core.info("Default Container App name: " + containerAppName);
         }
         return containerAppName;
     };
@@ -289,7 +278,7 @@ var azurecontainerapps = /** @class */ (function () {
                         resourceGroup = core.getInput('resourceGroup', { required: false });
                         if (!util.isNullOrEmpty(resourceGroup)) return [3 /*break*/, 3];
                         resourceGroup = containerAppName + "-rg";
-                        console.log("Default resource group name: " + resourceGroup);
+                        core.info("Default resource group name: " + resourceGroup);
                         return [4 /*yield*/, this.appHelper.doesResourceGroupExist(resourceGroup)];
                     case 1:
                         resourceGroupExists = _a.sent();
@@ -325,7 +314,7 @@ var azurecontainerapps = /** @class */ (function () {
                     case 1:
                         existingContainerAppEnvironment = _a.sent();
                         if (!util.isNullOrEmpty(existingContainerAppEnvironment)) {
-                            console.log("Existing Container App environment found in resource group: " + existingContainerAppEnvironment);
+                            core.info("Existing Container App environment found in resource group: " + existingContainerAppEnvironment);
                             return [2 /*return*/, existingContainerAppEnvironment];
                         }
                         _a.label = 2;
@@ -333,7 +322,7 @@ var azurecontainerapps = /** @class */ (function () {
                         // Generate the Container App environment name if it was not provided
                         if (util.isNullOrEmpty(containerAppEnvironment)) {
                             containerAppEnvironment = containerAppName + "-env";
-                            console.log("Default Container App environment name: " + containerAppEnvironment);
+                            core.info("Default Container App environment name: " + containerAppEnvironment);
                         }
                         return [4 /*yield*/, this.appHelper.doesContainerAppEnvironmentExist(containerAppEnvironment, resourceGroup)];
                     case 3:
@@ -359,13 +348,13 @@ var azurecontainerapps = /** @class */ (function () {
                         this.acrUsername = core.getInput('acrUsername', { required: false });
                         this.acrPassword = core.getInput('acrPassword', { required: false });
                         if (!(!util.isNullOrEmpty(this.acrUsername) && !util.isNullOrEmpty(this.acrPassword))) return [3 /*break*/, 2];
-                        console.log("Logging in to ACR instance \"" + this.acrName + "\" with username and password credentials");
+                        core.info("Logging in to ACR instance \"" + this.acrName + "\" with username and password credentials");
                         return [4 /*yield*/, this.registryHelper.loginAcrWithUsernamePassword(this.acrName, this.acrUsername, this.acrPassword)];
                     case 1:
                         _a.sent();
                         return [3 /*break*/, 4];
                     case 2:
-                        console.log("No ACR credentials provided; attempting to log in to ACR instance \"" + this.acrName + "\" with access token");
+                        core.info("No ACR credentials provided; attempting to log in to ACR instance \"" + this.acrName + "\" with access token");
                         return [4 /*yield*/, this.registryHelper.loginAcrWithAccessTokenAsync(this.acrName)];
                     case 3:
                         _a.sent();
@@ -395,19 +384,19 @@ var azurecontainerapps = /** @class */ (function () {
                         this.imageToBuild = core.getInput('imageToBuild', { required: false });
                         if (util.isNullOrEmpty(this.imageToBuild)) {
                             this.imageToBuild = this.acrName + ".azurecr.io/ado-task/container-app:" + this.buildId + "." + this.buildNumber;
-                            console.log("Default image to build: " + this.imageToBuild);
+                            core.info("Default image to build: " + this.imageToBuild);
                         }
                         // Get the name of the image to deploy if it was provided, or set it to the value of 'imageToBuild'
                         if (util.isNullOrEmpty(this.imageToDeploy)) {
                             this.imageToDeploy = this.imageToBuild;
-                            console.log("Default image to deploy: " + this.imageToDeploy);
+                            core.info("Default image to deploy: " + this.imageToDeploy);
                         }
                         dockerfilePath = core.getInput('dockerfilePath', { required: false });
                         if (!util.isNullOrEmpty(dockerfilePath)) return [3 /*break*/, 4];
-                        console.log("No Dockerfile path provided; checking for Dockerfile at root of application source.");
+                        core.info("No Dockerfile path provided; checking for Dockerfile at root of application source.");
                         rootDockerfilePath = path.join(this.appSourcePath, 'Dockerfile');
                         if (!fs.existsSync(rootDockerfilePath)) return [3 /*break*/, 1];
-                        console.log("Dockerfile found at root of application source.");
+                        core.info("Dockerfile found at root of application source.");
                         dockerfilePath = rootDockerfilePath;
                         return [3 /*break*/, 3];
                     case 1: 
@@ -456,7 +445,7 @@ var azurecontainerapps = /** @class */ (function () {
                     case 1:
                         // Install the pack CLI
                         _b.sent();
-                        console.log("Successfully installed the pack CLI.");
+                        core.info("Successfully installed the pack CLI.");
                         // Get the runtime stack if provided, or determine it using Oryx
                         this.runtimeStack = core.getInput('runtimeStack', { required: false });
                         if (!util.isNullOrEmpty(this.runtimeStack)) return [3 /*break*/, 3];
@@ -467,7 +456,7 @@ var azurecontainerapps = /** @class */ (function () {
                         core.info("Runtime stack determined to be: " + this.runtimeStack);
                         _b.label = 3;
                     case 3:
-                        console.log("Building image \"" + imageToBuild + "\" using the Oryx++ Builder");
+                        core.info("Building image \"" + imageToBuild + "\" using the Oryx++ Builder");
                         // Set the Oryx++ Builder as the default builder locally
                         return [4 /*yield*/, this.appHelper.setDefaultBuilder()];
                     case 4:
@@ -496,7 +485,7 @@ var azurecontainerapps = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        console.log("Building image \"" + imageToBuild + "\" using the provided Dockerfile");
+                        core.info("Building image \"" + imageToBuild + "\" using the provided Dockerfile");
                         return [4 /*yield*/, this.appHelper.createRunnableAppImageFromDockerfile(imageToBuild, appSourcePath, dockerfilePath)];
                     case 1:
                         _a.sent();
@@ -532,12 +521,12 @@ var azurecontainerapps = /** @class */ (function () {
             // Set the ingress value to 'external' if it was not provided
             if (util.isNullOrEmpty(this.ingress)) {
                 this.ingress = 'external';
-                console.log("Default ingress value: " + this.ingress);
+                core.info("Default ingress value: " + this.ingress);
             }
             // Set the value of ingressEnabled to 'false' if ingress was provided as 'disabled'
             if (this.ingress == 'disabled') {
                 this.ingressEnabled = false;
-                console.log("Ingress is disabled for this Container App.");
+                core.info("Ingress is disabled for this Container App.");
             }
             // Handle setup for ingress values when enabled
             if (this.ingressEnabled) {
@@ -550,12 +539,12 @@ var azurecontainerapps = /** @class */ (function () {
                     else {
                         this.targetPort = '8080';
                     }
-                    console.log("Default target port: " + this.targetPort);
+                    core.info("Default target port: " + this.targetPort);
                 }
                 // Set the target port to 80 if it was not provided or determined
                 if (util.isNullOrEmpty(this.targetPort)) {
                     this.targetPort = '80';
-                    console.log("Default target port: " + this.targetPort);
+                    core.info("Default target port: " + this.targetPort);
                 }
                 // Add the ingress value and target port to the optional arguments array
                 // Note: this step should be skipped if we're updating an existing Container App (ingress is enabled via a separate command)
@@ -4683,19 +4672,21 @@ var CommandHelper = /** @class */ (function () {
      */
     CommandHelper.prototype.execBashCommandAsync = function (command) {
         return __awaiter(this, void 0, void 0, function () {
-            var bashOutput, options, err_1;
+            var bashOutput, errorStream, options, exitCode, err_1;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         bashOutput = '';
+                        errorStream = '';
                         options = {
                             listeners: {
                                 stdout: function (data) {
-                                    process.stdout.write(data);
                                     bashOutput += data.toString();
+                                    core.info(data.toString());
                                 },
                                 stderr: function (data) {
-                                    process.stderr.write(data);
+                                    errorStream += data.toString();
+                                    core.error(data.toString());
                                 }
                             },
                             failOnStdErr: true,
@@ -4708,11 +4699,14 @@ var CommandHelper = /** @class */ (function () {
                         _a.trys.push([1, 3, , 4]);
                         return [4 /*yield*/, exec.exec('bash', ['-c', command], options)];
                     case 2:
-                        _a.sent();
+                        exitCode = _a.sent();
+                        if (exitCode !== 0) {
+                            throw new Error("Command failed with exit code " + exitCode + ". Error stream: " + errorStream);
+                        }
                         return [2 /*return*/, bashOutput.trim()];
                     case 3:
                         err_1 = _a.sent();
-                        core.error('Unable to run provided bash command ${command}');
+                        core.setFailed(err_1.message);
                         throw err_1;
                     case 4: return [2 /*return*/];
                 }
@@ -4726,19 +4720,21 @@ var CommandHelper = /** @class */ (function () {
      */
     CommandHelper.prototype.execPwshCommandAsync = function (command) {
         return __awaiter(this, void 0, void 0, function () {
-            var pwshOutput, options, err_2;
+            var pwshOutput, errorStream, options, exitCode, err_2;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         pwshOutput = '';
+                        errorStream = '';
                         options = {
                             listeners: {
                                 stdout: function (data) {
-                                    process.stdout.write(data);
                                     pwshOutput += data.toString();
+                                    core.info(data.toString());
                                 },
                                 stderr: function (data) {
-                                    process.stderr.write(data);
+                                    errorStream += data.toString();
+                                    core.error(data.toString());
                                 }
                             },
                             failOnStdErr: true,
@@ -4751,11 +4747,14 @@ var CommandHelper = /** @class */ (function () {
                         _a.trys.push([1, 3, , 4]);
                         return [4 /*yield*/, exec.exec('pwsh', [command], options)];
                     case 2:
-                        _a.sent();
+                        exitCode = _a.sent();
+                        if (exitCode !== 0) {
+                            throw new Error("Command failed with exit code " + exitCode + ". Error stream: " + errorStream);
+                        }
                         return [2 /*return*/, pwshOutput.trim()];
                     case 3:
                         err_2 = _a.sent();
-                        core.error('Unable to run provided PowerShell command ${command}');
+                        core.setFailed(err_2.message);
                         throw err_2;
                     case 4: return [2 /*return*/];
                 }
@@ -4813,7 +4812,6 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 exports.__esModule = true;
 exports.ContainerAppHelper = void 0;
 var core = __nccwpck_require__(3195);
-var exec = __nccwpck_require__(9714);
 var io = __nccwpck_require__(9529);
 var path = __nccwpck_require__(1017);
 var os = __nccwpck_require__(2037);
@@ -5139,22 +5137,26 @@ var ContainerAppHelper = /** @class */ (function () {
      */
     ContainerAppHelper.prototype.createResourceGroup = function (name, location) {
         return __awaiter(this, void 0, void 0, function () {
-            var command, err_10;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
+            var command, _a, stdout, stderr, err_10;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
                     case 0:
                         core.debug("Attempting to create resource group \"" + name + "\" in location \"" + location + "\"");
-                        _a.label = 1;
+                        _b.label = 1;
                     case 1:
-                        _a.trys.push([1, 3, , 4]);
+                        _b.trys.push([1, 3, , 4]);
                         command = "az group create -n " + name + " -l " + location;
                         return [4 /*yield*/, cpExec("" + command)];
                     case 2:
-                        _a.sent();
+                        _a = _b.sent(), stdout = _a.stdout, stderr = _a.stderr;
+                        if (stderr) {
+                            core.error('Failed to create resource group, Error: ' + stderr);
+                            throw new Error(stderr);
+                        }
                         return [3 /*break*/, 4];
                     case 3:
-                        err_10 = _a.sent();
-                        core.error(err_10.message);
+                        err_10 = _b.sent();
+                        core.setFailed(err_10.message);
                         throw err_10;
                     case 4: return [2 /*return*/];
                 }
@@ -5183,7 +5185,7 @@ var ContainerAppHelper = /** @class */ (function () {
                         return [2 /*return*/, !stderr ? stdout : null];
                     case 3:
                         err_11 = _b.sent();
-                        core.warning(err_11.message);
+                        core.error(err_11.message);
                         return [2 /*return*/, null];
                     case 4: return [2 /*return*/];
                 }
@@ -5198,26 +5200,30 @@ var ContainerAppHelper = /** @class */ (function () {
      */
     ContainerAppHelper.prototype.createContainerAppEnvironment = function (name, resourceGroup, location) {
         return __awaiter(this, void 0, void 0, function () {
-            var util, command, err_12;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
+            var util, command, _a, stdout, stderr, err_12;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
                     case 0:
                         util = new Utility_1.Utility();
                         core.debug("Attempting to create Container App Environment with name \"" + name + "\" in resource group \"" + resourceGroup + "\"");
-                        _a.label = 1;
+                        _b.label = 1;
                     case 1:
-                        _a.trys.push([1, 3, , 4]);
+                        _b.trys.push([1, 3, , 4]);
                         command = "az containerapp env create -n " + name + " -g " + resourceGroup;
                         if (!util.isNullOrEmpty(location)) {
                             command += " -l " + location;
                         }
                         return [4 /*yield*/, cpExec("" + command)];
                     case 2:
-                        _a.sent();
+                        _a = _b.sent(), stdout = _a.stdout, stderr = _a.stderr;
+                        if (stderr) {
+                            core.error('Failed to create Container App Environment, Error: ' + stderr);
+                            throw new Error(stderr);
+                        }
                         return [3 /*break*/, 4];
                     case 3:
-                        err_12 = _a.sent();
-                        core.error(err_12.message);
+                        err_12 = _b.sent();
+                        core.setFailed(err_12.message);
                         throw err_12;
                     case 4: return [2 /*return*/];
                 }
@@ -5244,13 +5250,13 @@ var ContainerAppHelper = /** @class */ (function () {
                     case 2:
                         _a = _b.sent(), stdout = _a.stdout, stderr = _a.stderr;
                         if (stderr) {
-                            core.warning(stderr);
+                            core.error('Failed to disable ingress for Container App, Error: ' + stderr);
                             throw new Error(stderr);
                         }
                         return [3 /*break*/, 4];
                     case 3:
                         err_13 = _b.sent();
-                        core.error(err_13.message);
+                        core.setFailed(err_13.message);
                         throw err_13;
                     case 4: return [2 /*return*/];
                 }
@@ -5280,13 +5286,13 @@ var ContainerAppHelper = /** @class */ (function () {
                     case 2:
                         _a = _b.sent(), stdout = _a.stdout, stderr = _a.stderr;
                         if (stderr) {
-                            core.warning(stderr);
+                            core.error('Failed to set the ACR details for Container App, Error: ' + stderr);
                             throw new Error(stderr);
                         }
                         return [3 /*break*/, 4];
                     case 3:
                         err_14 = _b.sent();
-                        core.error(err_14.message);
+                        core.setFailed(err_14.message);
                         throw err_14;
                     case 4: return [2 /*return*/];
                 }
@@ -5301,25 +5307,29 @@ var ContainerAppHelper = /** @class */ (function () {
      */
     ContainerAppHelper.prototype.createRunnableAppImage = function (imageToDeploy, appSourcePath, runtimeStack) {
         return __awaiter(this, void 0, void 0, function () {
-            var telemetryArg, err_15;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
+            var telemetryArg, _a, stdout, stderr, err_15;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
                     case 0:
                         core.debug("Attempting to create a runnable application image using the Oryx++ Builder with image name \"" + imageToDeploy + "\"");
-                        _a.label = 1;
+                        _b.label = 1;
                     case 1:
-                        _a.trys.push([1, 3, , 4]);
+                        _b.trys.push([1, 3, , 4]);
                         telemetryArg = "--env \"CALLER_ID=azure-pipelines-rc-v1\"";
                         if (this.disableTelemetry) {
                             telemetryArg = "--env \"ORYX_DISABLE_TELEMETRY=true\"";
                         }
                         return [4 /*yield*/, cpExec(PACK_CMD + " build " + imageToDeploy + " --path " + appSourcePath + " --builder " + ORYX_BUILDER_IMAGE + " --run-image mcr.microsoft.com/oryx/" + runtimeStack + " " + telemetryArg)];
                     case 2:
-                        _a.sent();
+                        _a = _b.sent(), stdout = _a.stdout, stderr = _a.stderr;
+                        if (stderr) {
+                            core.error("Failed to create runnable application image using the Oryx++ Builder with image name \"" + imageToDeploy + "\". Error: " + stderr);
+                            throw new Error(stderr);
+                        }
                         return [3 /*break*/, 4];
                     case 3:
-                        err_15 = _a.sent();
-                        core.error(err_15.message);
+                        err_15 = _b.sent();
+                        core.setFailed(err_15.message);
                         throw err_15;
                     case 4: return [2 /*return*/];
                 }
@@ -5346,14 +5356,14 @@ var ContainerAppHelper = /** @class */ (function () {
                         return [4 /*yield*/, io.which("docker", true)];
                     case 2:
                         dockerTool = _a.sent();
-                        return [4 /*yield*/, exec.exec(dockerTool, ['build', '--file', "" + dockerfilePath, "" + appSourcePath, '--tag', "" + imageToDeploy])];
+                        return [4 /*yield*/, new Utility_1.Utility().executeAndthrowIfError(dockerTool, ['build', '--file', "" + dockerfilePath, "" + appSourcePath, '--tag', "" + imageToDeploy])];
                     case 3:
                         _a.sent();
-                        core.info("Successfully created runnable application image from the provided/found Dockerfile \"" + dockerfilePath + "\" with image name \"" + imageToDeploy + "\"");
+                        core.debug("Successfully created runnable application image from the provided/found Dockerfile \"" + dockerfilePath + "\" with image name \"" + imageToDeploy + "\"");
                         return [3 /*break*/, 5];
                     case 4:
                         err_16 = _a.sent();
-                        core.error(err_16.message);
+                        core.setFailed(err_16.message);
                         throw err_16;
                     case 5: return [2 /*return*/];
                 }
@@ -5367,7 +5377,7 @@ var ContainerAppHelper = /** @class */ (function () {
      */
     ContainerAppHelper.prototype.determineRuntimeStackAsync = function (appSourcePath) {
         return __awaiter(this, void 0, void 0, function () {
-            var dockerTool, dockerCommand, exitCode, oryxRuntimeTxtPath, command, runtimeStack, err_17;
+            var dockerTool, oryxRuntimeTxtPath, command, runtimeStack, err_17;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -5378,24 +5388,13 @@ var ContainerAppHelper = /** @class */ (function () {
                         return [4 /*yield*/, io.which("docker", true)];
                     case 2:
                         dockerTool = _a.sent();
-                        dockerCommand = "run --rm -v " + appSourcePath + ":/app " + ORYX_CLI_IMAGE + " /bin/bash -c \"oryx dockerfile /app | head -n 1 | sed 's/ARG RUNTIME=//' >> /app/oryx-runtime.txt\"";
-                        return [4 /*yield*/, exec.exec(dockerTool, ['run', '--rm', '-v', appSourcePath + ":/app", "" + ORYX_CLI_IMAGE, '/bin/bash', '-c', "oryx dockerfile /app | head -n 1 | sed 's/ARG RUNTIME=//' >> /app/oryx-runtime.txt"])
-                            // new Utility().executeAndthrowIfError(
-                            //     `${dockerTool}`,
-                            //     `${dockerCommand}`,
-                            //     `Unable to determine the runtime stack needed for the provided application source.`
-                            // );
+                        // Use 'oryx dockerfile' command to determine the runtime stack to use and write it to a temp file
+                        return [4 /*yield*/, new Utility_1.Utility().executeAndthrowIfError(dockerTool, ['run', '--rm', '-v', appSourcePath + ":/app", "" + ORYX_CLI_IMAGE, '/bin/bash', '-c', "oryx dockerfile /app | head -n 1 | sed 's/ARG RUNTIME=//' >> /app/oryx-runtime.txt"])
+                            // Read the temp file to get the runtime stack into a variable
                         ];
                     case 3:
-                        exitCode = _a.sent();
-                        // new Utility().executeAndthrowIfError(
-                        //     `${dockerTool}`,
-                        //     `${dockerCommand}`,
-                        //     `Unable to determine the runtime stack needed for the provided application source.`
-                        // );
-                        if (exitCode != 0) {
-                            throw new Error("Unable to determine the runtime stack needed for the provided application source.");
-                        }
+                        // Use 'oryx dockerfile' command to determine the runtime stack to use and write it to a temp file
+                        _a.sent();
                         oryxRuntimeTxtPath = path.join(appSourcePath, 'oryx-runtime.txt');
                         command = "head -n 1 " + oryxRuntimeTxtPath;
                         if (IS_WINDOWS_AGENT) {
@@ -5415,7 +5414,7 @@ var ContainerAppHelper = /** @class */ (function () {
                         return [2 /*return*/, runtimeStack];
                     case 6:
                         err_17 = _a.sent();
-                        core.error(err_17.message);
+                        core.setFailed(err_17.message);
                         throw err_17;
                     case 7: return [2 /*return*/];
                 }
@@ -5428,21 +5427,25 @@ var ContainerAppHelper = /** @class */ (function () {
      */
     ContainerAppHelper.prototype.setDefaultBuilder = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var err_18;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
+            var _a, stdout, stderr, err_18;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
                     case 0:
-                        console.log('Setting the Oryx++ Builder as the default builder via the pack CLI');
-                        _a.label = 1;
+                        core.info('Setting the Oryx++ Builder as the default builder via the pack CLI');
+                        _b.label = 1;
                     case 1:
-                        _a.trys.push([1, 3, , 4]);
+                        _b.trys.push([1, 3, , 4]);
                         return [4 /*yield*/, cpExec("pack config default-builder " + ORYX_BUILDER_IMAGE)];
                     case 2:
-                        _a.sent();
+                        _a = _b.sent(), stdout = _a.stdout, stderr = _a.stderr;
+                        if (stderr) {
+                            core.error("Failed to set the Oryx++ Builder as the default builder via the pack CLI. Error: " + stderr);
+                            throw new Error(stderr);
+                        }
                         return [3 /*break*/, 4];
                     case 3:
-                        err_18 = _a.sent();
-                        core.error(err_18.message);
+                        err_18 = _b.sent();
+                        core.setFailed(err_18.message);
                         throw err_18;
                     case 4: return [2 /*return*/];
                 }
@@ -5483,7 +5486,8 @@ var ContainerAppHelper = /** @class */ (function () {
                         return [3 /*break*/, 4];
                     case 3:
                         err_19 = _a.sent();
-                        core.error("Unable to install the pack CLI.");
+                        core.error("Unable to install the pack CLI. Error: " + err_19.message);
+                        core.setFailed(err_19.message);
                         throw err_19;
                     case 4: return [2 /*return*/];
                 }
@@ -5544,6 +5548,7 @@ var core = __nccwpck_require__(3195);
 var exec = __nccwpck_require__(9714);
 var io = __nccwpck_require__(9529);
 var CommandHelper_1 = __nccwpck_require__(1988);
+var Utility_1 = __nccwpck_require__(2135);
 var ContainerRegistryHelper = /** @class */ (function () {
     function ContainerRegistryHelper() {
     }
@@ -5622,15 +5627,14 @@ var ContainerRegistryHelper = /** @class */ (function () {
                         return [4 /*yield*/, io.which("docker", true)];
                     case 2:
                         dockerTool = _a.sent();
-                        return [4 /*yield*/, exec.exec(dockerTool, ["push", "" + imageToPush])];
+                        return [4 /*yield*/, new Utility_1.Utility().executeAndthrowIfError(dockerTool, ["push", "" + imageToPush])];
                     case 3:
                         _a.sent();
-                        core.info("Successfully pushed image \"" + imageToPush + "\" to ACR");
                         return [3 /*break*/, 5];
                     case 4:
                         err_3 = _a.sent();
-                        core.error("Failed to push image \"" + imageToPush + "\" to ACR");
-                        core.error(err_3.message);
+                        core.error("Failed to push image \"" + imageToPush + "\" to ACR. Error: " + err_3.message);
+                        core.setFailed(err_3.message);
                         throw err_3;
                     case 5: return [2 /*return*/];
                 }
@@ -5689,7 +5693,6 @@ exports.__esModule = true;
 exports.TelemetryHelper = void 0;
 var core = __nccwpck_require__(3195);
 var Utility_1 = __nccwpck_require__(2135);
-var exec = __nccwpck_require__(9714);
 var io = __nccwpck_require__(9529);
 var ORYX_CLI_IMAGE = "mcr.microsoft.com/oryx/cli:debian-buster-20230207.2";
 var SUCCESSFUL_RESULT = "succeeded";
@@ -5745,7 +5748,7 @@ var TelemetryHelper = /** @class */ (function () {
                     case 0:
                         taskLengthMilliseconds = Date.now() - this.taskStartMilliseconds;
                         if (!!this.disableTelemetry) return [3 /*break*/, 4];
-                        core.debug("Telemetry enabled; logging metadata about task result, length and scenario targeted.");
+                        core.info("Telemetry enabled; logging metadata about task result, length and scenario targeted.");
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
@@ -5762,13 +5765,9 @@ var TelemetryHelper = /** @class */ (function () {
                             errorMessageArg = "--property 'errorMessage=" + this.errorMessage + "'";
                         }
                         args = ["run", "--rm", "" + ORYX_CLI_IMAGE, "/bin/bash", "-c", "oryx telemetry --event-name 'ContainerAppsPipelinesTaskRCV1' " + ("--processing-time '" + taskLengthMilliseconds + "' " + resultArg + " " + scenarioArg + " " + errorMessageArg + "\"")];
-                        // const dockerCommand = `run --rm ${ORYX_CLI_IMAGE} /bin/bash -c "oryx telemetry --event-name 'ContainerAppsPipelinesTaskRCV1' ` +
-                        // `--processing-time '${taskLengthMilliseconds}' ${resultArg} ${scenarioArg} ${errorMessageArg}"`
                         // Don't use Utility's throwIfError() since it will still record an error in the pipeline logs, but won't fail the task
                         return [4 /*yield*/, executeDockerCommand(args, true)];
                     case 2:
-                        // const dockerCommand = `run --rm ${ORYX_CLI_IMAGE} /bin/bash -c "oryx telemetry --event-name 'ContainerAppsPipelinesTaskRCV1' ` +
-                        // `--processing-time '${taskLengthMilliseconds}' ${resultArg} ${scenarioArg} ${errorMessageArg}"`
                         // Don't use Utility's throwIfError() since it will still record an error in the pipeline logs, but won't fail the task
                         _a.sent();
                         return [3 /*break*/, 4];
@@ -5787,39 +5786,23 @@ exports.TelemetryHelper = TelemetryHelper;
 var executeDockerCommand = function (args, continueOnError) {
     if (continueOnError === void 0) { continueOnError = false; }
     return __awaiter(void 0, void 0, void 0, function () {
-        var dockerTool, errorStream, execOptions, exitCode, error_1;
+        var dockerTool, err_2;
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0: return [4 /*yield*/, io.which("docker", true)];
+                case 0:
+                    _a.trys.push([0, 3, , 4]);
+                    return [4 /*yield*/, io.which("docker", true)];
                 case 1:
                     dockerTool = _a.sent();
-                    errorStream = '';
-                    execOptions = {
-                        listeners: {
-                            stdout: function (data) { return console.log(data.toString()); }
-                        }
-                    };
-                    _a.label = 2;
+                    return [4 /*yield*/, new Utility_1.Utility().executeAndthrowIfError(dockerTool, args, continueOnError)];
                 case 2:
-                    _a.trys.push([2, 4, 5, 6]);
-                    return [4 /*yield*/, exec.exec(dockerTool, args, execOptions)];
+                    _a.sent();
+                    return [3 /*break*/, 4];
                 case 3:
-                    exitCode = _a.sent();
-                    return [3 /*break*/, 6];
-                case 4:
-                    error_1 = _a.sent();
-                    if (!continueOnError) {
-                        throw error_1;
-                    }
-                    core.warning(error_1);
-                    return [3 /*break*/, 6];
-                case 5:
-                    if (exitCode !== 0 && !continueOnError) {
-                        throw new Error(errorStream || 'az cli script failed.');
-                    }
-                    core.warning(errorStream);
-                    return [7 /*endfinally*/];
-                case 6: return [2 /*return*/];
+                    err_2 = _a.sent();
+                    core.setFailed("Error: " + err_2.message);
+                    throw err_2; // Re-throw the error
+                case 4: return [2 /*return*/];
             }
         });
     });
@@ -5879,10 +5862,12 @@ var Utility = /** @class */ (function () {
     function Utility() {
     }
     /**
-     * @param command - the command to execute
-     * @param errormsg - the error message to display if the command failed
+     * @param commandLine - the command to execute
+     * @param args - the arguments to pass to the command
+     * @param continueOnError - whether or not to continue execution if the command fails
      */
-    Utility.prototype.executeAndthrowIfError = function (commandToolPath, command, errormsg) {
+    Utility.prototype.executeAndthrowIfError = function (commandLine, args, continueOnError) {
+        if (continueOnError === void 0) { continueOnError = false; }
         return __awaiter(this, void 0, void 0, function () {
             var stdout_1, stderr_1, options, exitCode, error_1;
             return __generator(this, function (_a) {
@@ -5895,21 +5880,20 @@ var Utility = /** @class */ (function () {
                             listeners: {
                                 stdout: function (data) {
                                     stdout_1 += data.toString();
+                                    core.info(data.toString());
                                 },
                                 stderr: function (data) {
                                     stderr_1 += data.toString();
+                                    core.error(data.toString());
                                 }
                             }
                         };
-                        return [4 /*yield*/, exec.exec(commandToolPath, [command], options)];
+                        return [4 /*yield*/, exec.exec(commandLine, args, options)];
                     case 1:
                         exitCode = _a.sent();
-                        if (exitCode !== 0) {
-                            core.error("Command failed with exit code " + exitCode);
-                            if (errormsg) {
-                                core.error("Error Message: " + errormsg);
-                            }
-                            throw new Error("Command failed with exit code " + exitCode);
+                        if (!continueOnError && exitCode !== 0) {
+                            core.error("Command failed with exit code " + exitCode + ". Error stream: " + stderr_1);
+                            throw new Error("Command failed with exit code " + exitCode + ". Error stream: " + stderr_1);
                         }
                         return [3 /*break*/, 3];
                     case 2:
@@ -5921,96 +5905,30 @@ var Utility = /** @class */ (function () {
             });
         });
     };
-    Utility.prototype.executeAndReturnExitCode = function (pathToTool, command, errormsg) {
-        return __awaiter(this, void 0, void 0, function () {
-            var stdout_2, stderr_2, options, exitCode, error_2;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        _a.trys.push([0, 2, , 3]);
-                        stdout_2 = '';
-                        stderr_2 = '';
-                        options = {
-                            listeners: {
-                                stdout: function (data) {
-                                    stdout_2 += data.toString();
-                                },
-                                stderr: function (data) {
-                                    stderr_2 += data.toString();
-                                }
-                            }
-                        };
-                        return [4 /*yield*/, exec.exec(pathToTool, [command], options)];
-                    case 1:
-                        exitCode = _a.sent();
-                        if (exitCode !== 0) {
-                            core.error("Command failed with exit code " + exitCode);
-                            if (errormsg) {
-                                core.error("Error Message: " + errormsg);
-                            }
-                            throw new Error("Command failed with exit code " + exitCode);
-                        }
-                        return [2 /*return*/, exitCode];
-                    case 2:
-                        error_2 = _a.sent();
-                        core.setFailed("Error: " + error_2.message);
-                        throw error_2; // Re-throw the error
-                    case 3: return [2 /*return*/];
-                }
-            });
-        });
-    };
-    Utility.prototype.executeAndReturnOutput = function (pathToTool, command, errormsg) {
-        return __awaiter(this, void 0, void 0, function () {
-            var stdout_3, stderr_3, options, exitCode, error_3;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        _a.trys.push([0, 2, , 3]);
-                        stdout_3 = '';
-                        stderr_3 = '';
-                        options = {
-                            listeners: {
-                                stdout: function (data) {
-                                    stdout_3 += data.toString();
-                                },
-                                stderr: function (data) {
-                                    stderr_3 += data.toString();
-                                }
-                            }
-                        };
-                        return [4 /*yield*/, exec.exec(pathToTool, [command], options)];
-                    case 1:
-                        exitCode = _a.sent();
-                        if (exitCode !== 0) {
-                            core.error("Command failed with exit code " + exitCode);
-                            if (errormsg) {
-                                core.error("Error Message: " + errormsg);
-                            }
-                            throw new Error("Command failed with exit code " + exitCode);
-                        }
-                        return [2 /*return*/, stdout_3];
-                    case 2:
-                        error_3 = _a.sent();
-                        core.setFailed("Error: " + error_3.message);
-                        throw error_3; // Re-throw the error
-                    case 3: return [2 /*return*/];
-                }
-            });
-        });
-    };
     /**
      * Sets the Azure CLI to dynamically install extensions that are missing. In this case, we care about the
      * Azure Container Apps module being dynamically installed while it's still in preview.
      */
     Utility.prototype.setAzureCliDynamicInstall = function () {
         return __awaiter(this, void 0, void 0, function () {
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, cpExec("az config set extension.use_dynamic_install=yes_without_prompt")];
+            var _a, stdout, stderr, error_2;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        _b.trys.push([0, 2, , 3]);
+                        return [4 /*yield*/, cpExec("az config set extension.use_dynamic_install=yes_without_prompt")];
                     case 1:
-                        _a.sent();
-                        return [2 /*return*/];
+                        _a = _b.sent(), stdout = _a.stdout, stderr = _a.stderr;
+                        if (stderr) {
+                            core.error("Unable to set Azure CLI to dynamically install extensions. Error: " + stderr);
+                            throw new Error("Unable to set Azure CLI to dynamically install extensions. Error: " + stderr);
+                        }
+                        return [3 /*break*/, 3];
+                    case 2:
+                        error_2 = _b.sent();
+                        core.setFailed("Error: " + error_2.message);
+                        throw error_2; // Re-throw the error
+                    case 3: return [2 /*return*/];
                 }
             });
         });
