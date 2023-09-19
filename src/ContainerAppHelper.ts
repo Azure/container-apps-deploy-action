@@ -4,7 +4,7 @@ import * as path from 'path';
 import * as os from 'os';
 import { CommandHelper } from './CommandHelper';
 import { Utility } from './Utility';
-const util = require('util');
+import util = require('util');
 const cpExec = util.promisify(require('child_process').exec);
 
 const ORYX_CLI_IMAGE: string = 'mcr.microsoft.com/oryx/cli:builder-debian-buster-20230208.1';
@@ -85,11 +85,7 @@ export class ContainerAppHelper {
                     command += ` ${val}`;
                 });
 
-                const {stdout, stderr} = await cpExec(`${command}`);
-                if (stderr) {
-                    core.warning(stderr);
-                    throw new Error(stderr);
-                }
+                await cpExec(`${command}`);
             } catch (err) {
                 core.error(err.message);
                 throw err;
@@ -128,11 +124,7 @@ export class ContainerAppHelper {
                     command += ` --target-port ${targetPort}`;
                 }
 
-                const {stdout, stderr} = await cpExec(`${command}`);
-                if (stderr) {
-                    core.warning(stderr);
-                    throw new Error(stderr);
-                }
+                await cpExec(`${command}`);
             } catch (err) {
                 core.error(err.message);
                 throw err;
@@ -152,11 +144,7 @@ export class ContainerAppHelper {
             core.debug(`Attempting to update Container App with name "${containerAppName}" in resource group "${resourceGroup}" from provided YAML "${yamlConfigPath}"`);
             try {
                 let command = `az containerapp update -n ${containerAppName} -g ${resourceGroup} --yaml ${yamlConfigPath}`;
-                const {stdout, stderr} = await cpExec(`${command}`);
-                if (stderr) {
-                    core.warning(stderr);
-                    throw new Error(stderr);
-                }
+                await cpExec(`${command}`);
             } catch (err) {
                 core.error(err.message);
                 throw err;
@@ -242,11 +230,8 @@ export class ContainerAppHelper {
         core.debug(`Attempting to create resource group "${name}" in location "${location}"`);
         try {
             const command = `az group create -n ${name} -l ${location}`;
-            const {stdout, stderr} = await cpExec(`${command}`);
-            if (stderr) {
-                core.error('Failed to create resource group, Error: ' + stderr);
-                throw new Error(stderr);
-            }
+            await cpExec(`${command}`);
+
         } catch (err) {
             core.error(err.message);
             throw err;
@@ -284,11 +269,7 @@ export class ContainerAppHelper {
             if (!util.isNullOrEmpty(location)) {
                 command += ` -l ${location}`;
             }
-            const {stdout, stderr} = await cpExec(`${command}`);
-            if (stderr) {
-                core.error('Failed to create Container App Environment, Error: ' + stderr);
-                throw new Error(stderr);
-            }
+            await cpExec(`${command}`);
         } catch (err) {
             core.error(err.message);
             throw err;
@@ -304,11 +285,7 @@ export class ContainerAppHelper {
         core.debug(`Attempting to disable ingress for Container App with name "${name}" in resource group "${resourceGroup}"`);
         try {
             const command = `az containerapp ingress disable -n ${name} -g ${resourceGroup}`;
-            const {stdout, stderr} = await cpExec(`${command}`);
-            if (stderr) {
-                core.warning('Failed to disable ingress for Container App, Error: ' + stderr);
-                throw new Error(stderr);
-            }
+            await cpExec(`${command}`);
         } catch (err) {
             core.error(err.message);
             throw err;
@@ -327,11 +304,7 @@ export class ContainerAppHelper {
         core.debug(`Attempting to set the ACR details for Container App with name "${name}" in resource group "${resourceGroup}"`);
         try {
             const command = `az containerapp registry set -n ${name} -g ${resourceGroup} --server ${acrName}.azurecr.io --username ${acrUsername} --password ${acrPassword}`;
-            const {stdout, stderr} = await cpExec(`${command}`);
-            if (stderr) {
-                core.warning('Failed to set the ACR details for Container App, Error: ' + stderr);
-                throw new Error(stderr);
-            }
+            await cpExec(`${command}`);
         } catch (err) {
             core.error(err.message);
             throw err;
@@ -354,11 +327,7 @@ export class ContainerAppHelper {
                 if (this.disableTelemetry) {
                     telemetryArg = `--env "ORYX_DISABLE_TELEMETRY=true"`;
                 }
-                const {stdout, stderr} = await cpExec(`${PACK_CMD} build ${imageToDeploy} --path ${appSourcePath} --builder ${ORYX_BUILDER_IMAGE} --run-image mcr.microsoft.com/oryx/${runtimeStack} ${telemetryArg}`);
-                if (stderr) {
-                    core.error(`Failed to create runnable application image using the Oryx++ Builder with image name "${imageToDeploy}". Error: ${stderr}`);
-                    throw new Error(stderr);
-                }
+                await cpExec(`${PACK_CMD} build ${imageToDeploy} --path ${appSourcePath} --builder ${ORYX_BUILDER_IMAGE} --run-image mcr.microsoft.com/oryx/${runtimeStack} ${telemetryArg}`);
             } catch (err) {
                 core.error(err.message);
                 throw err;
@@ -431,11 +400,7 @@ export class ContainerAppHelper {
         core.info('Setting the Oryx++ Builder as the default builder via the pack CLI');
         try
         {
-            const {stdout, stderr} = await cpExec(`pack config default-builder ${ORYX_BUILDER_IMAGE}`);
-            if (stderr) {
-                core.error(`Failed to set the Oryx++ Builder as the default builder via the pack CLI. Error: ${stderr}`);
-                throw new Error(stderr);
-            }
+            await cpExec(`pack config default-builder ${ORYX_BUILDER_IMAGE}`);
         }
         catch (err) {
             core.setFailed(err.message);

@@ -1,7 +1,7 @@
 /******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
-/***/ 5506:
+/***/ 3238:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -4902,28 +4902,24 @@ var ContainerAppHelper = /** @class */ (function () {
      */
     ContainerAppHelper.prototype.updateContainerApp = function (containerAppName, resourceGroup, imageToDeploy, optionalCmdArgs) {
         return __awaiter(this, void 0, void 0, function () {
-            var command_2, _a, stdout, stderr, err_3;
-            return __generator(this, function (_b) {
-                switch (_b.label) {
+            var command_2, err_3;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
                     case 0:
                         core.debug("Attempting to update Container App with name \"" + containerAppName + "\" in resource group \"" + resourceGroup + "\" based from image \"" + imageToDeploy + "\"");
-                        _b.label = 1;
+                        _a.label = 1;
                     case 1:
-                        _b.trys.push([1, 3, , 4]);
+                        _a.trys.push([1, 3, , 4]);
                         command_2 = "az containerapp update -n " + containerAppName + " -g " + resourceGroup + " -i " + imageToDeploy;
                         optionalCmdArgs.forEach(function (val) {
                             command_2 += " " + val;
                         });
                         return [4 /*yield*/, cpExec("" + command_2)];
                     case 2:
-                        _a = _b.sent(), stdout = _a.stdout, stderr = _a.stderr;
-                        if (stderr) {
-                            core.warning(stderr);
-                            throw new Error(stderr);
-                        }
+                        _a.sent();
                         return [3 /*break*/, 4];
                     case 3:
-                        err_3 = _b.sent();
+                        err_3 = _a.sent();
                         core.error(err_3.message);
                         throw err_3;
                     case 4: return [2 /*return*/];
@@ -4942,15 +4938,15 @@ var ContainerAppHelper = /** @class */ (function () {
      */
     ContainerAppHelper.prototype.updateContainerAppWithUp = function (containerAppName, resourceGroup, imageToDeploy, optionalCmdArgs, ingress, targetPort) {
         return __awaiter(this, void 0, void 0, function () {
-            var util, command_3, _a, stdout, stderr, err_4;
-            return __generator(this, function (_b) {
-                switch (_b.label) {
+            var util, command_3, err_4;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
                     case 0:
                         core.debug("Attempting to update Container App with name \"" + containerAppName + "\" in resource group \"" + resourceGroup + "\" based from image \"" + imageToDeploy + "\"");
                         util = new Utility_1.Utility();
-                        _b.label = 1;
+                        _a.label = 1;
                     case 1:
-                        _b.trys.push([1, 3, , 4]);
+                        _a.trys.push([1, 3, , 4]);
                         command_3 = "az containerapp up -n " + containerAppName + " -g " + resourceGroup + " -i " + imageToDeploy;
                         optionalCmdArgs.forEach(function (val) {
                             command_3 += " " + val;
@@ -4963,14 +4959,10 @@ var ContainerAppHelper = /** @class */ (function () {
                         }
                         return [4 /*yield*/, cpExec("" + command_3)];
                     case 2:
-                        _a = _b.sent(), stdout = _a.stdout, stderr = _a.stderr;
-                        if (stderr) {
-                            core.warning(stderr);
-                            throw new Error(stderr);
-                        }
+                        _a.sent();
                         return [3 /*break*/, 4];
                     case 3:
-                        err_4 = _b.sent();
+                        err_4 = _a.sent();
                         core.error(err_4.message);
                         throw err_4;
                     case 4: return [2 /*return*/];
@@ -4986,25 +4978,21 @@ var ContainerAppHelper = /** @class */ (function () {
      */
     ContainerAppHelper.prototype.updateContainerAppFromYaml = function (containerAppName, resourceGroup, yamlConfigPath) {
         return __awaiter(this, void 0, void 0, function () {
-            var command, _a, stdout, stderr, err_5;
-            return __generator(this, function (_b) {
-                switch (_b.label) {
+            var command, err_5;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
                     case 0:
                         core.debug("Attempting to update Container App with name \"" + containerAppName + "\" in resource group \"" + resourceGroup + "\" from provided YAML \"" + yamlConfigPath + "\"");
-                        _b.label = 1;
+                        _a.label = 1;
                     case 1:
-                        _b.trys.push([1, 3, , 4]);
+                        _a.trys.push([1, 3, , 4]);
                         command = "az containerapp update -n " + containerAppName + " -g " + resourceGroup + " --yaml " + yamlConfigPath;
                         return [4 /*yield*/, cpExec("" + command)];
                     case 2:
-                        _a = _b.sent(), stdout = _a.stdout, stderr = _a.stderr;
-                        if (stderr) {
-                            core.warning(stderr);
-                            throw new Error(stderr);
-                        }
+                        _a.sent();
                         return [3 /*break*/, 4];
                     case 3:
-                        err_5 = _b.sent();
+                        err_5 = _a.sent();
                         core.error(err_5.message);
                         throw err_5;
                     case 4: return [2 /*return*/];
@@ -5137,25 +5125,21 @@ var ContainerAppHelper = /** @class */ (function () {
      */
     ContainerAppHelper.prototype.createResourceGroup = function (name, location) {
         return __awaiter(this, void 0, void 0, function () {
-            var command, _a, stdout, stderr, err_10;
-            return __generator(this, function (_b) {
-                switch (_b.label) {
+            var command, err_10;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
                     case 0:
                         core.debug("Attempting to create resource group \"" + name + "\" in location \"" + location + "\"");
-                        _b.label = 1;
+                        _a.label = 1;
                     case 1:
-                        _b.trys.push([1, 3, , 4]);
+                        _a.trys.push([1, 3, , 4]);
                         command = "az group create -n " + name + " -l " + location;
                         return [4 /*yield*/, cpExec("" + command)];
                     case 2:
-                        _a = _b.sent(), stdout = _a.stdout, stderr = _a.stderr;
-                        if (stderr) {
-                            core.error('Failed to create resource group, Error: ' + stderr);
-                            throw new Error(stderr);
-                        }
+                        _a.sent();
                         return [3 /*break*/, 4];
                     case 3:
-                        err_10 = _b.sent();
+                        err_10 = _a.sent();
                         core.error(err_10.message);
                         throw err_10;
                     case 4: return [2 /*return*/];
@@ -5200,29 +5184,25 @@ var ContainerAppHelper = /** @class */ (function () {
      */
     ContainerAppHelper.prototype.createContainerAppEnvironment = function (name, resourceGroup, location) {
         return __awaiter(this, void 0, void 0, function () {
-            var util, command, _a, stdout, stderr, err_12;
-            return __generator(this, function (_b) {
-                switch (_b.label) {
+            var util, command, err_12;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
                     case 0:
                         util = new Utility_1.Utility();
                         core.debug("Attempting to create Container App Environment with name \"" + name + "\" in resource group \"" + resourceGroup + "\"");
-                        _b.label = 1;
+                        _a.label = 1;
                     case 1:
-                        _b.trys.push([1, 3, , 4]);
+                        _a.trys.push([1, 3, , 4]);
                         command = "az containerapp env create -n " + name + " -g " + resourceGroup;
                         if (!util.isNullOrEmpty(location)) {
                             command += " -l " + location;
                         }
                         return [4 /*yield*/, cpExec("" + command)];
                     case 2:
-                        _a = _b.sent(), stdout = _a.stdout, stderr = _a.stderr;
-                        if (stderr) {
-                            core.error('Failed to create Container App Environment, Error: ' + stderr);
-                            throw new Error(stderr);
-                        }
+                        _a.sent();
                         return [3 /*break*/, 4];
                     case 3:
-                        err_12 = _b.sent();
+                        err_12 = _a.sent();
                         core.error(err_12.message);
                         throw err_12;
                     case 4: return [2 /*return*/];
@@ -5237,25 +5217,21 @@ var ContainerAppHelper = /** @class */ (function () {
      */
     ContainerAppHelper.prototype.disableContainerAppIngress = function (name, resourceGroup) {
         return __awaiter(this, void 0, void 0, function () {
-            var command, _a, stdout, stderr, err_13;
-            return __generator(this, function (_b) {
-                switch (_b.label) {
+            var command, err_13;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
                     case 0:
                         core.debug("Attempting to disable ingress for Container App with name \"" + name + "\" in resource group \"" + resourceGroup + "\"");
-                        _b.label = 1;
+                        _a.label = 1;
                     case 1:
-                        _b.trys.push([1, 3, , 4]);
+                        _a.trys.push([1, 3, , 4]);
                         command = "az containerapp ingress disable -n " + name + " -g " + resourceGroup;
                         return [4 /*yield*/, cpExec("" + command)];
                     case 2:
-                        _a = _b.sent(), stdout = _a.stdout, stderr = _a.stderr;
-                        if (stderr) {
-                            core.warning('Failed to disable ingress for Container App, Error: ' + stderr);
-                            throw new Error(stderr);
-                        }
+                        _a.sent();
                         return [3 /*break*/, 4];
                     case 3:
-                        err_13 = _b.sent();
+                        err_13 = _a.sent();
                         core.error(err_13.message);
                         throw err_13;
                     case 4: return [2 /*return*/];
@@ -5273,25 +5249,21 @@ var ContainerAppHelper = /** @class */ (function () {
      */
     ContainerAppHelper.prototype.updateContainerAppRegistryDetails = function (name, resourceGroup, acrName, acrUsername, acrPassword) {
         return __awaiter(this, void 0, void 0, function () {
-            var command, _a, stdout, stderr, err_14;
-            return __generator(this, function (_b) {
-                switch (_b.label) {
+            var command, err_14;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
                     case 0:
                         core.debug("Attempting to set the ACR details for Container App with name \"" + name + "\" in resource group \"" + resourceGroup + "\"");
-                        _b.label = 1;
+                        _a.label = 1;
                     case 1:
-                        _b.trys.push([1, 3, , 4]);
+                        _a.trys.push([1, 3, , 4]);
                         command = "az containerapp registry set -n " + name + " -g " + resourceGroup + " --server " + acrName + ".azurecr.io --username " + acrUsername + " --password " + acrPassword;
                         return [4 /*yield*/, cpExec("" + command)];
                     case 2:
-                        _a = _b.sent(), stdout = _a.stdout, stderr = _a.stderr;
-                        if (stderr) {
-                            core.warning('Failed to set the ACR details for Container App, Error: ' + stderr);
-                            throw new Error(stderr);
-                        }
+                        _a.sent();
                         return [3 /*break*/, 4];
                     case 3:
-                        err_14 = _b.sent();
+                        err_14 = _a.sent();
                         core.error(err_14.message);
                         throw err_14;
                     case 4: return [2 /*return*/];
@@ -5307,28 +5279,24 @@ var ContainerAppHelper = /** @class */ (function () {
      */
     ContainerAppHelper.prototype.createRunnableAppImage = function (imageToDeploy, appSourcePath, runtimeStack) {
         return __awaiter(this, void 0, void 0, function () {
-            var telemetryArg, _a, stdout, stderr, err_15;
-            return __generator(this, function (_b) {
-                switch (_b.label) {
+            var telemetryArg, err_15;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
                     case 0:
                         core.debug("Attempting to create a runnable application image using the Oryx++ Builder with image name \"" + imageToDeploy + "\"");
-                        _b.label = 1;
+                        _a.label = 1;
                     case 1:
-                        _b.trys.push([1, 3, , 4]);
+                        _a.trys.push([1, 3, , 4]);
                         telemetryArg = "--env \"CALLER_ID=azure-pipelines-rc-v1\"";
                         if (this.disableTelemetry) {
                             telemetryArg = "--env \"ORYX_DISABLE_TELEMETRY=true\"";
                         }
                         return [4 /*yield*/, cpExec(PACK_CMD + " build " + imageToDeploy + " --path " + appSourcePath + " --builder " + ORYX_BUILDER_IMAGE + " --run-image mcr.microsoft.com/oryx/" + runtimeStack + " " + telemetryArg)];
                     case 2:
-                        _a = _b.sent(), stdout = _a.stdout, stderr = _a.stderr;
-                        if (stderr) {
-                            core.error("Failed to create runnable application image using the Oryx++ Builder with image name \"" + imageToDeploy + "\". Error: " + stderr);
-                            throw new Error(stderr);
-                        }
+                        _a.sent();
                         return [3 /*break*/, 4];
                     case 3:
-                        err_15 = _b.sent();
+                        err_15 = _a.sent();
                         core.error(err_15.message);
                         throw err_15;
                     case 4: return [2 /*return*/];
@@ -5427,24 +5395,20 @@ var ContainerAppHelper = /** @class */ (function () {
      */
     ContainerAppHelper.prototype.setDefaultBuilder = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var _a, stdout, stderr, err_18;
-            return __generator(this, function (_b) {
-                switch (_b.label) {
+            var err_18;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
                     case 0:
                         core.info('Setting the Oryx++ Builder as the default builder via the pack CLI');
-                        _b.label = 1;
+                        _a.label = 1;
                     case 1:
-                        _b.trys.push([1, 3, , 4]);
+                        _a.trys.push([1, 3, , 4]);
                         return [4 /*yield*/, cpExec("pack config default-builder " + ORYX_BUILDER_IMAGE)];
                     case 2:
-                        _a = _b.sent(), stdout = _a.stdout, stderr = _a.stderr;
-                        if (stderr) {
-                            core.error("Failed to set the Oryx++ Builder as the default builder via the pack CLI. Error: " + stderr);
-                            throw new Error(stderr);
-                        }
+                        _a.sent();
                         return [3 /*break*/, 4];
                     case 3:
-                        err_18 = _b.sent();
+                        err_18 = _a.sent();
                         core.setFailed(err_18.message);
                         throw err_18;
                     case 4: return [2 /*return*/];
@@ -6090,7 +6054,7 @@ module.exports = require("util");
 /******/ 	// startup
 /******/ 	// Load entry module and return exports
 /******/ 	// This entry module is referenced by other modules so it can't be inlined
-/******/ 	var __webpack_exports__ = __nccwpck_require__(5506);
+/******/ 	var __webpack_exports__ = __nccwpck_require__(3238);
 /******/ 	module.exports = __webpack_exports__;
 /******/ 	
 /******/ })()
