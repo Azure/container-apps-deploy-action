@@ -1,0 +1,29 @@
+{
+  "name": "container-apps-deploy-action",
+  "version": "1.0.0",
+  "description": "This action allows users to easily deploy their application source to an\r [Azure Container App](https://azure.microsoft.com/en-us/services/container-apps/) in their GitHub workflow by either\r providing a previously built image, a Dockerfile that an image can be built from, or using a builder to create a\r runnable application image for the user.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Azure/container-apps-deploy-action.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Azure/container-apps-deploy-action/issues"
+  },
+  "homepage": "https://github.com/Azure/container-apps-deploy-action#readme",
+  "dependencies": {
+    "@actions/core": "^1.10.0",
+    "@actions/exec": "^1.1.1",
+    "@actions/github": "^5.1.1",
+    "typescript": "^5.2.2"
+  },
+  "devDependencies": {
+    "@types/node": "^20.6.0"
+  }
+}
