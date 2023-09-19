@@ -248,7 +248,7 @@ export class ContainerAppHelper {
                 throw new Error(stderr);
             }
         } catch (err) {
-            core.setFailed(err.message);
+            core.error(err.message);
             throw err;
         }
     }
@@ -265,7 +265,7 @@ export class ContainerAppHelper {
             const {stdout, stderr} = await cpExec(`${command}`);
             return !stderr ? stdout : null;
         } catch (err) {
-            core.error(err.message);
+            core.warning(err.message);
             return null;
         }
     }
@@ -290,7 +290,7 @@ export class ContainerAppHelper {
                 throw new Error(stderr);
             }
         } catch (err) {
-            core.setFailed(err.message);
+            core.error(err.message);
             throw err;
         }
     }
@@ -306,11 +306,11 @@ export class ContainerAppHelper {
             const command = `az containerapp ingress disable -n ${name} -g ${resourceGroup}`;
             const {stdout, stderr} = await cpExec(`${command}`);
             if (stderr) {
-                core.error('Failed to disable ingress for Container App, Error: ' + stderr);
+                core.warning('Failed to disable ingress for Container App, Error: ' + stderr);
                 throw new Error(stderr);
             }
         } catch (err) {
-            core.setFailed(err.message);
+            core.error(err.message);
             throw err;
         }
     }
@@ -329,11 +329,11 @@ export class ContainerAppHelper {
             const command = `az containerapp registry set -n ${name} -g ${resourceGroup} --server ${acrName}.azurecr.io --username ${acrUsername} --password ${acrPassword}`;
             const {stdout, stderr} = await cpExec(`${command}`);
             if (stderr) {
-                core.error('Failed to set the ACR details for Container App, Error: ' + stderr);
+                core.warning('Failed to set the ACR details for Container App, Error: ' + stderr);
                 throw new Error(stderr);
             }
         } catch (err) {
-            core.setFailed(err.message);
+            core.error(err.message);
             throw err;
         }
     }
@@ -360,7 +360,7 @@ export class ContainerAppHelper {
                     throw new Error(stderr);
                 }
             } catch (err) {
-                core.setFailed(err.message);
+                core.error(err.message);
                 throw err;
             }
     }

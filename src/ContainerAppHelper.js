@@ -382,7 +382,7 @@ var ContainerAppHelper = /** @class */ (function () {
                         return [3 /*break*/, 4];
                     case 3:
                         err_10 = _b.sent();
-                        core.setFailed(err_10.message);
+                        core.error(err_10.message);
                         throw err_10;
                     case 4: return [2 /*return*/];
                 }
@@ -411,7 +411,7 @@ var ContainerAppHelper = /** @class */ (function () {
                         return [2 /*return*/, !stderr ? stdout : null];
                     case 3:
                         err_11 = _b.sent();
-                        core.error(err_11.message);
+                        core.warning(err_11.message);
                         return [2 /*return*/, null];
                     case 4: return [2 /*return*/];
                 }
@@ -449,7 +449,7 @@ var ContainerAppHelper = /** @class */ (function () {
                         return [3 /*break*/, 4];
                     case 3:
                         err_12 = _b.sent();
-                        core.setFailed(err_12.message);
+                        core.error(err_12.message);
                         throw err_12;
                     case 4: return [2 /*return*/];
                 }
@@ -476,13 +476,13 @@ var ContainerAppHelper = /** @class */ (function () {
                     case 2:
                         _a = _b.sent(), stdout = _a.stdout, stderr = _a.stderr;
                         if (stderr) {
-                            core.error('Failed to disable ingress for Container App, Error: ' + stderr);
+                            core.warning('Failed to disable ingress for Container App, Error: ' + stderr);
                             throw new Error(stderr);
                         }
                         return [3 /*break*/, 4];
                     case 3:
                         err_13 = _b.sent();
-                        core.setFailed(err_13.message);
+                        core.error(err_13.message);
                         throw err_13;
                     case 4: return [2 /*return*/];
                 }
@@ -512,13 +512,13 @@ var ContainerAppHelper = /** @class */ (function () {
                     case 2:
                         _a = _b.sent(), stdout = _a.stdout, stderr = _a.stderr;
                         if (stderr) {
-                            core.error('Failed to set the ACR details for Container App, Error: ' + stderr);
+                            core.warning('Failed to set the ACR details for Container App, Error: ' + stderr);
                             throw new Error(stderr);
                         }
                         return [3 /*break*/, 4];
                     case 3:
                         err_14 = _b.sent();
-                        core.setFailed(err_14.message);
+                        core.error(err_14.message);
                         throw err_14;
                     case 4: return [2 /*return*/];
                 }
@@ -555,7 +555,7 @@ var ContainerAppHelper = /** @class */ (function () {
                         return [3 /*break*/, 4];
                     case 3:
                         err_15 = _b.sent();
-                        core.setFailed(err_15.message);
+                        core.error(err_15.message);
                         throw err_15;
                     case 4: return [2 /*return*/];
                 }

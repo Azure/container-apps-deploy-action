@@ -94,24 +94,12 @@ var Utility = /** @class */ (function () {
      */
     Utility.prototype.setAzureCliDynamicInstall = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var _a, stdout, stderr, error_2;
-            return __generator(this, function (_b) {
-                switch (_b.label) {
-                    case 0:
-                        _b.trys.push([0, 2, , 3]);
-                        return [4 /*yield*/, cpExec("az config set extension.use_dynamic_install=yes_without_prompt")];
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, cpExec("az config set extension.use_dynamic_install=yes_without_prompt")];
                     case 1:
-                        _a = _b.sent(), stdout = _a.stdout, stderr = _a.stderr;
-                        if (stderr) {
-                            core.error("Unable to set Azure CLI to dynamically install extensions. Error: " + stderr);
-                            throw new Error("Unable to set Azure CLI to dynamically install extensions. Error: " + stderr);
-                        }
-                        return [3 /*break*/, 3];
-                    case 2:
-                        error_2 = _b.sent();
-                        core.setFailed("Error: " + error_2.message);
-                        throw error_2; // Re-throw the error
-                    case 3: return [2 /*return*/];
+                        _a.sent();
+                        return [2 /*return*/];
                 }
             });
         });
