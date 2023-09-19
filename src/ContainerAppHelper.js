@@ -592,7 +592,7 @@ var ContainerAppHelper = /** @class */ (function () {
      */
     ContainerAppHelper.prototype.determineRuntimeStackAsync = function (appSourcePath) {
         return __awaiter(this, void 0, void 0, function () {
-            var dockerTool, dockerCommand, oryxRuntimeTxtPath, command, runtimeStack, err_17;
+            var dockerTool, dockerCommand, exitCode, oryxRuntimeTxtPath, command, runtimeStack, err_17;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -604,16 +604,23 @@ var ContainerAppHelper = /** @class */ (function () {
                     case 2:
                         dockerTool = _a.sent();
                         dockerCommand = "run --rm -v " + appSourcePath + ":/app " + ORYX_CLI_IMAGE + " /bin/bash -c \"oryx dockerfile /app | head -n 1 | sed 's/ARG RUNTIME=//' >> /app/oryx-runtime.txt\"";
-                        return [4 /*yield*/, exec.exec('docker', ['run', '--rm', '-v', appSourcePath + ":/app", "" + ORYX_CLI_IMAGE, '/bin/bash', '-c', "\"oryx dockerfile /app | head -n 1 | sed 's/ARG RUNTIME=//' >> /app/oryx-runtime.txt\""])
+                        return [4 /*yield*/, exec.exec('docker', [dockerCommand])
                             // new Utility().executeAndthrowIfError(
                             //     `${dockerTool}`,
                             //     `${dockerCommand}`,
                             //     `Unable to determine the runtime stack needed for the provided application source.`
                             // );
-                            // Read the temp file to get the runtime stack into a variable
                         ];
                     case 3:
-                        _a.sent();
+                        exitCode = _a.sent();
+                        // new Utility().executeAndthrowIfError(
+                        //     `${dockerTool}`,
+                        //     `${dockerCommand}`,
+                        //     `Unable to determine the runtime stack needed for the provided application source.`
+                        // );
+                        if (exitCode != 0) {
+                            throw new Error("Unable to determine the runtime stack needed for the provided application source.");
+                        }
                         oryxRuntimeTxtPath = path.join(appSourcePath, 'oryx-runtime.txt');
                         command = "head -n 1 " + oryxRuntimeTxtPath;
                         if (IS_WINDOWS_AGENT) {
