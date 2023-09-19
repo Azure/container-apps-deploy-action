@@ -40,6 +40,7 @@ exports.CommandHelper = void 0;
 var os = require("os");
 var core = require("@actions/core");
 var exec = require("@actions/exec");
+var io = require("@actions/io");
 var CommandHelper = /** @class */ (function () {
     function CommandHelper() {
     }
@@ -74,7 +75,7 @@ var CommandHelper = /** @class */ (function () {
      */
     CommandHelper.prototype.execBashCommandAsync = function (command) {
         return __awaiter(this, void 0, void 0, function () {
-            var bashOutput, options, err_1;
+            var bashOutput, options, bashTool, err_1;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -96,18 +97,19 @@ var CommandHelper = /** @class */ (function () {
                         };
                         _a.label = 1;
                     case 1:
-                        _a.trys.push([1, 3, , 4]);
-                        // const pathToTool = await io.which('bash', true)
-                        return [4 /*yield*/, exec.exec('bash', ['-c', command], options)];
+                        _a.trys.push([1, 4, , 5]);
+                        return [4 /*yield*/, io.which("bash", true)];
                     case 2:
-                        // const pathToTool = await io.which('bash', true)
+                        bashTool = _a.sent();
+                        return [4 /*yield*/, exec.exec(bashTool, ['-c', command], options)];
+                    case 3:
                         _a.sent();
                         return [2 /*return*/, bashOutput.trim()];
-                    case 3:
+                    case 4:
                         err_1 = _a.sent();
                         core.error('Unable to run provided bash command ${command}');
                         throw err_1;
-                    case 4: return [2 /*return*/];
+                    case 5: return [2 /*return*/];
                 }
             });
         });
