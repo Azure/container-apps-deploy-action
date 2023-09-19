@@ -5379,7 +5379,7 @@ var ContainerAppHelper = /** @class */ (function () {
                     case 2:
                         dockerTool = _a.sent();
                         dockerCommand = "run --rm -v " + appSourcePath + ":/app " + ORYX_CLI_IMAGE + " /bin/bash -c \"oryx dockerfile /app | head -n 1 | sed 's/ARG RUNTIME=//' >> /app/oryx-runtime.txt\"";
-                        return [4 /*yield*/, exec.exec(dockerTool, [dockerCommand])
+                        return [4 /*yield*/, exec.exec(dockerTool, ['run', '--rm', '-v', appSourcePath + ":/app", "" + ORYX_CLI_IMAGE, '/bin/bash', '-c', "\"oryx dockerfile /app | head -n 1 | sed 's/ARG RUNTIME=//' >> /app/oryx-runtime.txt\""])
                             // new Utility().executeAndthrowIfError(
                             //     `${dockerTool}`,
                             //     `${dockerCommand}`,
