@@ -39,9 +39,7 @@ export class CommandHelper {
             outStream: process.stdout,
         }
         try {
-           // const pathToTool = await io.which('bash', true)
-            const bashTool: string = await io.which("bash", true);
-            await exec.exec(bashTool,['-c', command], options);
+            await exec.exec('bash', ['-c', command], options);
             return bashOutput.trim();
         } catch (err) {
             core.error('Unable to run provided bash command ${command}');
