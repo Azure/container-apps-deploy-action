@@ -312,7 +312,7 @@ export class azurecontainerapps {
         // Get the name of the image to build if it was provided, or generate it from build variables
         this.imageToBuild = core.getInput('imageToBuild', { required: false });
         if (util.isNullOrEmpty(this.imageToBuild)) {
-            this.imageToBuild = `${this.acrName}.azurecr.io/ado-task/container-app:${this.buildId}.${this.buildNumber}`;
+            this.imageToBuild = `${this.acrName}.azurecr.io/gh-action/container-app:${this.buildId}.${this.buildNumber}`;
             core.info(`Default image to build: ${this.imageToBuild}`);
         }
 
