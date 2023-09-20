@@ -11,10 +11,10 @@ export class ContainerRegistryHelper {
      * @param acrUsername - the username for authentication
      * @param acrPassword - the password for authentication
      */
-     public async loginAcrWithUsernamePassword(acrName: string, acrUsername: string, acrPassword: string) {
+    public async loginAcrWithUsernamePassword(acrName: string, acrUsername: string, acrPassword: string) {
         core.debug(`Attempting to log in to ACR instance "${acrName}" with username and password credentials`);
         try {
-           await exec.exec('docker', [`login`, `--password-stdin`, `--username`, `${acrUsername}`, `${acrName}.azurecr.io`], { input: Buffer.from(acrPassword) });
+            await exec.exec('docker', [`login`, `--password-stdin`, `--username`, `${acrUsername}`, `${acrName}.azurecr.io`], { input: Buffer.from(acrPassword) });
         } catch (err) {
             core.error(`Failed to log in to ACR instance "${acrName}" with username and password credentials`);
             throw err;
@@ -26,7 +26,7 @@ export class ContainerRegistryHelper {
      * the 'az acr login --expose-token' command.
      * @param acrName - the name of the ACR instance to authenticate calls to.
      */
-     public async loginAcrWithAccessTokenAsync(acrName: string) {
+    public async loginAcrWithAccessTokenAsync(acrName: string) {
         core.debug(`Attempting to log in to ACR instance "${acrName}" with access token`);
         try {
             const command: string = `CA_ADO_TASK_ACR_ACCESS_TOKEN=$(az acr login --name ${acrName} --output json --expose-token --only-show-errors | jq -r '.accessToken'); docker login ${acrName}.azurecr.io -u 00000000-0000-0000-0000-000000000000 -p $CA_ADO_TASK_ACR_ACCESS_TOKEN > /dev/null 2>&1`;
@@ -41,7 +41,7 @@ export class ContainerRegistryHelper {
      * Pushes an image to the ACR instance that was previously authenticated against.
      * @param imageToPush - the name of the image to push to ACR
      */
-     public async pushImageToAcr(imageToPush: string) {
+    public async pushImageToAcr(imageToPush: string) {
         core.debug(`Attempting to push image "${imageToPush}" to ACR`);
         try {
             const dockerTool: string = await io.which("docker", true);
