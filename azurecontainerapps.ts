@@ -53,9 +53,6 @@ export class azurecontainerapps {
             core.setFailed(err.message);
             this.telemetryHelper.setFailedResult(err.message);
         } finally {
-            // Logout of Azure if logged in during this task session
-          //  this.authHelper.logoutAzure();
-
             // If telemetry is enabled, will log metadata for this task run
             await this.telemetryHelper.sendLogs();
         }

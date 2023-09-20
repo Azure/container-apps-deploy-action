@@ -87,7 +87,6 @@ export class TelemetryHelper {
 
                 let args: string[] = [`run`, `--rm`, `${ORYX_CLI_IMAGE}`, `/bin/bash`, `-c`, `oryx telemetry --event-name 'ContainerAppsPipelinesTaskRCV1' ` + `--processing-time '${taskLengthMilliseconds}' ${resultArg} ${scenarioArg} ${errorMessageArg}"`];
 
-                // Don't use Utility's throwIfError() since it will still record an error in the pipeline logs, but won't fail the task
                 await executeDockerCommand(args, true)
             } catch (err) {
                 core.warning(`Skipping telemetry logging due to the following exception: ${err.message}`);

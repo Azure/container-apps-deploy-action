@@ -109,13 +109,9 @@ var azurecontainerapps = /** @class */ (function () {
                         this.telemetryHelper.setFailedResult(err_1.message);
                         return [3 /*break*/, 11];
                     case 9: 
-                    // Logout of Azure if logged in during this task session
-                    //  this.authHelper.logoutAzure();
                     // If telemetry is enabled, will log metadata for this task run
                     return [4 /*yield*/, this.telemetryHelper.sendLogs()];
                     case 10:
-                        // Logout of Azure if logged in during this task session
-                        //  this.authHelper.logoutAzure();
                         // If telemetry is enabled, will log metadata for this task run
                         _a.sent();
                         return [7 /*endfinally*/];
@@ -5729,10 +5725,8 @@ var TelemetryHelper = /** @class */ (function () {
                             errorMessageArg = "--property 'errorMessage=" + this.errorMessage + "'";
                         }
                         args = ["run", "--rm", "" + ORYX_CLI_IMAGE, "/bin/bash", "-c", "oryx telemetry --event-name 'ContainerAppsPipelinesTaskRCV1' " + ("--processing-time '" + taskLengthMilliseconds + "' " + resultArg + " " + scenarioArg + " " + errorMessageArg + "\"")];
-                        // Don't use Utility's throwIfError() since it will still record an error in the pipeline logs, but won't fail the task
                         return [4 /*yield*/, executeDockerCommand(args, true)];
                     case 2:
-                        // Don't use Utility's throwIfError() since it will still record an error in the pipeline logs, but won't fail the task
                         _a.sent();
                         return [3 /*break*/, 4];
                     case 3:
