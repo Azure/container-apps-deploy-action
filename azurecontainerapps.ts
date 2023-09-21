@@ -53,9 +53,6 @@ export class azurecontainerapps {
             core.setFailed(err.message);
             this.telemetryHelper.setFailedResult(err.message);
         } finally {
-            // Logout of Azure if logged in during this task session
-          //  this.authHelper.logoutAzure();
-
             // If telemetry is enabled, will log metadata for this task run
             await this.telemetryHelper.sendLogs();
         }
@@ -108,7 +105,7 @@ export class azurecontainerapps {
         this.telemetryHelper = new TelemetryHelper(disableTelemetry);
 
         // Set up AzureAuthenticationHelper for managing logging in and out of Azure CLI using provided service connection
-       // this.authHelper = new AzureAuthenticationHelper();
+        // this.authHelper = new AzureAuthenticationHelper();
 
         // Set up ContainerAppHelper for managing calls around the Container App
         this.appHelper = new ContainerAppHelper(disableTelemetry);
@@ -124,16 +121,16 @@ export class azurecontainerapps {
     private static validateSupportedScenarioArguments() {
 
         // Get the path to the application source to build and run, if provided
-        this.appSourcePath = core.getInput('appSourcePath', {required: false});
+        this.appSourcePath = core.getInput('appSourcePath', { required: false });
 
         // Get the name of the ACR instance to push images to, if provided
-        this.acrName = core.getInput('acrName', {required: false});
+        this.acrName = core.getInput('acrName', { required: false });
 
         // Get the previously built image to deploy, if provided
-        this.imageToDeploy = core.getInput('imageToDeploy', {required: false});
+        this.imageToDeploy = core.getInput('imageToDeploy', { required: false });
 
         // Get the YAML configuration file, if provided
-        this.yamlConfigPath = core.getInput('yamlConfigPath', {required: false});
+        this.yamlConfigPath = core.getInput('yamlConfigPath', { required: false });
 
         // Ensure that acrName is also provided if appSourcePath is provided
         if (!util.isNullOrEmpty(this.appSourcePath) && util.isNullOrEmpty(this.acrName)) {
@@ -188,7 +185,7 @@ export class azurecontainerapps {
      * @returns The name of the Container App to use for the task.
      */
     private static getContainerAppName(): string {
-        let containerAppName: string = core.getInput('containerAppName', {required: false});
+        let containerAppName: string = core.getInput('containerAppName', { required: false });
         if (util.isNullOrEmpty(containerAppName)) {
             containerAppName = `app-${this.buildId}-${this.buildNumber}`;
 
@@ -207,7 +204,7 @@ export class azurecontainerapps {
      */
     private static async getLocation(): Promise<string> {
         // Set deployment location, if provided
-        let location: string = core.getInput('location', {required: false});
+        let location: string = core.getInput('location', { required: false });
 
         // If no location was provided, use the default location for the Container App service
         if (util.isNullOrEmpty(location)) {
@@ -227,7 +224,7 @@ export class azurecontainerapps {
      */
     private static async getOrCreateResourceGroup(containerAppName: string, location: string): Promise<string> {
         // Get the resource group to deploy to if it was provided, or generate it from the Container App name
-        let resourceGroup: string = core.getInput('resourceGroup', {required: false});
+        let resourceGroup: string = core.getInput('resourceGroup', { required: false });
         if (util.isNullOrEmpty(resourceGroup)) {
             resourceGroup = `${containerAppName}-rg`;
             core.info(`Default resource group name: ${resourceGroup}`);
@@ -257,7 +254,7 @@ export class azurecontainerapps {
         resourceGroup: string,
         location: string): Promise<string> {
         // Get the Container App environment if it was provided
-        let containerAppEnvironment: string = core.getInput('containerAppEnvironment', {required: false});
+        let containerAppEnvironment: string = core.getInput('containerAppEnvironment', { required: false });
 
         // See if we can reuse an existing Container App environment found in the resource group
         if (util.isNullOrEmpty(containerAppEnvironment)) {
@@ -287,8 +284,8 @@ export class azurecontainerapps {
      * Authenticates calls to the provided Azure Container Registry.
      */
     private static async authenticateAzureContainerRegistryAsync() {
-        this.acrUsername = core.getInput('acrUsername', {required: false});
-        this.acrPassword = core.getInput('acrPassword', {required: false});
+        this.acrUsername = core.getInput('acrUsername', { required: false });
+        this.acrPassword = core.getInput('acrPassword', { required: false });
 
         // Login to ACR if credentials were provided
         if (!util.isNullOrEmpty(this.acrUsername) && !util.isNullOrEmpty(this.acrPassword)) {
@@ -313,9 +310,9 @@ export class azurecontainerapps {
      */
     private static async buildAndPushImageAsync() {
         // Get the name of the image to build if it was provided, or generate it from build variables
-        this.imageToBuild = core.getInput('imageToBuild', {required: false});
+        this.imageToBuild = core.getInput('imageToBuild', { required: false });
         if (util.isNullOrEmpty(this.imageToBuild)) {
-            this.imageToBuild = `${this.acrName}.azurecr.io/ado-task/container-app:${this.buildId}.${this.buildNumber}`;
+            this.imageToBuild = `${this.acrName}.azurecr.io/gh-action/container-app:${this.buildId}.${this.buildNumber}`;
             core.info(`Default image to build: ${this.imageToBuild}`);
         }
 
@@ -326,7 +323,7 @@ export class azurecontainerapps {
         }
 
         // Get Dockerfile to build, if provided, or check if one exists at the root of the provided application
-        let dockerfilePath: string = core.getInput('dockerfilePath', {required: false});
+        let dockerfilePath: string = core.getInput('dockerfilePath', { required: false });
         if (util.isNullOrEmpty(dockerfilePath)) {
             core.info(`No Dockerfile path provided; checking for Dockerfile at root of application source.`);
             const rootDockerfilePath = path.join(this.appSourcePath, 'Dockerfile');
@@ -361,7 +358,7 @@ export class azurecontainerapps {
         core.info(`Successfully installed the pack CLI.`)
 
         // Get the runtime stack if provided, or determine it using Oryx
-        this.runtimeStack = core.getInput('runtimeStack', {required: false});
+        this.runtimeStack = core.getInput('runtimeStack', { required: false });
         if (util.isNullOrEmpty(this.runtimeStack)) {
             this.runtimeStack = await this.appHelper.determineRuntimeStackAsync(appSourcePath);
             core.info(`Runtime stack determined to be: ${this.runtimeStack}`);
@@ -401,14 +398,14 @@ export class azurecontainerapps {
         this.commandLineArgs = [];
 
         // Get the ingress inputs
-        this.ingress = core.getInput('ingress', {required: false});
-        this.targetPort = core.getInput('targetPort', {required: false});
+        this.ingress = core.getInput('ingress', { required: false });
+        this.targetPort = core.getInput('targetPort', { required: false });
 
         // If both ingress and target port were not provided for an existing Container App, or if ingress is to be disabled,
         // use the 'update' command, otherwise we should use the 'up' command that performs a PATCH operation on the ingress properties.
         this.shouldUseUpdateCommand = this.containerAppExists &&
-                                      util.isNullOrEmpty(this.targetPort) &&
-                                      (util.isNullOrEmpty(this.ingress) || this.ingress == 'disabled');
+            util.isNullOrEmpty(this.targetPort) &&
+            (util.isNullOrEmpty(this.ingress) || this.ingress == 'disabled');
 
         // Pass the ACR credentials when creating a Container App or updating a Container App via the 'up' command
         if (!util.isNullOrEmpty(this.acrName) && !util.isNullOrEmpty(this.acrUsername) && !util.isNullOrEmpty(this.acrPassword) &&
@@ -438,7 +435,7 @@ export class azurecontainerapps {
             // Handle setup for ingress values when enabled
             if (this.ingressEnabled) {
                 // Get the target port if provided, or determine it based on the application type
-                this.targetPort = core.getInput('targetPort', {required: false});
+                this.targetPort = core.getInput('targetPort', { required: false });
                 if (util.isNullOrEmpty(this.targetPort)) {
                     if (!util.isNullOrEmpty(this.runtimeStack) && this.runtimeStack.startsWith('python:')) {
                         this.targetPort = '80';
@@ -462,7 +459,7 @@ export class azurecontainerapps {
             }
         }
 
-        const environmentVariables: string = core.getInput('environmentVariables', {required: false});
+        const environmentVariables: string = core.getInput('environmentVariables', { required: false });
 
         // Add user-specified environment variables
         if (!util.isNullOrEmpty(environmentVariables)) {

@@ -3,7 +3,6 @@
       "target": "ES2016",
       "module": "CommonJS",
       "moduleResolution": "node",
-      "lib": ["es2018", "dom"], // Add any other required libraries
-      // ...
+      "lib": ["es2018", "dom"],
     }
 }
