@@ -58,8 +58,10 @@ export class ContainerAppHelper {
         yamlConfigPath: string) {
         core.debug(`Attempting to create Container App with name "${containerAppName}" in resource group "${resourceGroup}" from provided YAML "${yamlConfigPath}"`);
         try {
-            let command = `az containerapp create -n ${containerAppName} -g ${resourceGroup} --yaml ${yamlConfigPath}`;
-            await cpExec(`${command}`);
+            //let command = `az containerapp create -n ${containerAppName} -g ${resourceGroup} --yaml ${yamlConfigPath}`;
+            let args = ['containerapp', 'create', '-n', containerAppName, '-g', resourceGroup, '--yaml', yamlConfigPath];
+            new Utility().executeAndthrowIfError(`az`, args);
+           // await cpExec(`${command}`);
         } catch (err) {
             core.error(err.message);
             throw err;

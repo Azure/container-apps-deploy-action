@@ -108,7 +108,7 @@ var azurecontainerapps = /** @class */ (function () {
                         core.setFailed(err_1.message);
                         this.telemetryHelper.setFailedResult(err_1.message);
                         return [3 /*break*/, 11];
-                    case 9:
+                    case 9: 
                     // If telemetry is enabled, will log metadata for this task run
                     return [4 /*yield*/, this.telemetryHelper.sendLogs()];
                     case 10:
@@ -165,7 +165,7 @@ var azurecontainerapps = /** @class */ (function () {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0:
+                    case 0: 
                     // Set the Azure CLI to dynamically install missing extensions
                     return [4 /*yield*/, util.setAzureCliDynamicInstall()];
                     case 1:
@@ -395,7 +395,7 @@ var azurecontainerapps = /** @class */ (function () {
                         core.info("Dockerfile found at root of application source.");
                         dockerfilePath = rootDockerfilePath;
                         return [3 /*break*/, 3];
-                    case 1:
+                    case 1: 
                     // No Dockerfile found or provided, build the image using the builder
                     return [4 /*yield*/, this.buildImageFromBuilderAsync(this.appSourcePath, this.imageToBuild)];
                     case 2:
@@ -414,7 +414,7 @@ var azurecontainerapps = /** @class */ (function () {
                         // Build the image from the provided/discovered Dockerfile
                         _a.sent();
                         _a.label = 7;
-                    case 7:
+                    case 7: 
                     // Push the image to ACR
                     return [4 /*yield*/, this.registryHelper.pushImageToAcr(this.imageToBuild)];
                     case 8:
@@ -435,7 +435,7 @@ var azurecontainerapps = /** @class */ (function () {
             var _a;
             return __generator(this, function (_b) {
                 switch (_b.label) {
-                    case 0:
+                    case 0: 
                     // Install the pack CLI
                     return [4 /*yield*/, this.appHelper.installPackCliAsync()];
                     case 1:
@@ -577,7 +577,7 @@ var azurecontainerapps = /** @class */ (function () {
                         // Create the Container App from the YAML configuration file
                         _a.sent();
                         return [3 /*break*/, 4];
-                    case 2:
+                    case 2: 
                     // Create the Container App from command line arguments
                     return [4 /*yield*/, this.appHelper.createContainerApp(this.containerAppName, this.resourceGroup, this.containerAppEnvironment, this.imageToDeploy, this.commandLineArgs)];
                     case 3:
@@ -600,14 +600,14 @@ var azurecontainerapps = /** @class */ (function () {
                     case 8:
                         _a.sent();
                         _a.label = 9;
-                    case 9:
+                    case 9: 
                     // Update the Container App using the 'update' command
                     return [4 /*yield*/, this.appHelper.updateContainerApp(this.containerAppName, this.resourceGroup, this.imageToDeploy, this.commandLineArgs)];
                     case 10:
                         // Update the Container App using the 'update' command
                         _a.sent();
                         return [3 /*break*/, 13];
-                    case 11:
+                    case 11: 
                     // Update the Container App using the 'up' command
                     return [4 /*yield*/, this.appHelper.updateContainerAppWithUp(this.containerAppName, this.resourceGroup, this.imageToDeploy, this.commandLineArgs, this.ingress, this.targetPort)];
                     case 12:
@@ -1191,8 +1191,8 @@ class OidcClient {
             const res = yield httpclient
                 .getJson(id_token_url)
                 .catch(error => {
-                throw new Error(`Failed to get ID Token. \n
-        Error Code : ${error.statusCode}\n
+                throw new Error(`Failed to get ID Token. \n 
+        Error Code : ${error.statusCode}\n 
         Error Message: ${error.message}`);
             });
             const id_token = (_a = res.result) === null || _a === void 0 ? void 0 : _a.value;
@@ -4867,25 +4867,19 @@ var ContainerAppHelper = /** @class */ (function () {
      */
     ContainerAppHelper.prototype.createContainerAppFromYaml = function (containerAppName, resourceGroup, yamlConfigPath) {
         return __awaiter(this, void 0, void 0, function () {
-            var command, err_2;
+            var args;
             return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        core.debug("Attempting to create Container App with name \"" + containerAppName + "\" in resource group \"" + resourceGroup + "\" from provided YAML \"" + yamlConfigPath + "\"");
-                        _a.label = 1;
-                    case 1:
-                        _a.trys.push([1, 3, , 4]);
-                        command = "az containerapp create -n " + containerAppName + " -g " + resourceGroup + " --yaml " + yamlConfigPath;
-                        return [4 /*yield*/, cpExec("" + command)];
-                    case 2:
-                        _a.sent();
-                        return [3 /*break*/, 4];
-                    case 3:
-                        err_2 = _a.sent();
-                        core.error(err_2.message);
-                        throw err_2;
-                    case 4: return [2 /*return*/];
+                core.debug("Attempting to create Container App with name \"" + containerAppName + "\" in resource group \"" + resourceGroup + "\" from provided YAML \"" + yamlConfigPath + "\"");
+                try {
+                    args = ['containerapp', 'create', '-n', containerAppName, '-g', resourceGroup, '--yaml', yamlConfigPath];
+                    new Utility_1.Utility().executeAndthrowIfError("az", args);
+                    // await cpExec(`${command}`);
                 }
+                catch (err) {
+                    core.error(err.message);
+                    throw err;
+                }
+                return [2 /*return*/];
             });
         });
     };
@@ -4898,7 +4892,7 @@ var ContainerAppHelper = /** @class */ (function () {
      */
     ContainerAppHelper.prototype.updateContainerApp = function (containerAppName, resourceGroup, imageToDeploy, optionalCmdArgs) {
         return __awaiter(this, void 0, void 0, function () {
-            var command_2, err_3;
+            var command_2, err_2;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -4915,9 +4909,9 @@ var ContainerAppHelper = /** @class */ (function () {
                         _a.sent();
                         return [3 /*break*/, 4];
                     case 3:
-                        err_3 = _a.sent();
-                        core.error(err_3.message);
-                        throw err_3;
+                        err_2 = _a.sent();
+                        core.error(err_2.message);
+                        throw err_2;
                     case 4: return [2 /*return*/];
                 }
             });
@@ -4934,7 +4928,7 @@ var ContainerAppHelper = /** @class */ (function () {
      */
     ContainerAppHelper.prototype.updateContainerAppWithUp = function (containerAppName, resourceGroup, imageToDeploy, optionalCmdArgs, ingress, targetPort) {
         return __awaiter(this, void 0, void 0, function () {
-            var util, command_3, err_4;
+            var util, command_3, err_3;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -4958,9 +4952,9 @@ var ContainerAppHelper = /** @class */ (function () {
                         _a.sent();
                         return [3 /*break*/, 4];
                     case 3:
-                        err_4 = _a.sent();
-                        core.error(err_4.message);
-                        throw err_4;
+                        err_3 = _a.sent();
+                        core.error(err_3.message);
+                        throw err_3;
                     case 4: return [2 /*return*/];
                 }
             });
@@ -4974,7 +4968,7 @@ var ContainerAppHelper = /** @class */ (function () {
      */
     ContainerAppHelper.prototype.updateContainerAppFromYaml = function (containerAppName, resourceGroup, yamlConfigPath) {
         return __awaiter(this, void 0, void 0, function () {
-            var command, err_5;
+            var command, err_4;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -4988,9 +4982,9 @@ var ContainerAppHelper = /** @class */ (function () {
                         _a.sent();
                         return [3 /*break*/, 4];
                     case 3:
-                        err_5 = _a.sent();
-                        core.error(err_5.message);
-                        throw err_5;
+                        err_4 = _a.sent();
+                        core.error(err_4.message);
+                        throw err_4;
                     case 4: return [2 /*return*/];
                 }
             });
@@ -5004,7 +4998,7 @@ var ContainerAppHelper = /** @class */ (function () {
      */
     ContainerAppHelper.prototype.doesContainerAppExist = function (containerAppName, resourceGroup) {
         return __awaiter(this, void 0, void 0, function () {
-            var command, _a, stdout, stderr, err_6;
+            var command, _a, stdout, stderr, err_5;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
@@ -5018,8 +5012,8 @@ var ContainerAppHelper = /** @class */ (function () {
                         _a = _b.sent(), stdout = _a.stdout, stderr = _a.stderr;
                         return [2 /*return*/, !stderr];
                     case 3:
-                        err_6 = _b.sent();
-                        core.warning(err_6.message);
+                        err_5 = _b.sent();
+                        core.warning(err_5.message);
                         return [2 /*return*/, false];
                     case 4: return [2 /*return*/];
                 }
@@ -5034,7 +5028,7 @@ var ContainerAppHelper = /** @class */ (function () {
      */
     ContainerAppHelper.prototype.doesContainerAppEnvironmentExist = function (containerAppEnvironment, resourceGroup) {
         return __awaiter(this, void 0, void 0, function () {
-            var command, _a, stdout, stderr, err_7;
+            var command, _a, stdout, stderr, err_6;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
@@ -5043,6 +5037,35 @@ var ContainerAppHelper = /** @class */ (function () {
                     case 1:
                         _b.trys.push([1, 3, , 4]);
                         command = "az containerapp env show -n " + containerAppEnvironment + " -g " + resourceGroup + " -o none";
+                        return [4 /*yield*/, cpExec("" + command)];
+                    case 2:
+                        _a = _b.sent(), stdout = _a.stdout, stderr = _a.stderr;
+                        return [2 /*return*/, !stderr];
+                    case 3:
+                        err_6 = _b.sent();
+                        core.warning(err_6.message);
+                        return [2 /*return*/, false];
+                    case 4: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    /**
+     * Determines if the provided resource group exists.
+     * @param resourceGroup - the name of the resource group
+     * @returns true if the resource group exists, false otherwise
+     */
+    ContainerAppHelper.prototype.doesResourceGroupExist = function (resourceGroup) {
+        return __awaiter(this, void 0, void 0, function () {
+            var command, _a, stdout, stderr, err_7;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        core.debug("Attempting to determine if resource group \"" + resourceGroup + "\" exists");
+                        _b.label = 1;
+                    case 1:
+                        _b.trys.push([1, 3, , 4]);
+                        command = "az group show -n " + resourceGroup + " -o none";
                         return [4 /*yield*/, cpExec("" + command)];
                     case 2:
                         _a = _b.sent(), stdout = _a.stdout, stderr = _a.stderr;
@@ -5057,41 +5080,12 @@ var ContainerAppHelper = /** @class */ (function () {
         });
     };
     /**
-     * Determines if the provided resource group exists.
-     * @param resourceGroup - the name of the resource group
-     * @returns true if the resource group exists, false otherwise
-     */
-    ContainerAppHelper.prototype.doesResourceGroupExist = function (resourceGroup) {
-        return __awaiter(this, void 0, void 0, function () {
-            var command, _a, stdout, stderr, err_8;
-            return __generator(this, function (_b) {
-                switch (_b.label) {
-                    case 0:
-                        core.debug("Attempting to determine if resource group \"" + resourceGroup + "\" exists");
-                        _b.label = 1;
-                    case 1:
-                        _b.trys.push([1, 3, , 4]);
-                        command = "az group show -n " + resourceGroup + " -o none";
-                        return [4 /*yield*/, cpExec("" + command)];
-                    case 2:
-                        _a = _b.sent(), stdout = _a.stdout, stderr = _a.stderr;
-                        return [2 /*return*/, !stderr];
-                    case 3:
-                        err_8 = _b.sent();
-                        core.warning(err_8.message);
-                        return [2 /*return*/, false];
-                    case 4: return [2 /*return*/];
-                }
-            });
-        });
-    };
-    /**
      * Gets the default location for the Container App provider.
      * @returns the default location if found, otherwise 'eastus2'
      */
     ContainerAppHelper.prototype.getDefaultContainerAppLocation = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var command, _a, stdout, stderr, err_9;
+            var command, _a, stdout, stderr, err_8;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
@@ -5106,8 +5100,8 @@ var ContainerAppHelper = /** @class */ (function () {
                         // If successful, strip out double quotes, spaces and parentheses from the first location returned
                         return [2 /*return*/, !stderr ? stdout.toLowerCase().replace(/["() ]/g, "") : "eastus2"];
                     case 3:
-                        err_9 = _b.sent();
-                        core.warning(err_9.message);
+                        err_8 = _b.sent();
+                        core.warning(err_8.message);
                         return [2 /*return*/, "eastus2"];
                     case 4: return [2 /*return*/];
                 }
@@ -5121,7 +5115,7 @@ var ContainerAppHelper = /** @class */ (function () {
      */
     ContainerAppHelper.prototype.createResourceGroup = function (name, location) {
         return __awaiter(this, void 0, void 0, function () {
-            var command, err_10;
+            var command, err_9;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -5135,9 +5129,9 @@ var ContainerAppHelper = /** @class */ (function () {
                         _a.sent();
                         return [3 /*break*/, 4];
                     case 3:
-                        err_10 = _a.sent();
-                        core.error(err_10.message);
-                        throw err_10;
+                        err_9 = _a.sent();
+                        core.error(err_9.message);
+                        throw err_9;
                     case 4: return [2 /*return*/];
                 }
             });
@@ -5150,7 +5144,7 @@ var ContainerAppHelper = /** @class */ (function () {
      */
     ContainerAppHelper.prototype.getExistingContainerAppEnvironment = function (resourceGroup) {
         return __awaiter(this, void 0, void 0, function () {
-            var command, _a, stdout, stderr, err_11;
+            var command, _a, stdout, stderr, err_10;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
@@ -5164,8 +5158,8 @@ var ContainerAppHelper = /** @class */ (function () {
                         _a = _b.sent(), stdout = _a.stdout, stderr = _a.stderr;
                         return [2 /*return*/, !stderr ? stdout : null];
                     case 3:
-                        err_11 = _b.sent();
-                        core.warning(err_11.message);
+                        err_10 = _b.sent();
+                        core.warning(err_10.message);
                         return [2 /*return*/, null];
                     case 4: return [2 /*return*/];
                 }
@@ -5180,7 +5174,7 @@ var ContainerAppHelper = /** @class */ (function () {
      */
     ContainerAppHelper.prototype.createContainerAppEnvironment = function (name, resourceGroup, location) {
         return __awaiter(this, void 0, void 0, function () {
-            var util, command, err_12;
+            var util, command, err_11;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -5198,9 +5192,9 @@ var ContainerAppHelper = /** @class */ (function () {
                         _a.sent();
                         return [3 /*break*/, 4];
                     case 3:
-                        err_12 = _a.sent();
-                        core.error(err_12.message);
-                        throw err_12;
+                        err_11 = _a.sent();
+                        core.error(err_11.message);
+                        throw err_11;
                     case 4: return [2 /*return*/];
                 }
             });
@@ -5213,7 +5207,7 @@ var ContainerAppHelper = /** @class */ (function () {
      */
     ContainerAppHelper.prototype.disableContainerAppIngress = function (name, resourceGroup) {
         return __awaiter(this, void 0, void 0, function () {
-            var command, err_13;
+            var command, err_12;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -5227,9 +5221,9 @@ var ContainerAppHelper = /** @class */ (function () {
                         _a.sent();
                         return [3 /*break*/, 4];
                     case 3:
-                        err_13 = _a.sent();
-                        core.error(err_13.message);
-                        throw err_13;
+                        err_12 = _a.sent();
+                        core.error(err_12.message);
+                        throw err_12;
                     case 4: return [2 /*return*/];
                 }
             });
@@ -5245,7 +5239,7 @@ var ContainerAppHelper = /** @class */ (function () {
      */
     ContainerAppHelper.prototype.updateContainerAppRegistryDetails = function (name, resourceGroup, acrName, acrUsername, acrPassword) {
         return __awaiter(this, void 0, void 0, function () {
-            var command, err_14;
+            var command, err_13;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -5259,9 +5253,9 @@ var ContainerAppHelper = /** @class */ (function () {
                         _a.sent();
                         return [3 /*break*/, 4];
                     case 3:
-                        err_14 = _a.sent();
-                        core.error(err_14.message);
-                        throw err_14;
+                        err_13 = _a.sent();
+                        core.error(err_13.message);
+                        throw err_13;
                     case 4: return [2 /*return*/];
                 }
             });
@@ -5275,7 +5269,7 @@ var ContainerAppHelper = /** @class */ (function () {
      */
     ContainerAppHelper.prototype.createRunnableAppImage = function (imageToDeploy, appSourcePath, runtimeStack) {
         return __awaiter(this, void 0, void 0, function () {
-            var telemetryArg, err_15;
+            var telemetryArg, err_14;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -5292,9 +5286,9 @@ var ContainerAppHelper = /** @class */ (function () {
                         _a.sent();
                         return [3 /*break*/, 4];
                     case 3:
-                        err_15 = _a.sent();
-                        core.error(err_15.message);
-                        throw err_15;
+                        err_14 = _a.sent();
+                        core.error(err_14.message);
+                        throw err_14;
                     case 4: return [2 /*return*/];
                 }
             });
@@ -5309,7 +5303,7 @@ var ContainerAppHelper = /** @class */ (function () {
      */
     ContainerAppHelper.prototype.createRunnableAppImageFromDockerfile = function (imageToDeploy, appSourcePath, dockerfilePath) {
         return __awaiter(this, void 0, void 0, function () {
-            var dockerTool, err_16;
+            var dockerTool, err_15;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -5326,9 +5320,9 @@ var ContainerAppHelper = /** @class */ (function () {
                         core.debug("Successfully created runnable application image from the provided/found Dockerfile \"" + dockerfilePath + "\" with image name \"" + imageToDeploy + "\"");
                         return [3 /*break*/, 5];
                     case 4:
-                        err_16 = _a.sent();
-                        core.setFailed(err_16.message);
-                        throw err_16;
+                        err_15 = _a.sent();
+                        core.setFailed(err_15.message);
+                        throw err_15;
                     case 5: return [2 /*return*/];
                 }
             });
@@ -5341,7 +5335,7 @@ var ContainerAppHelper = /** @class */ (function () {
      */
     ContainerAppHelper.prototype.determineRuntimeStackAsync = function (appSourcePath) {
         return __awaiter(this, void 0, void 0, function () {
-            var dockerTool, oryxRuntimeTxtPath, command, runtimeStack, err_17;
+            var dockerTool, oryxRuntimeTxtPath, command, runtimeStack, err_16;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -5377,9 +5371,9 @@ var ContainerAppHelper = /** @class */ (function () {
                         _a.sent();
                         return [2 /*return*/, runtimeStack];
                     case 6:
-                        err_17 = _a.sent();
-                        core.setFailed(err_17.message);
-                        throw err_17;
+                        err_16 = _a.sent();
+                        core.setFailed(err_16.message);
+                        throw err_16;
                     case 7: return [2 /*return*/];
                 }
             });
@@ -5391,7 +5385,7 @@ var ContainerAppHelper = /** @class */ (function () {
      */
     ContainerAppHelper.prototype.setDefaultBuilder = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var err_18;
+            var err_17;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -5404,9 +5398,9 @@ var ContainerAppHelper = /** @class */ (function () {
                         _a.sent();
                         return [3 /*break*/, 4];
                     case 3:
-                        err_18 = _a.sent();
-                        core.setFailed(err_18.message);
-                        throw err_18;
+                        err_17 = _a.sent();
+                        core.setFailed(err_17.message);
+                        throw err_17;
                     case 4: return [2 /*return*/];
                 }
             });
@@ -5418,7 +5412,7 @@ var ContainerAppHelper = /** @class */ (function () {
      */
     ContainerAppHelper.prototype.installPackCliAsync = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var command, packZipDownloadUri, packZipDownloadFilePath, tgzSuffix, err_19;
+            var command, packZipDownloadUri, packZipDownloadFilePath, tgzSuffix, err_18;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -5445,10 +5439,10 @@ var ContainerAppHelper = /** @class */ (function () {
                         _a.sent();
                         return [3 /*break*/, 4];
                     case 3:
-                        err_19 = _a.sent();
-                        core.error("Unable to install the pack CLI. Error: " + err_19.message);
-                        core.setFailed(err_19.message);
-                        throw err_19;
+                        err_18 = _a.sent();
+                        core.error("Unable to install the pack CLI. Error: " + err_18.message);
+                        core.setFailed(err_18.message);
+                        throw err_18;
                     case 4: return [2 /*return*/];
                 }
             });
@@ -6010,7 +6004,7 @@ module.exports = require("util");
 /************************************************************************/
 /******/ 	// The module cache
 /******/ 	var __webpack_module_cache__ = {};
-/******/
+/******/ 	
 /******/ 	// The require function
 /******/ 	function __nccwpck_require__(moduleId) {
 /******/ 		// Check if module is in cache
@@ -6024,7 +6018,7 @@ module.exports = require("util");
 /******/ 			// no module.loaded needed
 /******/ 			exports: {}
 /******/ 		};
-/******/
+/******/ 	
 /******/ 		// Execute the module function
 /******/ 		var threw = true;
 /******/ 		try {
@@ -6033,23 +6027,23 @@ module.exports = require("util");
 /******/ 		} finally {
 /******/ 			if(threw) delete __webpack_module_cache__[moduleId];
 /******/ 		}
-/******/
+/******/ 	
 /******/ 		// Return the exports of the module
 /******/ 		return module.exports;
 /******/ 	}
-/******/
+/******/ 	
 /************************************************************************/
 /******/ 	/* webpack/runtime/compat */
-/******/
+/******/ 	
 /******/ 	if (typeof __nccwpck_require__ !== 'undefined') __nccwpck_require__.ab = __dirname + "/";
-/******/
+/******/ 	
 /************************************************************************/
-/******/
+/******/ 	
 /******/ 	// startup
 /******/ 	// Load entry module and return exports
 /******/ 	// This entry module is referenced by other modules so it can't be inlined
 /******/ 	var __webpack_exports__ = __nccwpck_require__(3238);
 /******/ 	module.exports = __webpack_exports__;
-/******/
+/******/ 	
 /******/ })()
 ;
