@@ -58,9 +58,9 @@ export class azurecontainerapps {
         }
     }
 
-    // Azure DevOps build properties
-    private static buildId: string = process.env.GITHUB_RUN_ID;
-    private static buildNumber = process.env.GITHUB_RUN_NUMBER;
+    // GitHub Action properties
+    private static githubRunId: string = process.env.GITHUB_RUN_ID;
+    private static githubRunNumber = process.env.GITHUB_RUN_NUMBER;
 
     // Supported scenario properties
     private static appSourcePath: string;
@@ -85,7 +85,6 @@ export class azurecontainerapps {
 
     // Helper properties
     private static telemetryHelper: TelemetryHelper;
-    //private static authHelper: AzureAuthenticationHelper;
     private static appHelper: ContainerAppHelper;
     private static registryHelper: ContainerRegistryHelper;
 
@@ -103,9 +102,6 @@ export class azurecontainerapps {
     private static initializeHelpers(disableTelemetry: boolean) {
         // Set up TelemetryHelper for managing telemetry calls
         this.telemetryHelper = new TelemetryHelper(disableTelemetry);
-
-        // Set up AzureAuthenticationHelper for managing logging in and out of Azure CLI using provided service connection
-        // this.authHelper = new AzureAuthenticationHelper();
 
         // Set up ContainerAppHelper for managing calls around the Container App
         this.appHelper = new ContainerAppHelper(disableTelemetry);
@@ -141,6 +137,7 @@ export class azurecontainerapps {
         // Ensure that one of appSourcePath, imageToDeploy, or yamlConfigPath is provided
         if (util.isNullOrEmpty(this.appSourcePath) && util.isNullOrEmpty(this.imageToDeploy) && util.isNullOrEmpty(this.yamlConfigPath)) {
             core.error(`One of the following arguments must be provided: 'appSourcePath', 'imageToDeploy', or 'yamlConfigPath'.`);
+            throw Error(`One of the following arguments must be provided: 'appSourcePath', 'imageToDeploy', or 'yamlConfigPath'.`);
         }
     }
 
@@ -181,13 +178,13 @@ export class azurecontainerapps {
 
     /**
      * Gets the name of the Container App to use for the task. If the 'containerAppName' argument is not provided,
-     * then a default name will be generated in the form 'ado-task-app-<buildId>-<buildNumber>'.
+     * then a default name will be generated in the form 'gh-action-app-<githubRunId>-<githubRunNumber>'.
      * @returns The name of the Container App to use for the task.
      */
     private static getContainerAppName(): string {
         let containerAppName: string = core.getInput('containerAppName', { required: false });
         if (util.isNullOrEmpty(containerAppName)) {
-            containerAppName = `app-${this.buildId}-${this.buildNumber}`;
+            containerAppName = `gh-action-app-${this.githubRunId}-${this.githubRunNumber}`;
 
             // Replace all '.' characters with '-' characters in the Container App name
             containerAppName = containerAppName.replace(/\./gi, "-");
@@ -312,7 +309,7 @@ export class azurecontainerapps {
         // Get the name of the image to build if it was provided, or generate it from build variables
         this.imageToBuild = core.getInput('imageToBuild', { required: false });
         if (util.isNullOrEmpty(this.imageToBuild)) {
-            this.imageToBuild = `${this.acrName}.azurecr.io/gh-action/container-app:${this.buildId}.${this.buildNumber}`;
+            this.imageToBuild = `${this.acrName}.azurecr.io/gh-action/container-app:${this.githubRunId}.${this.githubRunNumber}`;
             core.info(`Default image to build: ${this.imageToBuild}`);
         }
 

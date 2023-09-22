@@ -127,8 +127,6 @@ var azurecontainerapps = /** @class */ (function () {
     azurecontainerapps.initializeHelpers = function (disableTelemetry) {
         // Set up TelemetryHelper for managing telemetry calls
         this.telemetryHelper = new TelemetryHelper_1.TelemetryHelper(disableTelemetry);
-        // Set up AzureAuthenticationHelper for managing logging in and out of Azure CLI using provided service connection
-        // this.authHelper = new AzureAuthenticationHelper();
         // Set up ContainerAppHelper for managing calls around the Container App
         this.appHelper = new ContainerAppHelper_1.ContainerAppHelper(disableTelemetry);
         // Set up ContainerRegistryHelper for managing calls around ACR
@@ -155,6 +153,7 @@ var azurecontainerapps = /** @class */ (function () {
         // Ensure that one of appSourcePath, imageToDeploy, or yamlConfigPath is provided
         if (util.isNullOrEmpty(this.appSourcePath) && util.isNullOrEmpty(this.imageToDeploy) && util.isNullOrEmpty(this.yamlConfigPath)) {
             core.error("One of the following arguments must be provided: 'appSourcePath', 'imageToDeploy', or 'yamlConfigPath'.");
+            throw Error("One of the following arguments must be provided: 'appSourcePath', 'imageToDeploy', or 'yamlConfigPath'.");
         }
     };
     /**
@@ -222,13 +221,13 @@ var azurecontainerapps = /** @class */ (function () {
     };
     /**
      * Gets the name of the Container App to use for the task. If the 'containerAppName' argument is not provided,
-     * then a default name will be generated in the form 'ado-task-app-<buildId>-<buildNumber>'.
+     * then a default name will be generated in the form 'gh-action-app-<githubRunId>-<githubRunNumber>'.
      * @returns The name of the Container App to use for the task.
      */
     azurecontainerapps.getContainerAppName = function () {
         var containerAppName = core.getInput('containerAppName', { required: false });
         if (util.isNullOrEmpty(containerAppName)) {
-            containerAppName = "app-" + this.buildId + "-" + this.buildNumber;
+            containerAppName = "gh-action-app-" + this.githubRunId + "-" + this.githubRunNumber;
             // Replace all '.' characters with '-' characters in the Container App name
             containerAppName = containerAppName.replace(/\./gi, "-");
             core.info("Default Container App name: " + containerAppName);
@@ -379,7 +378,7 @@ var azurecontainerapps = /** @class */ (function () {
                         // Get the name of the image to build if it was provided, or generate it from build variables
                         this.imageToBuild = core.getInput('imageToBuild', { required: false });
                         if (util.isNullOrEmpty(this.imageToBuild)) {
-                            this.imageToBuild = this.acrName + ".azurecr.io/gh-action/container-app:" + this.buildId + "." + this.buildNumber;
+                            this.imageToBuild = this.acrName + ".azurecr.io/gh-action/container-app:" + this.githubRunId + "." + this.githubRunNumber;
                             core.info("Default image to build: " + this.imageToBuild);
                         }
                         // Get the name of the image to deploy if it was provided, or set it to the value of 'imageToBuild'
@@ -625,9 +624,9 @@ var azurecontainerapps = /** @class */ (function () {
             });
         });
     };
-    // Azure DevOps build properties
-    azurecontainerapps.buildId = process.env.GITHUB_RUN_ID;
-    azurecontainerapps.buildNumber = process.env.GITHUB_RUN_NUMBER;
+    // GitHub Action properties
+    azurecontainerapps.githubRunId = process.env.GITHUB_RUN_ID;
+    azurecontainerapps.githubRunNumber = process.env.GITHUB_RUN_NUMBER;
     return azurecontainerapps;
 }());
 exports.azurecontainerapps = azurecontainerapps;
@@ -4588,182 +4587,6 @@ exports["default"] = _default;
 
 /***/ }),
 
-/***/ 1988:
-/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
-
-"use strict";
-
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var __generator = (this && this.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
-exports.__esModule = true;
-exports.CommandHelper = void 0;
-var os = __nccwpck_require__(2037);
-var core = __nccwpck_require__(3195);
-var exec = __nccwpck_require__(9714);
-var CommandHelper = /** @class */ (function () {
-    function CommandHelper() {
-    }
-    /**
-     * Runs a command based on the OS of the agent running this task.
-     * @param command - the command to execute
-     * @returns the string output from the command
-     */
-    CommandHelper.prototype.execCommandAsync = function (command) {
-        return __awaiter(this, void 0, void 0, function () {
-            var _a;
-            return __generator(this, function (_b) {
-                switch (_b.label) {
-                    case 0:
-                        if (!(os.platform() == 'win32')) return [3 /*break*/, 2];
-                        return [4 /*yield*/, this.execPwshCommandAsync(command)];
-                    case 1:
-                        _a = _b.sent();
-                        return [3 /*break*/, 4];
-                    case 2: return [4 /*yield*/, this.execBashCommandAsync(command)];
-                    case 3:
-                        _a = _b.sent();
-                        _b.label = 4;
-                    case 4: return [2 /*return*/, _a];
-                }
-            });
-        });
-    };
-    /**
-     * @param command - the command to execute in Bash
-     * @returns the string output from the command
-     */
-    CommandHelper.prototype.execBashCommandAsync = function (command) {
-        return __awaiter(this, void 0, void 0, function () {
-            var bashOutput, errorStream, options, exitCode, err_1;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        bashOutput = '';
-                        errorStream = '';
-                        options = {
-                            listeners: {
-                                stdout: function (data) {
-                                    bashOutput += data.toString();
-                                    core.info(data.toString());
-                                },
-                                stderr: function (data) {
-                                    errorStream += data.toString();
-                                    core.error(data.toString());
-                                }
-                            },
-                            failOnStdErr: true,
-                            ignoreReturnCode: false,
-                            errStream: process.stderr,
-                            outStream: process.stdout
-                        };
-                        _a.label = 1;
-                    case 1:
-                        _a.trys.push([1, 3, , 4]);
-                        return [4 /*yield*/, exec.exec('bash', ['-c', command], options)];
-                    case 2:
-                        exitCode = _a.sent();
-                        if (exitCode !== 0) {
-                            throw new Error("Command failed with exit code " + exitCode + ". Error stream: " + errorStream);
-                        }
-                        return [2 /*return*/, bashOutput.trim()];
-                    case 3:
-                        err_1 = _a.sent();
-                        core.setFailed(err_1.message);
-                        throw err_1;
-                    case 4: return [2 /*return*/];
-                }
-            });
-        });
-    };
-    /**
-     * Executes a given command using the pwsh executable.
-     * @param command - the command to execute in PowerShell
-     * @returns the string output from the command
-     */
-    CommandHelper.prototype.execPwshCommandAsync = function (command) {
-        return __awaiter(this, void 0, void 0, function () {
-            var pwshOutput, errorStream, options, exitCode, err_2;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        pwshOutput = '';
-                        errorStream = '';
-                        options = {
-                            listeners: {
-                                stdout: function (data) {
-                                    pwshOutput += data.toString();
-                                    core.info(data.toString());
-                                },
-                                stderr: function (data) {
-                                    errorStream += data.toString();
-                                    core.error(data.toString());
-                                }
-                            },
-                            failOnStdErr: true,
-                            ignoreReturnCode: false,
-                            errStream: process.stderr,
-                            outStream: process.stdout
-                        };
-                        _a.label = 1;
-                    case 1:
-                        _a.trys.push([1, 3, , 4]);
-                        return [4 /*yield*/, exec.exec('pwsh', [command], options)];
-                    case 2:
-                        exitCode = _a.sent();
-                        if (exitCode !== 0) {
-                            throw new Error("Command failed with exit code " + exitCode + ". Error stream: " + errorStream);
-                        }
-                        return [2 /*return*/, pwshOutput.trim()];
-                    case 3:
-                        err_2 = _a.sent();
-                        core.setFailed(err_2.message);
-                        throw err_2;
-                    case 4: return [2 /*return*/];
-                }
-            });
-        });
-    };
-    return CommandHelper;
-}());
-exports.CommandHelper = CommandHelper;
-
-
-/***/ }),
-
 /***/ 2929:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
@@ -4811,14 +4634,11 @@ var core = __nccwpck_require__(3195);
 var io = __nccwpck_require__(9529);
 var path = __nccwpck_require__(1017);
 var os = __nccwpck_require__(2037);
-var CommandHelper_1 = __nccwpck_require__(1988);
 var Utility_1 = __nccwpck_require__(2135);
-var util = __nccwpck_require__(3837);
-var cpExec = util.promisify((__nccwpck_require__(2081).exec));
+var fs = __nccwpck_require__(7147);
 var ORYX_CLI_IMAGE = 'mcr.microsoft.com/oryx/cli:builder-debian-buster-20230208.1';
 var ORYX_BUILDER_IMAGE = 'mcr.microsoft.com/oryx/builder:20230208.1';
 var IS_WINDOWS_AGENT = os.platform() == 'win32';
-var PACK_CMD = IS_WINDOWS_AGENT ? path.join(os.tmpdir(), 'pack') : 'pack';
 var ContainerAppHelper = /** @class */ (function () {
     function ContainerAppHelper(disableTelemetry) {
         this.disableTelemetry = false;
@@ -4842,11 +4662,11 @@ var ContainerAppHelper = /** @class */ (function () {
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
-                        command_1 = "az containerapp create -n " + containerAppName + " -g " + resourceGroup + " -i " + imageToDeploy + " --environment " + environment;
+                        command_1 = "containerapp create -n " + containerAppName + " -g " + resourceGroup + " -i " + imageToDeploy + " --environment " + environment;
                         optionalCmdArgs.forEach(function (val) {
                             command_1 += " " + val;
                         });
-                        return [4 /*yield*/, cpExec("" + command_1)];
+                        return [4 /*yield*/, new Utility_1.Utility().executeAndthrowIfError("az", command_1.split(' '))];
                     case 2:
                         _a.sent();
                         return [3 /*break*/, 4];
@@ -4875,8 +4695,8 @@ var ContainerAppHelper = /** @class */ (function () {
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
-                        command = "az containerapp create -n " + containerAppName + " -g " + resourceGroup + " --yaml " + yamlConfigPath;
-                        return [4 /*yield*/, cpExec("" + command)];
+                        command = "containerapp create -n " + containerAppName + " -g " + resourceGroup + " --yaml " + yamlConfigPath;
+                        return [4 /*yield*/, new Utility_1.Utility().executeAndthrowIfError("az", command.split(' '))];
                     case 2:
                         _a.sent();
                         return [3 /*break*/, 4];
@@ -4906,11 +4726,11 @@ var ContainerAppHelper = /** @class */ (function () {
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
-                        command_2 = "az containerapp update -n " + containerAppName + " -g " + resourceGroup + " -i " + imageToDeploy;
+                        command_2 = "containerapp update -n " + containerAppName + " -g " + resourceGroup + " -i " + imageToDeploy;
                         optionalCmdArgs.forEach(function (val) {
                             command_2 += " " + val;
                         });
-                        return [4 /*yield*/, cpExec("" + command_2)];
+                        return [4 /*yield*/, new Utility_1.Utility().executeAndthrowIfError("az", command_2.split(' '))];
                     case 2:
                         _a.sent();
                         return [3 /*break*/, 4];
@@ -4943,7 +4763,7 @@ var ContainerAppHelper = /** @class */ (function () {
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
-                        command_3 = "az containerapp up -n " + containerAppName + " -g " + resourceGroup + " -i " + imageToDeploy;
+                        command_3 = "containerapp up -n " + containerAppName + " -g " + resourceGroup + " -i " + imageToDeploy;
                         optionalCmdArgs.forEach(function (val) {
                             command_3 += " " + val;
                         });
@@ -4953,7 +4773,7 @@ var ContainerAppHelper = /** @class */ (function () {
                         if (!util.isNullOrEmpty(targetPort)) {
                             command_3 += " --target-port " + targetPort;
                         }
-                        return [4 /*yield*/, cpExec("" + command_3)];
+                        return [4 /*yield*/, new Utility_1.Utility().executeAndthrowIfError("az", command_3.split(' '))];
                     case 2:
                         _a.sent();
                         return [3 /*break*/, 4];
@@ -4982,8 +4802,8 @@ var ContainerAppHelper = /** @class */ (function () {
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
-                        command = "az containerapp update -n " + containerAppName + " -g " + resourceGroup + " --yaml " + yamlConfigPath;
-                        return [4 /*yield*/, cpExec("" + command)];
+                        command = "containerapp update -n " + containerAppName + " -g " + resourceGroup + " --yaml " + yamlConfigPath;
+                        return [4 /*yield*/, new Utility_1.Utility().executeAndthrowIfError("az", command.split(' '))];
                     case 2:
                         _a.sent();
                         return [3 /*break*/, 4];
@@ -5004,21 +4824,21 @@ var ContainerAppHelper = /** @class */ (function () {
      */
     ContainerAppHelper.prototype.doesContainerAppExist = function (containerAppName, resourceGroup) {
         return __awaiter(this, void 0, void 0, function () {
-            var command, _a, stdout, stderr, err_6;
-            return __generator(this, function (_b) {
-                switch (_b.label) {
+            var command, executionResult, err_6;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
                     case 0:
                         core.debug("Attempting to determine if Container App with name \"" + containerAppName + "\" exists in resource group \"" + resourceGroup + "\"");
-                        _b.label = 1;
+                        _a.label = 1;
                     case 1:
-                        _b.trys.push([1, 3, , 4]);
-                        command = "az containerapp show -n " + containerAppName + " -g " + resourceGroup + " -o none";
-                        return [4 /*yield*/, cpExec("" + command)];
+                        _a.trys.push([1, 3, , 4]);
+                        command = "containerapp show -n " + containerAppName + " -g " + resourceGroup + " -o none";
+                        return [4 /*yield*/, new Utility_1.Utility().executeAndthrowIfError("az", command.split(' '))];
                     case 2:
-                        _a = _b.sent(), stdout = _a.stdout, stderr = _a.stderr;
-                        return [2 /*return*/, !stderr];
+                        executionResult = _a.sent();
+                        return [2 /*return*/, !executionResult.stderr];
                     case 3:
-                        err_6 = _b.sent();
+                        err_6 = _a.sent();
                         core.warning(err_6.message);
                         return [2 /*return*/, false];
                     case 4: return [2 /*return*/];
@@ -5034,21 +4854,21 @@ var ContainerAppHelper = /** @class */ (function () {
      */
     ContainerAppHelper.prototype.doesContainerAppEnvironmentExist = function (containerAppEnvironment, resourceGroup) {
         return __awaiter(this, void 0, void 0, function () {
-            var command, _a, stdout, stderr, err_7;
-            return __generator(this, function (_b) {
-                switch (_b.label) {
+            var command, executionResult, err_7;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
                     case 0:
                         core.debug("Attempting to determine if Container App Environment with name \"" + containerAppEnvironment + "\" exists in resource group \"" + resourceGroup + "\"");
-                        _b.label = 1;
+                        _a.label = 1;
                     case 1:
-                        _b.trys.push([1, 3, , 4]);
-                        command = "az containerapp env show -n " + containerAppEnvironment + " -g " + resourceGroup + " -o none";
-                        return [4 /*yield*/, cpExec("" + command)];
+                        _a.trys.push([1, 3, , 4]);
+                        command = "containerapp env show -n " + containerAppEnvironment + " -g " + resourceGroup + " -o none";
+                        return [4 /*yield*/, new Utility_1.Utility().executeAndthrowIfError("az", command.split(' '))];
                     case 2:
-                        _a = _b.sent(), stdout = _a.stdout, stderr = _a.stderr;
-                        return [2 /*return*/, !stderr];
+                        executionResult = _a.sent();
+                        return [2 /*return*/, !executionResult.stderr];
                     case 3:
-                        err_7 = _b.sent();
+                        err_7 = _a.sent();
                         core.warning(err_7.message);
                         return [2 /*return*/, false];
                     case 4: return [2 /*return*/];
@@ -5063,21 +4883,21 @@ var ContainerAppHelper = /** @class */ (function () {
      */
     ContainerAppHelper.prototype.doesResourceGroupExist = function (resourceGroup) {
         return __awaiter(this, void 0, void 0, function () {
-            var command, _a, stdout, stderr, err_8;
-            return __generator(this, function (_b) {
-                switch (_b.label) {
+            var command, executionResult, err_8;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
                     case 0:
                         core.debug("Attempting to determine if resource group \"" + resourceGroup + "\" exists");
-                        _b.label = 1;
+                        _a.label = 1;
                     case 1:
-                        _b.trys.push([1, 3, , 4]);
-                        command = "az group show -n " + resourceGroup + " -o none";
-                        return [4 /*yield*/, cpExec("" + command)];
+                        _a.trys.push([1, 3, , 4]);
+                        command = "group show -n " + resourceGroup + " -o none";
+                        return [4 /*yield*/, new Utility_1.Utility().executeAndthrowIfError("az", command.split(' '))];
                     case 2:
-                        _a = _b.sent(), stdout = _a.stdout, stderr = _a.stderr;
-                        return [2 /*return*/, !stderr];
+                        executionResult = _a.sent();
+                        return [2 /*return*/, !executionResult.stderr];
                     case 3:
-                        err_8 = _b.sent();
+                        err_8 = _a.sent();
                         core.warning(err_8.message);
                         return [2 /*return*/, false];
                     case 4: return [2 /*return*/];
@@ -5091,22 +4911,22 @@ var ContainerAppHelper = /** @class */ (function () {
      */
     ContainerAppHelper.prototype.getDefaultContainerAppLocation = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var command, _a, stdout, stderr, err_9;
-            return __generator(this, function (_b) {
-                switch (_b.label) {
+            var command, executionResult, err_9;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
                     case 0:
                         core.debug("Attempting to get the default location for the Container App service for the subscription.");
-                        _b.label = 1;
+                        _a.label = 1;
                     case 1:
-                        _b.trys.push([1, 3, , 4]);
-                        command = "az provider show -n Microsoft.App --query \"resourceTypes[?resourceType=='containerApps'].locations[] | [0]\"";
-                        return [4 /*yield*/, cpExec("" + command)];
+                        _a.trys.push([1, 3, , 4]);
+                        command = "provider show -n Microsoft.App --query \"resourceTypes[?resourceType=='containerApps'].locations[] | [0]\"";
+                        return [4 /*yield*/, new Utility_1.Utility().executeAndthrowIfError("az", command.split(' '))];
                     case 2:
-                        _a = _b.sent(), stdout = _a.stdout, stderr = _a.stderr;
+                        executionResult = _a.sent();
                         // If successful, strip out double quotes, spaces and parentheses from the first location returned
-                        return [2 /*return*/, !stderr ? stdout.toLowerCase().replace(/["() ]/g, "") : "eastus2"];
+                        return [2 /*return*/, !executionResult.stderr ? executionResult.stdout.toLowerCase().replace(/["() ]/g, "") : "eastus2"];
                     case 3:
-                        err_9 = _b.sent();
+                        err_9 = _a.sent();
                         core.warning(err_9.message);
                         return [2 /*return*/, "eastus2"];
                     case 4: return [2 /*return*/];
@@ -5129,8 +4949,8 @@ var ContainerAppHelper = /** @class */ (function () {
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
-                        command = "az group create -n " + name + " -l " + location;
-                        return [4 /*yield*/, cpExec("" + command)];
+                        command = "group create -n " + name + " -l " + location;
+                        return [4 /*yield*/, new Utility_1.Utility().executeAndthrowIfError("az", command.split(' '))];
                     case 2:
                         _a.sent();
                         return [3 /*break*/, 4];
@@ -5150,21 +4970,21 @@ var ContainerAppHelper = /** @class */ (function () {
      */
     ContainerAppHelper.prototype.getExistingContainerAppEnvironment = function (resourceGroup) {
         return __awaiter(this, void 0, void 0, function () {
-            var command, _a, stdout, stderr, err_11;
-            return __generator(this, function (_b) {
-                switch (_b.label) {
+            var command, executionResult, err_11;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
                     case 0:
                         core.debug("Attempting to get the existing Container App Environment in resource group \"" + resourceGroup + "\"");
-                        _b.label = 1;
+                        _a.label = 1;
                     case 1:
-                        _b.trys.push([1, 3, , 4]);
-                        command = "az containerapp env list -g " + resourceGroup + " --query [0].name\"";
-                        return [4 /*yield*/, cpExec("" + command)];
+                        _a.trys.push([1, 3, , 4]);
+                        command = "containerapp env list -g " + resourceGroup + " --query [0].name\"";
+                        return [4 /*yield*/, new Utility_1.Utility().executeAndthrowIfError("az", command.split(' '))];
                     case 2:
-                        _a = _b.sent(), stdout = _a.stdout, stderr = _a.stderr;
-                        return [2 /*return*/, !stderr ? stdout : null];
+                        executionResult = _a.sent();
+                        return [2 /*return*/, !executionResult.stderr ? executionResult.stdout : null];
                     case 3:
-                        err_11 = _b.sent();
+                        err_11 = _a.sent();
                         core.warning(err_11.message);
                         return [2 /*return*/, null];
                     case 4: return [2 /*return*/];
@@ -5189,11 +5009,11 @@ var ContainerAppHelper = /** @class */ (function () {
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
-                        command = "az containerapp env create -n " + name + " -g " + resourceGroup;
+                        command = "containerapp env create -n " + name + " -g " + resourceGroup;
                         if (!util.isNullOrEmpty(location)) {
                             command += " -l " + location;
                         }
-                        return [4 /*yield*/, cpExec("" + command)];
+                        return [4 /*yield*/, new Utility_1.Utility().executeAndthrowIfError("az", command.split(' '))];
                     case 2:
                         _a.sent();
                         return [3 /*break*/, 4];
@@ -5221,8 +5041,8 @@ var ContainerAppHelper = /** @class */ (function () {
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
-                        command = "az containerapp ingress disable -n " + name + " -g " + resourceGroup;
-                        return [4 /*yield*/, cpExec("" + command)];
+                        command = "containerapp ingress disable -n " + name + " -g " + resourceGroup;
+                        return [4 /*yield*/, new Utility_1.Utility().executeAndthrowIfError("az", command.split(' '))];
                     case 2:
                         _a.sent();
                         return [3 /*break*/, 4];
@@ -5253,8 +5073,8 @@ var ContainerAppHelper = /** @class */ (function () {
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
-                        command = "az containerapp registry set -n " + name + " -g " + resourceGroup + " --server " + acrName + ".azurecr.io --username " + acrUsername + " --password " + acrPassword;
-                        return [4 /*yield*/, cpExec("" + command)];
+                        command = "containerapp registry set -n " + name + " -g " + resourceGroup + " --server " + acrName + ".azurecr.io --username " + acrUsername + " --password " + acrPassword;
+                        return [4 /*yield*/, new Utility_1.Utility().executeAndthrowIfError("az", command.split(' '))];
                     case 2:
                         _a.sent();
                         return [3 /*break*/, 4];
@@ -5283,11 +5103,11 @@ var ContainerAppHelper = /** @class */ (function () {
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
-                        telemetryArg = "--env \"CALLER_ID=azure-pipelines-rc-v1\"";
+                        telemetryArg = "--env \"CALLER_ID=github-actions-v1\"";
                         if (this.disableTelemetry) {
                             telemetryArg = "--env \"ORYX_DISABLE_TELEMETRY=true\"";
                         }
-                        return [4 /*yield*/, cpExec(PACK_CMD + " build " + imageToDeploy + " --path " + appSourcePath + " --builder " + ORYX_BUILDER_IMAGE + " --run-image mcr.microsoft.com/oryx/" + runtimeStack + " " + telemetryArg)];
+                        return [4 /*yield*/, new Utility_1.Utility().executeAndthrowIfError("pack", ['build', "" + imageToDeploy, '--path', "" + appSourcePath, '--builder', "" + ORYX_BUILDER_IMAGE, '--run-image', "mcr.microsoft.com/oryx/" + runtimeStack, "" + telemetryArg])];
                     case 2:
                         _a.sent();
                         return [3 /*break*/, 4];
@@ -5341,14 +5161,14 @@ var ContainerAppHelper = /** @class */ (function () {
      */
     ContainerAppHelper.prototype.determineRuntimeStackAsync = function (appSourcePath) {
         return __awaiter(this, void 0, void 0, function () {
-            var dockerTool, oryxRuntimeTxtPath, command, runtimeStack, err_17;
+            var dockerTool, oryxRuntimeTxtPath_1, runtimeStack, err_17;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         core.debug('Attempting to determine the runtime stack needed for the provided application source');
                         _a.label = 1;
                     case 1:
-                        _a.trys.push([1, 6, , 7]);
+                        _a.trys.push([1, 4, , 5]);
                         return [4 /*yield*/, io.which("docker", true)];
                     case 2:
                         dockerTool = _a.sent();
@@ -5359,28 +5179,26 @@ var ContainerAppHelper = /** @class */ (function () {
                     case 3:
                         // Use 'oryx dockerfile' command to determine the runtime stack to use and write it to a temp file
                         _a.sent();
-                        oryxRuntimeTxtPath = path.join(appSourcePath, 'oryx-runtime.txt');
-                        command = "head -n 1 " + oryxRuntimeTxtPath;
-                        if (IS_WINDOWS_AGENT) {
-                            command = "Get-Content -Path " + oryxRuntimeTxtPath + " -Head 1";
-                        }
-                        return [4 /*yield*/, new CommandHelper_1.CommandHelper().execCommandAsync(command)];
-                    case 4:
-                        runtimeStack = _a.sent();
+                        oryxRuntimeTxtPath_1 = path.join(appSourcePath, 'oryx-runtime.txt');
+                        runtimeStack = fs.promises.readFile(oryxRuntimeTxtPath_1, 'utf8').then(function (data) {
+                            var lines = data.split('\n');
+                            return lines[0];
+                        })["catch"](function (err) {
+                            core.setFailed(err.message);
+                            throw err;
+                        });
                         // Delete the temp file
-                        command = "rm " + oryxRuntimeTxtPath;
-                        if (IS_WINDOWS_AGENT) {
-                            command = "Remove-Item -Path " + oryxRuntimeTxtPath;
-                        }
-                        return [4 /*yield*/, new CommandHelper_1.CommandHelper().execCommandAsync(command)];
-                    case 5:
-                        _a.sent();
+                        fs.unlink(oryxRuntimeTxtPath_1, function (err) {
+                            if (err) {
+                                core.warning("Unable to delete the temporary file \"" + oryxRuntimeTxtPath_1 + "\". Error: " + err.message);
+                            }
+                        });
                         return [2 /*return*/, runtimeStack];
-                    case 6:
+                    case 4:
                         err_17 = _a.sent();
                         core.setFailed(err_17.message);
                         throw err_17;
-                    case 7: return [2 /*return*/];
+                    case 5: return [2 /*return*/];
                 }
             });
         });
@@ -5399,7 +5217,7 @@ var ContainerAppHelper = /** @class */ (function () {
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
-                        return [4 /*yield*/, cpExec("pack config default-builder " + ORYX_BUILDER_IMAGE)];
+                        return [4 /*yield*/, new Utility_1.Utility().executeAndthrowIfError("pack", ['config', 'default-builder', "" + ORYX_BUILDER_IMAGE])];
                     case 2:
                         _a.sent();
                         return [3 /*break*/, 4];
@@ -5418,38 +5236,41 @@ var ContainerAppHelper = /** @class */ (function () {
      */
     ContainerAppHelper.prototype.installPackCliAsync = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var command, packZipDownloadUri, packZipDownloadFilePath, tgzSuffix, err_19;
+            var downloadUrl, tgzSuffix, err_19;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         core.debug('Attempting to install the pack CLI');
                         _a.label = 1;
                     case 1:
-                        _a.trys.push([1, 3, , 4]);
-                        command = '';
+                        _a.trys.push([1, 7, , 8]);
+                        downloadUrl = '';
                         if (IS_WINDOWS_AGENT) {
-                            packZipDownloadUri = 'https://github.com/buildpacks/pack/releases/download/v0.27.0/pack-v0.27.0-windows.zip';
-                            packZipDownloadFilePath = path.join(PACK_CMD, 'pack-windows.zip');
-                            command = "New-Item -ItemType Directory -Path " + PACK_CMD + " -Force | Out-Null;" +
-                                ("Invoke-WebRequest -Uri " + packZipDownloadUri + " -OutFile " + packZipDownloadFilePath + "; ") +
-                                ("Expand-Archive -LiteralPath " + packZipDownloadFilePath + " -DestinationPath " + PACK_CMD + "; ") +
-                                ("Remove-Item -Path " + packZipDownloadFilePath);
+                            downloadUrl = "https://github.com/buildpacks/pack/releases/download/v0.27.0/pack-v0.27.0-windows.zip";
                         }
                         else {
                             tgzSuffix = os.platform() == 'darwin' ? 'macos' : 'linux';
-                            command = "(curl -sSL \"https://github.com/buildpacks/pack/releases/download/v0.27.0/pack-v0.27.0-" + tgzSuffix + ".tgz\" | " +
-                                'tar -C /usr/local/bin/ --no-same-owner -xzv pack)';
+                            downloadUrl = "https://github.com/buildpacks/pack/releases/download/v0.27.0/pack-v0.27.0-" + tgzSuffix + ".tgz";
                         }
-                        return [4 /*yield*/, new CommandHelper_1.CommandHelper().execCommandAsync(command)];
+                        return [4 /*yield*/, new Utility_1.Utility().executeAndthrowIfError("curl", ["-L", "" + downloadUrl, "-o", "pack.zip"])];
                     case 2:
                         _a.sent();
-                        return [3 /*break*/, 4];
+                        if (!IS_WINDOWS_AGENT) return [3 /*break*/, 4];
+                        return [4 /*yield*/, new Utility_1.Utility().executeAndthrowIfError("tar", ["-xf", "pack.zip"])];
                     case 3:
+                        _a.sent();
+                        return [3 /*break*/, 6];
+                    case 4: return [4 /*yield*/, new Utility_1.Utility().executeAndthrowIfError("unzip", ["pack.zip"])];
+                    case 5:
+                        _a.sent();
+                        _a.label = 6;
+                    case 6: return [3 /*break*/, 8];
+                    case 7:
                         err_19 = _a.sent();
                         core.error("Unable to install the pack CLI. Error: " + err_19.message);
                         core.setFailed(err_19.message);
                         throw err_19;
-                    case 4: return [2 /*return*/];
+                    case 8: return [2 /*return*/];
                 }
             });
         });
@@ -5507,7 +5328,7 @@ exports.ContainerRegistryHelper = void 0;
 var core = __nccwpck_require__(3195);
 var exec = __nccwpck_require__(9714);
 var io = __nccwpck_require__(9529);
-var CommandHelper_1 = __nccwpck_require__(1988);
+var CommandHelper_1 = __nccwpck_require__(2433);
 var Utility_1 = __nccwpck_require__(2135);
 var ContainerRegistryHelper = /** @class */ (function () {
     function ContainerRegistryHelper() {
@@ -5724,7 +5545,7 @@ var TelemetryHelper = /** @class */ (function () {
                         if (!util.isNullOrEmpty(this.errorMessage)) {
                             errorMessageArg = "--property 'errorMessage=" + this.errorMessage + "'";
                         }
-                        args = ["run", "--rm", "" + ORYX_CLI_IMAGE, "/bin/bash", "-c", "oryx telemetry --event-name 'ContainerAppsPipelinesTaskRCV1' " + ("--processing-time '" + taskLengthMilliseconds + "' " + resultArg + " " + scenarioArg + " " + errorMessageArg + "\"")];
+                        args = ["run", "--rm", "" + ORYX_CLI_IMAGE, "/bin/bash", "-c", "oryx telemetry --event-name 'ContainerAppsGitHubActionV1' " + ("--processing-time '" + taskLengthMilliseconds + "' " + resultArg + " " + scenarioArg + " " + errorMessageArg + "\"")];
                         return [4 /*yield*/, executeDockerCommand(args, true)];
                     case 2:
                         _a.sent();
@@ -5827,7 +5648,7 @@ var Utility = /** @class */ (function () {
     Utility.prototype.executeAndthrowIfError = function (commandLine, args, continueOnError) {
         if (continueOnError === void 0) { continueOnError = false; }
         return __awaiter(this, void 0, void 0, function () {
-            var stdout_1, stderr_1, options, exitCode, error_1;
+            var stdout_1, stderr_1, options, exitCode_1, error_1;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -5848,12 +5669,19 @@ var Utility = /** @class */ (function () {
                         };
                         return [4 /*yield*/, exec.exec(commandLine, args, options)];
                     case 1:
-                        exitCode = _a.sent();
-                        if (!continueOnError && exitCode !== 0) {
-                            core.error("Command failed with exit code " + exitCode + ". Error stream: " + stderr_1);
-                            throw new Error("Command failed with exit code " + exitCode + ". Error stream: " + stderr_1);
+                        exitCode_1 = _a.sent();
+                        if (!continueOnError && exitCode_1 !== 0) {
+                            core.error("Command failed with exit code " + exitCode_1 + ". Error stream: " + stderr_1);
+                            throw new Error("Command failed with exit code " + exitCode_1 + ". Error stream: " + stderr_1);
                         }
-                        return [3 /*break*/, 3];
+                        return [2 /*return*/, new Promise(function (resolve, reject) {
+                                var executionResult = {
+                                    exitCode: exitCode_1,
+                                    stdout: stdout_1,
+                                    stderr: stderr_1
+                                };
+                                resolve(executionResult);
+                            })];
                     case 2:
                         error_1 = _a.sent();
                         core.setFailed("Error: " + error_1.message);
@@ -5890,6 +5718,14 @@ var Utility = /** @class */ (function () {
     return Utility;
 }());
 exports.Utility = Utility;
+
+
+/***/ }),
+
+/***/ 2433:
+/***/ ((module) => {
+
+module.exports = eval("require")("./CommandHelper");
 
 
 /***/ }),

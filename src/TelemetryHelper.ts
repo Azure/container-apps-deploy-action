@@ -85,7 +85,7 @@ export class TelemetryHelper {
                     errorMessageArg = `--property 'errorMessage=${this.errorMessage}'`;
                 }
 
-                let args: string[] = [`run`, `--rm`, `${ORYX_CLI_IMAGE}`, `/bin/bash`, `-c`, `oryx telemetry --event-name 'ContainerAppsPipelinesTaskRCV1' ` + `--processing-time '${taskLengthMilliseconds}' ${resultArg} ${scenarioArg} ${errorMessageArg}"`];
+                let args: string[] = [`run`, `--rm`, `${ORYX_CLI_IMAGE}`, `/bin/bash`, `-c`, `oryx telemetry --event-name 'ContainerAppsGitHubActionV1' ` + `--processing-time '${taskLengthMilliseconds}' ${resultArg} ${scenarioArg} ${errorMessageArg}"`];
 
                 await executeDockerCommand(args, true)
             } catch (err) {
