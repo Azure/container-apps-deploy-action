@@ -1,7 +1,7 @@
 import * as core from '@actions/core';
 import * as exec from '@actions/exec';
 import * as io from '@actions/io';
-import { CommandHelper } from './CommandHelper';
+import * as os from 'os';
 import { Utility } from './Utility';
 
 export class ContainerRegistryHelper {
@@ -30,7 +30,8 @@ export class ContainerRegistryHelper {
         core.debug(`Attempting to log in to ACR instance "${acrName}" with access token`);
         try {
             const command: string = `CA_ADO_TASK_ACR_ACCESS_TOKEN=$(az acr login --name ${acrName} --output json --expose-token --only-show-errors | jq -r '.accessToken'); docker login ${acrName}.azurecr.io -u 00000000-0000-0000-0000-000000000000 -p $CA_ADO_TASK_ACR_ACCESS_TOKEN > /dev/null 2>&1`;
-            await new CommandHelper().execCommandAsync(command);
+            const shell = os.platform() === 'win32' ? 'pwsh' : 'bash';
+            await exec.exec(shell, ['-c', command]);
         } catch (err) {
             core.error(`Failed to log in to ACR instance "${acrName}" with access token`)
             throw err;
