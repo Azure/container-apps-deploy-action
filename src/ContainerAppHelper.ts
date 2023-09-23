@@ -210,14 +210,17 @@ export class ContainerAppHelper {
     public async getDefaultContainerAppLocation(): Promise<string> {
         core.debug(`Attempting to get the default location for the Container App service for the subscription.`);
         try {
-            const command = `provider show -n Microsoft.ContainerApp --output json`;
+            const command = `provider show -n Microsoft.App --output json`;
             const executionResult = await new Utility().executeAndthrowIfError(`az`, command.split(' '));
-            const azData = JSON.parse(executionResult.stdout);
-            const location = azData.resourceTypes.find((resourceType: any) =>
-            resourceType.resourceType === 'containerApps'
-          )?.locations[0];
+            // Parse the JSON output
+            const providerInfo = JSON.parse(executionResult.stdout);
+            // Extract information about resource types
+            const resourceTypes = providerInfo.resourceTypes;
+            const containerAppLocation = resourceTypes
+                .filter((resourceType: any) => resourceType.resourceType === 'containerApps')
+                .map((resourceType: any) => resourceType.locations[0]);
             // If successful, strip out double quotes, spaces and parentheses from the first location returned
-            return !executionResult.stderr ? location.toLowerCase().replace(/["() ]/g, "") : `eastus2`;
+            return !executionResult.stderr ? containerAppLocation.toLowerCase().replace(/["() ]/g, "") : `eastus2`;
         } catch (err) {
             core.warning(err.message);
             return `eastus2`;
@@ -433,7 +436,7 @@ export class ContainerAppHelper {
                     'tar -C /usr/local/bin/ --no-same-owner -xzv pack)';
             }
             const shell = IS_WINDOWS_AGENT ? 'pwsh' : 'bash';
-            await exec.exec(shell, [command]);
+            await exec.exec(shell, [command])
         } catch (err) {
             core.error(`Unable to install the pack CLI. Error: ${err.message}`);
             core.setFailed(err.message);

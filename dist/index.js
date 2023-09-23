@@ -4912,28 +4912,28 @@ var ContainerAppHelper = /** @class */ (function () {
      * @returns the default location if found, otherwise 'eastus2'
      */
     ContainerAppHelper.prototype.getDefaultContainerAppLocation = function () {
-        var _a;
         return __awaiter(this, void 0, void 0, function () {
-            var command, executionResult, azData, location_1, err_9;
-            return __generator(this, function (_b) {
-                switch (_b.label) {
+            var command, executionResult, providerInfo, resourceTypes, containerAppLocation, err_9;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
                     case 0:
                         core.debug("Attempting to get the default location for the Container App service for the subscription.");
-                        _b.label = 1;
+                        _a.label = 1;
                     case 1:
-                        _b.trys.push([1, 3, , 4]);
-                        command = "provider show -n Microsoft.ContainerApp --output json";
+                        _a.trys.push([1, 3, , 4]);
+                        command = "provider show -n Microsoft.App --output json";
                         return [4 /*yield*/, new Utility_1.Utility().executeAndthrowIfError("az", command.split(' '))];
                     case 2:
-                        executionResult = _b.sent();
-                        azData = JSON.parse(executionResult.stdout);
-                        location_1 = (_a = azData.resourceTypes.find(function (resourceType) {
-                            return resourceType.resourceType === 'containerApps';
-                        })) === null || _a === void 0 ? void 0 : _a.locations[0];
+                        executionResult = _a.sent();
+                        providerInfo = JSON.parse(executionResult.stdout);
+                        resourceTypes = providerInfo.resourceTypes;
+                        containerAppLocation = resourceTypes
+                            .filter(function (resourceType) { return resourceType.resourceType === 'containerApps'; })
+                            .map(function (resourceType) { return resourceType.locations[0]; });
                         // If successful, strip out double quotes, spaces and parentheses from the first location returned
-                        return [2 /*return*/, !executionResult.stderr ? location_1.toLowerCase().replace(/["() ]/g, "") : "eastus2"];
+                        return [2 /*return*/, !executionResult.stderr ? containerAppLocation.toLowerCase().replace(/["() ]/g, "") : "eastus2"];
                     case 3:
-                        err_9 = _b.sent();
+                        err_9 = _a.sent();
                         core.warning(err_9.message);
                         return [2 /*return*/, "eastus2"];
                     case 4: return [2 /*return*/];
