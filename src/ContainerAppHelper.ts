@@ -210,17 +210,17 @@ export class ContainerAppHelper {
     public async getDefaultContainerAppLocation(): Promise<string> {
         core.debug(`Attempting to get the default location for the Container App service for the subscription.`);
         try {
-            const command = `provider show -n Microsoft.App --output json`;
+            const command = `provider show -n Microsoft.App --query "resourceTypes[?resourceType=='containerApps'].locations[] | [0]"`;
             const executionResult = await new Utility().executeAndthrowIfError(`az`, command.split(' '));
-            // Parse the JSON output
-            const providerInfo = JSON.parse(executionResult.stdout);
-            // Extract information about resource types
-            const resourceTypes = providerInfo.resourceTypes;
-            const containerAppLocation = resourceTypes
-                .filter((resourceType: any) => resourceType.resourceType === 'containerApps')
-                .map((resourceType: any) => resourceType.locations[0]);
-            // If successful, strip out double quotes, spaces and parentheses from the first location returned
-            return !executionResult.stderr ? containerAppLocation.toLowerCase().replace(/["() ]/g, "") : `eastus2`;
+            // // Parse the JSON output
+            // const providerInfo = JSON.parse(executionResult.stdout);
+            // // Extract information about resource types
+            // const resourceTypes = providerInfo.resourceTypes;
+            // const containerAppLocation = resourceTypes
+            //     .filter((resourceType: any) => resourceType.resourceType === 'containerApps')
+            //     .map((resourceType: any) => resourceType.locations[0]);
+            // // If successful, strip out double quotes, spaces and parentheses from the first location returned
+            return !executionResult.stderr ? executionResult.stdout.toLowerCase().replace(/["() ]/g, "") : `eastus2`;
         } catch (err) {
             core.warning(err.message);
             return `eastus2`;
