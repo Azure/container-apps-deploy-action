@@ -432,7 +432,8 @@ export class ContainerAppHelper {
                 command = `(curl -sSL \"https://github.com/buildpacks/pack/releases/download/v0.27.0/pack-v0.27.0-${tgzSuffix}.tgz\" | ` +
                     'tar -C /usr/local/bin/ --no-same-owner -xzv pack)';
             }
-            await exec.exec(command);
+            const shell = IS_WINDOWS_AGENT ? 'pwsh' : 'bash';
+            await exec.exec(shell, [command]);
         } catch (err) {
             core.error(`Unable to install the pack CLI. Error: ${err.message}`);
             core.setFailed(err.message);

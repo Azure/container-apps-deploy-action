@@ -5243,7 +5243,7 @@ var ContainerAppHelper = /** @class */ (function () {
      */
     ContainerAppHelper.prototype.installPackCliAsync = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var command, packZipDownloadUri, packZipDownloadFilePath, tgzSuffix, err_19;
+            var command, packZipDownloadUri, packZipDownloadFilePath, tgzSuffix, shell, err_19;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -5265,7 +5265,8 @@ var ContainerAppHelper = /** @class */ (function () {
                             command = "(curl -sSL \"https://github.com/buildpacks/pack/releases/download/v0.27.0/pack-v0.27.0-" + tgzSuffix + ".tgz\" | " +
                                 'tar -C /usr/local/bin/ --no-same-owner -xzv pack)';
                         }
-                        return [4 /*yield*/, exec.exec(command)];
+                        shell = IS_WINDOWS_AGENT ? 'pwsh' : 'bash';
+                        return [4 /*yield*/, exec.exec(shell, [command])];
                     case 2:
                         _a.sent();
                         return [3 /*break*/, 4];
