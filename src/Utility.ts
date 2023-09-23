@@ -9,7 +9,7 @@ export class Utility {
    * @param continueOnError - whether or not to continue execution if the command fails
    */
 
-  public async executeAndthrowIfError(commandLine: string, args: string[], continueOnError: boolean = false): Promise<void> {
+  public async executeAndthrowIfError(commandLine: string, args: string[], continueOnError: boolean = false) : Promise<{exitCode:number, stdout:string, stderr:string}> {
     try {
       let stdout = '';
       let stderr = '';
@@ -33,6 +33,14 @@ export class Utility {
         core.error(`Command failed with exit code ${exitCode}. Error stream: ${stderr}`);
         throw new Error(`Command failed with exit code ${exitCode}. Error stream: ${stderr}`);
       }
+      return new Promise((resolve, reject) => {
+        const executionResult = {
+          exitCode: exitCode,
+          stdout: stdout,
+          stderr: stderr
+        }
+        resolve(executionResult);
+      });
     } catch (error) {
       core.setFailed(`Error: ${error.message}`);
       throw error; // Re-throw the error

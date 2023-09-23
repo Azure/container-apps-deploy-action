@@ -2,15 +2,12 @@ import * as core from '@actions/core';
 import * as io from '@actions/io';
 import * as path from 'path';
 import * as os from 'os';
-import { CommandHelper } from './CommandHelper';
 import { Utility } from './Utility';
-import util = require('util');
-const cpExec = util.promisify(require('child_process').exec);
+import fs = require('fs');
 
 const ORYX_CLI_IMAGE: string = 'mcr.microsoft.com/oryx/cli:builder-debian-buster-20230208.1';
 const ORYX_BUILDER_IMAGE: string = 'mcr.microsoft.com/oryx/builder:20230208.1';
 const IS_WINDOWS_AGENT: boolean = os.platform() == 'win32';
-const PACK_CMD: string = IS_WINDOWS_AGENT ? path.join(os.tmpdir(), 'pack') : 'pack';
 
 export class ContainerAppHelper {
     readonly disableTelemetry: boolean = false;
@@ -35,11 +32,11 @@ export class ContainerAppHelper {
         optionalCmdArgs: string[]) {
         core.debug(`Attempting to create Container App with name "${containerAppName}" in resource group "${resourceGroup}" based from image "${imageToDeploy}"`);
         try {
-            let command = `az containerapp create -n ${containerAppName} -g ${resourceGroup} -i ${imageToDeploy} --environment ${environment}`;
+            let command = `containerapp create -n ${containerAppName} -g ${resourceGroup} -i ${imageToDeploy} --environment ${environment}`;
             optionalCmdArgs.forEach(function (val: string) {
                 command += ` ${val}`;
             });
-            await cpExec(`${command}`);
+            await new Utility().executeAndthrowIfError(`az`, command.split(' '));
         } catch (err) {
             core.error(err.message);
             throw err;
@@ -58,11 +55,8 @@ export class ContainerAppHelper {
         yamlConfigPath: string) {
         core.debug(`Attempting to create Container App with name "${containerAppName}" in resource group "${resourceGroup}" from provided YAML "${yamlConfigPath}"`);
         try {
-            //let command = `az containerapp create -n ${containerAppName} -g ${resourceGroup} --yaml ${yamlConfigPath}`;
-
-            let args = ['containerapp', 'create', '-n', containerAppName, '-g', resourceGroup, '--yaml', yamlConfigPath];
-            new Utility().executeAndthrowIfError(`az`, args);
-           // await cpExec(`${command}`);
+            let command = `containerapp create -n ${containerAppName} -g ${resourceGroup} --yaml ${yamlConfigPath}`;
+            await new Utility().executeAndthrowIfError(`az`, command.split(' '));
         } catch (err) {
             core.error(err.message);
             throw err;
@@ -83,12 +77,12 @@ export class ContainerAppHelper {
         optionalCmdArgs: string[]) {
         core.debug(`Attempting to update Container App with name "${containerAppName}" in resource group "${resourceGroup}" based from image "${imageToDeploy}"`);
         try {
-            let command = `az containerapp update -n ${containerAppName} -g ${resourceGroup} -i ${imageToDeploy}`;
+            let command = `containerapp update -n ${containerAppName} -g ${resourceGroup} -i ${imageToDeploy}`;
             optionalCmdArgs.forEach(function (val: string) {
                 command += ` ${val}`;
             });
 
-            await cpExec(`${command}`);
+            await new Utility().executeAndthrowIfError(`az`, command.split(' '));
         } catch (err) {
             core.error(err.message);
             throw err;
@@ -114,7 +108,7 @@ export class ContainerAppHelper {
         core.debug(`Attempting to update Container App with name "${containerAppName}" in resource group "${resourceGroup}" based from image "${imageToDeploy}"`);
         const util = new Utility();
         try {
-            let command = `az containerapp up -n ${containerAppName} -g ${resourceGroup} -i ${imageToDeploy}`;
+            let command = `containerapp up -n ${containerAppName} -g ${resourceGroup} -i ${imageToDeploy}`;
             optionalCmdArgs.forEach(function (val: string) {
                 command += ` ${val}`;
             });
@@ -127,7 +121,7 @@ export class ContainerAppHelper {
                 command += ` --target-port ${targetPort}`;
             }
 
-            await cpExec(`${command}`);
+            await new Utility().executeAndthrowIfError(`az`, command.split(' '));
         } catch (err) {
             core.error(err.message);
             throw err;
@@ -146,8 +140,8 @@ export class ContainerAppHelper {
         yamlConfigPath: string) {
         core.debug(`Attempting to update Container App with name "${containerAppName}" in resource group "${resourceGroup}" from provided YAML "${yamlConfigPath}"`);
         try {
-            let command = `az containerapp update -n ${containerAppName} -g ${resourceGroup} --yaml ${yamlConfigPath}`;
-            await cpExec(`${command}`);
+            let command = `containerapp update -n ${containerAppName} -g ${resourceGroup} --yaml ${yamlConfigPath}`;
+            await new Utility().executeAndthrowIfError(`az`, command.split(' '));
         } catch (err) {
             core.error(err.message);
             throw err;
@@ -163,9 +157,9 @@ export class ContainerAppHelper {
     public async doesContainerAppExist(containerAppName: string, resourceGroup: string): Promise<boolean> {
         core.debug(`Attempting to determine if Container App with name "${containerAppName}" exists in resource group "${resourceGroup}"`);
         try {
-            const command = `az containerapp show -n ${containerAppName} -g ${resourceGroup} -o none`;
-            const { stdout, stderr } = await cpExec(`${command}`);
-            return !stderr;
+            const command = `containerapp show -n ${containerAppName} -g ${resourceGroup} -o none`;
+            const executionResult = await new Utility().executeAndthrowIfError(`az`, command.split(' '));
+            return !executionResult.stderr;
         } catch (err) {
             core.warning(err.message);
             return false;
@@ -181,9 +175,9 @@ export class ContainerAppHelper {
     public async doesContainerAppEnvironmentExist(containerAppEnvironment: string, resourceGroup: string): Promise<boolean> {
         core.debug(`Attempting to determine if Container App Environment with name "${containerAppEnvironment}" exists in resource group "${resourceGroup}"`);
         try {
-            const command = `az containerapp env show -n ${containerAppEnvironment} -g ${resourceGroup} -o none`;
-            const { stdout, stderr } = await cpExec(`${command}`);
-            return !stderr;
+            const command = `containerapp env show -n ${containerAppEnvironment} -g ${resourceGroup} -o none`;
+            const executionResult = await new Utility().executeAndthrowIfError(`az`, command.split(' '));
+            return !executionResult.stderr;
         } catch (err) {
             core.warning(err.message);
             return false;
@@ -198,9 +192,9 @@ export class ContainerAppHelper {
     public async doesResourceGroupExist(resourceGroup: string): Promise<boolean> {
         core.debug(`Attempting to determine if resource group "${resourceGroup}" exists`);
         try {
-            const command = `az group show -n ${resourceGroup} -o none`;
-            const { stdout, stderr } = await cpExec(`${command}`);
-            return !stderr;
+            const command = `group show -n ${resourceGroup} -o none`;
+            const executionResult = await new Utility().executeAndthrowIfError(`az`, command.split(' '));
+            return !executionResult.stderr;
         } catch (err) {
             core.warning(err.message);
             return false;
@@ -214,10 +208,10 @@ export class ContainerAppHelper {
     public async getDefaultContainerAppLocation(): Promise<string> {
         core.debug(`Attempting to get the default location for the Container App service for the subscription.`);
         try {
-            const command = `az provider show -n Microsoft.App --query "resourceTypes[?resourceType=='containerApps'].locations[] | [0]"`
-            const { stdout, stderr } = await cpExec(`${command}`);
+            const command = `provider show -n Microsoft.App --query "resourceTypes[?resourceType=='containerApps'].locations[] | [0]"`
+            const executionResult = await new Utility().executeAndthrowIfError(`az`, command.split(' '));
             // If successful, strip out double quotes, spaces and parentheses from the first location returned
-            return !stderr ? stdout.toLowerCase().replace(/["() ]/g, "") : `eastus2`;
+            return !executionResult.stderr ? executionResult.stdout.toLowerCase().replace(/["() ]/g, "") : `eastus2`;
         } catch (err) {
             core.warning(err.message);
             return `eastus2`;
@@ -232,8 +226,8 @@ export class ContainerAppHelper {
     public async createResourceGroup(name: string, location: string) {
         core.debug(`Attempting to create resource group "${name}" in location "${location}"`);
         try {
-            const command = `az group create -n ${name} -l ${location}`;
-            await cpExec(`${command}`);
+            const command = `group create -n ${name} -l ${location}`;
+            await new Utility().executeAndthrowIfError(`az`, command.split(' '));
 
         } catch (err) {
             core.error(err.message);
@@ -249,9 +243,9 @@ export class ContainerAppHelper {
     public async getExistingContainerAppEnvironment(resourceGroup: string) {
         core.debug(`Attempting to get the existing Container App Environment in resource group "${resourceGroup}"`);
         try {
-            const command = `az containerapp env list -g ${resourceGroup} --query [0].name"`;
-            const { stdout, stderr } = await cpExec(`${command}`);
-            return !stderr ? stdout : null;
+            const command = `containerapp env list -g ${resourceGroup} --query [0].name"`;
+            const executionResult = await new Utility().executeAndthrowIfError(`az`, command.split(' '));
+            return !executionResult.stderr ? executionResult.stdout : null;
         } catch (err) {
             core.warning(err.message);
             return null;
@@ -268,11 +262,11 @@ export class ContainerAppHelper {
         const util = new Utility();
         core.debug(`Attempting to create Container App Environment with name "${name}" in resource group "${resourceGroup}"`);
         try {
-            let command = `az containerapp env create -n ${name} -g ${resourceGroup}`;
+            let command = `containerapp env create -n ${name} -g ${resourceGroup}`;
             if (!util.isNullOrEmpty(location)) {
                 command += ` -l ${location}`;
             }
-            await cpExec(`${command}`);
+            await new Utility().executeAndthrowIfError(`az`, command.split(' '));
         } catch (err) {
             core.error(err.message);
             throw err;
@@ -287,8 +281,8 @@ export class ContainerAppHelper {
     public async disableContainerAppIngress(name: string, resourceGroup: string) {
         core.debug(`Attempting to disable ingress for Container App with name "${name}" in resource group "${resourceGroup}"`);
         try {
-            const command = `az containerapp ingress disable -n ${name} -g ${resourceGroup}`;
-            await cpExec(`${command}`);
+            const command = `containerapp ingress disable -n ${name} -g ${resourceGroup}`;
+            await new Utility().executeAndthrowIfError(`az`, command.split(' '));
         } catch (err) {
             core.error(err.message);
             throw err;
@@ -306,8 +300,8 @@ export class ContainerAppHelper {
     public async updateContainerAppRegistryDetails(name: string, resourceGroup: string, acrName: string, acrUsername: string, acrPassword: string) {
         core.debug(`Attempting to set the ACR details for Container App with name "${name}" in resource group "${resourceGroup}"`);
         try {
-            const command = `az containerapp registry set -n ${name} -g ${resourceGroup} --server ${acrName}.azurecr.io --username ${acrUsername} --password ${acrPassword}`;
-            await cpExec(`${command}`);
+            const command = `containerapp registry set -n ${name} -g ${resourceGroup} --server ${acrName}.azurecr.io --username ${acrUsername} --password ${acrPassword}`;
+            await new Utility().executeAndthrowIfError(`az`, command.split(' '));
         } catch (err) {
             core.error(err.message);
             throw err;
@@ -326,11 +320,11 @@ export class ContainerAppHelper {
         runtimeStack: string) {
         core.debug(`Attempting to create a runnable application image using the Oryx++ Builder with image name "${imageToDeploy}"`);
         try {
-            let telemetryArg = `--env "CALLER_ID=azure-pipelines-rc-v1"`;
+            let telemetryArg = `--env "CALLER_ID=github-actions-v1"`;
             if (this.disableTelemetry) {
                 telemetryArg = `--env "ORYX_DISABLE_TELEMETRY=true"`;
             }
-            await cpExec(`${PACK_CMD} build ${imageToDeploy} --path ${appSourcePath} --builder ${ORYX_BUILDER_IMAGE} --run-image mcr.microsoft.com/oryx/${runtimeStack} ${telemetryArg}`);
+            await new Utility().executeAndthrowIfError(`pack`, ['build', `${imageToDeploy}`, '--path', `${appSourcePath}`, '--builder', `${ORYX_BUILDER_IMAGE}`, '--run-image', `mcr.microsoft.com/oryx/${runtimeStack}`, `${telemetryArg}`]);
         } catch (err) {
             core.error(err.message);
             throw err;
@@ -373,20 +367,21 @@ export class ContainerAppHelper {
 
             // Read the temp file to get the runtime stack into a variable
             const oryxRuntimeTxtPath = path.join(appSourcePath, 'oryx-runtime.txt');
-            let command: string = `head -n 1 ${oryxRuntimeTxtPath}`;
-            if (IS_WINDOWS_AGENT) {
-                command = `Get-Content -Path ${oryxRuntimeTxtPath} -Head 1`;
-            }
 
-            const runtimeStack = await new CommandHelper().execCommandAsync(command);
+            const runtimeStack = fs.promises.readFile(oryxRuntimeTxtPath, 'utf8').then((data) => {
+                const lines = data.split('\n');
+                return lines[0];
+            }).catch((err) => {
+                core.setFailed(err.message);
+                throw err;
+            });
 
             // Delete the temp file
-            command = `rm ${oryxRuntimeTxtPath}`;
-            if (IS_WINDOWS_AGENT) {
-                command = `Remove-Item -Path ${oryxRuntimeTxtPath}`;
-            }
-
-            await new CommandHelper().execCommandAsync(command);
+            fs.unlink(oryxRuntimeTxtPath, (err) => {
+                if (err) {
+                    core.warning(`Unable to delete the temporary file "${oryxRuntimeTxtPath}". Error: ${err.message}`);
+                }
+            });
 
             return runtimeStack;
         } catch (err) {
@@ -402,7 +397,7 @@ export class ContainerAppHelper {
     public async setDefaultBuilder() {
         core.info('Setting the Oryx++ Builder as the default builder via the pack CLI');
         try {
-            await cpExec(`pack config default-builder ${ORYX_BUILDER_IMAGE}`);
+            await new Utility().executeAndthrowIfError(`pack`, ['config', 'default-builder', `${ORYX_BUILDER_IMAGE}`]);
         }
         catch (err) {
             core.setFailed(err.message);
@@ -417,21 +412,19 @@ export class ContainerAppHelper {
     public async installPackCliAsync() {
         core.debug('Attempting to install the pack CLI');
         try {
-            let command: string = '';
+            let downloadUrl: string = '';
             if (IS_WINDOWS_AGENT) {
-                const packZipDownloadUri: string = 'https://github.com/buildpacks/pack/releases/download/v0.27.0/pack-v0.27.0-windows.zip';
-                const packZipDownloadFilePath: string = path.join(PACK_CMD, 'pack-windows.zip');
-
-                command = `New-Item -ItemType Directory -Path ${PACK_CMD} -Force | Out-Null;` +
-                    `Invoke-WebRequest -Uri ${packZipDownloadUri} -OutFile ${packZipDownloadFilePath}; ` +
-                    `Expand-Archive -LiteralPath ${packZipDownloadFilePath} -DestinationPath ${PACK_CMD}; ` +
-                    `Remove-Item -Path ${packZipDownloadFilePath}`;
+                downloadUrl = `https://github.com/buildpacks/pack/releases/download/v0.27.0/pack-v0.27.0-windows.zip`
             } else {
                 const tgzSuffix = os.platform() == 'darwin' ? 'macos' : 'linux';
-                command = `(curl -sSL \"https://github.com/buildpacks/pack/releases/download/v0.27.0/pack-v0.27.0-${tgzSuffix}.tgz\" | ` +
-                    'tar -C /usr/local/bin/ --no-same-owner -xzv pack)';
+                downloadUrl = `https://github.com/buildpacks/pack/releases/download/v0.27.0/pack-v0.27.0-${tgzSuffix}.tgz`;
             }
-            await new CommandHelper().execCommandAsync(command);
+            await new Utility().executeAndthrowIfError(`curl`, [`-L`, `${downloadUrl}`, `-o`, `pack.zip`]);
+            if (IS_WINDOWS_AGENT) {
+                await new Utility().executeAndthrowIfError(`tar`, [`-xf`, `pack.zip`]);
+            } else {
+                await new Utility().executeAndthrowIfError(`unzip`, [`pack.zip`]);
+            }
         } catch (err) {
             core.error(`Unable to install the pack CLI. Error: ${err.message}`);
             core.setFailed(err.message);
