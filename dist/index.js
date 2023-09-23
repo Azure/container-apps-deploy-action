@@ -5664,9 +5664,11 @@ var Utility = /** @class */ (function () {
                             listeners: {
                                 stdout: function (data) {
                                     stdout_1 += data.toString();
+                                    core.info(data.toString());
                                 },
                                 stderr: function (data) {
                                     stderr_1 += data.toString();
+                                    core.error(data.toString());
                                 }
                             }
                         };
