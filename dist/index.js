@@ -5002,7 +5002,7 @@ var ContainerAppHelper = /** @class */ (function () {
      */
     ContainerAppHelper.prototype.createContainerAppEnvironment = function (name, resourceGroup, location) {
         return __awaiter(this, void 0, void 0, function () {
-            var util, command, err_12;
+            var util, args, err_12;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -5011,11 +5011,11 @@ var ContainerAppHelper = /** @class */ (function () {
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
-                        command = "containerapp env create -n " + name + " -g " + resourceGroup;
+                        args = ["containerapp", "env", "create", "-n", "" + name, "-g", "" + resourceGroup];
                         if (!util.isNullOrEmpty(location)) {
-                            command += ' -l' + (" " + location);
+                            args.push('-l', "" + location);
                         }
-                        return [4 /*yield*/, new Utility_1.Utility().executeAndthrowIfError("az", [command])];
+                        return [4 /*yield*/, new Utility_1.Utility().executeAndthrowIfError("az", args)];
                     case 2:
                         _a.sent();
                         return [3 /*break*/, 4];
