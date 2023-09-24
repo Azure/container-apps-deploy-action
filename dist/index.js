@@ -5011,12 +5011,15 @@ var ContainerAppHelper = /** @class */ (function () {
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
-                        args = ["containerapp", "env", "create", "-n", "" + name, "-g", "" + resourceGroup];
-                        if (!util.isNullOrEmpty(location)) {
-                            args.push("-l", "" + location);
-                        }
+                        args = ["containerapp", "env", "create", "-n", "" + name, "-g", "" + resourceGroup, "-l", "" + location];
+                        // if (!util.isNullOrEmpty(location)) {
+                        //     args.push(`-l`, `${location}`);
+                        // }
                         return [4 /*yield*/, exec.exec("az", args)];
                     case 2:
+                        // if (!util.isNullOrEmpty(location)) {
+                        //     args.push(`-l`, `${location}`);
+                        // }
                         _a.sent();
                         return [3 /*break*/, 4];
                     case 3:

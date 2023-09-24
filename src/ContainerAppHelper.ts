@@ -265,10 +265,10 @@ export class ContainerAppHelper {
         const util = new Utility();
         core.debug(`Attempting to create Container App Environment with name "${name}" in resource group "${resourceGroup}"`);
         try {
-            let args = [`containerapp`, `env`, `create`, `-n`, `${name}`, `-g`, `${resourceGroup}`];
-            if (!util.isNullOrEmpty(location)) {
-                args.push(`-l`, `${location}`);
-            }
+            let args = [`containerapp`, `env`, `create`, `-n`, `${name}`, `-g`, `${resourceGroup}`, `-l`, `${location}`];
+            // if (!util.isNullOrEmpty(location)) {
+            //     args.push(`-l`, `${location}`);
+            // }
             await exec.exec(`az`, args);
         } catch (err) {
             core.error(err.message);
