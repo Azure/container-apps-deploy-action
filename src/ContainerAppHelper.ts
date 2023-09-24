@@ -212,9 +212,9 @@ export class ContainerAppHelper {
     public async getDefaultContainerAppLocation(): Promise<string> {
         core.debug(`Attempting to get the default location for the Container App service for the subscription.`);
         try {
-            const args = [`provider`, `show`, `-n`, `Microsoft.App`, `--query`, `resourceTypes[?resourceType=='containerApps'].locations[] | [0]`];
+            let args = [`provider`, `show`, `-n`, `Microsoft.App`, `--query`, `resourceTypes[?resourceType=='containerApps'].locations[] | [0]`];
             const executionResult = await new Utility().executeAndthrowIfError(`az`, args);
-            return !executionResult.stderr ? executionResult.stdout.toLowerCase().replace(/["() ]/g, "") : `eastus2`;
+            return !executionResult.stderr ? executionResult.stdout.toLowerCase().replace(/["() ]/g, ``) : `eastus2`;
         } catch (err) {
             core.warning(err.message);
             return `eastus2`;
@@ -246,7 +246,7 @@ export class ContainerAppHelper {
     public async getExistingContainerAppEnvironment(resourceGroup: string) {
         core.debug(`Attempting to get the existing Container App Environment in resource group "${resourceGroup}"`);
         try {
-            const args = [`containerapp`, `env`, `list`, `-g`, `${resourceGroup}`, `--query`, `[0].name`];
+            let args = [`containerapp`, `env`, `list`, `-g`, `${resourceGroup}`, `--query`, `[0].name`];
             const executionResult = await new Utility().executeAndthrowIfError(`az`, args);
             return !executionResult.stderr ? executionResult.stdout : null;
         } catch (err) {
@@ -265,10 +265,10 @@ export class ContainerAppHelper {
         const util = new Utility();
         core.debug(`Attempting to create Container App Environment with name "${name}" in resource group "${resourceGroup}"`);
         try {
-            let args = [`containerapp`, `env`, `create`, `-n`, `${name}`, `-g`, `${resourceGroup}`, `-l`, `${location}`];
-            // if (!util.isNullOrEmpty(location)) {
-            //     args.push(`-l`, `${location}`);
-            // }
+            let args = [`containerapp`, `env`, `create`, `-n`, `${name}`, `-g`, `${resourceGroup}`];
+            if (!util.isNullOrEmpty(location)) {
+                args.push(`-l`, `${location}`);
+            }
             await exec.exec(`az`, args);
         } catch (err) {
             core.error(err.message);
