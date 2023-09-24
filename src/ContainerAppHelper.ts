@@ -180,8 +180,8 @@ export class ContainerAppHelper {
         core.debug(`Attempting to determine if Container App Environment with name "${containerAppEnvironment}" exists in resource group "${resourceGroup}"`);
         try {
             const command = `containerapp env show -n ${containerAppEnvironment} -g ${resourceGroup} -o none`;
-            const executionResult = await new Utility().executeAndthrowIfError(`az`, command.split(' '));
-            return !executionResult.stderr;
+            const exitCode = await exec.exec(`az`, command.split(' '));
+            return exitCode === 0;
         } catch (err) {
             core.warning(err.message);
             return false;
@@ -267,7 +267,7 @@ export class ContainerAppHelper {
         try {
             let command = `containerapp env create -n ${name} -g ${resourceGroup}`;
             if (!util.isNullOrEmpty(location)) {
-                command += ` -l ${location}`;
+                command += '-l' + `${location}`;
             }
             await new Utility().executeAndthrowIfError(`az`, command.split(' '));
         } catch (err) {
@@ -323,11 +323,11 @@ export class ContainerAppHelper {
         runtimeStack: string) {
         core.debug(`Attempting to create a runnable application image using the Oryx++ Builder with image name "${imageToDeploy}"`);
         try {
-            let telemetryArg = `--env CALLER_ID=github-actions-v1`;
+            let telemetryArg = `CALLER_ID=github-actions-v1`;
             if (this.disableTelemetry) {
-                telemetryArg = `--env ORYX_DISABLE_TELEMETRY=true`;
+                telemetryArg = `ORYX_DISABLE_TELEMETRY=true`;
             }
-            await new Utility().executeAndthrowIfError(`${PACK_CMD}`, ['build', `${imageToDeploy}`, '--path', `${appSourcePath}`, '--builder', `${ORYX_BUILDER_IMAGE}`, '--run-image', `mcr.microsoft.com/oryx/${runtimeStack}`, '--env', `ORYX_DISABLE_TELEMETRY=true`]);
+            await new Utility().executeAndthrowIfError(`${PACK_CMD}`, ['build', `${imageToDeploy}`, '--path', `${appSourcePath}`, '--builder', `${ORYX_BUILDER_IMAGE}`, '--run-image', `mcr.microsoft.com/oryx/${runtimeStack}`, '--env', `${telemetryArg}`]);
         } catch (err) {
             core.error(err.message);
             throw err;

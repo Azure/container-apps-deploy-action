@@ -4857,7 +4857,7 @@ var ContainerAppHelper = /** @class */ (function () {
      */
     ContainerAppHelper.prototype.doesContainerAppEnvironmentExist = function (containerAppEnvironment, resourceGroup) {
         return __awaiter(this, void 0, void 0, function () {
-            var command, executionResult, err_7;
+            var command, exitCode, err_7;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -4866,10 +4866,10 @@ var ContainerAppHelper = /** @class */ (function () {
                     case 1:
                         _a.trys.push([1, 3, , 4]);
                         command = "containerapp env show -n " + containerAppEnvironment + " -g " + resourceGroup + " -o none";
-                        return [4 /*yield*/, new Utility_1.Utility().executeAndthrowIfError("az", command.split(' '))];
+                        return [4 /*yield*/, exec.exec("az", command.split(' '))];
                     case 2:
-                        executionResult = _a.sent();
-                        return [2 /*return*/, !executionResult.stderr];
+                        exitCode = _a.sent();
+                        return [2 /*return*/, exitCode === 0];
                     case 3:
                         err_7 = _a.sent();
                         core.warning(err_7.message);
@@ -5013,7 +5013,7 @@ var ContainerAppHelper = /** @class */ (function () {
                         _a.trys.push([1, 3, , 4]);
                         command = "containerapp env create -n " + name + " -g " + resourceGroup;
                         if (!util.isNullOrEmpty(location)) {
-                            command += " -l " + location;
+                            command += '-l' + ("" + location);
                         }
                         return [4 /*yield*/, new Utility_1.Utility().executeAndthrowIfError("az", command.split(' '))];
                     case 2:
@@ -5105,11 +5105,11 @@ var ContainerAppHelper = /** @class */ (function () {
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
-                        telemetryArg = "--env CALLER_ID=github-actions-v1";
+                        telemetryArg = "CALLER_ID=github-actions-v1";
                         if (this.disableTelemetry) {
-                            telemetryArg = "--env ORYX_DISABLE_TELEMETRY=true";
+                            telemetryArg = "ORYX_DISABLE_TELEMETRY=true";
                         }
-                        return [4 /*yield*/, new Utility_1.Utility().executeAndthrowIfError("" + PACK_CMD, ['build', "" + imageToDeploy, '--path', "" + appSourcePath, '--builder', "" + ORYX_BUILDER_IMAGE, '--run-image', "mcr.microsoft.com/oryx/" + runtimeStack, '--env', "ORYX_DISABLE_TELEMETRY=true"])];
+                        return [4 /*yield*/, new Utility_1.Utility().executeAndthrowIfError("" + PACK_CMD, ['build', "" + imageToDeploy, '--path', "" + appSourcePath, '--builder', "" + ORYX_BUILDER_IMAGE, '--run-image', "mcr.microsoft.com/oryx/" + runtimeStack, '--env', "" + telemetryArg])];
                     case 2:
                         _a.sent();
                         return [3 /*break*/, 4];
