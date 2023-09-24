@@ -5638,8 +5638,6 @@ exports.__esModule = true;
 exports.Utility = void 0;
 var core = __nccwpck_require__(195);
 var exec = __nccwpck_require__(714);
-var util = __nccwpck_require__(837);
-var cpExec = util.promisify((__nccwpck_require__(81).exec));
 var Utility = /** @class */ (function () {
     function Utility() {
     }
@@ -5700,7 +5698,7 @@ var Utility = /** @class */ (function () {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, cpExec("az config set extension.use_dynamic_install=yes_without_prompt")];
+                    case 0: return [4 /*yield*/, new Utility().executeAndthrowIfError('az', ["config", "set", "extension.use_dynamic_install=yes_without_prompt"])];
                     case 1:
                         _a.sent();
                         return [2 /*return*/];
