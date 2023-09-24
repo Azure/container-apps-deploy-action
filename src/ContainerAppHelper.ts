@@ -4,6 +4,7 @@ import * as exec from '@actions/exec';
 import * as path from 'path';
 import * as os from 'os';
 import { Utility } from './Utility';
+import jmespath = require('jmespath');
 import fs = require('fs');
 
 const ORYX_CLI_IMAGE: string = 'mcr.microsoft.com/oryx/cli:builder-debian-buster-20230208.1';
@@ -210,17 +211,12 @@ export class ContainerAppHelper {
     public async getDefaultContainerAppLocation(): Promise<string> {
         core.debug(`Attempting to get the default location for the Container App service for the subscription.`);
         try {
-            const command = `provider show -n Microsoft.App --query "resourceTypes[?resourceType=='containerApps'].locations[] | [0]"`;
+            const command = `provider show -n Microsoft.App --output json`;
             const executionResult = await new Utility().executeAndthrowIfError(`az`, command.split(' '));
-            // // Parse the JSON output
-            // const providerInfo = JSON.parse(executionResult.stdout);
-            // // Extract information about resource types
-            // const resourceTypes = providerInfo.resourceTypes;
-            // const containerAppLocation = resourceTypes
-            //     .filter((resourceType: any) => resourceType.resourceType === 'containerApps')
-            //     .map((resourceType: any) => resourceType.locations[0]);
-            // // If successful, strip out double quotes, spaces and parentheses from the first location returned
-            return !executionResult.stderr ? executionResult.stdout.toLowerCase().replace(/["() ]/g, "") : `eastus2`;
+            // Parse the JSON output
+            const providerInfo = JSON.parse(executionResult.stdout);
+            const location = jmespath.search(providerInfo, "resourceTypes[?resourceType=='containerApps'].locations[] | [0]");
+            return !executionResult.stderr ? location.replace(/["() ]/g, "") : `eastus2`;
         } catch (err) {
             core.warning(err.message);
             return `eastus2`;
@@ -422,21 +418,22 @@ export class ContainerAppHelper {
         core.debug('Attempting to install the pack CLI');
         try {
             let command: string = '';
+            let commandLine = '';
+            let args: string[] = [];
             if (IS_WINDOWS_AGENT) {
                 const packZipDownloadUri: string = 'https://github.com/buildpacks/pack/releases/download/v0.27.0/pack-v0.27.0-windows.zip';
                 const packZipDownloadFilePath: string = path.join(PACK_CMD, 'pack-windows.zip');
-
-                command = `New-Item -ItemType Directory -Path ${PACK_CMD} -Force | Out-Null;` +
-                    `Invoke-WebRequest -Uri ${packZipDownloadUri} -OutFile ${packZipDownloadFilePath}; ` +
-                    `Expand-Archive -LiteralPath ${packZipDownloadFilePath} -DestinationPath ${PACK_CMD}; ` +
-                    `Remove-Item -Path ${packZipDownloadFilePath}`;
+                args = [`New-Item`, `-ItemType`, `Directory`, `-Path`, `${PACK_CMD}`, `-Force | Out-Null;`, `Invoke-WebRequest`, `-Uri`, `${packZipDownloadUri}`, `-OutFile`, `${packZipDownloadFilePath};`, `Expand-Archive`, `-LiteralPath`, `${packZipDownloadFilePath}`, `-DestinationPath`, `${PACK_CMD};`, `Remove-Item`, `-Path`, `${packZipDownloadFilePath}`,
+                       `Expand-Archive`, `-LiteralPath`, `${packZipDownloadFilePath}`, `-DestinationPath`, `${PACK_CMD};`, `Remove-Item`, `-Path`, `${packZipDownloadFilePath}`];
+                commandLine = 'pwsh';
             } else {
                 const tgzSuffix = os.platform() == 'darwin' ? 'macos' : 'linux';
                 command = `(curl -sSL \"https://github.com/buildpacks/pack/releases/download/v0.27.0/pack-v0.27.0-${tgzSuffix}.tgz\" | ` +
                     'tar -C /usr/local/bin/ --no-same-owner -xzv pack)';
+                args = ['-c', command];
+                commandLine = 'bash';
             }
-            const shell = IS_WINDOWS_AGENT ? 'pwsh' : 'bash';
-            await exec.exec(shell, [command])
+            await new Utility().executeAndthrowIfError(commandLine, args);
         } catch (err) {
             core.error(`Unable to install the pack CLI. Error: ${err.message}`);
             core.setFailed(err.message);
