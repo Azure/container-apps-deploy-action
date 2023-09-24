@@ -1,5 +1,6 @@
 import * as core from '@actions/core';
 import * as io from '@actions/io';
+import * as exec from '@actions/exec';
 import * as path from 'path';
 import * as os from 'os';
 import { Utility } from './Utility';
@@ -8,6 +9,7 @@ import fs = require('fs');
 const ORYX_CLI_IMAGE: string = 'mcr.microsoft.com/oryx/cli:builder-debian-buster-20230208.1';
 const ORYX_BUILDER_IMAGE: string = 'mcr.microsoft.com/oryx/builder:20230208.1';
 const IS_WINDOWS_AGENT: boolean = os.platform() == 'win32';
+const PACK_CMD: string = IS_WINDOWS_AGENT ? path.join(os.tmpdir(), 'pack') : 'pack';
 
 export class ContainerAppHelper {
     readonly disableTelemetry: boolean = false;
@@ -158,8 +160,9 @@ export class ContainerAppHelper {
         core.debug(`Attempting to determine if Container App with name "${containerAppName}" exists in resource group "${resourceGroup}"`);
         try {
             const command = `containerapp show -n ${containerAppName} -g ${resourceGroup} -o none`;
-            const executionResult = await new Utility().executeAndthrowIfError(`az`, command.split(' '));
-            return !executionResult.stderr;
+            const exitCode = await exec.exec(`az`, command.split(' '));
+           // const executionResult = await new Utility().executeAndthrowIfError(`az`, command.split(' '));
+            return exitCode === 0;
         } catch (err) {
             core.warning(err.message);
             return false;
@@ -176,8 +179,8 @@ export class ContainerAppHelper {
         core.debug(`Attempting to determine if Container App Environment with name "${containerAppEnvironment}" exists in resource group "${resourceGroup}"`);
         try {
             const command = `containerapp env show -n ${containerAppEnvironment} -g ${resourceGroup} -o none`;
-            const executionResult = await new Utility().executeAndthrowIfError(`az`, command.split(' '));
-            return !executionResult.stderr;
+            const exitCode = await exec.exec(`az`, command.split(' '));
+            return exitCode === 0;
         } catch (err) {
             core.warning(err.message);
             return false;
@@ -193,8 +196,8 @@ export class ContainerAppHelper {
         core.debug(`Attempting to determine if resource group "${resourceGroup}" exists`);
         try {
             const command = `group show -n ${resourceGroup} -o none`;
-            const executionResult = await new Utility().executeAndthrowIfError(`az`, command.split(' '));
-            return !executionResult.stderr;
+            const exitCode = await exec.exec(`az`, command.split(' '));
+            return exitCode === 0;
         } catch (err) {
             core.warning(err.message);
             return false;
@@ -208,10 +211,10 @@ export class ContainerAppHelper {
     public async getDefaultContainerAppLocation(): Promise<string> {
         core.debug(`Attempting to get the default location for the Container App service for the subscription.`);
         try {
-            const command = `provider show -n Microsoft.App --query "resourceTypes[?resourceType=='containerApps'].locations[] | [0]"`
-            const executionResult = await new Utility().executeAndthrowIfError(`az`, command.split(' '));
+            let args = [`provider`, `show`, `-n`, `Microsoft.App`, `--query`, `resourceTypes[?resourceType=='containerApps'].locations[] | [0]`];
+            const executionResult = await new Utility().executeAndthrowIfError(`az`, args);
             // If successful, strip out double quotes, spaces and parentheses from the first location returned
-            return !executionResult.stderr ? executionResult.stdout.toLowerCase().replace(/["() ]/g, "") : `eastus2`;
+            return !executionResult.stderr ? executionResult.stdout.toLowerCase().replace(/["() ]/g, "").trim() : `eastus2`;
         } catch (err) {
             core.warning(err.message);
             return `eastus2`;
@@ -243,8 +246,8 @@ export class ContainerAppHelper {
     public async getExistingContainerAppEnvironment(resourceGroup: string) {
         core.debug(`Attempting to get the existing Container App Environment in resource group "${resourceGroup}"`);
         try {
-            const command = `containerapp env list -g ${resourceGroup} --query [0].name"`;
-            const executionResult = await new Utility().executeAndthrowIfError(`az`, command.split(' '));
+            let args = [`containerapp`, `env`, `list`, `-g`, `${resourceGroup}`, `--query`, `[0].name`];
+            const executionResult = await new Utility().executeAndthrowIfError(`az`, args);
             return !executionResult.stderr ? executionResult.stdout : null;
         } catch (err) {
             core.warning(err.message);
@@ -262,11 +265,11 @@ export class ContainerAppHelper {
         const util = new Utility();
         core.debug(`Attempting to create Container App Environment with name "${name}" in resource group "${resourceGroup}"`);
         try {
-            let command = `containerapp env create -n ${name} -g ${resourceGroup}`;
+            let args = [`containerapp`, `env`, `create`, `-n`, `${name}`, `-g`, `${resourceGroup}`];
             if (!util.isNullOrEmpty(location)) {
-                command += ` -l ${location}`;
+                args.push(`-l`, `${location}`);
             }
-            await new Utility().executeAndthrowIfError(`az`, command.split(' '));
+            await new Utility().executeAndthrowIfError(`az`, args);
         } catch (err) {
             core.error(err.message);
             throw err;
@@ -320,11 +323,11 @@ export class ContainerAppHelper {
         runtimeStack: string) {
         core.debug(`Attempting to create a runnable application image using the Oryx++ Builder with image name "${imageToDeploy}"`);
         try {
-            let telemetryArg = `--env "CALLER_ID=github-actions-v1"`;
+            let telemetryArg = `CALLER_ID=github-actions-v1`;
             if (this.disableTelemetry) {
-                telemetryArg = `--env "ORYX_DISABLE_TELEMETRY=true"`;
+                telemetryArg = `ORYX_DISABLE_TELEMETRY=true`;
             }
-            await new Utility().executeAndthrowIfError(`pack`, ['build', `${imageToDeploy}`, '--path', `${appSourcePath}`, '--builder', `${ORYX_BUILDER_IMAGE}`, '--run-image', `mcr.microsoft.com/oryx/${runtimeStack}`, `${telemetryArg}`]);
+            await new Utility().executeAndthrowIfError(`${PACK_CMD}`, ['build', `${imageToDeploy}`, '--path', `${appSourcePath}`, '--builder', `${ORYX_BUILDER_IMAGE}`, '--run-image', `mcr.microsoft.com/oryx/${runtimeStack}`, '--env', `${telemetryArg}`]);
         } catch (err) {
             core.error(err.message);
             throw err;
@@ -397,7 +400,7 @@ export class ContainerAppHelper {
     public async setDefaultBuilder() {
         core.info('Setting the Oryx++ Builder as the default builder via the pack CLI');
         try {
-            await new Utility().executeAndthrowIfError(`pack`, ['config', 'default-builder', `${ORYX_BUILDER_IMAGE}`]);
+            await new Utility().executeAndthrowIfError(`${PACK_CMD}`, ['config', 'default-builder', `${ORYX_BUILDER_IMAGE}`]);
         }
         catch (err) {
             core.setFailed(err.message);
@@ -412,19 +415,23 @@ export class ContainerAppHelper {
     public async installPackCliAsync() {
         core.debug('Attempting to install the pack CLI');
         try {
-            let downloadUrl: string = '';
+            let command: string = '';
+            let commandLine = '';
+            let args: string[] = [];
             if (IS_WINDOWS_AGENT) {
-                downloadUrl = `https://github.com/buildpacks/pack/releases/download/v0.27.0/pack-v0.27.0-windows.zip`
+                const packZipDownloadUri: string = 'https://github.com/buildpacks/pack/releases/download/v0.27.0/pack-v0.27.0-windows.zip';
+                const packZipDownloadFilePath: string = path.join(PACK_CMD, 'pack-windows.zip');
+                args = [`New-Item`, `-ItemType`, `Directory`, `-Path`, `${PACK_CMD}`, `-Force | Out-Null;`, `Invoke-WebRequest`, `-Uri`, `${packZipDownloadUri}`, `-OutFile`, `${packZipDownloadFilePath};`, `Expand-Archive`, `-LiteralPath`, `${packZipDownloadFilePath}`, `-DestinationPath`, `${PACK_CMD};`, `Remove-Item`, `-Path`, `${packZipDownloadFilePath}`,
+                       `Expand-Archive`, `-LiteralPath`, `${packZipDownloadFilePath}`, `-DestinationPath`, `${PACK_CMD};`, `Remove-Item`, `-Path`, `${packZipDownloadFilePath}`];
+                commandLine = 'pwsh';
             } else {
                 const tgzSuffix = os.platform() == 'darwin' ? 'macos' : 'linux';
-                downloadUrl = `https://github.com/buildpacks/pack/releases/download/v0.27.0/pack-v0.27.0-${tgzSuffix}.tgz`;
+                command = `(curl -sSL \"https://github.com/buildpacks/pack/releases/download/v0.27.0/pack-v0.27.0-${tgzSuffix}.tgz\" | ` +
+                    'tar -C /usr/local/bin/ --no-same-owner -xzv pack)';
+                args = ['-c', command];
+                commandLine = 'bash';
             }
-            await new Utility().executeAndthrowIfError(`curl`, [`-L`, `${downloadUrl}`, `-o`, `pack.zip`]);
-            if (IS_WINDOWS_AGENT) {
-                await new Utility().executeAndthrowIfError(`tar`, [`-xf`, `pack.zip`]);
-            } else {
-                await new Utility().executeAndthrowIfError(`unzip`, [`pack.zip`]);
-            }
+            await new Utility().executeAndthrowIfError(commandLine, args);
         } catch (err) {
             core.error(`Unable to install the pack CLI. Error: ${err.message}`);
             core.setFailed(err.message);

@@ -18,11 +18,9 @@ export class Utility {
         listeners: {
           stdout: (data: Buffer) => {
             stdout += data.toString();
-            core.info(data.toString());
           },
           stderr: (data: Buffer) => {
             stderr += data.toString();
-            core.error(data.toString());
           },
         },
       };
