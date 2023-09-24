@@ -269,7 +269,7 @@ export class ContainerAppHelper {
             if (!util.isNullOrEmpty(location)) {
                 command += ' -l' + ` ${location}`;
             }
-            await new Utility().executeAndthrowIfError(`az`, command.split(' '));
+            await new Utility().executeAndthrowIfError(`az`, [command]);
         } catch (err) {
             core.error(err.message);
             throw err;

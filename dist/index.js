@@ -5015,7 +5015,7 @@ var ContainerAppHelper = /** @class */ (function () {
                         if (!util.isNullOrEmpty(location)) {
                             command += ' -l' + (" " + location);
                         }
-                        return [4 /*yield*/, new Utility_1.Utility().executeAndthrowIfError("az", command.split(' '))];
+                        return [4 /*yield*/, new Utility_1.Utility().executeAndthrowIfError("az", [command])];
                     case 2:
                         _a.sent();
                         return [3 /*break*/, 4];
