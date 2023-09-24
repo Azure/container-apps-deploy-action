@@ -267,9 +267,9 @@ export class ContainerAppHelper {
         try {
             let args = [`containerapp`, `env`, `create`, `-n`, `${name}`, `-g`, `${resourceGroup}`];
             if (!util.isNullOrEmpty(location)) {
-                args.push('-l', `${location}`);
+                args.push(`-l`, `${location}`);
             }
-            await new Utility().executeAndthrowIfError(`az`, args);
+            await exec.exec(`az`, args);
         } catch (err) {
             core.error(err.message);
             throw err;
