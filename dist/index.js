@@ -5013,7 +5013,7 @@ var ContainerAppHelper = /** @class */ (function () {
                         _a.trys.push([1, 3, , 4]);
                         args = ["containerapp", "env", "create", "-n", "" + name, "-g", "" + resourceGroup];
                         if (!util.isNullOrEmpty(location)) {
-                            args.push("-l", "" + location);
+                            args.push("-l", "northcentralusstage");
                         }
                         return [4 /*yield*/, exec.exec("az", args)];
                     case 2:

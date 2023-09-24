@@ -267,7 +267,7 @@ export class ContainerAppHelper {
         try {
             let args = [`containerapp`, `env`, `create`, `-n`, `${name}`, `-g`, `${resourceGroup}`];
             if (!util.isNullOrEmpty(location)) {
-                args.push(`-l`, `${location}`);
+                args.push(`-l`, `northcentralusstage`);
             }
             await exec.exec(`az`, args);
         } catch (err) {
