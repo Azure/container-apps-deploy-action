@@ -214,7 +214,7 @@ export class ContainerAppHelper {
         try {
             let args = [`provider`, `show`, `-n`, `Microsoft.App`, `--query`, `resourceTypes[?resourceType=='containerApps'].locations[] | [0]`];
             const executionResult = await new Utility().executeAndthrowIfError(`az`, args);
-            return !executionResult.stderr ? executionResult.stdout.toLowerCase().replace(/["() ]/g, ``) : `eastus2`;
+            return !executionResult.stderr ? executionResult.stdout.toLowerCase().replace(/["() ]/g, "").trim() : `eastus2`;
         } catch (err) {
             core.warning(err.message);
             return `eastus2`;
@@ -267,7 +267,7 @@ export class ContainerAppHelper {
         try {
             let args = [`containerapp`, `env`, `create`, `-n`, `${name}`, `-g`, `${resourceGroup}`];
             if (!util.isNullOrEmpty(location)) {
-                args.push(`-l`, `northcentralusstage`);
+                args.push(`-l`, `${location}`);
             }
             await exec.exec(`az`, args);
         } catch (err) {

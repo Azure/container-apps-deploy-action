@@ -4926,7 +4926,7 @@ var ContainerAppHelper = /** @class */ (function () {
                         return [4 /*yield*/, new Utility_1.Utility().executeAndthrowIfError("az", args)];
                     case 2:
                         executionResult = _a.sent();
-                        return [2 /*return*/, !executionResult.stderr ? executionResult.stdout.toLowerCase().replace(/["() ]/g, "") : "eastus2"];
+                        return [2 /*return*/, !executionResult.stderr ? executionResult.stdout.toLowerCase().replace(/["() ]/g, "").trim() : "eastus2"];
                     case 3:
                         err_9 = _a.sent();
                         core.warning(err_9.message);
@@ -5013,7 +5013,7 @@ var ContainerAppHelper = /** @class */ (function () {
                         _a.trys.push([1, 3, , 4]);
                         args = ["containerapp", "env", "create", "-n", "" + name, "-g", "" + resourceGroup];
                         if (!util.isNullOrEmpty(location)) {
-                            args.push("-l", "northcentralusstage");
+                            args.push("-l", "" + location);
                         }
                         return [4 /*yield*/, exec.exec("az", args)];
                     case 2:
