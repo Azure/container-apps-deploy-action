@@ -196,8 +196,8 @@ export class ContainerAppHelper {
         core.debug(`Attempting to determine if resource group "${resourceGroup}" exists`);
         try {
             const command = `group show -n ${resourceGroup} -o none`;
-            const executionResult = await new Utility().executeAndthrowIfError(`az`, command.split(' '));
-            return !executionResult.stderr;
+            const exitCode = await exec.exec(`az`, command.split(' '));
+            return exitCode === 0;
         } catch (err) {
             core.warning(err.message);
             return false;
@@ -213,7 +213,7 @@ export class ContainerAppHelper {
         try {
             const args = [`provider`, `show`, `-n`, `Microsoft.App`, `--query`, `resourceTypes[?resourceType=='containerApps'].locations[] | [0]`];
             const executionResult = await new Utility().executeAndthrowIfError(`az`, args);
-            return !executionResult.stderr ? executionResult.stdout.replace(/["() ]/g, "") : `eastus2`;
+            return !executionResult.stderr ? executionResult.stdout.toLowerCase().replace(/["() ]/g, "") : `eastus2`;
         } catch (err) {
             core.warning(err.message);
             return `eastus2`;
@@ -322,9 +322,9 @@ export class ContainerAppHelper {
         runtimeStack: string) {
         core.debug(`Attempting to create a runnable application image using the Oryx++ Builder with image name "${imageToDeploy}"`);
         try {
-            let telemetryArg = `--env "CALLER_ID=github-actions-v1"`;
+            let telemetryArg = `--env CALLER_ID=github-actions-v1`;
             if (this.disableTelemetry) {
-                telemetryArg = `--env "ORYX_DISABLE_TELEMETRY=true"`;
+                telemetryArg = `--env ORYX_DISABLE_TELEMETRY=true`;
             }
             await new Utility().executeAndthrowIfError(`${PACK_CMD}`, ['build', `${imageToDeploy}`, '--path', `${appSourcePath}`, '--builder', `${ORYX_BUILDER_IMAGE}`, '--run-image', `mcr.microsoft.com/oryx/${runtimeStack}`, `${telemetryArg}`]);
         } catch (err) {

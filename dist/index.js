@@ -4632,6 +4632,7 @@ exports.__esModule = true;
 exports.ContainerAppHelper = void 0;
 var core = __nccwpck_require__(195);
 var io = __nccwpck_require__(529);
+var exec = __nccwpck_require__(714);
 var path = __nccwpck_require__(822);
 var os = __nccwpck_require__(37);
 var Utility_1 = __nccwpck_require__(135);
@@ -4884,7 +4885,7 @@ var ContainerAppHelper = /** @class */ (function () {
      */
     ContainerAppHelper.prototype.doesResourceGroupExist = function (resourceGroup) {
         return __awaiter(this, void 0, void 0, function () {
-            var command, executionResult, err_8;
+            var command, exitCode, err_8;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -4893,10 +4894,10 @@ var ContainerAppHelper = /** @class */ (function () {
                     case 1:
                         _a.trys.push([1, 3, , 4]);
                         command = "group show -n " + resourceGroup + " -o none";
-                        return [4 /*yield*/, new Utility_1.Utility().executeAndthrowIfError("az", command.split(' '))];
+                        return [4 /*yield*/, exec.exec("az", command.split(' '))];
                     case 2:
-                        executionResult = _a.sent();
-                        return [2 /*return*/, !executionResult.stderr];
+                        exitCode = _a.sent();
+                        return [2 /*return*/, exitCode === 0];
                     case 3:
                         err_8 = _a.sent();
                         core.warning(err_8.message);
@@ -4924,7 +4925,7 @@ var ContainerAppHelper = /** @class */ (function () {
                         return [4 /*yield*/, new Utility_1.Utility().executeAndthrowIfError("az", args)];
                     case 2:
                         executionResult = _a.sent();
-                        return [2 /*return*/, !executionResult.stderr ? executionResult.stdout.replace(/["() ]/g, "") : "eastus2"];
+                        return [2 /*return*/, !executionResult.stderr ? executionResult.stdout.toLowerCase().replace(/["() ]/g, "") : "eastus2"];
                     case 3:
                         err_9 = _a.sent();
                         core.warning(err_9.message);
@@ -5103,9 +5104,9 @@ var ContainerAppHelper = /** @class */ (function () {
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
-                        telemetryArg = "--env \"CALLER_ID=github-actions-v1\"";
+                        telemetryArg = "--env CALLER_ID=github-actions-v1";
                         if (this.disableTelemetry) {
-                            telemetryArg = "--env \"ORYX_DISABLE_TELEMETRY=true\"";
+                            telemetryArg = "--env ORYX_DISABLE_TELEMETRY=true";
                         }
                         return [4 /*yield*/, new Utility_1.Utility().executeAndthrowIfError("" + PACK_CMD, ['build', "" + imageToDeploy, '--path', "" + appSourcePath, '--builder', "" + ORYX_BUILDER_IMAGE, '--run-image', "mcr.microsoft.com/oryx/" + runtimeStack, "" + telemetryArg])];
                     case 2:
