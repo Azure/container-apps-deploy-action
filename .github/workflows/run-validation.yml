@@ -273,7 +273,7 @@ jobs:
       - name: Delete created Azure Container App environment
         if: ${{ always() }}
         shell: bash
-        run: az containerapp env delete -g ${{ vars.TEST_RESOURCE_GROUP_NAME }} -n ${{ env.TEST_NEW_CONTAINER_APP_ENV }} -
+        run: az containerapp env delete -g ${{ vars.TEST_RESOURCE_GROUP_NAME }} -n ${{ env.TEST_NEW_CONTAINER_APP_ENV }} -y
 
       - name: Delete created workspace
         if: ${{ always() }}
