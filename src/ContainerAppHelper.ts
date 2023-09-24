@@ -161,8 +161,9 @@ export class ContainerAppHelper {
         core.debug(`Attempting to determine if Container App with name "${containerAppName}" exists in resource group "${resourceGroup}"`);
         try {
             const command = `containerapp show -n ${containerAppName} -g ${resourceGroup} -o none`;
-            const executionResult = await new Utility().executeAndthrowIfError(`az`, command.split(' '));
-            return !executionResult.stderr;
+            const exitCode = await exec.exec(`az`, command.split(' '));
+           // const executionResult = await new Utility().executeAndthrowIfError(`az`, command.split(' '));
+            return exitCode === 0;
         } catch (err) {
             core.warning(err.message);
             return false;
@@ -326,7 +327,7 @@ export class ContainerAppHelper {
             if (this.disableTelemetry) {
                 telemetryArg = `--env ORYX_DISABLE_TELEMETRY=true`;
             }
-            await new Utility().executeAndthrowIfError(`${PACK_CMD}`, ['build', `${imageToDeploy}`, '--path', `${appSourcePath}`, '--builder', `${ORYX_BUILDER_IMAGE}`, '--run-image', `mcr.microsoft.com/oryx/${runtimeStack}`, `${telemetryArg}`]);
+            await new Utility().executeAndthrowIfError(`${PACK_CMD}`, ['build', `${imageToDeploy}`, '--path', `${appSourcePath}`, '--builder', `${ORYX_BUILDER_IMAGE}`, '--run-image', `mcr.microsoft.com/oryx/${runtimeStack}`, '--env', `ORYX_DISABLE_TELEMETRY=true`]);
         } catch (err) {
             core.error(err.message);
             throw err;

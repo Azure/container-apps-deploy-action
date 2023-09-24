@@ -4826,7 +4826,7 @@ var ContainerAppHelper = /** @class */ (function () {
      */
     ContainerAppHelper.prototype.doesContainerAppExist = function (containerAppName, resourceGroup) {
         return __awaiter(this, void 0, void 0, function () {
-            var command, executionResult, err_6;
+            var command, exitCode, err_6;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -4835,10 +4835,11 @@ var ContainerAppHelper = /** @class */ (function () {
                     case 1:
                         _a.trys.push([1, 3, , 4]);
                         command = "containerapp show -n " + containerAppName + " -g " + resourceGroup + " -o none";
-                        return [4 /*yield*/, new Utility_1.Utility().executeAndthrowIfError("az", command.split(' '))];
+                        return [4 /*yield*/, exec.exec("az", command.split(' '))];
                     case 2:
-                        executionResult = _a.sent();
-                        return [2 /*return*/, !executionResult.stderr];
+                        exitCode = _a.sent();
+                        // const executionResult = await new Utility().executeAndthrowIfError(`az`, command.split(' '));
+                        return [2 /*return*/, exitCode === 0];
                     case 3:
                         err_6 = _a.sent();
                         core.warning(err_6.message);
@@ -5108,7 +5109,7 @@ var ContainerAppHelper = /** @class */ (function () {
                         if (this.disableTelemetry) {
                             telemetryArg = "--env ORYX_DISABLE_TELEMETRY=true";
                         }
-                        return [4 /*yield*/, new Utility_1.Utility().executeAndthrowIfError("" + PACK_CMD, ['build', "" + imageToDeploy, '--path', "" + appSourcePath, '--builder', "" + ORYX_BUILDER_IMAGE, '--run-image', "mcr.microsoft.com/oryx/" + runtimeStack, "" + telemetryArg])];
+                        return [4 /*yield*/, new Utility_1.Utility().executeAndthrowIfError("" + PACK_CMD, ['build', "" + imageToDeploy, '--path', "" + appSourcePath, '--builder', "" + ORYX_BUILDER_IMAGE, '--run-image', "mcr.microsoft.com/oryx/" + runtimeStack, '--env', "ORYX_DISABLE_TELEMETRY=true"])];
                     case 2:
                         _a.sent();
                         return [3 /*break*/, 4];
