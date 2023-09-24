@@ -4838,7 +4838,6 @@ var ContainerAppHelper = /** @class */ (function () {
                         return [4 /*yield*/, exec.exec("az", command.split(' '))];
                     case 2:
                         exitCode = _a.sent();
-                        // const executionResult = await new Utility().executeAndthrowIfError(`az`, command.split(' '));
                         return [2 /*return*/, exitCode === 0];
                     case 3:
                         err_6 = _a.sent();
@@ -4926,6 +4925,7 @@ var ContainerAppHelper = /** @class */ (function () {
                         return [4 /*yield*/, new Utility_1.Utility().executeAndthrowIfError("az", args)];
                     case 2:
                         executionResult = _a.sent();
+                        // If successful, strip out double quotes, spaces and parentheses from the first location returned
                         return [2 /*return*/, !executionResult.stderr ? executionResult.stdout.toLowerCase().replace(/["() ]/g, "").trim() : "eastus2"];
                     case 3:
                         err_9 = _a.sent();

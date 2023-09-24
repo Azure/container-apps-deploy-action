@@ -159,9 +159,8 @@ export class ContainerAppHelper {
     public async doesContainerAppExist(containerAppName: string, resourceGroup: string): Promise<boolean> {
         core.debug(`Attempting to determine if Container App with name "${containerAppName}" exists in resource group "${resourceGroup}"`);
         try {
-            const command = `containerapp show -n ${containerAppName} -g ${resourceGroup} -o none`;
+            let command = `containerapp show -n ${containerAppName} -g ${resourceGroup} -o none`;
             const exitCode = await exec.exec(`az`, command.split(' '));
-           // const executionResult = await new Utility().executeAndthrowIfError(`az`, command.split(' '));
             return exitCode === 0;
         } catch (err) {
             core.warning(err.message);
