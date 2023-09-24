@@ -211,12 +211,9 @@ export class ContainerAppHelper {
     public async getDefaultContainerAppLocation(): Promise<string> {
         core.debug(`Attempting to get the default location for the Container App service for the subscription.`);
         try {
-            const command = `provider show -n Microsoft.App --output json`;
-            const executionResult = await new Utility().executeAndthrowIfError(`az`, command.split(' '));
-            // Parse the JSON output
-            const providerInfo = JSON.parse(executionResult.stdout);
-            const location = jmespath.search(providerInfo, "resourceTypes[?resourceType=='containerApps'].locations[] | [0]");
-            return !executionResult.stderr ? location.replace(/["() ]/g, "") : `eastus2`;
+            const args = [`provider`, `show`, `-n`, `Microsoft.App`, `--query`, `resourceTypes[?resourceType=='containerApps'].locations[] | [0]`];
+            const executionResult = await new Utility().executeAndthrowIfError(`az`, args);
+            return !executionResult.stderr ? executionResult.stdout.replace(/["() ]/g, "") : `eastus2`;
         } catch (err) {
             core.warning(err.message);
             return `eastus2`;
@@ -329,7 +326,7 @@ export class ContainerAppHelper {
             if (this.disableTelemetry) {
                 telemetryArg = `--env "ORYX_DISABLE_TELEMETRY=true"`;
             }
-            await new Utility().executeAndthrowIfError(`pack`, ['build', `${imageToDeploy}`, '--path', `${appSourcePath}`, '--builder', `${ORYX_BUILDER_IMAGE}`, '--run-image', `mcr.microsoft.com/oryx/${runtimeStack}`, `${telemetryArg}`]);
+            await new Utility().executeAndthrowIfError(`${PACK_CMD}`, ['build', `${imageToDeploy}`, '--path', `${appSourcePath}`, '--builder', `${ORYX_BUILDER_IMAGE}`, '--run-image', `mcr.microsoft.com/oryx/${runtimeStack}`, `${telemetryArg}`]);
         } catch (err) {
             core.error(err.message);
             throw err;
@@ -402,7 +399,7 @@ export class ContainerAppHelper {
     public async setDefaultBuilder() {
         core.info('Setting the Oryx++ Builder as the default builder via the pack CLI');
         try {
-            await new Utility().executeAndthrowIfError(`pack`, ['config', 'default-builder', `${ORYX_BUILDER_IMAGE}`]);
+            await new Utility().executeAndthrowIfError(`${PACK_CMD}`, ['config', 'default-builder', `${ORYX_BUILDER_IMAGE}`]);
         }
         catch (err) {
             core.setFailed(err.message);
