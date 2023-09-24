@@ -269,7 +269,7 @@ export class ContainerAppHelper {
             if (!util.isNullOrEmpty(location)) {
                 args.push(`-l`, `${location}`);
             }
-            await exec.exec(`az`, args);
+            await new Utility().executeAndthrowIfError(`az`, args);
         } catch (err) {
             core.error(err.message);
             throw err;
