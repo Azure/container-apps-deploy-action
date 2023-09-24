@@ -246,8 +246,8 @@ export class ContainerAppHelper {
     public async getExistingContainerAppEnvironment(resourceGroup: string) {
         core.debug(`Attempting to get the existing Container App Environment in resource group "${resourceGroup}"`);
         try {
-            const command = `containerapp env list -g ${resourceGroup} --query [0].name"`;
-            const executionResult = await new Utility().executeAndthrowIfError(`az`, command.split(' '));
+            const args = [`containerapp`, `env`, `list`, `-g`, `${resourceGroup}`, `--query`, `[0].name`];
+            const executionResult = await new Utility().executeAndthrowIfError(`az`, args);
             return !executionResult.stderr ? executionResult.stdout : null;
         } catch (err) {
             core.warning(err.message);
@@ -267,7 +267,7 @@ export class ContainerAppHelper {
         try {
             let command = `containerapp env create -n ${name} -g ${resourceGroup}`;
             if (!util.isNullOrEmpty(location)) {
-                command += '-l' + `${location}`;
+                command += ' -l' + ` ${location}`;
             }
             await new Utility().executeAndthrowIfError(`az`, command.split(' '));
         } catch (err) {
