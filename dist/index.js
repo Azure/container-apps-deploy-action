@@ -65,28 +65,31 @@ var azurecontainerapps = /** @class */ (function () {
                         this.initializeHelpers(disableTelemetry);
                         _a.label = 1;
                     case 1:
-                        _a.trys.push([1, 8, 9, 11]);
+                        _a.trys.push([1, 9, 10, 12]);
                         // Validate that the arguments provided can be used for one of the supported scenarios
                         this.validateSupportedScenarioArguments();
                         // Set up the Azure CLI to be used for this task
-                        this.setupAzureCli();
+                        return [4 /*yield*/, this.setupAzureCli()];
+                    case 2:
+                        // Set up the Azure CLI to be used for this task
+                        _a.sent();
                         // Set up the resources required to deploy a Container App
                         return [4 /*yield*/, this.setupResources()];
-                    case 2:
+                    case 3:
                         // Set up the resources required to deploy a Container App
                         _a.sent();
-                        if (!!util.isNullOrEmpty(this.acrName)) return [3 /*break*/, 4];
+                        if (!!util.isNullOrEmpty(this.acrName)) return [3 /*break*/, 5];
                         return [4 /*yield*/, this.authenticateAzureContainerRegistryAsync()];
-                    case 3:
-                        _a.sent();
-                        _a.label = 4;
                     case 4:
-                        if (!!util.isNullOrEmpty(this.appSourcePath)) return [3 /*break*/, 6];
-                        return [4 /*yield*/, this.buildAndPushImageAsync()];
-                    case 5:
                         _a.sent();
-                        _a.label = 6;
+                        _a.label = 5;
+                    case 5:
+                        if (!!util.isNullOrEmpty(this.appSourcePath)) return [3 /*break*/, 7];
+                        return [4 /*yield*/, this.buildAndPushImageAsync()];
                     case 6:
+                        _a.sent();
+                        _a.label = 7;
+                    case 7:
                         // If no application source was provided, set up the scenario for deploying an existing image
                         if (util.isNullOrEmpty(this.appSourcePath)) {
                             this.setupExistingImageScenario();
@@ -97,25 +100,25 @@ var azurecontainerapps = /** @class */ (function () {
                         }
                         // Create/update the Container App
                         return [4 /*yield*/, this.createOrUpdateContainerApp()];
-                    case 7:
+                    case 8:
                         // Create/update the Container App
                         _a.sent();
                         // If telemetry is enabled, log that the task completed successfully
                         this.telemetryHelper.setSuccessfulResult();
-                        return [3 /*break*/, 11];
-                    case 8:
+                        return [3 /*break*/, 12];
+                    case 9:
                         err_1 = _a.sent();
                         core.setFailed(err_1.message);
                         this.telemetryHelper.setFailedResult(err_1.message);
-                        return [3 /*break*/, 11];
-                    case 9: 
+                        return [3 /*break*/, 12];
+                    case 10: 
                     // If telemetry is enabled, will log metadata for this task run
                     return [4 /*yield*/, this.telemetryHelper.sendLogs()];
-                    case 10:
+                    case 11:
                         // If telemetry is enabled, will log metadata for this task run
                         _a.sent();
                         return [7 /*endfinally*/];
-                    case 11: return [2 /*return*/];
+                    case 12: return [2 /*return*/];
                 }
             });
         });
