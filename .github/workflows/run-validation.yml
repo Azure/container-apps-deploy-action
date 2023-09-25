@@ -536,4 +536,4 @@ jobs:
           yamlConfigPath: ${{ env.TEST_YAML_FILE_PATH }}
           containerAppName: ${{ env.TEST_CONTAINER_APP_NAME }}
           resourceGroup: ${{ vars.TEST_RESOURCE_GROUP_NAME }}
-          disableTelemetry: false
+          disableTelemetry: ${{ vars.TEST_DISABLE_TELEMETRY }}
