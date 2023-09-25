@@ -5548,7 +5548,7 @@ var TelemetryHelper = /** @class */ (function () {
                         if (!util.isNullOrEmpty(this.errorMessage)) {
                             errorMessageArg = "--property errorMessage=" + this.errorMessage;
                         }
-                        args = ["run", "--rm", "" + ORYX_CLI_IMAGE, "/bin/bash", "-c", "oryx telemetry --event-name ContainerAppsGitHubActionV1 " + ("--processing-time " + taskLengthMilliseconds + " " + resultArg + " " + scenarioArg + " " + errorMessageArg + "\"")];
+                        args = ["run", "--rm", "" + ORYX_CLI_IMAGE, "/bin/bash", "-c", "oryx telemetry --event-name ContainerAppsGitHubActionV1 " + ("--processing-time " + taskLengthMilliseconds + " " + resultArg + " " + scenarioArg + " " + errorMessageArg)];
                         return [4 /*yield*/, executeDockerCommand(args, true)];
                     case 2:
                         _a.sent();
