@@ -5538,17 +5538,17 @@ var TelemetryHelper = /** @class */ (function () {
                         _a.trys.push([1, 3, , 4]);
                         resultArg = '';
                         if (!util.isNullOrEmpty(this.result)) {
-                            resultArg = "--property 'result=" + this.result + "'";
+                            resultArg = "--property result=" + this.result;
                         }
                         scenarioArg = '';
                         if (!util.isNullOrEmpty(this.scenario)) {
-                            scenarioArg = "--property 'scenario=" + this.scenario + "'";
+                            scenarioArg = "--property scenario=" + this.scenario;
                         }
                         errorMessageArg = '';
                         if (!util.isNullOrEmpty(this.errorMessage)) {
-                            errorMessageArg = "--property 'errorMessage=" + this.errorMessage + "'";
+                            errorMessageArg = "--property errorMessage=" + this.errorMessage;
                         }
-                        args = ["run", "--rm", "" + ORYX_CLI_IMAGE, "/bin/bash", "-c", "oryx telemetry --event-name 'ContainerAppsGitHubActionV1' " + ("--processing-time '" + taskLengthMilliseconds + "' " + resultArg + " " + scenarioArg + " " + errorMessageArg + "\"")];
+                        args = ["run", "--rm", "" + ORYX_CLI_IMAGE, "/bin/bash", "-c", "oryx telemetry --event-name ContainerAppsGitHubActionV1 " + ("--processing-time " + taskLengthMilliseconds + " " + resultArg + " " + scenarioArg + " " + errorMessageArg + "\"")];
                         return [4 /*yield*/, executeDockerCommand(args, true)];
                     case 2:
                         _a.sent();

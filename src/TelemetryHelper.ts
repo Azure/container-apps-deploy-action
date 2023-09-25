@@ -72,20 +72,20 @@ export class TelemetryHelper {
             try {
                 let resultArg: string = '';
                 if (!util.isNullOrEmpty(this.result)) {
-                    resultArg = `--property 'result=${this.result}'`;
+                    resultArg = `--property result=${this.result}`;
                 }
 
                 let scenarioArg: string = '';
                 if (!util.isNullOrEmpty(this.scenario)) {
-                    scenarioArg = `--property 'scenario=${this.scenario}'`;
+                    scenarioArg = `--property scenario=${this.scenario}`;
                 }
 
                 let errorMessageArg: string = '';
                 if (!util.isNullOrEmpty(this.errorMessage)) {
-                    errorMessageArg = `--property 'errorMessage=${this.errorMessage}'`;
+                    errorMessageArg = `--property errorMessage=${this.errorMessage}`;
                 }
 
-                let args: string[] = [`run`, `--rm`, `${ORYX_CLI_IMAGE}`, `/bin/bash`, `-c`, `oryx telemetry --event-name 'ContainerAppsGitHubActionV1' ` + `--processing-time '${taskLengthMilliseconds}' ${resultArg} ${scenarioArg} ${errorMessageArg}"`];
+                let args: string[] = [`run`, `--rm`, `${ORYX_CLI_IMAGE}`, `/bin/bash`, `-c`, `oryx telemetry --event-name ContainerAppsGitHubActionV1 ` + `--processing-time ${taskLengthMilliseconds} ${resultArg} ${scenarioArg} ${errorMessageArg}"`];
 
                 await executeDockerCommand(args, true)
             } catch (err) {
