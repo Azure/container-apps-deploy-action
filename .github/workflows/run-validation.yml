@@ -82,7 +82,7 @@ jobs:
         with:
           repository: microsoft/Oryx
           path: oryx
-          ref: snehapar/Add-libbrotli-dev
+          ref: snehapar/Fix-nginx-version
 
       - name: Log in to Azure
         uses: azure/login@v1
@@ -130,6 +130,7 @@ jobs:
         with:
           repository: microsoft/Oryx
           path: oryx
+          ref: snehapar/Fix-nginx-version
 
       - name: Log in to Azure
         uses: azure/login@v1
