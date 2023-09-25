@@ -230,7 +230,6 @@ export class ContainerAppHelper {
         try {
             const command = `group create -n ${name} -l ${location}`;
             await new Utility().executeAndthrowIfError(`az`, command.split(' '));
-
         } catch (err) {
             core.error(err.message);
             throw err;
@@ -421,7 +420,7 @@ export class ContainerAppHelper {
                 const packZipDownloadUri: string = 'https://github.com/buildpacks/pack/releases/download/v0.27.0/pack-v0.27.0-windows.zip';
                 const packZipDownloadFilePath: string = path.join(PACK_CMD, 'pack-windows.zip');
                 args = [`New-Item`, `-ItemType`, `Directory`, `-Path`, `${PACK_CMD}`, `-Force | Out-Null;`, `Invoke-WebRequest`, `-Uri`, `${packZipDownloadUri}`, `-OutFile`, `${packZipDownloadFilePath};`, `Expand-Archive`, `-LiteralPath`, `${packZipDownloadFilePath}`, `-DestinationPath`, `${PACK_CMD};`, `Remove-Item`, `-Path`, `${packZipDownloadFilePath}`,
-                       `Expand-Archive`, `-LiteralPath`, `${packZipDownloadFilePath}`, `-DestinationPath`, `${PACK_CMD};`, `Remove-Item`, `-Path`, `${packZipDownloadFilePath}`];
+                    `Expand-Archive`, `-LiteralPath`, `${packZipDownloadFilePath}`, `-DestinationPath`, `${PACK_CMD};`, `Remove-Item`, `-Path`, `${packZipDownloadFilePath}`];
                 commandLine = 'pwsh';
             } else {
                 const tgzSuffix = os.platform() == 'darwin' ? 'macos' : 'linux';
