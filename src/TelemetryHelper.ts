@@ -98,7 +98,7 @@ export class TelemetryHelper {
 const executeDockerCommand = async (args: string[], continueOnError: boolean = false): Promise<void> => {
     try {
         const dockerTool: string = await io.which("docker", true);
-        await new Utility().executeAndthrowIfError(dockerTool, args, continueOnError);
+        await new Utility().executeAndThrowIfError(dockerTool, args, continueOnError);
     }
     catch (err) {
         core.setFailed(`Error: ${err.message}`);

@@ -38,7 +38,7 @@ export class ContainerAppHelper {
             optionalCmdArgs.forEach(function (val: string) {
                 command += ` ${val}`;
             });
-            await new Utility().executeAndthrowIfError(`az`, command.split(' '));
+            await new Utility().executeAndThrowIfError(`az`, command.split(' '));
         } catch (err) {
             core.error(err.message);
             throw err;
@@ -58,7 +58,7 @@ export class ContainerAppHelper {
         core.debug(`Attempting to create Container App with name "${containerAppName}" in resource group "${resourceGroup}" from provided YAML "${yamlConfigPath}"`);
         try {
             let command = `containerapp create -n ${containerAppName} -g ${resourceGroup} --yaml ${yamlConfigPath}`;
-            await new Utility().executeAndthrowIfError(`az`, command.split(' '));
+            await new Utility().executeAndThrowIfError(`az`, command.split(' '));
         } catch (err) {
             core.error(err.message);
             throw err;
@@ -84,7 +84,7 @@ export class ContainerAppHelper {
                 command += ` ${val}`;
             });
 
-            await new Utility().executeAndthrowIfError(`az`, command.split(' '));
+            await new Utility().executeAndThrowIfError(`az`, command.split(' '));
         } catch (err) {
             core.error(err.message);
             throw err;
@@ -123,7 +123,7 @@ export class ContainerAppHelper {
                 command += ` --target-port ${targetPort}`;
             }
 
-            await new Utility().executeAndthrowIfError(`az`, command.split(' '));
+            await new Utility().executeAndThrowIfError(`az`, command.split(' '));
         } catch (err) {
             core.error(err.message);
             throw err;
@@ -143,7 +143,7 @@ export class ContainerAppHelper {
         core.debug(`Attempting to update Container App with name "${containerAppName}" in resource group "${resourceGroup}" from provided YAML "${yamlConfigPath}"`);
         try {
             let command = `containerapp update -n ${containerAppName} -g ${resourceGroup} --yaml ${yamlConfigPath}`;
-            await new Utility().executeAndthrowIfError(`az`, command.split(' '));
+            await new Utility().executeAndThrowIfError(`az`, command.split(' '));
         } catch (err) {
             core.error(err.message);
             throw err;
@@ -211,7 +211,7 @@ export class ContainerAppHelper {
         core.debug(`Attempting to get the default location for the Container App service for the subscription.`);
         try {
             let args = [`provider`, `show`, `-n`, `Microsoft.App`, `--query`, `resourceTypes[?resourceType=='containerApps'].locations[] | [0]`];
-            const executionResult = await new Utility().executeAndthrowIfError(`az`, args);
+            const executionResult = await new Utility().executeAndThrowIfError(`az`, args);
             // If successful, strip out double quotes, spaces and parentheses from the first location returned
             return !executionResult.stderr ? executionResult.stdout.toLowerCase().replace(/["() ]/g, "").trim() : `eastus2`;
         } catch (err) {
@@ -229,7 +229,7 @@ export class ContainerAppHelper {
         core.debug(`Attempting to create resource group "${name}" in location "${location}"`);
         try {
             const command = `group create -n ${name} -l ${location}`;
-            await new Utility().executeAndthrowIfError(`az`, command.split(' '));
+            await new Utility().executeAndThrowIfError(`az`, command.split(' '));
         } catch (err) {
             core.error(err.message);
             throw err;
@@ -245,7 +245,7 @@ export class ContainerAppHelper {
         core.debug(`Attempting to get the existing Container App Environment in resource group "${resourceGroup}"`);
         try {
             let args = [`containerapp`, `env`, `list`, `-g`, `${resourceGroup}`, `--query`, `[0].name`];
-            const executionResult = await new Utility().executeAndthrowIfError(`az`, args);
+            const executionResult = await new Utility().executeAndThrowIfError(`az`, args);
             return !executionResult.stderr ? executionResult.stdout : null;
         } catch (err) {
             core.warning(err.message);
@@ -267,7 +267,7 @@ export class ContainerAppHelper {
             if (!util.isNullOrEmpty(location)) {
                 args.push(`-l`, `${location}`);
             }
-            await new Utility().executeAndthrowIfError(`az`, args);
+            await new Utility().executeAndThrowIfError(`az`, args);
         } catch (err) {
             core.error(err.message);
             throw err;
@@ -283,7 +283,7 @@ export class ContainerAppHelper {
         core.debug(`Attempting to disable ingress for Container App with name "${name}" in resource group "${resourceGroup}"`);
         try {
             const command = `containerapp ingress disable -n ${name} -g ${resourceGroup}`;
-            await new Utility().executeAndthrowIfError(`az`, command.split(' '));
+            await new Utility().executeAndThrowIfError(`az`, command.split(' '));
         } catch (err) {
             core.error(err.message);
             throw err;
@@ -302,7 +302,7 @@ export class ContainerAppHelper {
         core.debug(`Attempting to set the ACR details for Container App with name "${name}" in resource group "${resourceGroup}"`);
         try {
             const command = `containerapp registry set -n ${name} -g ${resourceGroup} --server ${acrName}.azurecr.io --username ${acrUsername} --password ${acrPassword}`;
-            await new Utility().executeAndthrowIfError(`az`, command.split(' '));
+            await new Utility().executeAndThrowIfError(`az`, command.split(' '));
         } catch (err) {
             core.error(err.message);
             throw err;
@@ -325,7 +325,7 @@ export class ContainerAppHelper {
             if (this.disableTelemetry) {
                 telemetryArg = `ORYX_DISABLE_TELEMETRY=true`;
             }
-            await new Utility().executeAndthrowIfError(`${PACK_CMD}`, ['build', `${imageToDeploy}`, '--path', `${appSourcePath}`, '--builder', `${ORYX_BUILDER_IMAGE}`, '--run-image', `mcr.microsoft.com/oryx/${runtimeStack}`, '--env', `${telemetryArg}`]);
+            await new Utility().executeAndThrowIfError(`${PACK_CMD}`, ['build', `${imageToDeploy}`, '--path', `${appSourcePath}`, '--builder', `${ORYX_BUILDER_IMAGE}`, '--run-image', `mcr.microsoft.com/oryx/${runtimeStack}`, '--env', `${telemetryArg}`]);
         } catch (err) {
             core.error(err.message);
             throw err;
@@ -346,7 +346,7 @@ export class ContainerAppHelper {
         core.debug(`Attempting to create a runnable application image from the provided/found Dockerfile "${dockerfilePath}" with image name "${imageToDeploy}"`);
         try {
             const dockerTool = await io.which("docker", true);
-            await new Utility().executeAndthrowIfError(dockerTool, ['build', '--file', `${dockerfilePath}`, `${appSourcePath}`, '--tag', `${imageToDeploy}`]);
+            await new Utility().executeAndThrowIfError(dockerTool, ['build', '--file', `${dockerfilePath}`, `${appSourcePath}`, '--tag', `${imageToDeploy}`]);
             core.debug(`Successfully created runnable application image from the provided/found Dockerfile "${dockerfilePath}" with image name "${imageToDeploy}"`);
         } catch (err) {
             core.setFailed(err.message);
@@ -364,7 +364,7 @@ export class ContainerAppHelper {
         try {
             const dockerTool: string = await io.which("docker", true);
             // Use 'oryx dockerfile' command to determine the runtime stack to use and write it to a temp file
-            await new Utility().executeAndthrowIfError(dockerTool, ['run', '--rm', '-v', `${appSourcePath}:/app`, `${ORYX_CLI_IMAGE}`, '/bin/bash', '-c', `oryx dockerfile /app | head -n 1 | sed 's/ARG RUNTIME=//' >> /app/oryx-runtime.txt`])
+            await new Utility().executeAndThrowIfError(dockerTool, ['run', '--rm', '-v', `${appSourcePath}:/app`, `${ORYX_CLI_IMAGE}`, '/bin/bash', '-c', `oryx dockerfile /app | head -n 1 | sed 's/ARG RUNTIME=//' >> /app/oryx-runtime.txt`])
 
             // Read the temp file to get the runtime stack into a variable
             const oryxRuntimeTxtPath = path.join(appSourcePath, 'oryx-runtime.txt');
@@ -398,7 +398,7 @@ export class ContainerAppHelper {
     public async setDefaultBuilder() {
         core.info('Setting the Oryx++ Builder as the default builder via the pack CLI');
         try {
-            await new Utility().executeAndthrowIfError(`${PACK_CMD}`, ['config', 'default-builder', `${ORYX_BUILDER_IMAGE}`]);
+            await new Utility().executeAndThrowIfError(`${PACK_CMD}`, ['config', 'default-builder', `${ORYX_BUILDER_IMAGE}`]);
         }
         catch (err) {
             core.setFailed(err.message);
@@ -429,7 +429,7 @@ export class ContainerAppHelper {
                 args = ['-c', command];
                 commandLine = 'bash';
             }
-            await new Utility().executeAndthrowIfError(commandLine, args);
+            await new Utility().executeAndThrowIfError(commandLine, args);
         } catch (err) {
             core.error(`Unable to install the pack CLI. Error: ${err.message}`);
             core.setFailed(err.message);
