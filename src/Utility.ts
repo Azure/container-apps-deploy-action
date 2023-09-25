@@ -1,7 +1,5 @@
 import * as core from '@actions/core';
 import * as exec from '@actions/exec';
-import util = require('util');
-const cpExec = util.promisify(require('child_process').exec);
 export class Utility {
   /**
    * @param commandLine - the command to execute
@@ -9,7 +7,7 @@ export class Utility {
    * @param continueOnError - whether or not to continue execution if the command fails
    */
 
-  public async executeAndthrowIfError(commandLine: string, args: string[], continueOnError: boolean = false) : Promise<{exitCode:number, stdout:string, stderr:string}> {
+  public async executeAndThrowIfError(commandLine: string, args: string[], continueOnError: boolean = false): Promise<{ exitCode: number, stdout: string, stderr: string }> {
     try {
       let stdout = '';
       let stderr = '';
@@ -50,7 +48,7 @@ export class Utility {
    * Azure Container Apps module being dynamically installed while it's still in preview.
    */
   public async setAzureCliDynamicInstall() {
-    await cpExec(`az config set extension.use_dynamic_install=yes_without_prompt`);
+    await this.executeAndThrowIfError('az', [`config`, `set`, `extension.use_dynamic_install=yes_without_prompt`]);
   }
 
   /**

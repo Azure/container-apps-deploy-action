@@ -65,28 +65,31 @@ var azurecontainerapps = /** @class */ (function () {
                         this.initializeHelpers(disableTelemetry);
                         _a.label = 1;
                     case 1:
-                        _a.trys.push([1, 8, 9, 11]);
+                        _a.trys.push([1, 9, 10, 12]);
                         // Validate that the arguments provided can be used for one of the supported scenarios
                         this.validateSupportedScenarioArguments();
                         // Set up the Azure CLI to be used for this task
-                        this.setupAzureCli();
+                        return [4 /*yield*/, this.setupAzureCli()];
+                    case 2:
+                        // Set up the Azure CLI to be used for this task
+                        _a.sent();
                         // Set up the resources required to deploy a Container App
                         return [4 /*yield*/, this.setupResources()];
-                    case 2:
+                    case 3:
                         // Set up the resources required to deploy a Container App
                         _a.sent();
-                        if (!!util.isNullOrEmpty(this.acrName)) return [3 /*break*/, 4];
+                        if (!!util.isNullOrEmpty(this.acrName)) return [3 /*break*/, 5];
                         return [4 /*yield*/, this.authenticateAzureContainerRegistryAsync()];
-                    case 3:
-                        _a.sent();
-                        _a.label = 4;
                     case 4:
-                        if (!!util.isNullOrEmpty(this.appSourcePath)) return [3 /*break*/, 6];
-                        return [4 /*yield*/, this.buildAndPushImageAsync()];
-                    case 5:
                         _a.sent();
-                        _a.label = 6;
+                        _a.label = 5;
+                    case 5:
+                        if (!!util.isNullOrEmpty(this.appSourcePath)) return [3 /*break*/, 7];
+                        return [4 /*yield*/, this.buildAndPushImageAsync()];
                     case 6:
+                        _a.sent();
+                        _a.label = 7;
+                    case 7:
                         // If no application source was provided, set up the scenario for deploying an existing image
                         if (util.isNullOrEmpty(this.appSourcePath)) {
                             this.setupExistingImageScenario();
@@ -97,25 +100,25 @@ var azurecontainerapps = /** @class */ (function () {
                         }
                         // Create/update the Container App
                         return [4 /*yield*/, this.createOrUpdateContainerApp()];
-                    case 7:
+                    case 8:
                         // Create/update the Container App
                         _a.sent();
                         // If telemetry is enabled, log that the task completed successfully
                         this.telemetryHelper.setSuccessfulResult();
-                        return [3 /*break*/, 11];
-                    case 8:
+                        return [3 /*break*/, 12];
+                    case 9:
                         err_1 = _a.sent();
                         core.setFailed(err_1.message);
                         this.telemetryHelper.setFailedResult(err_1.message);
-                        return [3 /*break*/, 11];
-                    case 9: 
+                        return [3 /*break*/, 12];
+                    case 10:
                     // If telemetry is enabled, will log metadata for this task run
                     return [4 /*yield*/, this.telemetryHelper.sendLogs()];
-                    case 10:
+                    case 11:
                         // If telemetry is enabled, will log metadata for this task run
                         _a.sent();
                         return [7 /*endfinally*/];
-                    case 11: return [2 /*return*/];
+                    case 12: return [2 /*return*/];
                 }
             });
         });
@@ -164,7 +167,7 @@ var azurecontainerapps = /** @class */ (function () {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: 
+                    case 0:
                     // Set the Azure CLI to dynamically install missing extensions
                     return [4 /*yield*/, util.setAzureCliDynamicInstall()];
                     case 1:
@@ -394,7 +397,7 @@ var azurecontainerapps = /** @class */ (function () {
                         core.info("Dockerfile found at root of application source.");
                         dockerfilePath = rootDockerfilePath;
                         return [3 /*break*/, 3];
-                    case 1: 
+                    case 1:
                     // No Dockerfile found or provided, build the image using the builder
                     return [4 /*yield*/, this.buildImageFromBuilderAsync(this.appSourcePath, this.imageToBuild)];
                     case 2:
@@ -413,7 +416,7 @@ var azurecontainerapps = /** @class */ (function () {
                         // Build the image from the provided/discovered Dockerfile
                         _a.sent();
                         _a.label = 7;
-                    case 7: 
+                    case 7:
                     // Push the image to ACR
                     return [4 /*yield*/, this.registryHelper.pushImageToAcr(this.imageToBuild)];
                     case 8:
@@ -434,7 +437,7 @@ var azurecontainerapps = /** @class */ (function () {
             var _a;
             return __generator(this, function (_b) {
                 switch (_b.label) {
-                    case 0: 
+                    case 0:
                     // Install the pack CLI
                     return [4 /*yield*/, this.appHelper.installPackCliAsync()];
                     case 1:
@@ -576,7 +579,7 @@ var azurecontainerapps = /** @class */ (function () {
                         // Create the Container App from the YAML configuration file
                         _a.sent();
                         return [3 /*break*/, 4];
-                    case 2: 
+                    case 2:
                     // Create the Container App from command line arguments
                     return [4 /*yield*/, this.appHelper.createContainerApp(this.containerAppName, this.resourceGroup, this.containerAppEnvironment, this.imageToDeploy, this.commandLineArgs)];
                     case 3:
@@ -599,14 +602,14 @@ var azurecontainerapps = /** @class */ (function () {
                     case 8:
                         _a.sent();
                         _a.label = 9;
-                    case 9: 
+                    case 9:
                     // Update the Container App using the 'update' command
                     return [4 /*yield*/, this.appHelper.updateContainerApp(this.containerAppName, this.resourceGroup, this.imageToDeploy, this.commandLineArgs)];
                     case 10:
                         // Update the Container App using the 'update' command
                         _a.sent();
                         return [3 /*break*/, 13];
-                    case 11: 
+                    case 11:
                     // Update the Container App using the 'up' command
                     return [4 /*yield*/, this.appHelper.updateContainerAppWithUp(this.containerAppName, this.resourceGroup, this.imageToDeploy, this.commandLineArgs, this.ingress, this.targetPort)];
                     case 12:
@@ -1190,8 +1193,8 @@ class OidcClient {
             const res = yield httpclient
                 .getJson(id_token_url)
                 .catch(error => {
-                throw new Error(`Failed to get ID Token. \n 
-        Error Code : ${error.statusCode}\n 
+                throw new Error(`Failed to get ID Token. \n
+        Error Code : ${error.statusCode}\n
         Error Message: ${error.message}`);
             });
             const id_token = (_a = res.result) === null || _a === void 0 ? void 0 : _a.value;
@@ -4668,7 +4671,7 @@ var ContainerAppHelper = /** @class */ (function () {
                         optionalCmdArgs.forEach(function (val) {
                             command_1 += " " + val;
                         });
-                        return [4 /*yield*/, new Utility_1.Utility().executeAndthrowIfError("az", command_1.split(' '))];
+                        return [4 /*yield*/, new Utility_1.Utility().executeAndThrowIfError("az", command_1.split(' '))];
                     case 2:
                         _a.sent();
                         return [3 /*break*/, 4];
@@ -4698,7 +4701,7 @@ var ContainerAppHelper = /** @class */ (function () {
                     case 1:
                         _a.trys.push([1, 3, , 4]);
                         command = "containerapp create -n " + containerAppName + " -g " + resourceGroup + " --yaml " + yamlConfigPath;
-                        return [4 /*yield*/, new Utility_1.Utility().executeAndthrowIfError("az", command.split(' '))];
+                        return [4 /*yield*/, new Utility_1.Utility().executeAndThrowIfError("az", command.split(' '))];
                     case 2:
                         _a.sent();
                         return [3 /*break*/, 4];
@@ -4732,7 +4735,7 @@ var ContainerAppHelper = /** @class */ (function () {
                         optionalCmdArgs.forEach(function (val) {
                             command_2 += " " + val;
                         });
-                        return [4 /*yield*/, new Utility_1.Utility().executeAndthrowIfError("az", command_2.split(' '))];
+                        return [4 /*yield*/, new Utility_1.Utility().executeAndThrowIfError("az", command_2.split(' '))];
                     case 2:
                         _a.sent();
                         return [3 /*break*/, 4];
@@ -4775,7 +4778,7 @@ var ContainerAppHelper = /** @class */ (function () {
                         if (!util.isNullOrEmpty(targetPort)) {
                             command_3 += " --target-port " + targetPort;
                         }
-                        return [4 /*yield*/, new Utility_1.Utility().executeAndthrowIfError("az", command_3.split(' '))];
+                        return [4 /*yield*/, new Utility_1.Utility().executeAndThrowIfError("az", command_3.split(' '))];
                     case 2:
                         _a.sent();
                         return [3 /*break*/, 4];
@@ -4805,7 +4808,7 @@ var ContainerAppHelper = /** @class */ (function () {
                     case 1:
                         _a.trys.push([1, 3, , 4]);
                         command = "containerapp update -n " + containerAppName + " -g " + resourceGroup + " --yaml " + yamlConfigPath;
-                        return [4 /*yield*/, new Utility_1.Utility().executeAndthrowIfError("az", command.split(' '))];
+                        return [4 /*yield*/, new Utility_1.Utility().executeAndThrowIfError("az", command.split(' '))];
                     case 2:
                         _a.sent();
                         return [3 /*break*/, 4];
@@ -4838,7 +4841,6 @@ var ContainerAppHelper = /** @class */ (function () {
                         return [4 /*yield*/, exec.exec("az", command.split(' '))];
                     case 2:
                         exitCode = _a.sent();
-                        // const executionResult = await new Utility().executeAndthrowIfError(`az`, command.split(' '));
                         return [2 /*return*/, exitCode === 0];
                     case 3:
                         err_6 = _a.sent();
@@ -4923,9 +4925,10 @@ var ContainerAppHelper = /** @class */ (function () {
                     case 1:
                         _a.trys.push([1, 3, , 4]);
                         args = ["provider", "show", "-n", "Microsoft.App", "--query", "resourceTypes[?resourceType=='containerApps'].locations[] | [0]"];
-                        return [4 /*yield*/, new Utility_1.Utility().executeAndthrowIfError("az", args)];
+                        return [4 /*yield*/, new Utility_1.Utility().executeAndThrowIfError("az", args)];
                     case 2:
                         executionResult = _a.sent();
+                        // If successful, strip out double quotes, spaces and parentheses from the first location returned
                         return [2 /*return*/, !executionResult.stderr ? executionResult.stdout.toLowerCase().replace(/["() ]/g, "").trim() : "eastus2"];
                     case 3:
                         err_9 = _a.sent();
@@ -4952,7 +4955,7 @@ var ContainerAppHelper = /** @class */ (function () {
                     case 1:
                         _a.trys.push([1, 3, , 4]);
                         command = "group create -n " + name + " -l " + location;
-                        return [4 /*yield*/, new Utility_1.Utility().executeAndthrowIfError("az", command.split(' '))];
+                        return [4 /*yield*/, new Utility_1.Utility().executeAndThrowIfError("az", command.split(' '))];
                     case 2:
                         _a.sent();
                         return [3 /*break*/, 4];
@@ -4981,7 +4984,7 @@ var ContainerAppHelper = /** @class */ (function () {
                     case 1:
                         _a.trys.push([1, 3, , 4]);
                         args = ["containerapp", "env", "list", "-g", "" + resourceGroup, "--query", "[0].name"];
-                        return [4 /*yield*/, new Utility_1.Utility().executeAndthrowIfError("az", args)];
+                        return [4 /*yield*/, new Utility_1.Utility().executeAndThrowIfError("az", args)];
                     case 2:
                         executionResult = _a.sent();
                         return [2 /*return*/, !executionResult.stderr ? executionResult.stdout : null];
@@ -5015,7 +5018,7 @@ var ContainerAppHelper = /** @class */ (function () {
                         if (!util.isNullOrEmpty(location)) {
                             args.push("-l", "" + location);
                         }
-                        return [4 /*yield*/, new Utility_1.Utility().executeAndthrowIfError("az", args)];
+                        return [4 /*yield*/, new Utility_1.Utility().executeAndThrowIfError("az", args)];
                     case 2:
                         _a.sent();
                         return [3 /*break*/, 4];
@@ -5044,7 +5047,7 @@ var ContainerAppHelper = /** @class */ (function () {
                     case 1:
                         _a.trys.push([1, 3, , 4]);
                         command = "containerapp ingress disable -n " + name + " -g " + resourceGroup;
-                        return [4 /*yield*/, new Utility_1.Utility().executeAndthrowIfError("az", command.split(' '))];
+                        return [4 /*yield*/, new Utility_1.Utility().executeAndThrowIfError("az", command.split(' '))];
                     case 2:
                         _a.sent();
                         return [3 /*break*/, 4];
@@ -5076,7 +5079,7 @@ var ContainerAppHelper = /** @class */ (function () {
                     case 1:
                         _a.trys.push([1, 3, , 4]);
                         command = "containerapp registry set -n " + name + " -g " + resourceGroup + " --server " + acrName + ".azurecr.io --username " + acrUsername + " --password " + acrPassword;
-                        return [4 /*yield*/, new Utility_1.Utility().executeAndthrowIfError("az", command.split(' '))];
+                        return [4 /*yield*/, new Utility_1.Utility().executeAndThrowIfError("az", command.split(' '))];
                     case 2:
                         _a.sent();
                         return [3 /*break*/, 4];
@@ -5109,7 +5112,7 @@ var ContainerAppHelper = /** @class */ (function () {
                         if (this.disableTelemetry) {
                             telemetryArg = "ORYX_DISABLE_TELEMETRY=true";
                         }
-                        return [4 /*yield*/, new Utility_1.Utility().executeAndthrowIfError("" + PACK_CMD, ['build', "" + imageToDeploy, '--path', "" + appSourcePath, '--builder', "" + ORYX_BUILDER_IMAGE, '--run-image', "mcr.microsoft.com/oryx/" + runtimeStack, '--env', "" + telemetryArg])];
+                        return [4 /*yield*/, new Utility_1.Utility().executeAndThrowIfError("" + PACK_CMD, ['build', "" + imageToDeploy, '--path', "" + appSourcePath, '--builder', "" + ORYX_BUILDER_IMAGE, '--run-image', "mcr.microsoft.com/oryx/" + runtimeStack, '--env', "" + telemetryArg])];
                     case 2:
                         _a.sent();
                         return [3 /*break*/, 4];
@@ -5142,7 +5145,7 @@ var ContainerAppHelper = /** @class */ (function () {
                         return [4 /*yield*/, io.which("docker", true)];
                     case 2:
                         dockerTool = _a.sent();
-                        return [4 /*yield*/, new Utility_1.Utility().executeAndthrowIfError(dockerTool, ['build', '--file', "" + dockerfilePath, "" + appSourcePath, '--tag', "" + imageToDeploy])];
+                        return [4 /*yield*/, new Utility_1.Utility().executeAndThrowIfError(dockerTool, ['build', '--file', "" + dockerfilePath, "" + appSourcePath, '--tag', "" + imageToDeploy])];
                     case 3:
                         _a.sent();
                         core.debug("Successfully created runnable application image from the provided/found Dockerfile \"" + dockerfilePath + "\" with image name \"" + imageToDeploy + "\"");
@@ -5175,7 +5178,7 @@ var ContainerAppHelper = /** @class */ (function () {
                     case 2:
                         dockerTool = _a.sent();
                         // Use 'oryx dockerfile' command to determine the runtime stack to use and write it to a temp file
-                        return [4 /*yield*/, new Utility_1.Utility().executeAndthrowIfError(dockerTool, ['run', '--rm', '-v', appSourcePath + ":/app", "" + ORYX_CLI_IMAGE, '/bin/bash', '-c', "oryx dockerfile /app | head -n 1 | sed 's/ARG RUNTIME=//' >> /app/oryx-runtime.txt"])
+                        return [4 /*yield*/, new Utility_1.Utility().executeAndThrowIfError(dockerTool, ['run', '--rm', '-v', appSourcePath + ":/app", "" + ORYX_CLI_IMAGE, '/bin/bash', '-c', "oryx dockerfile /app | head -n 1 | sed 's/ARG RUNTIME=//' >> /app/oryx-runtime.txt"])
                             // Read the temp file to get the runtime stack into a variable
                         ];
                     case 3:
@@ -5219,7 +5222,7 @@ var ContainerAppHelper = /** @class */ (function () {
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
-                        return [4 /*yield*/, new Utility_1.Utility().executeAndthrowIfError("" + PACK_CMD, ['config', 'default-builder', "" + ORYX_BUILDER_IMAGE])];
+                        return [4 /*yield*/, new Utility_1.Utility().executeAndThrowIfError("" + PACK_CMD, ['config', 'default-builder', "" + ORYX_BUILDER_IMAGE])];
                     case 2:
                         _a.sent();
                         return [3 /*break*/, 4];
@@ -5263,7 +5266,7 @@ var ContainerAppHelper = /** @class */ (function () {
                             args = ['-c', command];
                             commandLine = 'bash';
                         }
-                        return [4 /*yield*/, new Utility_1.Utility().executeAndthrowIfError(commandLine, args)];
+                        return [4 /*yield*/, new Utility_1.Utility().executeAndThrowIfError(commandLine, args)];
                     case 2:
                         _a.sent();
                         return [3 /*break*/, 4];
@@ -5411,7 +5414,7 @@ var ContainerRegistryHelper = /** @class */ (function () {
                         return [4 /*yield*/, io.which("docker", true)];
                     case 2:
                         dockerTool = _a.sent();
-                        return [4 /*yield*/, new Utility_1.Utility().executeAndthrowIfError(dockerTool, ["push", "" + imageToPush])];
+                        return [4 /*yield*/, new Utility_1.Utility().executeAndThrowIfError(dockerTool, ["push", "" + imageToPush])];
                     case 3:
                         _a.sent();
                         return [3 /*break*/, 5];
@@ -5576,7 +5579,7 @@ var executeDockerCommand = function (args, continueOnError) {
                     return [4 /*yield*/, io.which("docker", true)];
                 case 1:
                     dockerTool = _a.sent();
-                    return [4 /*yield*/, new Utility_1.Utility().executeAndthrowIfError(dockerTool, args, continueOnError)];
+                    return [4 /*yield*/, new Utility_1.Utility().executeAndThrowIfError(dockerTool, args, continueOnError)];
                 case 2:
                     _a.sent();
                     return [3 /*break*/, 4];
@@ -5638,8 +5641,6 @@ exports.__esModule = true;
 exports.Utility = void 0;
 var core = __nccwpck_require__(195);
 var exec = __nccwpck_require__(714);
-var util = __nccwpck_require__(837);
-var cpExec = util.promisify((__nccwpck_require__(81).exec));
 var Utility = /** @class */ (function () {
     function Utility() {
     }
@@ -5648,7 +5649,7 @@ var Utility = /** @class */ (function () {
      * @param args - the arguments to pass to the command
      * @param continueOnError - whether or not to continue execution if the command fails
      */
-    Utility.prototype.executeAndthrowIfError = function (commandLine, args, continueOnError) {
+    Utility.prototype.executeAndThrowIfError = function (commandLine, args, continueOnError) {
         if (continueOnError === void 0) { continueOnError = false; }
         return __awaiter(this, void 0, void 0, function () {
             var stdout_1, stderr_1, options, exitCode_1, error_1;
@@ -5700,7 +5701,7 @@ var Utility = /** @class */ (function () {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, cpExec("az config set extension.use_dynamic_install=yes_without_prompt")];
+                    case 0: return [4 /*yield*/, this.executeAndThrowIfError('az', ["config", "set", "extension.use_dynamic_install=yes_without_prompt"])];
                     case 1:
                         _a.sent();
                         return [2 /*return*/];
@@ -5839,7 +5840,7 @@ module.exports = require("util");
 /************************************************************************/
 /******/ 	// The module cache
 /******/ 	var __webpack_module_cache__ = {};
-/******/ 	
+/******/
 /******/ 	// The require function
 /******/ 	function __nccwpck_require__(moduleId) {
 /******/ 		// Check if module is in cache
@@ -5853,7 +5854,7 @@ module.exports = require("util");
 /******/ 			// no module.loaded needed
 /******/ 			exports: {}
 /******/ 		};
-/******/ 	
+/******/
 /******/ 		// Execute the module function
 /******/ 		var threw = true;
 /******/ 		try {
@@ -5862,23 +5863,23 @@ module.exports = require("util");
 /******/ 		} finally {
 /******/ 			if(threw) delete __webpack_module_cache__[moduleId];
 /******/ 		}
-/******/ 	
+/******/
 /******/ 		// Return the exports of the module
 /******/ 		return module.exports;
 /******/ 	}
-/******/ 	
+/******/
 /************************************************************************/
 /******/ 	/* webpack/runtime/compat */
-/******/ 	
+/******/
 /******/ 	if (typeof __nccwpck_require__ !== 'undefined') __nccwpck_require__.ab = __dirname + "/";
-/******/ 	
+/******/
 /************************************************************************/
-/******/ 	
+/******/
 /******/ 	// startup
 /******/ 	// Load entry module and return exports
 /******/ 	// This entry module is referenced by other modules so it can't be inlined
 /******/ 	var __webpack_exports__ = __nccwpck_require__(238);
 /******/ 	module.exports = __webpack_exports__;
-/******/ 	
+/******/
 /******/ })()
 ;
