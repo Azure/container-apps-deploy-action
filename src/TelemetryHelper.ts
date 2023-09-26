@@ -1,6 +1,5 @@
-import * as core from '@actions/core';
 import { Utility } from './Utility';
-import * as io from '@actions/io';
+import { GithubActionsToolHelper } from './GithubActionsToolHelper';
 
 const ORYX_CLI_IMAGE: string = "mcr.microsoft.com/oryx/cli:debian-buster-20230207.2";
 
@@ -12,6 +11,7 @@ const DOCKERFILE_SCENARIO: string = "used-dockerfile";
 const IMAGE_SCENARIO: string = "used-image";
 
 const util = new Utility();
+const githubActionsToolHelper = new GithubActionsToolHelper();
 
 export class TelemetryHelper {
     readonly disableTelemetry: boolean;
@@ -66,9 +66,9 @@ export class TelemetryHelper {
      * If telemetry is enabled, uses the "oryx telemetry" command to log metadata about this task execution.
      */
     public async sendLogs() {
-        const taskLengthMilliseconds: number = Date.now() - this.taskStartMilliseconds;
+        let taskLengthMilliseconds: number = Date.now() - this.taskStartMilliseconds;
         if (!this.disableTelemetry) {
-            core.info(`Telemetry enabled; logging metadata about task result, length and scenario targeted.`);
+            githubActionsToolHelper.info(`Telemetry enabled; logging metadata about task result, length and scenario targeted.`);
             try {
                 let resultArg: string = '';
                 if (!util.isNullOrEmpty(this.result)) {
@@ -86,10 +86,9 @@ export class TelemetryHelper {
                 }
 
                 let args: string[] = [`run`, `--rm`, `${ORYX_CLI_IMAGE}`, `/bin/bash`, `-c`, `oryx telemetry --event-name ContainerAppsGitHubActionV1 ` + `--processing-time ${taskLengthMilliseconds} ${resultArg} ${scenarioArg} ${errorMessageArg}`];
-
                 await executeDockerCommand(args, true)
             } catch (err) {
-                core.warning(`Skipping telemetry logging due to the following exception: ${err.message}`);
+                githubActionsToolHelper.warning(`Skipping telemetry logging due to the following exception: ${err.message}`);
             }
         }
     }
@@ -97,11 +96,11 @@ export class TelemetryHelper {
 
 const executeDockerCommand = async (args: string[], continueOnError: boolean = false): Promise<void> => {
     try {
-        const dockerTool: string = await io.which("docker", true);
-        await new Utility().executeAndThrowIfError(dockerTool, args, continueOnError);
+        let dockerTool: string = await githubActionsToolHelper.which("docker", true);
+        await util.executeAndThrowIfError(dockerTool, args, continueOnError);
     }
     catch (err) {
-        core.setFailed(`Error: ${err.message}`);
+        githubActionsToolHelper.error(`Error: ${err.message}`);
         throw err; // Re-throw the error
     }
 }

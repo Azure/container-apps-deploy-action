@@ -1,8 +1,9 @@
-import * as core from '@actions/core';
-import * as exec from '@actions/exec';
-import * as io from '@actions/io';
 import * as os from 'os';
 import { Utility } from './Utility';
+import { GithubActionsToolHelper } from './GithubActionsToolHelper';
+
+const githubActionsToolHelper = new GithubActionsToolHelper();
+const util = new Utility();
 
 export class ContainerRegistryHelper {
     /**
@@ -12,11 +13,11 @@ export class ContainerRegistryHelper {
      * @param acrPassword - the password for authentication
      */
     public async loginAcrWithUsernamePassword(acrName: string, acrUsername: string, acrPassword: string) {
-        core.debug(`Attempting to log in to ACR instance "${acrName}" with username and password credentials`);
+        githubActionsToolHelper.debug(`Attempting to log in to ACR instance "${acrName}" with username and password credentials`);
         try {
-            await exec.exec('docker', [`login`, `--password-stdin`, `--username`, `${acrUsername}`, `${acrName}.azurecr.io`], { input: Buffer.from(acrPassword) });
+            await githubActionsToolHelper.exec('docker', [`login`, `--password-stdin`, `--username`, `${acrUsername}`, `${acrName}.azurecr.io`], { input: Buffer.from(acrPassword) });
         } catch (err) {
-            core.error(`Failed to log in to ACR instance "${acrName}" with username and password credentials`);
+            githubActionsToolHelper.error(`Failed to log in to ACR instance "${acrName}" with username and password credentials`);
             throw err;
         }
     }
@@ -27,13 +28,13 @@ export class ContainerRegistryHelper {
      * @param acrName - the name of the ACR instance to authenticate calls to.
      */
     public async loginAcrWithAccessTokenAsync(acrName: string) {
-        core.debug(`Attempting to log in to ACR instance "${acrName}" with access token`);
+        githubActionsToolHelper.debug(`Attempting to log in to ACR instance "${acrName}" with access token`);
         try {
-            const command: string = `CA_ADO_TASK_ACR_ACCESS_TOKEN=$(az acr login --name ${acrName} --output json --expose-token --only-show-errors | jq -r '.accessToken'); docker login ${acrName}.azurecr.io -u 00000000-0000-0000-0000-000000000000 -p $CA_ADO_TASK_ACR_ACCESS_TOKEN > /dev/null 2>&1`;
-            const shell = os.platform() === 'win32' ? 'pwsh' : 'bash';
-            await exec.exec(shell, ['-c', command]);
+            let command: string = `CA_ADO_TASK_ACR_ACCESS_TOKEN=$(az acr login --name ${acrName} --output json --expose-token --only-show-errors | jq -r '.accessToken'); docker login ${acrName}.azurecr.io -u 00000000-0000-0000-0000-000000000000 -p $CA_ADO_TASK_ACR_ACCESS_TOKEN > /dev/null 2>&1`;
+            let commandLine = os.platform() === 'win32' ? 'pwsh' : 'bash';
+            await util.executeAndThrowIfError(commandLine, ['-c', command]);
         } catch (err) {
-            core.error(`Failed to log in to ACR instance "${acrName}" with access token`)
+            githubActionsToolHelper.error(`Failed to log in to ACR instance "${acrName}" with access token`)
             throw err;
         }
     }
@@ -43,13 +44,12 @@ export class ContainerRegistryHelper {
      * @param imageToPush - the name of the image to push to ACR
      */
     public async pushImageToAcr(imageToPush: string) {
-        core.debug(`Attempting to push image "${imageToPush}" to ACR`);
+        githubActionsToolHelper.debug(`Attempting to push image "${imageToPush}" to ACR`);
         try {
-            const dockerTool: string = await io.which("docker", true);
-            await new Utility().executeAndThrowIfError(dockerTool, [`push`, `${imageToPush}`]);
+            let dockerTool: string = await githubActionsToolHelper.which("docker", true);
+            await util.executeAndThrowIfError(dockerTool, [`push`, `${imageToPush}`]);
         } catch (err) {
-            core.error(`Failed to push image "${imageToPush}" to ACR. Error: ${err.message}`);
-            core.setFailed(err.message);
+            githubActionsToolHelper.error(`Failed to push image "${imageToPush}" to ACR. Error: ${err.message}`);
             throw err;
         }
     }

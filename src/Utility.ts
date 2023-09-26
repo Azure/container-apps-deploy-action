@@ -1,5 +1,8 @@
-import * as core from '@actions/core';
-import * as exec from '@actions/exec';
+// Note: This file is used to define utility functions that can be used across the project.
+import { GithubActionsToolHelper } from './GithubActionsToolHelper';
+
+const githubActionsToolHelper = new GithubActionsToolHelper();
+
 export class Utility {
   /**
    * @param commandLine - the command to execute
@@ -9,28 +12,18 @@ export class Utility {
 
   public async executeAndThrowIfError(commandLine: string, args: string[], continueOnError: boolean = false): Promise<{ exitCode: number, stdout: string, stderr: string }> {
     try {
-      let stdout = '';
-      let stderr = '';
+      let options = await githubActionsToolHelper.ExecOptions();
+      let stderr = options.listeners.stderr.toString();
+      let stdout = options.listeners.stdout.toString();
 
-      const options: exec.ExecOptions = {
-        listeners: {
-          stdout: (data: Buffer) => {
-            stdout += data.toString();
-          },
-          stderr: (data: Buffer) => {
-            stderr += data.toString();
-          },
-        },
-      };
-
-      const exitCode = await exec.exec(commandLine, args, options);
+      let exitCode = await githubActionsToolHelper.exec(commandLine, args, options);
 
       if (!continueOnError && exitCode !== 0) {
-        core.error(`Command failed with exit code ${exitCode}. Error stream: ${stderr}`);
+        githubActionsToolHelper.error(`Command failed with exit code ${exitCode}. Error stream: ${stderr}`);
         throw new Error(`Command failed with exit code ${exitCode}. Error stream: ${stderr}`);
       }
       return new Promise((resolve, reject) => {
-        const executionResult = {
+        let executionResult = {
           exitCode: exitCode,
           stdout: stdout,
           stderr: stderr
@@ -38,7 +31,7 @@ export class Utility {
         resolve(executionResult);
       });
     } catch (error) {
-      core.setFailed(`Error: ${error.message}`);
+      githubActionsToolHelper.error(`Error: ${error.message}`);
       throw error; // Re-throw the error
     }
   }
