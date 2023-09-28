@@ -1,7 +1,7 @@
 // Note: This file is used to define utility functions that can be used across the project.
-import { GithubActionsToolHelper } from './GithubActionsToolHelper';
+import { GitHubActionsToolHelper } from './GithubActionsToolHelper';
 
-const githubActionsToolHelper = new GithubActionsToolHelper();
+const toolHelper = new GitHubActionsToolHelper();
 
 export class Utility {
   /**
@@ -10,28 +10,11 @@ export class Utility {
    * @param continueOnError - whether or not to continue execution if the command fails
    */
 
-  public async executeAndThrowIfError(commandLine: string, args: string[], continueOnError: boolean = false): Promise<{ exitCode: number, stdout: string, stderr: string }> {
+  public async executeAndThrowIfError(commandLine: string, args: string[], inputOptions?:Buffer): Promise<{ exitCode: number, stdout: string, stderr: string }> {
     try {
-      let options = await githubActionsToolHelper.ExecOptions();
-      let stderr = options.listeners.stderr.toString();
-      let stdout = options.listeners.stdout.toString();
-
-      let exitCode = await githubActionsToolHelper.exec(commandLine, args, options);
-
-      if (!continueOnError && exitCode !== 0) {
-        githubActionsToolHelper.error(`Command failed with exit code ${exitCode}. Error stream: ${stderr}`);
-        throw new Error(`Command failed with exit code ${exitCode}. Error stream: ${stderr}`);
-      }
-      return new Promise((resolve, reject) => {
-        let executionResult = {
-          exitCode: exitCode,
-          stdout: stdout,
-          stderr: stderr
-        }
-        resolve(executionResult);
-      });
+      return await toolHelper.exec(commandLine, args, inputOptions);
     } catch (error) {
-      githubActionsToolHelper.error(`Error: ${error.message}`);
+      toolHelper.writeError(`Error: ${error.message}`);
       throw error; // Re-throw the error
     }
   }

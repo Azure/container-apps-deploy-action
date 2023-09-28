@@ -2,37 +2,34 @@ import * as core from '@actions/core';
 import * as io from '@actions/io';
 import * as exec from '@actions/exec';
 
-export class GithubActionsToolHelper {
+export class GitHubActionsToolHelper {
 
-    public getGithubRunId(): string {
+    public getbuildId(): string {
         return process.env['GITHUB_RUN_ID'] || '';
     }
 
-    public getGithubRunNumber(): string {
+    public getbuildNumber(): string {
         return process.env['GITHUB_RUN_NUMBER'] || '';
     }
 
-    public info(message: string): void {
+    public writeInfo(message: string): void {
         core.info(message);
     }
 
-    public error(message: string): void {
+    public writeError(message: string): void {
         core.error(message);
     }
 
-    public warning(message: string): void {
+    public writeWarning(message: string): void {
         core.warning(message);
     }
 
-    public debug(message: string): void {
+    public writeDebug(message: string): void {
         core.debug(message);
     }
 
-    public async exec(commandLine: string, args?: string[], execOptions?: exec.ExecOptions): Promise<number> {
-        return await exec.exec(commandLine, args, execOptions);
-    }
-
-    public async ExecOptions(): Promise<exec.ExecOptions> {
+    public async exec(commandLine: string, args?: string[], inputOptions?: Buffer): Promise<{ exitCode: number, stdout: string, stderr: string }> {
+        try{
         let stdout = '';
         let stderr = '';
 
@@ -45,8 +42,21 @@ export class GithubActionsToolHelper {
                     stderr += data.toString();
                 },
             },
+            input: inputOptions
         };
-        return options;
+
+        let exitCode =  await exec.exec(commandLine, args, options);
+        return new Promise((resolve, reject) => {
+            let executionResult = {
+              exitCode: exitCode,
+              stdout: stdout,
+              stderr: stderr
+            }
+            resolve(executionResult);
+          });
+        }catch(err){
+            throw err;
+        }
     }
 
     public getInput(name: string, options?: core.InputOptions): string {
@@ -61,15 +71,19 @@ export class GithubActionsToolHelper {
         return io.which(tool, check);
     }
 
-    public getContainerAppName(containerAppName: string): string {
-        containerAppName = `gh-action-app-${this.getGithubRunId()}-${this.getGithubRunNumber()}`;
+    public getDefaultContainerAppName(containerAppName: string): string {
+        containerAppName = `gh-action-app-${this.getbuildId()}-${this.getbuildNumber()}`;
         // Replace all '.' characters with '-' characters in the Container App name
         containerAppName = containerAppName.replace(/\./gi, "-");
-        this.info(`Default Container App name: ${containerAppName}`);
-        return containerAppName
+        this.writeInfo(`Default Container App name: ${containerAppName}`);
+        return containerAppName;
     }
 
     public getTelemetryArg(): string {
         return `CALLER_ID=github-actions-v1`;
+    }
+
+    public getEventName(): string {
+        return `ContainerAppsGitHubActionV1`;
     }
 }

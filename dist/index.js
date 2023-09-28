@@ -52,7 +52,7 @@ var TelemetryHelper_1 = __nccwpck_require__(7166);
 var Utility_1 = __nccwpck_require__(2135);
 var GithubActionsToolHelper_1 = __nccwpck_require__(2153);
 var util = new Utility_1.Utility();
-var githubActionsToolHelper = new GithubActionsToolHelper_1.GithubActionsToolHelper();
+var toolHelper = new GithubActionsToolHelper_1.GitHubActionsToolHelper();
 var azurecontainerapps = /** @class */ (function () {
     function azurecontainerapps() {
     }
@@ -62,7 +62,7 @@ var azurecontainerapps = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        disableTelemetry = githubActionsToolHelper.getInput('disableTelemetry').toLowerCase() === 'true';
+                        disableTelemetry = toolHelper.getInput('disableTelemetry').toLowerCase() === 'true';
                         this.initializeHelpers(disableTelemetry);
                         _a.label = 1;
                     case 1:
@@ -109,7 +109,7 @@ var azurecontainerapps = /** @class */ (function () {
                         return [3 /*break*/, 12];
                     case 9:
                         err_1 = _a.sent();
-                        githubActionsToolHelper.setFailed(err_1.message);
+                        toolHelper.setFailed(err_1.message);
                         this.telemetryHelper.setFailedResult(err_1.message);
                         return [3 /*break*/, 12];
                     case 10: 
@@ -135,6 +135,10 @@ var azurecontainerapps = /** @class */ (function () {
         this.appHelper = new ContainerAppHelper_1.ContainerAppHelper(disableTelemetry);
         // Set up ContainerRegistryHelper for managing calls around ACR
         this.registryHelper = new ContainerRegistryHelper_1.ContainerRegistryHelper();
+        // Set up Utility for managing miscellaneous calls
+        this.util = new Utility_1.Utility();
+        // Set up toolHelper for managing calls to the GitHub Actions toolkit
+        this.toolHelper = new GithubActionsToolHelper_1.GitHubActionsToolHelper();
     };
     /**
      * Validates the arguments provided to the task for supported scenarios.
@@ -142,22 +146,24 @@ var azurecontainerapps = /** @class */ (function () {
      */
     azurecontainerapps.validateSupportedScenarioArguments = function () {
         // Get the path to the application source to build and run, if provided
-        this.appSourcePath = githubActionsToolHelper.getInput('appSourcePath', { required: false });
+        this.appSourcePath = toolHelper.getInput('appSourcePath', { required: false });
         // Get the name of the ACR instance to push images to, if provided
-        this.acrName = githubActionsToolHelper.getInput('acrName', { required: false });
+        this.acrName = toolHelper.getInput('acrName', { required: false });
         // Get the previously built image to deploy, if provided
-        this.imageToDeploy = githubActionsToolHelper.getInput('imageToDeploy', { required: false });
+        this.imageToDeploy = toolHelper.getInput('imageToDeploy', { required: false });
         // Get the YAML configuration file, if provided
-        this.yamlConfigPath = githubActionsToolHelper.getInput('yamlConfigPath', { required: false });
+        this.yamlConfigPath = toolHelper.getInput('yamlConfigPath', { required: false });
         // Ensure that acrName is also provided if appSourcePath is provided
         if (!util.isNullOrEmpty(this.appSourcePath) && util.isNullOrEmpty(this.acrName)) {
-            githubActionsToolHelper.error("The 'acrName' argument must be provided when the 'appSourcePath' argument is provided.");
-            throw Error("The 'acrName' argument must be provided when the 'appSourcePath' argument is provided.");
+            var missingAcrNameMessage = "The 'acrName' argument must be provided when the 'appSourcePath' argument is provided.";
+            toolHelper.writeError(missingAcrNameMessage);
+            throw Error(missingAcrNameMessage);
         }
         // Ensure that one of appSourcePath, imageToDeploy, or yamlConfigPath is provided
         if (util.isNullOrEmpty(this.appSourcePath) && util.isNullOrEmpty(this.imageToDeploy) && util.isNullOrEmpty(this.yamlConfigPath)) {
-            githubActionsToolHelper.error("One of the following arguments must be provided: 'appSourcePath', 'imageToDeploy', or 'yamlConfigPath'.");
-            throw Error("One of the following arguments must be provided: 'appSourcePath', 'imageToDeploy', or 'yamlConfigPath'.");
+            var requiredArgumentMessage = "One of the following arguments must be provided: 'appSourcePath', 'imageToDeploy', or 'yamlConfigPath'.";
+            toolHelper.writeError(requiredArgumentMessage);
+            throw Error(requiredArgumentMessage);
         }
     };
     /**
@@ -225,13 +231,13 @@ var azurecontainerapps = /** @class */ (function () {
     };
     /**
      * Gets the name of the Container App to use for the task. If the 'containerAppName' argument is not provided,
-     * then a default name will be generated in the form 'gh-action-app-<githubRunId>-<githubRunNumber>'.
+     * then a default name will be generated in the form 'gh-action-app-<buildId>-<buildNumber>'.
      * @returns The name of the Container App to use for the task.
      */
     azurecontainerapps.getContainerAppName = function () {
-        var containerAppName = githubActionsToolHelper.getInput('containerAppName', { required: false });
+        var containerAppName = toolHelper.getInput('containerAppName', { required: false });
         if (util.isNullOrEmpty(containerAppName)) {
-            return githubActionsToolHelper.getContainerAppName(containerAppName);
+            return toolHelper.getDefaultContainerAppName(containerAppName);
         }
         return containerAppName;
     };
@@ -246,7 +252,7 @@ var azurecontainerapps = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        location = githubActionsToolHelper.getInput('location', { required: false });
+                        location = toolHelper.getInput('location', { required: false });
                         if (!util.isNullOrEmpty(location)) return [3 /*break*/, 2];
                         return [4 /*yield*/, this.appHelper.getDefaultContainerAppLocation()];
                     case 1:
@@ -271,10 +277,10 @@ var azurecontainerapps = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        resourceGroup = githubActionsToolHelper.getInput('resourceGroup', { required: false });
+                        resourceGroup = toolHelper.getInput('resourceGroup', { required: false });
                         if (!util.isNullOrEmpty(resourceGroup)) return [3 /*break*/, 3];
                         resourceGroup = containerAppName + "-rg";
-                        githubActionsToolHelper.info("Default resource group name: " + resourceGroup);
+                        toolHelper.writeInfo("Default resource group name: " + resourceGroup);
                         return [4 /*yield*/, this.appHelper.doesResourceGroupExist(resourceGroup)];
                     case 1:
                         resourceGroupExists = _a.sent();
@@ -304,13 +310,13 @@ var azurecontainerapps = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        containerAppEnvironment = githubActionsToolHelper.getInput('containerAppEnvironment', { required: false });
+                        containerAppEnvironment = toolHelper.getInput('containerAppEnvironment', { required: false });
                         if (!util.isNullOrEmpty(containerAppEnvironment)) return [3 /*break*/, 2];
                         return [4 /*yield*/, this.appHelper.getExistingContainerAppEnvironment(resourceGroup)];
                     case 1:
                         existingContainerAppEnvironment = _a.sent();
                         if (!util.isNullOrEmpty(existingContainerAppEnvironment)) {
-                            githubActionsToolHelper.info("Existing Container App environment found in resource group: " + existingContainerAppEnvironment);
+                            toolHelper.writeInfo("Existing Container App environment found in resource group: " + existingContainerAppEnvironment);
                             return [2 /*return*/, existingContainerAppEnvironment];
                         }
                         _a.label = 2;
@@ -318,7 +324,7 @@ var azurecontainerapps = /** @class */ (function () {
                         // Generate the Container App environment name if it was not provided
                         if (util.isNullOrEmpty(containerAppEnvironment)) {
                             containerAppEnvironment = containerAppName + "-env";
-                            githubActionsToolHelper.info("Default Container App environment name: " + containerAppEnvironment);
+                            toolHelper.writeInfo("Default Container App environment name: " + containerAppEnvironment);
                         }
                         return [4 /*yield*/, this.appHelper.doesContainerAppEnvironmentExist(containerAppEnvironment, resourceGroup)];
                     case 3:
@@ -341,16 +347,16 @@ var azurecontainerapps = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        this.acrUsername = githubActionsToolHelper.getInput('acrUsername', { required: false });
-                        this.acrPassword = githubActionsToolHelper.getInput('acrPassword', { required: false });
+                        this.acrUsername = toolHelper.getInput('acrUsername', { required: false });
+                        this.acrPassword = toolHelper.getInput('acrPassword', { required: false });
                         if (!(!util.isNullOrEmpty(this.acrUsername) && !util.isNullOrEmpty(this.acrPassword))) return [3 /*break*/, 2];
-                        githubActionsToolHelper.info("Logging in to ACR instance \"" + this.acrName + "\" with username and password credentials");
+                        toolHelper.writeInfo("Logging in to ACR instance \"" + this.acrName + "\" with username and password credentials");
                         return [4 /*yield*/, this.registryHelper.loginAcrWithUsernamePassword(this.acrName, this.acrUsername, this.acrPassword)];
                     case 1:
                         _a.sent();
                         return [3 /*break*/, 4];
                     case 2:
-                        githubActionsToolHelper.info("No ACR credentials provided; attempting to log in to ACR instance \"" + this.acrName + "\" with access token");
+                        toolHelper.writeInfo("No ACR credentials provided; attempting to log in to ACR instance \"" + this.acrName + "\" with access token");
                         return [4 /*yield*/, this.registryHelper.loginAcrWithAccessTokenAsync(this.acrName)];
                     case 3:
                         _a.sent();
@@ -377,22 +383,22 @@ var azurecontainerapps = /** @class */ (function () {
                 switch (_a.label) {
                     case 0:
                         // Get the name of the image to build if it was provided, or generate it from build variables
-                        this.imageToBuild = githubActionsToolHelper.getInput('imageToBuild', { required: false });
+                        this.imageToBuild = toolHelper.getInput('imageToBuild', { required: false });
                         if (util.isNullOrEmpty(this.imageToBuild)) {
-                            this.imageToBuild = this.acrName + ".azurecr.io/gh-action/container-app:" + this.githubRunId + "." + this.githubRunNumber;
-                            githubActionsToolHelper.info("Default image to build: " + this.imageToBuild);
+                            this.imageToBuild = this.acrName + ".azurecr.io/gh-action/container-app:" + this.buildId + "." + this.buildNumber;
+                            toolHelper.writeInfo("Default image to build: " + this.imageToBuild);
                         }
                         // Get the name of the image to deploy if it was provided, or set it to the value of 'imageToBuild'
                         if (util.isNullOrEmpty(this.imageToDeploy)) {
                             this.imageToDeploy = this.imageToBuild;
-                            githubActionsToolHelper.info("Default image to deploy: " + this.imageToDeploy);
+                            toolHelper.writeInfo("Default image to deploy: " + this.imageToDeploy);
                         }
-                        dockerfilePath = githubActionsToolHelper.getInput('dockerfilePath', { required: false });
+                        dockerfilePath = toolHelper.getInput('dockerfilePath', { required: false });
                         if (!util.isNullOrEmpty(dockerfilePath)) return [3 /*break*/, 4];
-                        githubActionsToolHelper.info("No Dockerfile path provided; checking for Dockerfile at root of application source.");
+                        toolHelper.writeInfo("No Dockerfile path provided; checking for Dockerfile at root of application source.");
                         rootDockerfilePath = path.join(this.appSourcePath, 'Dockerfile');
                         if (!fs.existsSync(rootDockerfilePath)) return [3 /*break*/, 1];
-                        githubActionsToolHelper.info("Dockerfile found at root of application source.");
+                        toolHelper.writeInfo("Dockerfile found at root of application source.");
                         dockerfilePath = rootDockerfilePath;
                         return [3 /*break*/, 3];
                     case 1: 
@@ -441,18 +447,18 @@ var azurecontainerapps = /** @class */ (function () {
                     case 1:
                         // Install the pack CLI
                         _b.sent();
-                        githubActionsToolHelper.info("Successfully installed the pack CLI.");
+                        toolHelper.writeInfo("Successfully installed the pack CLI.");
                         // Get the runtime stack if provided, or determine it using Oryx
-                        this.runtimeStack = githubActionsToolHelper.getInput('runtimeStack', { required: false });
+                        this.runtimeStack = toolHelper.getInput('runtimeStack', { required: false });
                         if (!util.isNullOrEmpty(this.runtimeStack)) return [3 /*break*/, 3];
                         _a = this;
                         return [4 /*yield*/, this.appHelper.determineRuntimeStackAsync(appSourcePath)];
                     case 2:
                         _a.runtimeStack = _b.sent();
-                        githubActionsToolHelper.info("Runtime stack determined to be: " + this.runtimeStack);
+                        toolHelper.writeInfo("Runtime stack determined to be: " + this.runtimeStack);
                         _b.label = 3;
                     case 3:
-                        githubActionsToolHelper.info("Building image \"" + imageToBuild + "\" using the Oryx++ Builder");
+                        toolHelper.writeInfo("Building image \"" + imageToBuild + "\" using the Oryx++ Builder");
                         // Set the Oryx++ Builder as the default builder locally
                         return [4 /*yield*/, this.appHelper.setDefaultBuilder()];
                     case 4:
@@ -481,7 +487,7 @@ var azurecontainerapps = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        githubActionsToolHelper.info("Building image \"" + imageToBuild + "\" using the provided Dockerfile");
+                        toolHelper.writeInfo("Building image \"" + imageToBuild + "\" using the provided Dockerfile");
                         return [4 /*yield*/, this.appHelper.createRunnableAppImageFromDockerfile(imageToBuild, appSourcePath, dockerfilePath)];
                     case 1:
                         _a.sent();
@@ -499,8 +505,8 @@ var azurecontainerapps = /** @class */ (function () {
     azurecontainerapps.setupContainerAppProperties = function () {
         this.commandLineArgs = [];
         // Get the ingress inputs
-        this.ingress = githubActionsToolHelper.getInput('ingress', { required: false });
-        this.targetPort = githubActionsToolHelper.getInput('targetPort', { required: false });
+        this.ingress = toolHelper.getInput('ingress', { required: false });
+        this.targetPort = toolHelper.getInput('targetPort', { required: false });
         // If both ingress and target port were not provided for an existing Container App, or if ingress is to be disabled,
         // use the 'update' command, otherwise we should use the 'up' command that performs a PATCH operation on the ingress properties.
         this.shouldUseUpdateCommand = this.containerAppExists &&
@@ -517,17 +523,17 @@ var azurecontainerapps = /** @class */ (function () {
             // Set the ingress value to 'external' if it was not provided
             if (util.isNullOrEmpty(this.ingress)) {
                 this.ingress = 'external';
-                githubActionsToolHelper.info("Default ingress value: " + this.ingress);
+                toolHelper.writeInfo("Default ingress value: " + this.ingress);
             }
             // Set the value of ingressEnabled to 'false' if ingress was provided as 'disabled'
             if (this.ingress == 'disabled') {
                 this.ingressEnabled = false;
-                githubActionsToolHelper.info("Ingress is disabled for this Container App.");
+                toolHelper.writeInfo("Ingress is disabled for this Container App.");
             }
             // Handle setup for ingress values when enabled
             if (this.ingressEnabled) {
                 // Get the target port if provided, or determine it based on the application type
-                this.targetPort = githubActionsToolHelper.getInput('targetPort', { required: false });
+                this.targetPort = toolHelper.getInput('targetPort', { required: false });
                 if (util.isNullOrEmpty(this.targetPort)) {
                     if (!util.isNullOrEmpty(this.runtimeStack) && this.runtimeStack.startsWith('python:')) {
                         this.targetPort = '80';
@@ -535,12 +541,12 @@ var azurecontainerapps = /** @class */ (function () {
                     else {
                         this.targetPort = '8080';
                     }
-                    githubActionsToolHelper.info("Default target port: " + this.targetPort);
+                    toolHelper.writeInfo("Default target port: " + this.targetPort);
                 }
                 // Set the target port to 80 if it was not provided or determined
                 if (util.isNullOrEmpty(this.targetPort)) {
                     this.targetPort = '80';
-                    githubActionsToolHelper.info("Default target port: " + this.targetPort);
+                    toolHelper.writeInfo("Default target port: " + this.targetPort);
                 }
                 // Add the ingress value and target port to the optional arguments array
                 // Note: this step should be skipped if we're updating an existing Container App (ingress is enabled via a separate command)
@@ -548,7 +554,7 @@ var azurecontainerapps = /** @class */ (function () {
                 this.commandLineArgs.push("--target-port " + this.targetPort);
             }
         }
-        var environmentVariables = githubActionsToolHelper.getInput('environmentVariables', { required: false });
+        var environmentVariables = toolHelper.getInput('environmentVariables', { required: false });
         // Add user-specified environment variables
         if (!util.isNullOrEmpty(environmentVariables)) {
             // The --replace-env-vars flag is only used for the 'update' command,
@@ -626,8 +632,8 @@ var azurecontainerapps = /** @class */ (function () {
         });
     };
     // GitHub Action properties
-    azurecontainerapps.githubRunId = githubActionsToolHelper.getGithubRunId();
-    azurecontainerapps.githubRunNumber = githubActionsToolHelper.getGithubRunNumber();
+    azurecontainerapps.buildId = toolHelper.getbuildId();
+    azurecontainerapps.buildNumber = toolHelper.getbuildNumber();
     return azurecontainerapps;
 }());
 exports.azurecontainerapps = azurecontainerapps;
@@ -4640,7 +4646,7 @@ var ORYX_CLI_IMAGE = 'mcr.microsoft.com/oryx/cli:builder-debian-buster-20230208.
 var ORYX_BUILDER_IMAGE = 'mcr.microsoft.com/oryx/builder:20230208.1';
 var IS_WINDOWS_AGENT = os.platform() == 'win32';
 var PACK_CMD = IS_WINDOWS_AGENT ? path.join(os.tmpdir(), 'pack') : 'pack';
-var githubActionsToolHelper = new GithubActionsToolHelper_1.GithubActionsToolHelper();
+var toolHelper = new GithubActionsToolHelper_1.GitHubActionsToolHelper();
 var util = new Utility_1.Utility();
 var ContainerAppHelper = /** @class */ (function () {
     function ContainerAppHelper(disableTelemetry) {
@@ -4661,7 +4667,7 @@ var ContainerAppHelper = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        githubActionsToolHelper.debug("Attempting to create Container App with name \"" + containerAppName + "\" in resource group \"" + resourceGroup + "\" based from image \"" + imageToDeploy + "\"");
+                        toolHelper.writeDebug("Attempting to create Container App with name \"" + containerAppName + "\" in resource group \"" + resourceGroup + "\" based from image \"" + imageToDeploy + "\"");
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
@@ -4675,7 +4681,7 @@ var ContainerAppHelper = /** @class */ (function () {
                         return [3 /*break*/, 4];
                     case 3:
                         err_1 = _a.sent();
-                        githubActionsToolHelper.error(err_1.message);
+                        toolHelper.writeError(err_1.message);
                         throw err_1;
                     case 4: return [2 /*return*/];
                 }
@@ -4694,7 +4700,7 @@ var ContainerAppHelper = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        githubActionsToolHelper.debug("Attempting to create Container App with name \"" + containerAppName + "\" in resource group \"" + resourceGroup + "\" from provided YAML \"" + yamlConfigPath + "\"");
+                        toolHelper.writeDebug("Attempting to create Container App with name \"" + containerAppName + "\" in resource group \"" + resourceGroup + "\" from provided YAML \"" + yamlConfigPath + "\"");
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
@@ -4705,7 +4711,7 @@ var ContainerAppHelper = /** @class */ (function () {
                         return [3 /*break*/, 4];
                     case 3:
                         err_2 = _a.sent();
-                        githubActionsToolHelper.error(err_2.message);
+                        toolHelper.writeError(err_2.message);
                         throw err_2;
                     case 4: return [2 /*return*/];
                 }
@@ -4725,7 +4731,7 @@ var ContainerAppHelper = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        githubActionsToolHelper.debug("Attempting to update Container App with name \"" + containerAppName + "\" in resource group \"" + resourceGroup + "\" based from image \"" + imageToDeploy + "\"");
+                        toolHelper.writeDebug("Attempting to update Container App with name \"" + containerAppName + "\" in resource group \"" + resourceGroup + "\" based from image \"" + imageToDeploy + "\"");
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
@@ -4739,7 +4745,7 @@ var ContainerAppHelper = /** @class */ (function () {
                         return [3 /*break*/, 4];
                     case 3:
                         err_3 = _a.sent();
-                        githubActionsToolHelper.error(err_3.message);
+                        toolHelper.writeError(err_3.message);
                         throw err_3;
                     case 4: return [2 /*return*/];
                 }
@@ -4761,7 +4767,7 @@ var ContainerAppHelper = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        githubActionsToolHelper.debug("Attempting to update Container App with name \"" + containerAppName + "\" in resource group \"" + resourceGroup + "\" based from image \"" + imageToDeploy + "\"");
+                        toolHelper.writeDebug("Attempting to update Container App with name \"" + containerAppName + "\" in resource group \"" + resourceGroup + "\" based from image \"" + imageToDeploy + "\"");
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
@@ -4781,7 +4787,7 @@ var ContainerAppHelper = /** @class */ (function () {
                         return [3 /*break*/, 4];
                     case 3:
                         err_4 = _a.sent();
-                        githubActionsToolHelper.error(err_4.message);
+                        toolHelper.writeError(err_4.message);
                         throw err_4;
                     case 4: return [2 /*return*/];
                 }
@@ -4800,7 +4806,7 @@ var ContainerAppHelper = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        githubActionsToolHelper.debug("Attempting to update Container App with name \"" + containerAppName + "\" in resource group \"" + resourceGroup + "\" from provided YAML \"" + yamlConfigPath + "\"");
+                        toolHelper.writeDebug("Attempting to update Container App with name \"" + containerAppName + "\" in resource group \"" + resourceGroup + "\" from provided YAML \"" + yamlConfigPath + "\"");
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
@@ -4811,7 +4817,7 @@ var ContainerAppHelper = /** @class */ (function () {
                         return [3 /*break*/, 4];
                     case 3:
                         err_5 = _a.sent();
-                        githubActionsToolHelper.error(err_5.message);
+                        toolHelper.writeError(err_5.message);
                         throw err_5;
                     case 4: return [2 /*return*/];
                 }
@@ -4830,7 +4836,7 @@ var ContainerAppHelper = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        githubActionsToolHelper.debug("Attempting to determine if Container App with name \"" + containerAppName + "\" exists in resource group \"" + resourceGroup + "\"");
+                        toolHelper.writeDebug("Attempting to determine if Container App with name \"" + containerAppName + "\" exists in resource group \"" + resourceGroup + "\"");
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
@@ -4841,7 +4847,7 @@ var ContainerAppHelper = /** @class */ (function () {
                         return [2 /*return*/, executionResult.exitCode === 0];
                     case 3:
                         err_6 = _a.sent();
-                        githubActionsToolHelper.warning(err_6.message);
+                        toolHelper.writeWarning(err_6.message);
                         return [2 /*return*/, false];
                     case 4: return [2 /*return*/];
                 }
@@ -4860,7 +4866,7 @@ var ContainerAppHelper = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        githubActionsToolHelper.debug("Attempting to determine if Container App Environment with name \"" + containerAppEnvironment + "\" exists in resource group \"" + resourceGroup + "\"");
+                        toolHelper.writeDebug("Attempting to determine if Container App Environment with name \"" + containerAppEnvironment + "\" exists in resource group \"" + resourceGroup + "\"");
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
@@ -4871,7 +4877,7 @@ var ContainerAppHelper = /** @class */ (function () {
                         return [2 /*return*/, executionResult.exitCode === 0];
                     case 3:
                         err_7 = _a.sent();
-                        githubActionsToolHelper.warning(err_7.message);
+                        toolHelper.writeWarning(err_7.message);
                         return [2 /*return*/, false];
                     case 4: return [2 /*return*/];
                 }
@@ -4889,7 +4895,7 @@ var ContainerAppHelper = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        githubActionsToolHelper.debug("Attempting to determine if resource group \"" + resourceGroup + "\" exists");
+                        toolHelper.writeDebug("Attempting to determine if resource group \"" + resourceGroup + "\" exists");
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
@@ -4900,7 +4906,7 @@ var ContainerAppHelper = /** @class */ (function () {
                         return [2 /*return*/, executionResult.exitCode === 0];
                     case 3:
                         err_8 = _a.sent();
-                        githubActionsToolHelper.warning(err_8.message);
+                        toolHelper.writeWarning(err_8.message);
                         return [2 /*return*/, false];
                     case 4: return [2 /*return*/];
                 }
@@ -4917,7 +4923,7 @@ var ContainerAppHelper = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        githubActionsToolHelper.debug("Attempting to get the default location for the Container App service for the subscription.");
+                        toolHelper.writeDebug("Attempting to get the default location for the Container App service for the subscription.");
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
@@ -4926,10 +4932,10 @@ var ContainerAppHelper = /** @class */ (function () {
                     case 2:
                         executionResult = _a.sent();
                         // If successful, strip out double quotes, spaces and parentheses from the first location returned
-                        return [2 /*return*/, !executionResult.stderr ? executionResult.stdout.toLowerCase().replace(/["() ]/g, "").trim() : "eastus2"];
+                        return [2 /*return*/, executionResult.exitCode === 0 ? executionResult.stdout.toLowerCase().replace(/["() ]/g, "").trim() : "eastus2"];
                     case 3:
                         err_9 = _a.sent();
-                        githubActionsToolHelper.warning(err_9.message);
+                        toolHelper.writeWarning(err_9.message);
                         return [2 /*return*/, "eastus2"];
                     case 4: return [2 /*return*/];
                 }
@@ -4947,7 +4953,7 @@ var ContainerAppHelper = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        githubActionsToolHelper.debug("Attempting to create resource group \"" + name + "\" in location \"" + location + "\"");
+                        toolHelper.writeDebug("Attempting to create resource group \"" + name + "\" in location \"" + location + "\"");
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
@@ -4958,7 +4964,7 @@ var ContainerAppHelper = /** @class */ (function () {
                         return [3 /*break*/, 4];
                     case 3:
                         err_10 = _a.sent();
-                        githubActionsToolHelper.error(err_10.message);
+                        toolHelper.writeError(err_10.message);
                         throw err_10;
                     case 4: return [2 /*return*/];
                 }
@@ -4976,7 +4982,7 @@ var ContainerAppHelper = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        githubActionsToolHelper.debug("Attempting to get the existing Container App Environment in resource group \"" + resourceGroup + "\"");
+                        toolHelper.writeDebug("Attempting to get the existing Container App Environment in resource group \"" + resourceGroup + "\"");
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
@@ -4984,10 +4990,10 @@ var ContainerAppHelper = /** @class */ (function () {
                         return [4 /*yield*/, util.executeAndThrowIfError("az", args)];
                     case 2:
                         executionResult = _a.sent();
-                        return [2 /*return*/, !executionResult.stderr ? executionResult.stdout : null];
+                        return [2 /*return*/, executionResult.exitCode === 0 ? executionResult.stdout : null];
                     case 3:
                         err_11 = _a.sent();
-                        githubActionsToolHelper.warning(err_11.message);
+                        toolHelper.writeWarning(err_11.message);
                         return [2 /*return*/, null];
                     case 4: return [2 /*return*/];
                 }
@@ -5007,7 +5013,7 @@ var ContainerAppHelper = /** @class */ (function () {
                 switch (_a.label) {
                     case 0:
                         util = new Utility_1.Utility();
-                        githubActionsToolHelper.debug("Attempting to create Container App Environment with name \"" + name + "\" in resource group \"" + resourceGroup + "\"");
+                        toolHelper.writeDebug("Attempting to create Container App Environment with name \"" + name + "\" in resource group \"" + resourceGroup + "\"");
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
@@ -5021,7 +5027,7 @@ var ContainerAppHelper = /** @class */ (function () {
                         return [3 /*break*/, 4];
                     case 3:
                         err_12 = _a.sent();
-                        githubActionsToolHelper.error(err_12.message);
+                        toolHelper.writeError(err_12.message);
                         throw err_12;
                     case 4: return [2 /*return*/];
                 }
@@ -5039,7 +5045,7 @@ var ContainerAppHelper = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        githubActionsToolHelper.debug("Attempting to disable ingress for Container App with name \"" + name + "\" in resource group \"" + resourceGroup + "\"");
+                        toolHelper.writeDebug("Attempting to disable ingress for Container App with name \"" + name + "\" in resource group \"" + resourceGroup + "\"");
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
@@ -5050,7 +5056,7 @@ var ContainerAppHelper = /** @class */ (function () {
                         return [3 /*break*/, 4];
                     case 3:
                         err_13 = _a.sent();
-                        githubActionsToolHelper.error(err_13.message);
+                        toolHelper.writeError(err_13.message);
                         throw err_13;
                     case 4: return [2 /*return*/];
                 }
@@ -5071,7 +5077,7 @@ var ContainerAppHelper = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        githubActionsToolHelper.debug("Attempting to set the ACR details for Container App with name \"" + name + "\" in resource group \"" + resourceGroup + "\"");
+                        toolHelper.writeDebug("Attempting to set the ACR details for Container App with name \"" + name + "\" in resource group \"" + resourceGroup + "\"");
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
@@ -5082,7 +5088,7 @@ var ContainerAppHelper = /** @class */ (function () {
                         return [3 /*break*/, 4];
                     case 3:
                         err_14 = _a.sent();
-                        githubActionsToolHelper.error(err_14.message);
+                        toolHelper.writeError(err_14.message);
                         throw err_14;
                     case 4: return [2 /*return*/];
                 }
@@ -5101,11 +5107,11 @@ var ContainerAppHelper = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        githubActionsToolHelper.debug("Attempting to create a runnable application image using the Oryx++ Builder with image name \"" + imageToDeploy + "\"");
+                        toolHelper.writeDebug("Attempting to create a runnable application image using the Oryx++ Builder with image name \"" + imageToDeploy + "\"");
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
-                        telemetryArg = githubActionsToolHelper.getTelemetryArg();
+                        telemetryArg = toolHelper.getTelemetryArg();
                         if (this.disableTelemetry) {
                             telemetryArg = "ORYX_DISABLE_TELEMETRY=true";
                         }
@@ -5115,7 +5121,7 @@ var ContainerAppHelper = /** @class */ (function () {
                         return [3 /*break*/, 4];
                     case 3:
                         err_15 = _a.sent();
-                        githubActionsToolHelper.error(err_15.message);
+                        toolHelper.writeError(err_15.message);
                         throw err_15;
                     case 4: return [2 /*return*/];
                 }
@@ -5135,21 +5141,21 @@ var ContainerAppHelper = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        githubActionsToolHelper.debug("Attempting to create a runnable application image from the provided/found Dockerfile \"" + dockerfilePath + "\" with image name \"" + imageToDeploy + "\"");
+                        toolHelper.writeDebug("Attempting to create a runnable application image from the provided/found Dockerfile \"" + dockerfilePath + "\" with image name \"" + imageToDeploy + "\"");
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 4, , 5]);
-                        return [4 /*yield*/, githubActionsToolHelper.which("docker", true)];
+                        return [4 /*yield*/, toolHelper.which("docker", true)];
                     case 2:
                         dockerTool = _a.sent();
                         return [4 /*yield*/, util.executeAndThrowIfError(dockerTool, ['build', '--file', "" + dockerfilePath, "" + appSourcePath, '--tag', "" + imageToDeploy])];
                     case 3:
                         _a.sent();
-                        githubActionsToolHelper.debug("Successfully created runnable application image from the provided/found Dockerfile \"" + dockerfilePath + "\" with image name \"" + imageToDeploy + "\"");
+                        toolHelper.writeDebug("Successfully created runnable application image from the provided/found Dockerfile \"" + dockerfilePath + "\" with image name \"" + imageToDeploy + "\"");
                         return [3 /*break*/, 5];
                     case 4:
                         err_16 = _a.sent();
-                        githubActionsToolHelper.error(err_16.message);
+                        toolHelper.writeError(err_16.message);
                         throw err_16;
                     case 5: return [2 /*return*/];
                 }
@@ -5167,11 +5173,11 @@ var ContainerAppHelper = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        githubActionsToolHelper.debug('Attempting to determine the runtime stack needed for the provided application source');
+                        toolHelper.writeDebug('Attempting to determine the runtime stack needed for the provided application source');
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 4, , 5]);
-                        return [4 /*yield*/, githubActionsToolHelper.which("docker", true)];
+                        return [4 /*yield*/, toolHelper.which("docker", true)];
                     case 2:
                         dockerTool = _a.sent();
                         // Use 'oryx dockerfile' command to determine the runtime stack to use and write it to a temp file
@@ -5186,19 +5192,19 @@ var ContainerAppHelper = /** @class */ (function () {
                             var lines = data.split('\n');
                             return lines[0];
                         })["catch"](function (err) {
-                            githubActionsToolHelper.error(err.message);
+                            toolHelper.writeError(err.message);
                             throw err;
                         });
                         // Delete the temp file
                         fs.unlink(oryxRuntimeTxtPath_1, function (err) {
                             if (err) {
-                                githubActionsToolHelper.warning("Unable to delete the temporary file \"" + oryxRuntimeTxtPath_1 + "\". Error: " + err.message);
+                                toolHelper.writeWarning("Unable to delete the temporary file \"" + oryxRuntimeTxtPath_1 + "\". Error: " + err.message);
                             }
                         });
                         return [2 /*return*/, runtimeStack];
                     case 4:
                         err_17 = _a.sent();
-                        githubActionsToolHelper.error(err_17.message);
+                        toolHelper.writeError(err_17.message);
                         throw err_17;
                     case 5: return [2 /*return*/];
                 }
@@ -5215,7 +5221,7 @@ var ContainerAppHelper = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        githubActionsToolHelper.info('Setting the Oryx++ Builder as the default builder via the pack CLI');
+                        toolHelper.writeInfo('Setting the Oryx++ Builder as the default builder via the pack CLI');
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
@@ -5225,7 +5231,7 @@ var ContainerAppHelper = /** @class */ (function () {
                         return [3 /*break*/, 4];
                     case 3:
                         err_18 = _a.sent();
-                        githubActionsToolHelper.error(err_18.message);
+                        toolHelper.writeError(err_18.message);
                         throw err_18;
                     case 4: return [2 /*return*/];
                 }
@@ -5234,7 +5240,7 @@ var ContainerAppHelper = /** @class */ (function () {
     };
     /**
      * Installs the pack CLI that will be used to build a runnable application image.
-     * For more information about the pack CLI can be found here: https://buildpacks.io/docs/tools/pack/
+     * For more Information about the pack CLI can be found here: https://buildpacks.io/docs/tools/pack/
      */
     ContainerAppHelper.prototype.installPackCliAsync = function () {
         return __awaiter(this, void 0, void 0, function () {
@@ -5242,7 +5248,7 @@ var ContainerAppHelper = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        githubActionsToolHelper.debug('Attempting to install the pack CLI');
+                        toolHelper.writeDebug('Attempting to install the pack CLI');
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
@@ -5269,7 +5275,7 @@ var ContainerAppHelper = /** @class */ (function () {
                         return [3 /*break*/, 4];
                     case 3:
                         err_19 = _a.sent();
-                        githubActionsToolHelper.error("Unable to install the pack CLI. Error: " + err_19.message);
+                        toolHelper.writeError("Unable to install the pack CLI. Error: " + err_19.message);
                         throw err_19;
                     case 4: return [2 /*return*/];
                 }
@@ -5329,7 +5335,7 @@ exports.ContainerRegistryHelper = void 0;
 var os = __nccwpck_require__(2037);
 var Utility_1 = __nccwpck_require__(2135);
 var GithubActionsToolHelper_1 = __nccwpck_require__(2153);
-var githubActionsToolHelper = new GithubActionsToolHelper_1.GithubActionsToolHelper();
+var toolHelper = new GithubActionsToolHelper_1.GitHubActionsToolHelper();
 var util = new Utility_1.Utility();
 var ContainerRegistryHelper = /** @class */ (function () {
     function ContainerRegistryHelper() {
@@ -5342,23 +5348,26 @@ var ContainerRegistryHelper = /** @class */ (function () {
      */
     ContainerRegistryHelper.prototype.loginAcrWithUsernamePassword = function (acrName, acrUsername, acrPassword) {
         return __awaiter(this, void 0, void 0, function () {
-            var err_1;
+            var dockerTool, err_1;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        githubActionsToolHelper.debug("Attempting to log in to ACR instance \"" + acrName + "\" with username and password credentials");
+                        toolHelper.writeDebug("Attempting to log in to ACR instance \"" + acrName + "\" with username and password credentials");
                         _a.label = 1;
                     case 1:
-                        _a.trys.push([1, 3, , 4]);
-                        return [4 /*yield*/, githubActionsToolHelper.exec('docker', ["login", "--password-stdin", "--username", "" + acrUsername, acrName + ".azurecr.io"], { input: Buffer.from(acrPassword) })];
+                        _a.trys.push([1, 4, , 5]);
+                        return [4 /*yield*/, toolHelper.which("docker", true)];
                     case 2:
-                        _a.sent();
-                        return [3 /*break*/, 4];
+                        dockerTool = _a.sent();
+                        return [4 /*yield*/, util.executeAndThrowIfError(dockerTool, ["login", "--username", "" + acrUsername, "--password", "" + acrPassword, acrName + ".azurecr.io"], Buffer.from(acrPassword))];
                     case 3:
+                        _a.sent();
+                        return [3 /*break*/, 5];
+                    case 4:
                         err_1 = _a.sent();
-                        githubActionsToolHelper.error("Failed to log in to ACR instance \"" + acrName + "\" with username and password credentials");
+                        toolHelper.writeError("Failed to log in to ACR instance \"" + acrName + "\" with username and password credentials");
                         throw err_1;
-                    case 4: return [2 /*return*/];
+                    case 5: return [2 /*return*/];
                 }
             });
         });
@@ -5374,7 +5383,7 @@ var ContainerRegistryHelper = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        githubActionsToolHelper.debug("Attempting to log in to ACR instance \"" + acrName + "\" with access token");
+                        toolHelper.writeDebug("Attempting to log in to ACR instance \"" + acrName + "\" with access token");
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
@@ -5386,7 +5395,7 @@ var ContainerRegistryHelper = /** @class */ (function () {
                         return [3 /*break*/, 4];
                     case 3:
                         err_2 = _a.sent();
-                        githubActionsToolHelper.error("Failed to log in to ACR instance \"" + acrName + "\" with access token");
+                        toolHelper.writeError("Failed to log in to ACR instance \"" + acrName + "\" with access token");
                         throw err_2;
                     case 4: return [2 /*return*/];
                 }
@@ -5403,11 +5412,11 @@ var ContainerRegistryHelper = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        githubActionsToolHelper.debug("Attempting to push image \"" + imageToPush + "\" to ACR");
+                        toolHelper.writeDebug("Attempting to push image \"" + imageToPush + "\" to ACR");
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 4, , 5]);
-                        return [4 /*yield*/, githubActionsToolHelper.which("docker", true)];
+                        return [4 /*yield*/, toolHelper.which("docker", true)];
                     case 2:
                         dockerTool = _a.sent();
                         return [4 /*yield*/, util.executeAndThrowIfError(dockerTool, ["push", "" + imageToPush])];
@@ -5416,7 +5425,7 @@ var ContainerRegistryHelper = /** @class */ (function () {
                         return [3 /*break*/, 5];
                     case 4:
                         err_3 = _a.sent();
-                        githubActionsToolHelper.error("Failed to push image \"" + imageToPush + "\" to ACR. Error: " + err_3.message);
+                        toolHelper.writeError("Failed to push image \"" + imageToPush + "\" to ACR. Error: " + err_3.message);
                         throw err_3;
                     case 5: return [2 /*return*/];
                 }
@@ -5472,83 +5481,95 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 exports.__esModule = true;
-exports.GithubActionsToolHelper = void 0;
+exports.GitHubActionsToolHelper = void 0;
 var core = __nccwpck_require__(3195);
 var io = __nccwpck_require__(9529);
 var exec = __nccwpck_require__(9714);
-var GithubActionsToolHelper = /** @class */ (function () {
-    function GithubActionsToolHelper() {
+var GitHubActionsToolHelper = /** @class */ (function () {
+    function GitHubActionsToolHelper() {
     }
-    GithubActionsToolHelper.prototype.getGithubRunId = function () {
+    GitHubActionsToolHelper.prototype.getbuildId = function () {
         return process.env['GITHUB_RUN_ID'] || '';
     };
-    GithubActionsToolHelper.prototype.getGithubRunNumber = function () {
+    GitHubActionsToolHelper.prototype.getbuildNumber = function () {
         return process.env['GITHUB_RUN_NUMBER'] || '';
     };
-    GithubActionsToolHelper.prototype.info = function (message) {
+    GitHubActionsToolHelper.prototype.writeInfo = function (message) {
         core.info(message);
     };
-    GithubActionsToolHelper.prototype.error = function (message) {
+    GitHubActionsToolHelper.prototype.writeError = function (message) {
         core.error(message);
     };
-    GithubActionsToolHelper.prototype.warning = function (message) {
+    GitHubActionsToolHelper.prototype.writeWarning = function (message) {
         core.warning(message);
     };
-    GithubActionsToolHelper.prototype.debug = function (message) {
+    GitHubActionsToolHelper.prototype.writeDebug = function (message) {
         core.debug(message);
     };
-    GithubActionsToolHelper.prototype.exec = function (commandLine, args, execOptions) {
+    GitHubActionsToolHelper.prototype.exec = function (commandLine, args, inputOptions) {
         return __awaiter(this, void 0, void 0, function () {
+            var stdout_1, stderr_1, options, exitCode_1, err_1;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, exec.exec(commandLine, args, execOptions)];
-                    case 1: return [2 /*return*/, _a.sent()];
+                    case 0:
+                        _a.trys.push([0, 2, , 3]);
+                        stdout_1 = '';
+                        stderr_1 = '';
+                        options = {
+                            listeners: {
+                                stdout: function (data) {
+                                    stdout_1 += data.toString();
+                                },
+                                stderr: function (data) {
+                                    stderr_1 += data.toString();
+                                }
+                            },
+                            input: inputOptions
+                        };
+                        return [4 /*yield*/, exec.exec(commandLine, args, options)];
+                    case 1:
+                        exitCode_1 = _a.sent();
+                        return [2 /*return*/, new Promise(function (resolve, reject) {
+                                var executionResult = {
+                                    exitCode: exitCode_1,
+                                    stdout: stdout_1,
+                                    stderr: stderr_1
+                                };
+                                resolve(executionResult);
+                            })];
+                    case 2:
+                        err_1 = _a.sent();
+                        throw err_1;
+                    case 3: return [2 /*return*/];
                 }
             });
         });
     };
-    GithubActionsToolHelper.prototype.ExecOptions = function () {
-        return __awaiter(this, void 0, void 0, function () {
-            var stdout, stderr, options;
-            return __generator(this, function (_a) {
-                stdout = '';
-                stderr = '';
-                options = {
-                    listeners: {
-                        stdout: function (data) {
-                            stdout += data.toString();
-                        },
-                        stderr: function (data) {
-                            stderr += data.toString();
-                        }
-                    }
-                };
-                return [2 /*return*/, options];
-            });
-        });
-    };
-    GithubActionsToolHelper.prototype.getInput = function (name, options) {
+    GitHubActionsToolHelper.prototype.getInput = function (name, options) {
         return core.getInput(name, options);
     };
-    GithubActionsToolHelper.prototype.setFailed = function (message) {
+    GitHubActionsToolHelper.prototype.setFailed = function (message) {
         core.setFailed(message);
     };
-    GithubActionsToolHelper.prototype.which = function (tool, check) {
+    GitHubActionsToolHelper.prototype.which = function (tool, check) {
         return io.which(tool, check);
     };
-    GithubActionsToolHelper.prototype.getContainerAppName = function (containerAppName) {
-        containerAppName = "gh-action-app-" + this.getGithubRunId() + "-" + this.getGithubRunNumber();
+    GitHubActionsToolHelper.prototype.getDefaultContainerAppName = function (containerAppName) {
+        containerAppName = "gh-action-app-" + this.getbuildId() + "-" + this.getbuildNumber();
         // Replace all '.' characters with '-' characters in the Container App name
         containerAppName = containerAppName.replace(/\./gi, "-");
-        this.info("Default Container App name: " + containerAppName);
+        this.writeInfo("Default Container App name: " + containerAppName);
         return containerAppName;
     };
-    GithubActionsToolHelper.prototype.getTelemetryArg = function () {
+    GitHubActionsToolHelper.prototype.getTelemetryArg = function () {
         return "CALLER_ID=github-actions-v1";
     };
-    return GithubActionsToolHelper;
+    GitHubActionsToolHelper.prototype.getEventName = function () {
+        return "ContainerAppsGitHubActionV1";
+    };
+    return GitHubActionsToolHelper;
 }());
-exports.GithubActionsToolHelper = GithubActionsToolHelper;
+exports.GitHubActionsToolHelper = GitHubActionsToolHelper;
 
 
 /***/ }),
@@ -5605,7 +5626,7 @@ var BUILDER_SCENARIO = "used-builder";
 var DOCKERFILE_SCENARIO = "used-dockerfile";
 var IMAGE_SCENARIO = "used-image";
 var util = new Utility_1.Utility();
-var githubActionsToolHelper = new GithubActionsToolHelper_1.GithubActionsToolHelper();
+var toolHelper = new GithubActionsToolHelper_1.GitHubActionsToolHelper();
 var TelemetryHelper = /** @class */ (function () {
     function TelemetryHelper(disableTelemetry) {
         this.disableTelemetry = disableTelemetry;
@@ -5647,16 +5668,16 @@ var TelemetryHelper = /** @class */ (function () {
      */
     TelemetryHelper.prototype.sendLogs = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var taskLengthMilliseconds, resultArg, scenarioArg, errorMessageArg, args, err_1;
+            var taskLengthMilliseconds, resultArg, scenarioArg, errorMessageArg, eventName, args, dockerTool, err_1;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         taskLengthMilliseconds = Date.now() - this.taskStartMilliseconds;
-                        if (!!this.disableTelemetry) return [3 /*break*/, 4];
-                        githubActionsToolHelper.info("Telemetry enabled; logging metadata about task result, length and scenario targeted.");
+                        if (!!this.disableTelemetry) return [3 /*break*/, 5];
+                        toolHelper.writeInfo("Telemetry enabled; logging metadata about task result, length and scenario targeted.");
                         _a.label = 1;
                     case 1:
-                        _a.trys.push([1, 3, , 4]);
+                        _a.trys.push([1, 4, , 5]);
                         resultArg = '';
                         if (!util.isNullOrEmpty(this.result)) {
                             resultArg = "--property result=" + this.result;
@@ -5669,16 +5690,20 @@ var TelemetryHelper = /** @class */ (function () {
                         if (!util.isNullOrEmpty(this.errorMessage)) {
                             errorMessageArg = "--property errorMessage=" + this.errorMessage;
                         }
-                        args = ["run", "--rm", "" + ORYX_CLI_IMAGE, "/bin/bash", "-c", "oryx telemetry --event-name ContainerAppsGitHubActionV1 " + ("--processing-time " + taskLengthMilliseconds + " " + resultArg + " " + scenarioArg + " " + errorMessageArg)];
-                        return [4 /*yield*/, executeDockerCommand(args, true)];
+                        eventName = toolHelper.getEventName();
+                        args = ["run", "--rm", "" + ORYX_CLI_IMAGE, "/bin/bash", "-c", "oryx telemetry --event-name " + eventName + " " + ("--processing-time " + taskLengthMilliseconds + " " + resultArg + " " + scenarioArg + " " + errorMessageArg)];
+                        return [4 /*yield*/, toolHelper.which("docker", true)];
                     case 2:
-                        _a.sent();
-                        return [3 /*break*/, 4];
+                        dockerTool = _a.sent();
+                        return [4 /*yield*/, toolHelper.exec(dockerTool, args)];
                     case 3:
+                        _a.sent();
+                        return [3 /*break*/, 5];
+                    case 4:
                         err_1 = _a.sent();
-                        githubActionsToolHelper.warning("Skipping telemetry logging due to the following exception: " + err_1.message);
-                        return [3 /*break*/, 4];
-                    case 4: return [2 /*return*/];
+                        toolHelper.writeWarning("Skipping telemetry logging due to the following exception: " + err_1.message);
+                        return [3 /*break*/, 5];
+                    case 5: return [2 /*return*/];
                 }
             });
         });
@@ -5686,30 +5711,6 @@ var TelemetryHelper = /** @class */ (function () {
     return TelemetryHelper;
 }());
 exports.TelemetryHelper = TelemetryHelper;
-var executeDockerCommand = function (args, continueOnError) {
-    if (continueOnError === void 0) { continueOnError = false; }
-    return __awaiter(void 0, void 0, void 0, function () {
-        var dockerTool, err_2;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0:
-                    _a.trys.push([0, 3, , 4]);
-                    return [4 /*yield*/, githubActionsToolHelper.which("docker", true)];
-                case 1:
-                    dockerTool = _a.sent();
-                    return [4 /*yield*/, util.executeAndThrowIfError(dockerTool, args, continueOnError)];
-                case 2:
-                    _a.sent();
-                    return [3 /*break*/, 4];
-                case 3:
-                    err_2 = _a.sent();
-                    githubActionsToolHelper.error("Error: " + err_2.message);
-                    throw err_2; // Re-throw the error
-                case 4: return [2 /*return*/];
-            }
-        });
-    });
-};
 
 
 /***/ }),
@@ -5759,7 +5760,7 @@ exports.__esModule = true;
 exports.Utility = void 0;
 // Note: This file is used to define utility functions that can be used across the project.
 var GithubActionsToolHelper_1 = __nccwpck_require__(2153);
-var githubActionsToolHelper = new GithubActionsToolHelper_1.GithubActionsToolHelper();
+var toolHelper = new GithubActionsToolHelper_1.GitHubActionsToolHelper();
 var Utility = /** @class */ (function () {
     function Utility() {
     }
@@ -5768,39 +5769,20 @@ var Utility = /** @class */ (function () {
      * @param args - the arguments to pass to the command
      * @param continueOnError - whether or not to continue execution if the command fails
      */
-    Utility.prototype.executeAndThrowIfError = function (commandLine, args, continueOnError) {
-        if (continueOnError === void 0) { continueOnError = false; }
+    Utility.prototype.executeAndThrowIfError = function (commandLine, args, inputOptions) {
         return __awaiter(this, void 0, void 0, function () {
-            var options, stderr_1, stdout_1, exitCode_1, error_1;
+            var error_1;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        _a.trys.push([0, 3, , 4]);
-                        return [4 /*yield*/, githubActionsToolHelper.ExecOptions()];
-                    case 1:
-                        options = _a.sent();
-                        stderr_1 = options.listeners.stderr.toString();
-                        stdout_1 = options.listeners.stdout.toString();
-                        return [4 /*yield*/, githubActionsToolHelper.exec(commandLine, args, options)];
+                        _a.trys.push([0, 2, , 3]);
+                        return [4 /*yield*/, toolHelper.exec(commandLine, args, inputOptions)];
+                    case 1: return [2 /*return*/, _a.sent()];
                     case 2:
-                        exitCode_1 = _a.sent();
-                        if (!continueOnError && exitCode_1 !== 0) {
-                            githubActionsToolHelper.error("Command failed with exit code " + exitCode_1 + ". Error stream: " + stderr_1);
-                            throw new Error("Command failed with exit code " + exitCode_1 + ". Error stream: " + stderr_1);
-                        }
-                        return [2 /*return*/, new Promise(function (resolve, reject) {
-                                var executionResult = {
-                                    exitCode: exitCode_1,
-                                    stdout: stdout_1,
-                                    stderr: stderr_1
-                                };
-                                resolve(executionResult);
-                            })];
-                    case 3:
                         error_1 = _a.sent();
-                        githubActionsToolHelper.error("Error: " + error_1.message);
+                        toolHelper.writeError("Error: " + error_1.message);
                         throw error_1; // Re-throw the error
-                    case 4: return [2 /*return*/];
+                    case 3: return [2 /*return*/];
                 }
             });
         });
