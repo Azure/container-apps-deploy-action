@@ -72,7 +72,7 @@ export class GitHubActionsToolHelper {
     }
 
     public getDefaultContainerAppName(containerAppName: string): string {
-        containerAppName = `gh-action-app-${this.getbuildId()}-${this.getbuildNumber()}`;
+        containerAppName = `gh-action-app-${this.getBuildId()}-${this.getBuildNumber()}`;
         // Replace all '.' characters with '-' characters in the Container App name
         containerAppName = containerAppName.replace(/\./gi, "-");
         this.writeInfo(`Default Container App name: ${containerAppName}`);
