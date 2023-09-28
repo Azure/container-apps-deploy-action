@@ -4,11 +4,11 @@ import * as exec from '@actions/exec';
 
 export class GitHubActionsToolHelper {
 
-    public getbuildId(): string {
+    public getBuildId(): string {
         return process.env['GITHUB_RUN_ID'] || '';
     }
 
-    public getbuildNumber(): string {
+    public getBuildNumber(): string {
         return process.env['GITHUB_RUN_NUMBER'] || '';
     }
 

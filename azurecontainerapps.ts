@@ -59,9 +59,9 @@ export class azurecontainerapps {
         }
     }
 
-    // GitHub Action properties
-    private static buildId: string = toolHelper.getbuildId();
-    private static buildNumber: string = toolHelper.getbuildNumber();
+    // Build-specific properties
+    private static buildId: string = toolHelper.getBuildId();
+    private static buildNumber: string = toolHelper.getBuildNumber();
 
     // Supported scenario properties
     private static appSourcePath: string;

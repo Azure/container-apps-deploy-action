@@ -631,9 +631,9 @@ var azurecontainerapps = /** @class */ (function () {
             });
         });
     };
-    // GitHub Action properties
-    azurecontainerapps.buildId = toolHelper.getbuildId();
-    azurecontainerapps.buildNumber = toolHelper.getbuildNumber();
+    // Build-specific properties
+    azurecontainerapps.buildId = toolHelper.getBuildId();
+    azurecontainerapps.buildNumber = toolHelper.getBuildNumber();
     return azurecontainerapps;
 }());
 exports.azurecontainerapps = azurecontainerapps;
@@ -5488,10 +5488,10 @@ var exec = __nccwpck_require__(9714);
 var GitHubActionsToolHelper = /** @class */ (function () {
     function GitHubActionsToolHelper() {
     }
-    GitHubActionsToolHelper.prototype.getbuildId = function () {
+    GitHubActionsToolHelper.prototype.getBuildId = function () {
         return process.env['GITHUB_RUN_ID'] || '';
     };
-    GitHubActionsToolHelper.prototype.getbuildNumber = function () {
+    GitHubActionsToolHelper.prototype.getBuildNumber = function () {
         return process.env['GITHUB_RUN_NUMBER'] || '';
     };
     GitHubActionsToolHelper.prototype.writeInfo = function (message) {
