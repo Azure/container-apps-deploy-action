@@ -1,5 +1,5 @@
 import { Utility } from './Utility';
-import { GitHubActionsToolHelper } from './GithubActionsToolHelper';
+import { GitHubActionsToolHelper } from './GitHubActionsToolHelper';
 
 const ORYX_CLI_IMAGE: string = "mcr.microsoft.com/oryx/cli:debian-buster-20230207.2";
 
@@ -86,10 +86,9 @@ export class TelemetryHelper {
                 }
 
                 let eventName = toolHelper.getEventName();
-                let args: string[] = [`run`, `--rm`, `${ORYX_CLI_IMAGE}`, `/bin/bash`, `-c`, `oryx telemetry --event-name ${eventName} ` + `--processing-time ${taskLengthMilliseconds} ${resultArg} ${scenarioArg} ${errorMessageArg}`];
                 let dockerTool: string = await toolHelper.which("docker", true);
 
-                await toolHelper.exec(dockerTool, args);
+                await util.executeAndThrowIfError(`${dockerTool} "run --rm ${ORYX_CLI_IMAGE} /bin/bash -c oryx telemetry --event-name ${eventName} --processing-time ${taskLengthMilliseconds} ${resultArg} ${scenarioArg} ${errorMessageArg}"`);
             } catch (err) {
                 toolHelper.writeWarning(`Skipping telemetry logging due to the following exception: ${err.message}`);
             }

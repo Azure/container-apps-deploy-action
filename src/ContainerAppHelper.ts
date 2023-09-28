@@ -1,7 +1,7 @@
 import * as path from 'path';
 import * as os from 'os';
 import { Utility } from './Utility';
-import { GitHubActionsToolHelper } from './GithubActionsToolHelper'
+import { GitHubActionsToolHelper } from './GitHubActionsToolHelper'
 import fs = require('fs');
 
 const ORYX_CLI_IMAGE: string = 'mcr.microsoft.com/oryx/cli:builder-debian-buster-20230208.1';
@@ -38,7 +38,7 @@ export class ContainerAppHelper {
             optionalCmdArgs.forEach(function (val: string) {
                 command += ` ${val}`;
             });
-            await util.executeAndThrowIfError(`az`, command.split(' '));
+            await util.executeAndThrowIfError(`az "${command}"`);
         } catch (err) {
             toolHelper.writeError(err.message);
             throw err;
@@ -58,7 +58,7 @@ export class ContainerAppHelper {
         toolHelper.writeDebug(`Attempting to create Container App with name "${containerAppName}" in resource group "${resourceGroup}" from provided YAML "${yamlConfigPath}"`);
         try {
             let command = `containerapp create -n ${containerAppName} -g ${resourceGroup} --yaml ${yamlConfigPath}`;
-            await util.executeAndThrowIfError(`az`, command.split(' '));
+            await util.executeAndThrowIfError(`az "${command}"`);
         } catch (err) {
             toolHelper.writeError(err.message);
             throw err;
@@ -83,7 +83,7 @@ export class ContainerAppHelper {
             optionalCmdArgs.forEach(function (val: string) {
                 command += ` ${val}`;
             });
-            await util.executeAndThrowIfError(`az`, command.split(' '));
+            await util.executeAndThrowIfError(`az "${command}"`);
         } catch (err) {
             toolHelper.writeError(err.message);
             throw err;
@@ -120,7 +120,7 @@ export class ContainerAppHelper {
             if (!util.isNullOrEmpty(targetPort)) {
                 command += ` --target-port ${targetPort}`;
             }
-            await util.executeAndThrowIfError(`az`, command.split(' '));
+            await util.executeAndThrowIfError(`az "${command}"`);
         } catch (err) {
             toolHelper.writeError(err.message);
             throw err;
@@ -140,7 +140,7 @@ export class ContainerAppHelper {
         toolHelper.writeDebug(`Attempting to update Container App with name "${containerAppName}" in resource group "${resourceGroup}" from provided YAML "${yamlConfigPath}"`);
         try {
             let command = `containerapp update -n ${containerAppName} -g ${resourceGroup} --yaml ${yamlConfigPath}`;
-            await util.executeAndThrowIfError(`az`, command.split(' '));
+            await util.executeAndThrowIfError(`az "${command}"`);
         } catch (err) {
             toolHelper.writeError(err.message);
             throw err;
@@ -157,7 +157,7 @@ export class ContainerAppHelper {
         toolHelper.writeDebug(`Attempting to determine if Container App with name "${containerAppName}" exists in resource group "${resourceGroup}"`);
         try {
             let command = `containerapp show -n ${containerAppName} -g ${resourceGroup} -o none`;
-            let executionResult = await util.executeAndThrowIfError(`az`, command.split(' '));
+            let executionResult = await util.executeAndThrowIfError(`az "${command}"`);
             return executionResult.exitCode === 0;
         } catch (err) {
             toolHelper.writeWarning(err.message);
@@ -175,7 +175,7 @@ export class ContainerAppHelper {
         toolHelper.writeDebug(`Attempting to determine if Container App Environment with name "${containerAppEnvironment}" exists in resource group "${resourceGroup}"`);
         try {
             let command = `containerapp env show -n ${containerAppEnvironment} -g ${resourceGroup} -o none`;
-            let executionResult = await util.executeAndThrowIfError(`az`, command.split(' '));
+            let executionResult = await util.executeAndThrowIfError(`az "${command}"`);
             return executionResult.exitCode === 0;
         } catch (err) {
             toolHelper.writeWarning(err.message);
@@ -192,7 +192,7 @@ export class ContainerAppHelper {
         toolHelper.writeDebug(`Attempting to determine if resource group "${resourceGroup}" exists`);
         try {
             let command = `group show -n ${resourceGroup} -o none`;
-            let executionResult = await util.executeAndThrowIfError(`az`, command.split(' '));
+            let executionResult = await util.executeAndThrowIfError(`az "${command}"`);
             return executionResult.exitCode === 0;
         } catch (err) {
             toolHelper.writeWarning(err.message);
@@ -207,8 +207,7 @@ export class ContainerAppHelper {
     public async getDefaultContainerAppLocation(): Promise<string> {
         toolHelper.writeDebug(`Attempting to get the default location for the Container App service for the subscription.`);
         try {
-            let args = [`provider`, `show`, `-n`, `Microsoft.App`, `--query`, `resourceTypes[?resourceType=='containerApps'].locations[] | [0]`];
-            let executionResult = await util.executeAndThrowIfError(`az`, args);
+            let executionResult = await util.executeAndThrowIfError(`az "provider show -n Microsoft.App --query "resourceTypes[?resourceType=='containerApps'].locations[] | [0]"`);
             // If successful, strip out double quotes, spaces and parentheses from the first location returned
             return executionResult.exitCode === 0 ? executionResult.stdout.toLowerCase().replace(/["() ]/g, "").trim() : `eastus2`;
         } catch (err) {
@@ -226,7 +225,7 @@ export class ContainerAppHelper {
         toolHelper.writeDebug(`Attempting to create resource group "${name}" in location "${location}"`);
         try {
             let command = `group create -n ${name} -l ${location}`;
-            await util.executeAndThrowIfError(`az`, command.split(' '));
+            await util.executeAndThrowIfError(`az "${command}"`);
         } catch (err) {
             toolHelper.writeError(err.message);
             throw err;
@@ -241,8 +240,7 @@ export class ContainerAppHelper {
     public async getExistingContainerAppEnvironment(resourceGroup: string) {
         toolHelper.writeDebug(`Attempting to get the existing Container App Environment in resource group "${resourceGroup}"`);
         try {
-            let args = [`containerapp`, `env`, `list`, `-g`, `${resourceGroup}`, `--query`, `[0].name`];
-            let executionResult = await util.executeAndThrowIfError(`az`, args);
+            let executionResult = await util.executeAndThrowIfError(`az "containerapp env list -g ${resourceGroup} --query [0].name"`);
             return executionResult.exitCode === 0 ? executionResult.stdout : null;
         } catch (err) {
             toolHelper.writeWarning(err.message);
@@ -260,11 +258,11 @@ export class ContainerAppHelper {
         const util = new Utility();
         toolHelper.writeDebug(`Attempting to create Container App Environment with name "${name}" in resource group "${resourceGroup}"`);
         try {
-            let args = [`containerapp`, `env`, `create`, `-n`, `${name}`, `-g`, `${resourceGroup}`];
+            let command = `containerapp env create -n ${name} -g ${resourceGroup}`;
             if (!util.isNullOrEmpty(location)) {
-                args.push(`-l`, `${location}`);
+                command += ` -l ${location}`;
             }
-            await util.executeAndThrowIfError(`az`, args);
+            await util.executeAndThrowIfError(`az "${command}"`);
         } catch (err) {
             toolHelper.writeError(err.message);
             throw err;
@@ -280,7 +278,7 @@ export class ContainerAppHelper {
         toolHelper.writeDebug(`Attempting to disable ingress for Container App with name "${name}" in resource group "${resourceGroup}"`);
         try {
             let command = `containerapp ingress disable -n ${name} -g ${resourceGroup}`;
-            await util.executeAndThrowIfError(`az`, command.split(' '));
+            await util.executeAndThrowIfError(`az "${command}"`);
         } catch (err) {
             toolHelper.writeError(err.message);
             throw err;
@@ -299,7 +297,7 @@ export class ContainerAppHelper {
         toolHelper.writeDebug(`Attempting to set the ACR details for Container App with name "${name}" in resource group "${resourceGroup}"`);
         try {
             let command = `containerapp registry set -n ${name} -g ${resourceGroup} --server ${acrName}.azurecr.io --username ${acrUsername} --password ${acrPassword}`;
-            await util.executeAndThrowIfError(`az`, command.split(' '));
+            await util.executeAndThrowIfError(`az "${command}"`);
         } catch (err) {
             toolHelper.writeError(err.message);
             throw err;
@@ -322,7 +320,8 @@ export class ContainerAppHelper {
             if (this.disableTelemetry) {
                 telemetryArg = `ORYX_DISABLE_TELEMETRY=true`;
             }
-            await util.executeAndThrowIfError(`${PACK_CMD}`, ['build', `${imageToDeploy}`, '--path', `${appSourcePath}`, '--builder', `${ORYX_BUILDER_IMAGE}`, '--run-image', `mcr.microsoft.com/oryx/${runtimeStack}`, '--env', `${telemetryArg}`]);
+            let command = `build ${imageToDeploy} --path ${appSourcePath} --builder ${ORYX_BUILDER_IMAGE} --run-image mcr.microsoft.com/oryx/${runtimeStack} --env ${telemetryArg}`;
+            await util.executeAndThrowIfError(`${PACK_CMD} "${command}"`);
         } catch (err) {
             toolHelper.writeError(err.message);
             throw err;
@@ -343,7 +342,8 @@ export class ContainerAppHelper {
         toolHelper.writeDebug(`Attempting to create a runnable application image from the provided/found Dockerfile "${dockerfilePath}" with image name "${imageToDeploy}"`);
         try {
             let dockerTool = await toolHelper.which("docker", true);
-            await util.executeAndThrowIfError(dockerTool, ['build', '--file', `${dockerfilePath}`, `${appSourcePath}`, '--tag', `${imageToDeploy}`]);
+            let command = `build --file ${dockerfilePath} ${appSourcePath} --tag ${imageToDeploy}`;
+            await util.executeAndThrowIfError(`${dockerTool} "${command}"`);
             toolHelper.writeDebug(`Successfully created runnable application image from the provided/found Dockerfile "${dockerfilePath}" with image name "${imageToDeploy}"`);
         } catch (err) {
             toolHelper.writeError(err.message);
@@ -361,7 +361,9 @@ export class ContainerAppHelper {
         try {
             let dockerTool: string = await toolHelper.which("docker", true);
             // Use 'oryx dockerfile' command to determine the runtime stack to use and write it to a temp file
-            await util.executeAndThrowIfError(dockerTool, ['run', '--rm', '-v', `${appSourcePath}:/app`, `${ORYX_CLI_IMAGE}`, '/bin/bash', '-c', `oryx dockerfile /app | head -n 1 | sed 's/ARG RUNTIME=//' >> /app/oryx-runtime.txt`])
+            let oryxDockerfileCommand = `oryx dockerfile ${appSourcePath} | head -n 1 | sed 's/ARG RUNTIME=//' >> ${appSourcePath}/oryx-runtime.txt`
+            let command = `run --rm -v ${appSourcePath}:/app ${ORYX_CLI_IMAGE} /bin/bash -c ${oryxDockerfileCommand}}`
+            await util.executeAndThrowIfError(`${dockerTool} "${command}"`)
 
             // Read the temp file to get the runtime stack into a variable
             let oryxRuntimeTxtPath = path.join(appSourcePath, 'oryx-runtime.txt');
@@ -395,7 +397,8 @@ export class ContainerAppHelper {
     public async setDefaultBuilder() {
         toolHelper.writeInfo('Setting the Oryx++ Builder as the default builder via the pack CLI');
         try {
-            await util.executeAndThrowIfError(`${PACK_CMD}`, ['config', 'default-builder', `${ORYX_BUILDER_IMAGE}`]);
+            let command = `config default-builder ${ORYX_BUILDER_IMAGE}`
+            await util.executeAndThrowIfError(`${PACK_CMD} "${command}"`);
         }
         catch (err) {
             toolHelper.writeError(err.message);
@@ -412,21 +415,18 @@ export class ContainerAppHelper {
         try {
             let command: string = '';
             let commandLine = '';
-            let args: string[] = [];
             if (IS_WINDOWS_AGENT) {
                 let packZipDownloadUri: string = 'https://github.com/buildpacks/pack/releases/download/v0.27.0/pack-v0.27.0-windows.zip';
                 let packZipDownloadFilePath: string = path.join(PACK_CMD, 'pack-windows.zip');
-                args = [`New-Item`, `-ItemType`, `Directory`, `-Path`, `${PACK_CMD}`, `-Force | Out-Null;`, `Invoke-WebRequest`, `-Uri`, `${packZipDownloadUri}`, `-OutFile`, `${packZipDownloadFilePath};`, `Expand-Archive`, `-LiteralPath`, `${packZipDownloadFilePath}`, `-DestinationPath`, `${PACK_CMD};`, `Remove-Item`, `-Path`, `${packZipDownloadFilePath}`,
-                    `Expand-Archive`, `-LiteralPath`, `${packZipDownloadFilePath}`, `-DestinationPath`, `${PACK_CMD};`, `Remove-Item`, `-Path`, `${packZipDownloadFilePath}`];
+                command = `New-Item -ItemType Directory -Path ${PACK_CMD} -Force | Out-Null; Invoke-WebRequest -Uri ${packZipDownloadUri} -OutFile ${packZipDownloadFilePath}; Expand-Archive -LiteralPath ${packZipDownloadFilePath} -DestinationPath ${PACK_CMD}; Remove-Item -Path ${packZipDownloadFilePath}`;
                 commandLine = 'pwsh';
             } else {
                 let tgzSuffix = os.platform() == 'darwin' ? 'macos' : 'linux';
-                command = `(curl -sSL \"https://github.com/buildpacks/pack/releases/download/v0.27.0/pack-v0.27.0-${tgzSuffix}.tgz\" | ` +
+                command = `-c (curl -sSL \"https://github.com/buildpacks/pack/releases/download/v0.27.0/pack-v0.27.0-${tgzSuffix}.tgz\" | ` +
                     'tar -C /usr/local/bin/ --no-same-owner -xzv pack)';
-                args = ['-c', command];
                 commandLine = 'bash';
             }
-            await util.executeAndThrowIfError(commandLine, args);
+            await util.executeAndThrowIfError(`${commandLine} "${command}"`);
         } catch (err) {
             toolHelper.writeError(`Unable to install the pack CLI. Error: ${err.message}`);
             throw err;

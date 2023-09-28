@@ -4,16 +4,12 @@ import { ContainerAppHelper } from './src/ContainerAppHelper';
 import { ContainerRegistryHelper } from './src/ContainerRegistryHelper';
 import { TelemetryHelper } from './src/TelemetryHelper';
 import { Utility } from './src/Utility';
-import { GitHubActionsToolHelper } from './src/GithubActionsToolHelper';
-
-const util = new Utility();
-const toolHelper = new GitHubActionsToolHelper();
+import { GitHubActionsToolHelper } from './src/GitHubActionsToolHelper';
 
 export class azurecontainerapps {
 
     public static async runMain(): Promise<void> {
-        let disableTelemetry = toolHelper.getInput('disableTelemetry').toLowerCase() === 'true';
-        this.initializeHelpers(disableTelemetry);
+        this.initializeHelpers();
 
         try {
             // Validate that the arguments provided can be used for one of the supported scenarios
@@ -26,22 +22,22 @@ export class azurecontainerapps {
             await this.setupResources();
 
             // If an Azure Container Registry name was provided, try to authenticate against it
-            if (!util.isNullOrEmpty(this.acrName)) {
+            if (!this.util.isNullOrEmpty(this.acrName)) {
                 await this.authenticateAzureContainerRegistryAsync();
             }
 
             // If the application source was provided, build a runnable application image from it
-            if (!util.isNullOrEmpty(this.appSourcePath)) {
+            if (!this.util.isNullOrEmpty(this.appSourcePath)) {
                 await this.buildAndPushImageAsync();
             }
 
             // If no application source was provided, set up the scenario for deploying an existing image
-            if (util.isNullOrEmpty(this.appSourcePath)) {
+            if (this.util.isNullOrEmpty(this.appSourcePath)) {
                 this.setupExistingImageScenario();
             }
 
             // If no YAML configuration file was provided, set up the Container App properties
-            if (util.isNullOrEmpty(this.yamlConfigPath)) {
+            if (this.util.isNullOrEmpty(this.yamlConfigPath)) {
                 this.setupContainerAppProperties();
             }
 
@@ -51,7 +47,7 @@ export class azurecontainerapps {
             // If telemetry is enabled, log that the task completed successfully
             this.telemetryHelper.setSuccessfulResult();
         } catch (err) {
-            toolHelper.setFailed(err.message);
+            this.toolHelper.setFailed(err.message);
             this.telemetryHelper.setFailedResult(err.message);
         } finally {
             // If telemetry is enabled, will log metadata for this task run
@@ -60,8 +56,8 @@ export class azurecontainerapps {
     }
 
     // Build-specific properties
-    private static buildId: string = toolHelper.getBuildId();
-    private static buildNumber: string = toolHelper.getBuildNumber();
+    private static buildId: string;
+    private static buildNumber: string;
 
     // Supported scenario properties
     private static appSourcePath: string;
@@ -102,7 +98,21 @@ export class azurecontainerapps {
      * Initializes the helpers used by this task.
      * @param disableTelemetry - Whether or not to disable telemetry for this task.
      */
-    private static initializeHelpers(disableTelemetry: boolean) {
+    private static initializeHelpers() {
+        // Set up Utility for managing miscellaneous calls
+        this.util = new Utility();
+
+        // Set up toolHelper for managing calls to the GitHub Actions toolkit
+        this.toolHelper = new GitHubActionsToolHelper();
+
+        let disableTelemetry = this.toolHelper.getInput('disableTelemetry').toLowerCase() === 'true';
+
+        // Get buildId
+        this.buildId = this.toolHelper.getBuildId();
+
+        // Get buildNumber
+        this.buildNumber = this.toolHelper.getBuildNumber();
+
         // Set up TelemetryHelper for managing telemetry calls
         this.telemetryHelper = new TelemetryHelper(disableTelemetry);
 
@@ -111,12 +121,6 @@ export class azurecontainerapps {
 
         // Set up ContainerRegistryHelper for managing calls around ACR
         this.registryHelper = new ContainerRegistryHelper();
-
-        // Set up Utility for managing miscellaneous calls
-        this.util = new Utility();
-
-        // Set up toolHelper for managing calls to the GitHub Actions toolkit
-        this.toolHelper = new GitHubActionsToolHelper();
     }
 
     /**
@@ -126,28 +130,28 @@ export class azurecontainerapps {
     private static validateSupportedScenarioArguments() {
 
         // Get the path to the application source to build and run, if provided
-        this.appSourcePath = toolHelper.getInput('appSourcePath', { required: false });
+        this.appSourcePath = this.toolHelper.getInput('appSourcePath', { required: false });
 
         // Get the name of the ACR instance to push images to, if provided
-        this.acrName = toolHelper.getInput('acrName', { required: false });
+        this.acrName = this.toolHelper.getInput('acrName', { required: false });
 
         // Get the previously built image to deploy, if provided
-        this.imageToDeploy = toolHelper.getInput('imageToDeploy', { required: false });
+        this.imageToDeploy = this.toolHelper.getInput('imageToDeploy', { required: false });
 
         // Get the YAML configuration file, if provided
-        this.yamlConfigPath = toolHelper.getInput('yamlConfigPath', { required: false });
+        this.yamlConfigPath = this.toolHelper.getInput('yamlConfigPath', { required: false });
 
         // Ensure that acrName is also provided if appSourcePath is provided
-        if (!util.isNullOrEmpty(this.appSourcePath) && util.isNullOrEmpty(this.acrName)) {
+        if (!this.util.isNullOrEmpty(this.appSourcePath) && this.util.isNullOrEmpty(this.acrName)) {
             let missingAcrNameMessage = `The 'acrName' argument must be provided when the 'appSourcePath' argument is provided.`;
-            toolHelper.writeError(missingAcrNameMessage);
+            this.toolHelper.writeError(missingAcrNameMessage);
             throw Error(missingAcrNameMessage);
         }
 
         // Ensure that one of appSourcePath, imageToDeploy, or yamlConfigPath is provided
-        if (util.isNullOrEmpty(this.appSourcePath) && util.isNullOrEmpty(this.imageToDeploy) && util.isNullOrEmpty(this.yamlConfigPath)) {
+        if (this.util.isNullOrEmpty(this.appSourcePath) && this.util.isNullOrEmpty(this.imageToDeploy) && this.util.isNullOrEmpty(this.yamlConfigPath)) {
             let requiredArgumentMessage = `One of the following arguments must be provided: 'appSourcePath', 'imageToDeploy', or 'yamlConfigPath'.`;
-            toolHelper.writeError(requiredArgumentMessage);
+            this.toolHelper.writeError(requiredArgumentMessage);
             throw Error(requiredArgumentMessage);
         }
     }
@@ -158,7 +162,7 @@ export class azurecontainerapps {
      */
     private static async setupAzureCli() {
         // Set the Azure CLI to dynamically install missing extensions
-        await util.setAzureCliDynamicInstall();
+        await this.util.setAzureCliDynamicInstall();
     }
 
     /**
@@ -193,9 +197,9 @@ export class azurecontainerapps {
      * @returns The name of the Container App to use for the task.
      */
     private static getContainerAppName(): string {
-        let containerAppName: string = toolHelper.getInput('containerAppName', { required: false });
-        if (util.isNullOrEmpty(containerAppName)) {
-            return toolHelper.getDefaultContainerAppName(containerAppName);
+        let containerAppName: string = this.toolHelper.getInput('containerAppName', { required: false });
+        if (this.util.isNullOrEmpty(containerAppName)) {
+            return this.toolHelper.getDefaultContainerAppName(containerAppName);
         }
 
         return containerAppName;
@@ -208,10 +212,10 @@ export class azurecontainerapps {
      */
     private static async getLocation(): Promise<string> {
         // Set deployment location, if provided
-        let location: string = toolHelper.getInput('location', { required: false });
+        let location: string = this.toolHelper.getInput('location', { required: false });
 
         // If no location was provided, use the default location for the Container App service
-        if (util.isNullOrEmpty(location)) {
+        if (this.util.isNullOrEmpty(location)) {
             location = await this.appHelper.getDefaultContainerAppLocation();
         }
 
@@ -228,10 +232,10 @@ export class azurecontainerapps {
      */
     private static async getOrCreateResourceGroup(containerAppName: string, location: string): Promise<string> {
         // Get the resource group to deploy to if it was provided, or generate it from the Container App name
-        let resourceGroup: string = toolHelper.getInput('resourceGroup', { required: false });
-        if (util.isNullOrEmpty(resourceGroup)) {
+        let resourceGroup: string = this.toolHelper.getInput('resourceGroup', { required: false });
+        if (this.util.isNullOrEmpty(resourceGroup)) {
             resourceGroup = `${containerAppName}-rg`;
-            toolHelper.writeInfo(`Default resource group name: ${resourceGroup}`);
+            this.toolHelper.writeInfo(`Default resource group name: ${resourceGroup}`);
 
             // Ensure that the resource group that the Container App will be created in exists
             const resourceGroupExists = await this.appHelper.doesResourceGroupExist(resourceGroup);
@@ -258,21 +262,21 @@ export class azurecontainerapps {
         resourceGroup: string,
         location: string): Promise<string> {
         // Get the Container App environment if it was provided
-        let containerAppEnvironment: string = toolHelper.getInput('containerAppEnvironment', { required: false });
+        let containerAppEnvironment: string = this.toolHelper.getInput('containerAppEnvironment', { required: false });
 
         // See if we can reuse an existing Container App environment found in the resource group
-        if (util.isNullOrEmpty(containerAppEnvironment)) {
+        if (this.util.isNullOrEmpty(containerAppEnvironment)) {
             const existingContainerAppEnvironment: string = await this.appHelper.getExistingContainerAppEnvironment(resourceGroup);
-            if (!util.isNullOrEmpty(existingContainerAppEnvironment)) {
-                toolHelper.writeInfo(`Existing Container App environment found in resource group: ${existingContainerAppEnvironment}`);
+            if (!this.util.isNullOrEmpty(existingContainerAppEnvironment)) {
+                this.toolHelper.writeInfo(`Existing Container App environment found in resource group: ${existingContainerAppEnvironment}`);
                 return existingContainerAppEnvironment
             }
         }
 
         // Generate the Container App environment name if it was not provided
-        if (util.isNullOrEmpty(containerAppEnvironment)) {
+        if (this.util.isNullOrEmpty(containerAppEnvironment)) {
             containerAppEnvironment = `${containerAppName}-env`;
-            toolHelper.writeInfo(`Default Container App environment name: ${containerAppEnvironment}`);
+            this.toolHelper.writeInfo(`Default Container App environment name: ${containerAppEnvironment}`);
         }
 
         // Determine if the Container App environment currently exists and create one if it doesn't
@@ -288,15 +292,15 @@ export class azurecontainerapps {
      * Authenticates calls to the provided Azure Container Registry.
      */
     private static async authenticateAzureContainerRegistryAsync() {
-        this.acrUsername = toolHelper.getInput('acrUsername', { required: false });
-        this.acrPassword = toolHelper.getInput('acrPassword', { required: false });
+        this.acrUsername = this.toolHelper.getInput('acrUsername', { required: false });
+        this.acrPassword = this.toolHelper.getInput('acrPassword', { required: false });
 
         // Login to ACR if credentials were provided
-        if (!util.isNullOrEmpty(this.acrUsername) && !util.isNullOrEmpty(this.acrPassword)) {
-            toolHelper.writeInfo(`Logging in to ACR instance "${this.acrName}" with username and password credentials`);
+        if (!this.util.isNullOrEmpty(this.acrUsername) && !this.util.isNullOrEmpty(this.acrPassword)) {
+            this.toolHelper.writeInfo(`Logging in to ACR instance "${this.acrName}" with username and password credentials`);
             await this.registryHelper.loginAcrWithUsernamePassword(this.acrName, this.acrUsername, this.acrPassword);
         } else {
-            toolHelper.writeInfo(`No ACR credentials provided; attempting to log in to ACR instance "${this.acrName}" with access token`);
+            this.toolHelper.writeInfo(`No ACR credentials provided; attempting to log in to ACR instance "${this.acrName}" with access token`);
             await this.registryHelper.loginAcrWithAccessTokenAsync(this.acrName);
         }
     }
@@ -314,25 +318,25 @@ export class azurecontainerapps {
      */
     private static async buildAndPushImageAsync() {
         // Get the name of the image to build if it was provided, or generate it from build variables
-        this.imageToBuild = toolHelper.getInput('imageToBuild', { required: false });
-        if (util.isNullOrEmpty(this.imageToBuild)) {
+        this.imageToBuild = this.toolHelper.getInput('imageToBuild', { required: false });
+        if (this.util.isNullOrEmpty(this.imageToBuild)) {
             this.imageToBuild = `${this.acrName}.azurecr.io/gh-action/container-app:${this.buildId}.${this.buildNumber}`;
-            toolHelper.writeInfo(`Default image to build: ${this.imageToBuild}`);
+            this.toolHelper.writeInfo(`Default image to build: ${this.imageToBuild}`);
         }
 
         // Get the name of the image to deploy if it was provided, or set it to the value of 'imageToBuild'
-        if (util.isNullOrEmpty(this.imageToDeploy)) {
+        if (this.util.isNullOrEmpty(this.imageToDeploy)) {
             this.imageToDeploy = this.imageToBuild;
-            toolHelper.writeInfo(`Default image to deploy: ${this.imageToDeploy}`);
+            this.toolHelper.writeInfo(`Default image to deploy: ${this.imageToDeploy}`);
         }
 
         // Get Dockerfile to build, if provided, or check if one exists at the root of the provided application
-        let dockerfilePath: string = toolHelper.getInput('dockerfilePath', { required: false });
-        if (util.isNullOrEmpty(dockerfilePath)) {
-            toolHelper.writeInfo(`No Dockerfile path provided; checking for Dockerfile at root of application source.`);
+        let dockerfilePath: string = this.toolHelper.getInput('dockerfilePath', { required: false });
+        if (this.util.isNullOrEmpty(dockerfilePath)) {
+            this.toolHelper.writeInfo(`No Dockerfile path provided; checking for Dockerfile at root of application source.`);
             const rootDockerfilePath = path.join(this.appSourcePath, 'Dockerfile');
             if (fs.existsSync(rootDockerfilePath)) {
-                toolHelper.writeInfo(`Dockerfile found at root of application source.`)
+                this.toolHelper.writeInfo(`Dockerfile found at root of application source.`)
                 dockerfilePath = rootDockerfilePath;
             } else {
                 // No Dockerfile found or provided, build the image using the builder
@@ -342,7 +346,7 @@ export class azurecontainerapps {
             dockerfilePath = path.join(this.appSourcePath, dockerfilePath);
         }
 
-        if (!util.isNullOrEmpty(dockerfilePath)) {
+        if (!this.util.isNullOrEmpty(dockerfilePath)) {
             // Build the image from the provided/discovered Dockerfile
             await this.builderImageFromDockerfile(this.appSourcePath, dockerfilePath, this.imageToBuild);
         }
@@ -359,16 +363,16 @@ export class azurecontainerapps {
     private static async buildImageFromBuilderAsync(appSourcePath: string, imageToBuild: string) {
         // Install the pack CLI
         await this.appHelper.installPackCliAsync();
-        toolHelper.writeInfo(`Successfully installed the pack CLI.`)
+        this.toolHelper.writeInfo(`Successfully installed the pack CLI.`)
 
         // Get the runtime stack if provided, or determine it using Oryx
-        this.runtimeStack = toolHelper.getInput('runtimeStack', { required: false });
-        if (util.isNullOrEmpty(this.runtimeStack)) {
+        this.runtimeStack = this.toolHelper.getInput('runtimeStack', { required: false });
+        if (this.util.isNullOrEmpty(this.runtimeStack)) {
             this.runtimeStack = await this.appHelper.determineRuntimeStackAsync(appSourcePath);
-            toolHelper.writeInfo(`Runtime stack determined to be: ${this.runtimeStack}`);
+            this.toolHelper.writeInfo(`Runtime stack determined to be: ${this.runtimeStack}`);
         }
 
-        toolHelper.writeInfo(`Building image "${imageToBuild}" using the Oryx++ Builder`);
+        this.toolHelper.writeInfo(`Building image "${imageToBuild}" using the Oryx++ Builder`);
 
         // Set the Oryx++ Builder as the default builder locally
         await this.appHelper.setDefaultBuilder();
@@ -387,7 +391,7 @@ export class azurecontainerapps {
      * @param imageToBuild - The name of the image to build.
      */
     private static async builderImageFromDockerfile(appSourcePath: string, dockerfilePath: string, imageToBuild: string) {
-        toolHelper.writeInfo(`Building image "${imageToBuild}" using the provided Dockerfile`);
+        this.toolHelper.writeInfo(`Building image "${imageToBuild}" using the provided Dockerfile`);
         await this.appHelper.createRunnableAppImageFromDockerfile(imageToBuild, appSourcePath, dockerfilePath);
 
         // If telemetry is enabled, log that the Dockerfile scenario was targeted for this task
@@ -402,17 +406,17 @@ export class azurecontainerapps {
         this.commandLineArgs = [];
 
         // Get the ingress inputs
-        this.ingress = toolHelper.getInput('ingress', { required: false });
-        this.targetPort = toolHelper.getInput('targetPort', { required: false });
+        this.ingress = this.toolHelper.getInput('ingress', { required: false });
+        this.targetPort = this.toolHelper.getInput('targetPort', { required: false });
 
         // If both ingress and target port were not provided for an existing Container App, or if ingress is to be disabled,
         // use the 'update' command, otherwise we should use the 'up' command that performs a PATCH operation on the ingress properties.
         this.shouldUseUpdateCommand = this.containerAppExists &&
-            util.isNullOrEmpty(this.targetPort) &&
-            (util.isNullOrEmpty(this.ingress) || this.ingress == 'disabled');
+            this.util.isNullOrEmpty(this.targetPort) &&
+            (this.util.isNullOrEmpty(this.ingress) || this.ingress == 'disabled');
 
         // Pass the ACR credentials when creating a Container App or updating a Container App via the 'up' command
-        if (!util.isNullOrEmpty(this.acrName) && !util.isNullOrEmpty(this.acrUsername) && !util.isNullOrEmpty(this.acrPassword) &&
+        if (!this.util.isNullOrEmpty(this.acrName) && !this.util.isNullOrEmpty(this.acrUsername) && !this.util.isNullOrEmpty(this.acrPassword) &&
             (!this.containerAppExists || (this.containerAppExists && !this.shouldUseUpdateCommand))) {
             this.commandLineArgs.push(
                 `--registry-server ${this.acrName}.azurecr.io`,
@@ -425,35 +429,35 @@ export class azurecontainerapps {
             this.ingressEnabled = true;
 
             // Set the ingress value to 'external' if it was not provided
-            if (util.isNullOrEmpty(this.ingress)) {
+            if (this.util.isNullOrEmpty(this.ingress)) {
                 this.ingress = 'external';
-                toolHelper.writeInfo(`Default ingress value: ${this.ingress}`);
+                this.toolHelper.writeInfo(`Default ingress value: ${this.ingress}`);
             }
 
             // Set the value of ingressEnabled to 'false' if ingress was provided as 'disabled'
             if (this.ingress == 'disabled') {
                 this.ingressEnabled = false;
-                toolHelper.writeInfo(`Ingress is disabled for this Container App.`);
+                this.toolHelper.writeInfo(`Ingress is disabled for this Container App.`);
             }
 
             // Handle setup for ingress values when enabled
             if (this.ingressEnabled) {
                 // Get the target port if provided, or determine it based on the application type
-                this.targetPort = toolHelper.getInput('targetPort', { required: false });
-                if (util.isNullOrEmpty(this.targetPort)) {
-                    if (!util.isNullOrEmpty(this.runtimeStack) && this.runtimeStack.startsWith('python:')) {
+                this.targetPort = this.toolHelper.getInput('targetPort', { required: false });
+                if (this.util.isNullOrEmpty(this.targetPort)) {
+                    if (!this.util.isNullOrEmpty(this.runtimeStack) && this.runtimeStack.startsWith('python:')) {
                         this.targetPort = '80';
                     } else {
                         this.targetPort = '8080';
                     }
 
-                    toolHelper.writeInfo(`Default target port: ${this.targetPort}`);
+                    this.toolHelper.writeInfo(`Default target port: ${this.targetPort}`);
                 }
 
                 // Set the target port to 80 if it was not provided or determined
-                if (util.isNullOrEmpty(this.targetPort)) {
+                if (this.util.isNullOrEmpty(this.targetPort)) {
                     this.targetPort = '80';
-                    toolHelper.writeInfo(`Default target port: ${this.targetPort}`);
+                    this.toolHelper.writeInfo(`Default target port: ${this.targetPort}`);
                 }
 
                 // Add the ingress value and target port to the optional arguments array
@@ -463,10 +467,10 @@ export class azurecontainerapps {
             }
         }
 
-        const environmentVariables: string = toolHelper.getInput('environmentVariables', { required: false });
+        const environmentVariables: string = this.toolHelper.getInput('environmentVariables', { required: false });
 
         // Add user-specified environment variables
-        if (!util.isNullOrEmpty(environmentVariables)) {
+        if (!this.util.isNullOrEmpty(environmentVariables)) {
             // The --replace-env-vars flag is only used for the 'update' command,
             // otherwise --env-vars is used for 'create' and 'up'
             if (this.shouldUseUpdateCommand) {
@@ -482,7 +486,7 @@ export class azurecontainerapps {
      */
     private static async createOrUpdateContainerApp() {
         if (!this.containerAppExists) {
-            if (!util.isNullOrEmpty(this.yamlConfigPath)) {
+            if (!this.util.isNullOrEmpty(this.yamlConfigPath)) {
                 // Create the Container App from the YAML configuration file
                 await this.appHelper.createContainerAppFromYaml(this.containerAppName, this.resourceGroup, this.yamlConfigPath);
             } else {
@@ -493,7 +497,7 @@ export class azurecontainerapps {
             return;
         }
 
-        if (!util.isNullOrEmpty(this.yamlConfigPath)) {
+        if (!this.util.isNullOrEmpty(this.yamlConfigPath)) {
             // Update the Container App from the YAML configuration file
             await this.appHelper.updateContainerAppFromYaml(this.containerAppName, this.resourceGroup, this.yamlConfigPath);
 
@@ -502,7 +506,7 @@ export class azurecontainerapps {
 
         if (this.shouldUseUpdateCommand) {
             // Update the ACR details on the existing Container App, if provided as an input
-            if (!util.isNullOrEmpty(this.acrName) && !util.isNullOrEmpty(this.acrUsername) && !util.isNullOrEmpty(this.acrPassword)) {
+            if (!this.util.isNullOrEmpty(this.acrName) && !this.util.isNullOrEmpty(this.acrUsername) && !this.util.isNullOrEmpty(this.acrPassword)) {
                 await this.appHelper.updateContainerAppRegistryDetails(this.containerAppName, this.resourceGroup, this.acrName, this.acrUsername, this.acrPassword);
             }
 

@@ -1,5 +1,5 @@
 // Note: This file is used to define utility functions that can be used across the project.
-import { GitHubActionsToolHelper } from './GithubActionsToolHelper';
+import { GitHubActionsToolHelper } from './GitHubActionsToolHelper';
 
 const toolHelper = new GitHubActionsToolHelper();
 
@@ -10,7 +10,7 @@ export class Utility {
    * @param continueOnError - whether or not to continue execution if the command fails
    */
 
-  public async executeAndThrowIfError(commandLine: string, args: string[], inputOptions?:Buffer): Promise<{ exitCode: number, stdout: string, stderr: string }> {
+  public async executeAndThrowIfError(commandLine: string, args?: string[], inputOptions?:Buffer): Promise<{ exitCode: number, stdout: string, stderr: string }> {
     try {
       return await toolHelper.exec(commandLine, args, inputOptions);
     } catch (error) {
@@ -24,7 +24,7 @@ export class Utility {
    * Azure Container Apps module being dynamically installed while it's still in preview.
    */
   public async setAzureCliDynamicInstall() {
-    await this.executeAndThrowIfError('az', [`config`, `set`, `extension.use_dynamic_install=yes_without_prompt`]);
+    await this.executeAndThrowIfError(`az "config set extension.use_dynamic_install=yes_without_prompt"`);
   }
 
   /**
