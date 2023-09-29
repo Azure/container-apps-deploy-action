@@ -5169,7 +5169,7 @@ var ContainerAppHelper = /** @class */ (function () {
      */
     ContainerAppHelper.prototype.determineRuntimeStackAsync = function (appSourcePath) {
         return __awaiter(this, void 0, void 0, function () {
-            var dockerTool, oryxDockerfileCommand, command, oryxRuntimeTxtPath_1, runtimeStack, err_17;
+            var dockerTool, command, oryxRuntimeTxtPath_1, runtimeStack, err_17;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -5180,8 +5180,7 @@ var ContainerAppHelper = /** @class */ (function () {
                         return [4 /*yield*/, toolHelper.which("docker", true)];
                     case 2:
                         dockerTool = _a.sent();
-                        oryxDockerfileCommand = "oryx dockerfile " + appSourcePath + " | head -n 1 | sed 's/ARG RUNTIME=//' >> " + appSourcePath + "/oryx-runtime.txt";
-                        command = "run --rm -v " + appSourcePath + ":/app " + ORYX_CLI_IMAGE + " /bin/bash -c " + oryxDockerfileCommand + "}";
+                        command = "run --rm -v " + appSourcePath + ":/app " + ORYX_CLI_IMAGE + " /bin/bash -c oryx dockerfile " + appSourcePath + " | head -n 1 | sed 's/ARG RUNTIME=//' >> " + appSourcePath + "/oryx-runtime.txt";
                         return [4 /*yield*/, util.executeAndThrowIfError(dockerTool + " " + command)
                             // Read the temp file to get the runtime stack into a variable
                         ];
