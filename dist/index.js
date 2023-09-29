@@ -5180,7 +5180,7 @@ var ContainerAppHelper = /** @class */ (function () {
                         return [4 /*yield*/, toolHelper.which("docker", true)];
                     case 2:
                         dockerTool = _a.sent();
-                        command = "run --rm -v " + appSourcePath + ":/app " + ORYX_CLI_IMAGE + " /bin/bash -c oryx dockerfile /app | head -n 1 | sed 's/ARG RUNTIME=//' >> /app/oryx-runtime.txt";
+                        command = "run --rm -v " + appSourcePath + ":/app " + ORYX_CLI_IMAGE + " /bin/bash -c \"oryx dockerfile /app | head -n 1 | sed 's/ARG RUNTIME=//' >> /app/oryx-runtime.txt\"";
                         return [4 /*yield*/, util.executeAndThrowIfError(dockerTool + " " + command)
                             // Read the temp file to get the runtime stack into a variable
                         ];
