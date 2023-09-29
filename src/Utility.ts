@@ -24,7 +24,7 @@ export class Utility {
    * Azure Container Apps module being dynamically installed while it's still in preview.
    */
   public async setAzureCliDynamicInstall() {
-    await this.executeAndThrowIfError(`az "config set extension.use_dynamic_install=yes_without_prompt"`);
+    await this.executeAndThrowIfError(`az config set extension.use_dynamic_install=yes_without_prompt`);
   }
 
   /**
