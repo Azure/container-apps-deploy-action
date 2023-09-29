@@ -397,7 +397,7 @@ export class ContainerAppHelper {
     public async setDefaultBuilder() {
         toolHelper.writeInfo('Setting the Oryx++ Builder as the default builder via the pack CLI');
         try {
-            let command = `az config default-builder ${ORYX_BUILDER_IMAGE}`
+            let command = `config default-builder ${ORYX_BUILDER_IMAGE}`
             await util.executeAndThrowIfError(`${PACK_CMD} ${command}`);
         }
         catch (err) {

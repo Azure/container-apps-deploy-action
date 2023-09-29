@@ -5224,7 +5224,7 @@ var ContainerAppHelper = /** @class */ (function () {
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
-                        command = "az config default-builder " + ORYX_BUILDER_IMAGE;
+                        command = "config default-builder " + ORYX_BUILDER_IMAGE;
                         return [4 /*yield*/, util.executeAndThrowIfError(PACK_CMD + " " + command)];
                     case 2:
                         _a.sent();
