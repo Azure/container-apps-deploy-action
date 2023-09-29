@@ -362,7 +362,7 @@ export class ContainerAppHelper {
         try {
             let dockerTool: string = await toolHelper.which("docker", true);
             // Use 'oryx dockerfile' command to determine the runtime stack to use and write it to a temp file
-            let command = `run --rm -v ${appSourcePath}:/app ${ORYX_CLI_IMAGE} /bin/bash -c oryx dockerfile ${appSourcePath} | head -n 1 | sed 's/ARG RUNTIME=//' >> ${appSourcePath}/oryx-runtime.txt`
+            let command = `run --rm -v ${appSourcePath}:/app ${ORYX_CLI_IMAGE} /bin/bash -c oryx dockerfile /app | head -n 1 | sed 's/ARG RUNTIME=//' >> /app/oryx-runtime.txt`
             await util.executeAndThrowIfError(`${dockerTool} ${command}`)
 
             // Read the temp file to get the runtime stack into a variable
