@@ -4931,7 +4931,7 @@ var ContainerAppHelper = /** @class */ (function () {
                     case 2:
                         executionResult = _a.sent();
                         // If successful, strip out double quotes, spaces and parentheses from the first location returned
-                        return [2 /*return*/, "eastus2"];
+                        return [2 /*return*/, executionResult.exitCode === 0 ? executionResult.stdout.toLowerCase().replace(/["() ]/g, "").trim() : "eastus2"];
                     case 3:
                         err_9 = _a.sent();
                         toolHelper.writeWarning(err_9.message);
@@ -5136,28 +5136,25 @@ var ContainerAppHelper = /** @class */ (function () {
      */
     ContainerAppHelper.prototype.createRunnableAppImageFromDockerfile = function (imageToDeploy, appSourcePath, dockerfilePath) {
         return __awaiter(this, void 0, void 0, function () {
-            var dockerTool, command, err_16;
+            var command, err_16;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         toolHelper.writeDebug("Attempting to create a runnable application image from the provided/found Dockerfile \"" + dockerfilePath + "\" with image name \"" + imageToDeploy + "\"");
                         _a.label = 1;
                     case 1:
-                        _a.trys.push([1, 4, , 5]);
-                        return [4 /*yield*/, toolHelper.which("docker", true)];
+                        _a.trys.push([1, 3, , 4]);
+                        command = "docker build --file " + dockerfilePath + " " + appSourcePath + " --tag " + imageToDeploy;
+                        return [4 /*yield*/, util.executeAndThrowIfError(command)];
                     case 2:
-                        dockerTool = _a.sent();
-                        command = "build --file " + dockerfilePath + " " + appSourcePath + " --tag " + imageToDeploy;
-                        return [4 /*yield*/, util.executeAndThrowIfError(dockerTool + " " + command)];
-                    case 3:
                         _a.sent();
                         toolHelper.writeDebug("Successfully created runnable application image from the provided/found Dockerfile \"" + dockerfilePath + "\" with image name \"" + imageToDeploy + "\"");
-                        return [3 /*break*/, 5];
-                    case 4:
+                        return [3 /*break*/, 4];
+                    case 3:
                         err_16 = _a.sent();
                         toolHelper.writeError(err_16.message);
                         throw err_16;
-                    case 5: return [2 /*return*/];
+                    case 4: return [2 /*return*/];
                 }
             });
         });

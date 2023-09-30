@@ -210,8 +210,7 @@ export class ContainerAppHelper {
             let command = `az provider show -n Microsoft.App --query \"resourceTypes[?resourceType=='containerApps'].locations[] | [0]\"`
             let executionResult = await util.executeAndThrowIfError(command);
             // If successful, strip out double quotes, spaces and parentheses from the first location returned
-            return `eastus2`;
-           // return executionResult.exitCode === 0 ? executionResult.stdout.toLowerCase().replace(/["() ]/g, "").trim() : `eastus2`;
+            return executionResult.exitCode === 0 ? executionResult.stdout.toLowerCase().replace(/["() ]/g, "").trim() : `eastus2`;
         } catch (err) {
             toolHelper.writeWarning(err.message);
             return `eastus2`;
@@ -343,9 +342,8 @@ export class ContainerAppHelper {
         dockerfilePath: string) {
         toolHelper.writeDebug(`Attempting to create a runnable application image from the provided/found Dockerfile "${dockerfilePath}" with image name "${imageToDeploy}"`);
         try {
-            let dockerTool = await toolHelper.which("docker", true);
-            let command = `build --file ${dockerfilePath} ${appSourcePath} --tag ${imageToDeploy}`;
-            await util.executeAndThrowIfError(`${dockerTool} ${command}`);
+            let command = `docker build --file ${dockerfilePath} ${appSourcePath} --tag ${imageToDeploy}`;
+            await util.executeAndThrowIfError(command);
             toolHelper.writeDebug(`Successfully created runnable application image from the provided/found Dockerfile "${dockerfilePath}" with image name "${imageToDeploy}"`);
         } catch (err) {
             toolHelper.writeError(err.message);
