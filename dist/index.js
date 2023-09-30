@@ -4670,11 +4670,11 @@ var ContainerAppHelper = /** @class */ (function () {
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
-                        command_1 = "containerapp create -n " + containerAppName + " -g " + resourceGroup + " -i " + imageToDeploy + " --environment " + environment;
+                        command_1 = "az containerapp create -n " + containerAppName + " -g " + resourceGroup + " -i " + imageToDeploy + " --environment " + environment;
                         optionalCmdArgs.forEach(function (val) {
                             command_1 += " " + val;
                         });
-                        return [4 /*yield*/, util.executeAndThrowIfError("az", command_1.split(' '))];
+                        return [4 /*yield*/, util.executeAndThrowIfError(command_1)];
                     case 2:
                         _a.sent();
                         return [3 /*break*/, 4];
@@ -4695,7 +4695,7 @@ var ContainerAppHelper = /** @class */ (function () {
      */
     ContainerAppHelper.prototype.createContainerAppFromYaml = function (containerAppName, resourceGroup, yamlConfigPath) {
         return __awaiter(this, void 0, void 0, function () {
-            var err_2;
+            var command, err_2;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -4703,10 +4703,9 @@ var ContainerAppHelper = /** @class */ (function () {
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
-                        // let command = `az containerapp create -n ${containerAppName} -g ${resourceGroup} --yaml ${yamlConfigPath}`;
-                        return [4 /*yield*/, util.executeAndThrowIfError("az", ['containerapp', 'create', '-n', containerAppName, '-g', resourceGroup, '--yaml', yamlConfigPath])];
+                        command = "az containerapp create -n " + containerAppName + " -g " + resourceGroup + " --yaml " + yamlConfigPath;
+                        return [4 /*yield*/, util.executeAndThrowIfError(command)];
                     case 2:
-                        // let command = `az containerapp create -n ${containerAppName} -g ${resourceGroup} --yaml ${yamlConfigPath}`;
                         _a.sent();
                         return [3 /*break*/, 4];
                     case 3:
@@ -4932,7 +4931,7 @@ var ContainerAppHelper = /** @class */ (function () {
                     case 2:
                         executionResult = _a.sent();
                         // If successful, strip out double quotes, spaces and parentheses from the first location returned
-                        return [2 /*return*/, executionResult.exitCode === 0 ? executionResult.stdout.toLowerCase().replace(/["() ]/g, "").trim() : "eastus2"];
+                        return [2 /*return*/, "eastus2"];
                     case 3:
                         err_9 = _a.sent();
                         toolHelper.writeWarning(err_9.message);

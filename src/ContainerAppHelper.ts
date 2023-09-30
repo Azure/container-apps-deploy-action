@@ -34,11 +34,11 @@ export class ContainerAppHelper {
         optionalCmdArgs: string[]) {
         toolHelper.writeDebug(`Attempting to create Container App with name "${containerAppName}" in resource group "${resourceGroup}" based from image "${imageToDeploy}"`);
         try {
-            let command = `containerapp create -n ${containerAppName} -g ${resourceGroup} -i ${imageToDeploy} --environment ${environment}`;
+            let command = `az containerapp create -n ${containerAppName} -g ${resourceGroup} -i ${imageToDeploy} --environment ${environment}`;
             optionalCmdArgs.forEach(function (val: string) {
                 command += ` ${val}`;
             });
-            await util.executeAndThrowIfError(`az`, command.split(' '));
+            await util.executeAndThrowIfError(command);
         } catch (err) {
             toolHelper.writeError(err.message);
             throw err;
@@ -57,8 +57,8 @@ export class ContainerAppHelper {
         yamlConfigPath: string) {
         toolHelper.writeDebug(`Attempting to create Container App with name "${containerAppName}" in resource group "${resourceGroup}" from provided YAML "${yamlConfigPath}"`);
         try {
-           // let command = `az containerapp create -n ${containerAppName} -g ${resourceGroup} --yaml ${yamlConfigPath}`;
-            await util.executeAndThrowIfError(`az`, ['containerapp', 'create', '-n', containerAppName, '-g', resourceGroup, '--yaml', yamlConfigPath]);
+            let command = `az containerapp create -n ${containerAppName} -g ${resourceGroup} --yaml ${yamlConfigPath}`;
+            await util.executeAndThrowIfError(command);
         } catch (err) {
             toolHelper.writeError(err.message);
             throw err;
@@ -210,7 +210,8 @@ export class ContainerAppHelper {
             let command = `az provider show -n Microsoft.App --query \"resourceTypes[?resourceType=='containerApps'].locations[] | [0]\"`
             let executionResult = await util.executeAndThrowIfError(command);
             // If successful, strip out double quotes, spaces and parentheses from the first location returned
-            return executionResult.exitCode === 0 ? executionResult.stdout.toLowerCase().replace(/["() ]/g, "").trim() : `eastus2`;
+            return `eastus2`;
+           // return executionResult.exitCode === 0 ? executionResult.stdout.toLowerCase().replace(/["() ]/g, "").trim() : `eastus2`;
         } catch (err) {
             toolHelper.writeWarning(err.message);
             return `eastus2`;
