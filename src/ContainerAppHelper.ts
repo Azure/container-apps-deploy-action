@@ -34,11 +34,11 @@ export class ContainerAppHelper {
         optionalCmdArgs: string[]) {
         toolHelper.writeDebug(`Attempting to create Container App with name "${containerAppName}" in resource group "${resourceGroup}" based from image "${imageToDeploy}"`);
         try {
-            let command = `az containerapp create -n ${containerAppName} -g ${resourceGroup} -i ${imageToDeploy} --environment ${environment}`;
+            let command = `containerapp create -n ${containerAppName} -g ${resourceGroup} -i ${imageToDeploy} --environment ${environment}`;
             optionalCmdArgs.forEach(function (val: string) {
                 command += ` ${val}`;
             });
-            await util.executeAndThrowIfError(command);
+            await util.executeAndThrowIfError(`az`, command.split(' '));
         } catch (err) {
             toolHelper.writeError(err.message);
             throw err;
@@ -57,8 +57,8 @@ export class ContainerAppHelper {
         yamlConfigPath: string) {
         toolHelper.writeDebug(`Attempting to create Container App with name "${containerAppName}" in resource group "${resourceGroup}" from provided YAML "${yamlConfigPath}"`);
         try {
-            let command = `az containerapp create -n ${containerAppName} -g ${resourceGroup} --yaml ${yamlConfigPath}`;
-            await util.executeAndThrowIfError(command);
+           // let command = `az containerapp create -n ${containerAppName} -g ${resourceGroup} --yaml ${yamlConfigPath}`;
+            await util.executeAndThrowIfError(`az`, ['containerapp', 'create', '-n', containerAppName, '-g', resourceGroup, '--yaml', yamlConfigPath]);
         } catch (err) {
             toolHelper.writeError(err.message);
             throw err;
