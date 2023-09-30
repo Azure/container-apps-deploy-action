@@ -5412,7 +5412,7 @@ var ContainerRegistryHelper = /** @class */ (function () {
                         return [4 /*yield*/, toolHelper.which("docker", true)];
                     case 2:
                         dockerTool = _a.sent();
-                        return [4 /*yield*/, util.executeAndThrowIfError(dockerTool + " tag " + imageToPush + " " + imageToPush)];
+                        return [4 /*yield*/, util.executeAndThrowIfError(dockerTool + " push " + imageToPush)];
                     case 3:
                         _a.sent();
                         return [3 /*break*/, 5];

@@ -47,7 +47,7 @@ export class ContainerRegistryHelper {
         toolHelper.writeDebug(`Attempting to push image "${imageToPush}" to ACR`);
         try {
             let dockerTool: string = await toolHelper.which("docker", true);
-            await util.executeAndThrowIfError(`${dockerTool} tag ${imageToPush} ${imageToPush}`);
+            await util.executeAndThrowIfError(`${dockerTool} push ${imageToPush}`);
         } catch (err) {
             toolHelper.writeError(`Failed to push image "${imageToPush}" to ACR. Error: ${err.message}`);
             throw err;
