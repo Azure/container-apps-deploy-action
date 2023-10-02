@@ -80,6 +80,14 @@ inputs:
       runtime stacks for Oryx:
       https://github.com/microsoft/Oryx/blob/main/doc/supportedRuntimeVersions.md'
     required: false
+  builderVersion:
+    description: |
+      'The version of the Oryx++ builder that should be used to build the provided application source and produce the
+      runnable application image. You can provide a specific image tag, such as "debian-bookworm-20230928.2", or you
+      can provide a supported OS version, such as "debian-bookworm" or "debian-bullseye", and the latest supported
+      image tag for the corresponding OS version will be used. If no version is provided, this action will attempt to
+      build the provided application source with each supported OS version until a successful build is completed.'
+    required: false
   targetPort:
     description: |
       'The designated port for the application to run on. If no value is provided and the builder is used to build the
@@ -506,7 +514,7 @@ runs:
         echo "CA_GH_ACTION_ORYX_BUILDER_ENV_ARG=${CA_GH_ACTION_ORYX_BUILDER_ENV_ARG}" >> $GITHUB_ENV
 
     - name: Create runnable application image using bookworm Oryx++ Builder
-      if: ${{ inputs.appSourcePath != '' && env.CA_GH_ACTION_DOCKERFILE_PATH == '' }}
+      if: ${{ inputs.appSourcePath != '' && env.CA_GH_ACTION_DOCKERFILE_PATH == '' && (inputs.builderVersion == '' || inputs.builderVersion == 'debian-bookworm') }}
       shell: bash
       run: |
         pack build \
@@ -518,7 +526,7 @@ runs:
           echo "CA_GH_ACTION_USE_BULLSEYE_BUILDER=true" >> $GITHUB_ENV
 
     - name: Create runnable application image using bullseye Oryx++ Builder
-      if: ${{ inputs.appSourcePath != '' && env.CA_GH_ACTION_DOCKERFILE_PATH == '' && env.CA_GH_ACTION_USE_BULLSEYE_BUILDER == 'true' }}
+      if: ${{ inputs.appSourcePath != '' && env.CA_GH_ACTION_DOCKERFILE_PATH == '' && ((inputs.builderVersion == '' && env.CA_GH_ACTION_USE_BULLSEYE_BUILDER == 'true') || inputs.builderVersion == 'debian-bullseye') }}
       shell: bash
       run: |
         pack build \
@@ -530,13 +538,24 @@ runs:
           echo "CA_GH_ACTION_USE_BUSTER_BUILDER=true" >> $GITHUB_ENV
 
     - name: Create runnable application image using buster Oryx++ Builder
-      if: ${{ inputs.appSourcePath != '' && env.CA_GH_ACTION_DOCKERFILE_PATH == '' && env.CA_GH_ACTION_USE_BUSTER_BUILDER == 'true' }}
+      if: ${{ inputs.appSourcePath != '' && env.CA_GH_ACTION_DOCKERFILE_PATH == '' && ((inputs.builderVersion == '' && env.CA_GH_ACTION_USE_BUSTER_BUILDER == 'true') || inputs.builderVersion == 'debian-buster') }}
       shell: bash
       run: |
         pack build \
           ${{ env.CA_GH_ACTION_IMAGE_TO_DEPLOY }} \
           --path ${{ inputs.appSourcePath }} \
           --builder mcr.microsoft.com/oryx/builder:debian-buster-20230928.2 \
+          ${{ env.CA_GH_ACTION_ORYX_BUILDER_ENV_ARG }} \
+          ${{ env.CA_GH_ACTION_ORYX_BUILDER_TELEMETRY_ARG }}
+
+    - name: Create runnable application image using builder version specified by input
+      if: ${{ inputs.appSourcePath != '' && env.CA_GH_ACTION_DOCKERFILE_PATH == '' && inputs.builderVersion != '' && inputs.builderVersion != 'debian-bookworm' && inputs.builderVersion != 'debian-bullseye' && inputs.builderVersion != 'debian-buster' }}
+      shell: bash
+      run: |
+        pack build \
+          ${{ env.CA_GH_ACTION_IMAGE_TO_DEPLOY }} \
+          --path ${{ inputs.appSourcePath }} \
+          --builder mcr.microsoft.com/oryx/builder:${{ inputs.builderVersion }} \
           ${{ env.CA_GH_ACTION_ORYX_BUILDER_ENV_ARG }} \
           ${{ env.CA_GH_ACTION_ORYX_BUILDER_TELEMETRY_ARG }}
 
