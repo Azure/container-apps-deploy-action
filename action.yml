@@ -83,7 +83,7 @@ inputs:
   builderStack:
     description: |
       'The stack (OS) that should be used to build the provided application source and produce the runnable application
-      image. You can provide a specific image tag for the stack, such as "debian-bookworm-20230928.2", or you can
+      image. You can provide a specific image tag for the stack, such as "debian-bullseye-20230928.2", or you can
       provide a supported stack name, such as "debian-bookworm" or "debian-bullseye", and the latest supported image tag
       for that stack will be used. If no stack is provided, this action will attempt to build the provided application
       source with each supported stack until there's a successful build.'
@@ -539,7 +539,7 @@ runs:
         pack build \
           ${{ env.CA_GH_ACTION_IMAGE_TO_DEPLOY }} \
           --path ${{ inputs.appSourcePath }} \
-          --builder mcr.microsoft.com/oryx/builder:debian-bookworm-20230928.2 \
+          --builder mcr.microsoft.com/oryx/builder:debian-bookworm-20231003.1 \
           ${{ env.CA_GH_ACTION_ORYX_BUILDER_ENV_ARG }} \
           ${{ env.CA_GH_ACTION_ORYX_BUILDER_TELEMETRY_ARG }}
 
