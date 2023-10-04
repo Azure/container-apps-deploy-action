@@ -21,14 +21,18 @@ inputs:
       'The password used to authenticate push requests to the provided Azure Container Registry. If not provided, an
       access token will be generated via "az acr login" and provided to "docker login" to authenticate the requests.'
     required: false
+  buildArguments:
+    description: |
+      'A list of build argument(s) for the container. Space-separated values in "key=value"'
+    required: false
   registryUrl:
-    description: 'The base URL of the Container Registry that the runnable application image will be pushed to.'  
+    description: 'The base URL of the Container Registry that the runnable application image will be pushed to.'
     required: false
-  registryUsername: 
-    description: 'The username used to authenticate push requests to the provided Container Registry using the "docker login" action.'  
+  registryUsername:
+    description: 'The username used to authenticate push requests to the provided Container Registry using the "docker login" action.'
     required: false
-  registryPassword: 
-    description: 'The password used to authenticate push requests to the provided Container Registry using the "docker login" action.'  
+  registryPassword:
+    description: 'The password used to authenticate push requests to the provided Container Registry using the "docker login" action.'
     required: false
   azureCredentials:
     description: |
@@ -140,9 +144,9 @@ runs:
     - name: Check that an ACR name and a registry URL are not provided together
       if: ${{ inputs.acrName != '' && inputs.registryUrl != '' }}
       shell: bash
-      run: | 
+      run: |
         echo "Both 'acrName' and 'registryUrl' arguments cannot be provided together."
-        exit 1    
+        exit 1
 
     - name: Check for ACR name or any other registry url provided with application source path
       if: ${{ inputs.appSourcePath != '' && inputs.acrName == '' && inputs.registryUrl == '' }}
@@ -198,7 +202,7 @@ runs:
         username: ${{ inputs.registryUsername }}
         password: ${{ inputs.registryPassword }}
 
-    - name: Export Container Registry information to environment variable 
+    - name: Export Container Registry information to environment variable
       if: ${{ inputs.registryUrl != '' && inputs.registryUsername != '' && inputs.registryPassword != '' && env.CA_GH_ACTION_ONLY_YAML != 'true' }}
       shell: bash
       run: |
@@ -260,7 +264,7 @@ runs:
       shell: bash
       run: |
         CA_GH_ACTION_IMAGE_TO_BUILD="${{ env.CA_GH_ACTION_REGISTRY_URL }}/github-action/container-app:${{ github.run_id }}.${{ github.run_attempt }}"
-        echo "CA_GH_ACTION_IMAGE_TO_BUILD=${CA_GH_ACTION_IMAGE_TO_BUILD}" >> $GITHUB_ENV    
+        echo "CA_GH_ACTION_IMAGE_TO_BUILD=${CA_GH_ACTION_IMAGE_TO_BUILD}" >> $GITHUB_ENV
 
     - name: Export name of image to deploy to environment variable
       if: ${{ inputs.imageToDeploy != '' }}
@@ -478,10 +482,10 @@ runs:
       if: ${{ runner.os == 'Windows' && inputs.appSourcePath != '' && env.CA_GH_ACTION_DOCKERFILE_PATH == '' }}
       shell: bash
       run: |
-          mkdir -p $PWD/pack && cd $PWD/pack
-          curl -sSL "https://github.com/buildpacks/pack/releases/download/v0.27.0/pack-v0.27.0-windows.zip" -o "pack-windows.zip"
-          7z x pack-windows.zip > /dev/null 2>&1
-          rm pack-windows.zip && echo "$PWD" >> $GITHUB_PATH
+        mkdir -p $PWD/pack && cd $PWD/pack
+        curl -sSL "https://github.com/buildpacks/pack/releases/download/v0.27.0/pack-v0.27.0-windows.zip" -o "pack-windows.zip"
+        7z x pack-windows.zip > /dev/null 2>&1
+        rm pack-windows.zip && echo "$PWD" >> $GITHUB_PATH
 
     - name: Set Oryx++ Builder as default builder
       if: ${{ inputs.appSourcePath != '' && env.CA_GH_ACTION_DOCKERFILE_PATH == '' }}
@@ -513,6 +517,20 @@ runs:
           --run-image mcr.microsoft.com/oryx/${{ env.CA_GH_ACTION_RUNTIME_STACK }} \
           ${{ env.CA_GH_ACTION_ORYX_BUILDER_TELEMETRY_ARG }}
 
+    - name: Convert build arguments to string
+      if: ${{ inputs.buildArguments != '' }}
+      shell: bash
+      run: |
+        build_arguments=""
+
+        IFS=' ' read -ra build_arguments_array <<< "${{ inputs.buildArguments }}"
+
+        for build_argument in "${build_arguments_array[@]}"; do
+          build_arguments+=" --build-arg $build_argument"
+        done
+
+        echo "CA_GH_ACTION_BUILD_ARG=${build_arguments}" >> $GITHUB_ENV
+
     - name: Create runnable application image using provided Dockerfile
       if: ${{ inputs.appSourcePath != '' && env.CA_GH_ACTION_DOCKERFILE_PATH != '' }}
       shell: bash
@@ -520,6 +538,7 @@ runs:
         docker build \
           --tag ${{ env.CA_GH_ACTION_IMAGE_TO_DEPLOY }} \
           --file ${{ env.CA_GH_ACTION_DOCKERFILE_PATH }} \
+          ${{ env.CA_GH_ACTION_BUILD_ARG:-'' }} \
           ${{ inputs.appSourcePath }}
 
     - name: Push image to Container Registry
