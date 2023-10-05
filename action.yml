@@ -22,13 +22,13 @@ inputs:
       access token will be generated via "az acr login" and provided to "docker login" to authenticate the requests.'
     required: false
   registryUrl:
-    description: 'The base URL of the Container Registry that the runnable application image will be pushed to.'  
+    description: 'The base URL of the Container Registry that the runnable application image will be pushed to.'
     required: false
-  registryUsername: 
-    description: 'The username used to authenticate push requests to the provided Container Registry using the "docker login" action.'  
+  registryUsername:
+    description: 'The username used to authenticate push requests to the provided Container Registry using the "docker login" action.'
     required: false
-  registryPassword: 
-    description: 'The password used to authenticate push requests to the provided Container Registry using the "docker login" action.'  
+  registryPassword:
+    description: 'The password used to authenticate push requests to the provided Container Registry using the "docker login" action.'
     required: false
   azureCredentials:
     description: |
@@ -79,6 +79,14 @@ inputs:
       contents of the provided application. Please view the following document for more information on the supported
       runtime stacks for Oryx:
       https://github.com/microsoft/Oryx/blob/main/doc/supportedRuntimeVersions.md'
+    required: false
+  builderStack:
+    description: |
+      'The stack (OS) that should be used to build the provided application source and produce the runnable application
+      image. You can provide a specific image tag for the stack, such as "debian-bullseye-20231004.1", or you can
+      provide a supported stack name, such as "debian-bookworm" or "debian-bullseye", and the latest supported image tag
+      for that stack will be used. If no stack is provided, this action will attempt to build the provided application
+      source with each supported stack until there's a successful build.'
     required: false
   targetPort:
     description: |
@@ -140,9 +148,9 @@ runs:
     - name: Check that an ACR name and a registry URL are not provided together
       if: ${{ inputs.acrName != '' && inputs.registryUrl != '' }}
       shell: bash
-      run: | 
+      run: |
         echo "Both 'acrName' and 'registryUrl' arguments cannot be provided together."
-        exit 1    
+        exit 1
 
     - name: Check for ACR name or any other registry url provided with application source path
       if: ${{ inputs.appSourcePath != '' && inputs.acrName == '' && inputs.registryUrl == '' }}
@@ -198,7 +206,7 @@ runs:
         username: ${{ inputs.registryUsername }}
         password: ${{ inputs.registryPassword }}
 
-    - name: Export Container Registry information to environment variable 
+    - name: Export Container Registry information to environment variable
       if: ${{ inputs.registryUrl != '' && inputs.registryUsername != '' && inputs.registryPassword != '' && env.CA_GH_ACTION_ONLY_YAML != 'true' }}
       shell: bash
       run: |
@@ -260,7 +268,7 @@ runs:
       shell: bash
       run: |
         CA_GH_ACTION_IMAGE_TO_BUILD="${{ env.CA_GH_ACTION_REGISTRY_URL }}/github-action/container-app:${{ github.run_id }}.${{ github.run_attempt }}"
-        echo "CA_GH_ACTION_IMAGE_TO_BUILD=${CA_GH_ACTION_IMAGE_TO_BUILD}" >> $GITHUB_ENV    
+        echo "CA_GH_ACTION_IMAGE_TO_BUILD=${CA_GH_ACTION_IMAGE_TO_BUILD}" >> $GITHUB_ENV
 
     - name: Export name of image to deploy to environment variable
       if: ${{ inputs.imageToDeploy != '' }}
@@ -382,27 +390,6 @@ runs:
           -n ${{ env.CA_GH_ACTION_CONTAINER_APP_ENVIRONMENT }} \
           ${{ env.CA_GH_ACTION_CONTAINER_APP_LOCATION_ARG }}
 
-    - name: Export runtime stack to environment variable
-      if: ${{ inputs.runtimeStack != '' && env.CA_GH_ACTION_ONLY_YAML != 'true' }}
-      shell: bash
-      run: |
-        CA_GH_ACTION_RUNTIME_STACK="${{ inputs.runtimeStack }}"
-        echo "CA_GH_ACTION_RUNTIME_STACK=${CA_GH_ACTION_RUNTIME_STACK}" >> $GITHUB_ENV
-
-    - name: Determine runtime stack if not provided
-      if: ${{ inputs.appSourcePath != '' && inputs.runtimeStack == '' }}
-      shell: bash
-      run: |
-        docker run \
-          --rm \
-          -v ${{ inputs.appSourcePath }}:/app \
-          mcr.microsoft.com/oryx/cli:builder-debian-buster-20230208.1 \
-          /bin/bash \
-          -c "oryx dockerfile /app | head -n 1 | sed 's/ARG RUNTIME=//' >> /app/oryx-runtime.txt"
-        CA_GH_ACTION_RUNTIME_STACK=$(head -n 1 ${{ inputs.appSourcePath }}/oryx-runtime.txt)
-        echo "CA_GH_ACTION_RUNTIME_STACK=${CA_GH_ACTION_RUNTIME_STACK}" >> $GITHUB_ENV
-        rm ${{ inputs.appSourcePath }}/oryx-runtime.txt
-
     - name: Export disabled ingress value to environment variable
       if: ${{ inputs.ingress == 'disabled' && env.CA_GH_ACTION_YAML_PROVIDED != 'true' }}
       shell: bash
@@ -435,11 +422,12 @@ runs:
         CA_GH_ACTION_TARGET_PORT="${{ inputs.targetPort }}"
         echo "CA_GH_ACTION_TARGET_PORT=${CA_GH_ACTION_TARGET_PORT}" >> $GITHUB_ENV
 
-    - name: Determine default target port if not provided and no Dockerfile provided/found
+    - name: Default to target port 80 if one wasn't provided and no Dockerfile provided/found with the application source
       if: ${{ env.CA_GH_ACTION_INGRESS_ENABLED == 'true' && inputs.targetPort == '' && env.CA_GH_ACTION_DOCKERFILE_PATH == '' && inputs.appSourcePath != '' && env.CA_GH_ACTION_YAML_PROVIDED != 'true' }}
       shell: bash
       run: |
-        if [[ "${{ env.CA_GH_ACTION_RUNTIME_STACK }}" == "python:"* ]]; then echo "CA_GH_ACTION_TARGET_PORT=80" >> $GITHUB_ENV; else echo "CA_GH_ACTION_TARGET_PORT=8080" >> $GITHUB_ENV; fi
+        CA_GH_ACTION_TARGET_PORT="80"
+        echo "CA_GH_ACTION_TARGET_PORT=${CA_GH_ACTION_TARGET_PORT}" >> $GITHUB_ENV
 
     - name: Default to target port 80 if one wasn't provided or found, and ingress is enabled, and the Container App doesn't exist (prevent overriding)
       if: ${{ env.CA_GH_ACTION_INGRESS_ENABLED == 'true' && env.CA_GH_ACTION_RESOURCE_EXISTS == 'false' && env.CA_GH_ACTION_TARGET_PORT == '' && env.CA_GH_ACTION_YAML_PROVIDED != 'true' }}
@@ -472,21 +460,26 @@ runs:
     - name: Install pack CLI on non-Windows runner
       if: ${{ runner.os != 'Windows' && inputs.appSourcePath != '' && env.CA_GH_ACTION_DOCKERFILE_PATH == '' }}
       shell: bash
-      run: (curl -sSL "https://github.com/buildpacks/pack/releases/download/v0.27.0/pack-v0.27.0-${{ runner.os }}.tgz" | sudo tar -C /usr/local/bin/ --no-same-owner -xzv pack)
+      run: (curl -sSL "https://github.com/buildpacks/pack/releases/download/v0.31.0/pack-v0.31.0-${{ runner.os }}.tgz" | sudo tar -C /usr/local/bin/ --no-same-owner -xzv pack)
 
     - name: Install pack CLI on Windows runner
       if: ${{ runner.os == 'Windows' && inputs.appSourcePath != '' && env.CA_GH_ACTION_DOCKERFILE_PATH == '' }}
       shell: bash
       run: |
           mkdir -p $PWD/pack && cd $PWD/pack
-          curl -sSL "https://github.com/buildpacks/pack/releases/download/v0.27.0/pack-v0.27.0-windows.zip" -o "pack-windows.zip"
+          curl -sSL "https://github.com/buildpacks/pack/releases/download/v0.31.0/pack-v0.31.0-windows.zip" -o "pack-windows.zip"
           7z x pack-windows.zip > /dev/null 2>&1
           rm pack-windows.zip && echo "$PWD" >> $GITHUB_PATH
 
     - name: Set Oryx++ Builder as default builder
       if: ${{ inputs.appSourcePath != '' && env.CA_GH_ACTION_DOCKERFILE_PATH == '' }}
       shell: bash
-      run: pack config default-builder mcr.microsoft.com/oryx/builder:20230208.1
+      run: pack config default-builder mcr.microsoft.com/oryx/builder:debian-bullseye-20231004.1
+
+    - name: Enable experimental features for Oryx++ Builder
+      if: ${{ inputs.appSourcePath != '' && env.CA_GH_ACTION_DOCKERFILE_PATH == '' }}
+      shell: bash
+      run: pack config experimental true
 
     - name: Set telemetry for Oryx++ Builder
       if: ${{ inputs.appSourcePath != '' && env.CA_GH_ACTION_DOCKERFILE_PATH == '' && inputs.disableTelemetry == 'false' }}
@@ -502,16 +495,77 @@ runs:
         CA_GH_ACTION_ORYX_BUILDER_TELEMETRY_ARG='--env "ORYX_DISABLE_TELEMETRY=true"'
         echo "CA_GH_ACTION_ORYX_BUILDER_TELEMETRY_ARG=${CA_GH_ACTION_ORYX_BUILDER_TELEMETRY_ARG}" >> $GITHUB_ENV
 
-    - name: Create runnable application image using Oryx++ Builder
-      if: ${{ inputs.appSourcePath != '' && env.CA_GH_ACTION_DOCKERFILE_PATH == '' }}
+    - name: Parse the given runtime stack input and export the platform and version to environment variables
+      if: ${{ inputs.appSourcePath != '' && env.CA_GH_ACTION_DOCKERFILE_PATH == '' && inputs.runtimeStack != '' }}
+      shell: bash
+      run: |
+        IFS=':' read -ra CA_GH_ACTION_RUNTIME_STACK <<< "${{ inputs.runtimeStack }}"
+        CA_GH_ACTION_RUNTIME_STACK_PLATFORM=${CA_GH_ACTION_RUNTIME_STACK[0]}
+        CA_GH_ACTION_RUNTIME_STACK_VERSION=${CA_GH_ACTION_RUNTIME_STACK[1]}
+        if [[ CA_GH_ACTION_RUNTIME_STACK_PLATFORM == "dotnetcore" ]]; then CA_GH_ACTION_RUNTIME_STACK_PLATFORM="dotnet"; fi
+        echo "CA_GH_ACTION_RUNTIME_STACK_PLATFORM=${CA_GH_ACTION_RUNTIME_STACK_PLATFORM}" >> $GITHUB_ENV
+        echo "CA_GH_ACTION_RUNTIME_STACK_VERSION=${CA_GH_ACTION_RUNTIME_STACK_VERSION}" >> $GITHUB_ENV
+
+    - name: Set platform environment variables for builder invocation
+      if: ${{ inputs.appSourcePath != '' && env.CA_GH_ACTION_DOCKERFILE_PATH == '' && inputs.runtimeStack != '' }}
+      shell: bash
+      run: |
+        CA_GH_ACTION_ORYX_BUILDER_ENV_ARG="--env ORYX_PLATFORM_NAME=${{ env.CA_GH_ACTION_RUNTIME_STACK_PLATFORM }} --env ORYX_PLATFORM_VERSION=${{ env.CA_GH_ACTION_RUNTIME_STACK_VERSION }}"
+        echo "CA_GH_ACTION_ORYX_BUILDER_ENV_ARG=${CA_GH_ACTION_ORYX_BUILDER_ENV_ARG}" >> $GITHUB_ENV
+
+    - name: Set port environment variable for builder invocation
+      if: ${{ inputs.appSourcePath != '' && env.CA_GH_ACTION_DOCKERFILE_PATH == '' && env.CA_GH_ACTION_TARGET_PORT != '' }}
+      shell: bash
+      run: |
+        CA_GH_ACTION_ORYX_BUILDER_ENV_ARG="${CA_GH_ACTION_ORYX_BUILDER_ENV_ARG} --env ORYX_RUNTIME_PORT=${{ env.CA_GH_ACTION_TARGET_PORT }}"
+        echo "CA_GH_ACTION_ORYX_BUILDER_ENV_ARG=${CA_GH_ACTION_ORYX_BUILDER_ENV_ARG}" >> $GITHUB_ENV
+
+    - name: Create runnable application image using bullseye Oryx++ Builder
+      if: ${{ inputs.appSourcePath != '' && env.CA_GH_ACTION_DOCKERFILE_PATH == '' && (inputs.builderStack == '' || inputs.builderStack == 'debian-bullseye') }}
       shell: bash
       run: |
         pack build \
           ${{ env.CA_GH_ACTION_IMAGE_TO_DEPLOY }} \
           --path ${{ inputs.appSourcePath }} \
-          --builder mcr.microsoft.com/oryx/builder:20230208.1 \
-          --run-image mcr.microsoft.com/oryx/${{ env.CA_GH_ACTION_RUNTIME_STACK }} \
-          ${{ env.CA_GH_ACTION_ORYX_BUILDER_TELEMETRY_ARG }}
+          --builder mcr.microsoft.com/oryx/builder:debian-bullseye-20231004.1 \
+          ${{ env.CA_GH_ACTION_ORYX_BUILDER_ENV_ARG }} \
+          ${{ env.CA_GH_ACTION_ORYX_BUILDER_TELEMETRY_ARG }} &&
+        echo "CA_GH_ACTION_BUILDER_FAILED=false" >> $GITHUB_ENV || \
+        (echo "CA_GH_ACTION_BUILDER_FAILED=true" >> $GITHUB_ENV && \
+        echo "CA_GH_ACTION_USE_BOOKWORM_BUILDER=true" >> $GITHUB_ENV)
+
+    - name: Create runnable application image using bookworm Oryx++ Builder
+      if: ${{ inputs.appSourcePath != '' && env.CA_GH_ACTION_DOCKERFILE_PATH == '' && ((inputs.builderStack == '' && env.CA_GH_ACTION_USE_BOOKWORM_BUILDER == 'true') || inputs.builderStack == 'debian-bookworm') }}
+      shell: bash
+      run: |
+        pack build \
+          ${{ env.CA_GH_ACTION_IMAGE_TO_DEPLOY }} \
+          --path ${{ inputs.appSourcePath }} \
+          --builder mcr.microsoft.com/oryx/builder:debian-bookworm-20231004.1 \
+          ${{ env.CA_GH_ACTION_ORYX_BUILDER_ENV_ARG }} \
+          ${{ env.CA_GH_ACTION_ORYX_BUILDER_TELEMETRY_ARG }} && \
+        echo "CA_GH_ACTION_BUILDER_FAILED=false" >> $GITHUB_ENV || \
+        echo "CA_GH_ACTION_BUILDER_FAILED=true" >> $GITHUB_ENV
+
+    - name: Create runnable application image using builder version specified by input
+      if: ${{ inputs.appSourcePath != '' && env.CA_GH_ACTION_DOCKERFILE_PATH == '' && inputs.builderStack != '' && inputs.builderStack != 'debian-bookworm' && inputs.builderStack != 'debian-bullseye' }}
+      shell: bash
+      run: |
+        pack build \
+          ${{ env.CA_GH_ACTION_IMAGE_TO_DEPLOY }} \
+          --path ${{ inputs.appSourcePath }} \
+          --builder mcr.microsoft.com/oryx/builder:${{ inputs.builderStack }} \
+          ${{ env.CA_GH_ACTION_ORYX_BUILDER_ENV_ARG }} \
+          ${{ env.CA_GH_ACTION_ORYX_BUILDER_TELEMETRY_ARG }} && \
+        echo "CA_GH_ACTION_BUILDER_FAILED=false" >> $GITHUB_ENV || \
+        echo "CA_GH_ACTION_BUILDER_FAILED=true" >> $GITHUB_ENV
+
+    - name: Check if no builder was able to build the provided application source
+      if: ${{ env.CA_GH_ACTION_BUILDER_FAILED == 'true' }}
+      shell: bash
+      run: |
+        echo "No builder was able to build the provided application source. Please visit the following page for more information on supported platform versions: https://aka.ms/SourceToCloudSupportedVersions"
+        exit 1
 
     - name: Create runnable application image using provided Dockerfile
       if: ${{ inputs.appSourcePath != '' && env.CA_GH_ACTION_DOCKERFILE_PATH != '' }}
@@ -665,6 +719,6 @@ runs:
       run: |
         docker run \
           --rm \
-          mcr.microsoft.com/oryx/cli:debian-buster-20230207.2 \
+          mcr.microsoft.com/oryx/cli:builder-debian-bullseye-20230926.1 \
           /bin/bash \
           -c "oryx telemetry --event-name 'ContainerAppsGitHubAction' ${{ env.CA_GH_ACTION_LENGTH_MILLISECONDS_ARG }} ${{ env.CA_GH_ACTION_SCENARIO_ARG }} ${{ env.CA_GH_ACTION_RESULT_ARG }}"
