@@ -531,8 +531,8 @@ runs:
           ${{ env.CA_GH_ACTION_ORYX_BUILDER_ENV_ARG }} \
           ${{ env.CA_GH_ACTION_ORYX_BUILDER_TELEMETRY_ARG }} &&
         echo "CA_GH_ACTION_BUILDER_FAILED=false" >> $GITHUB_ENV || \
-        echo "CA_GH_ACTION_BUILDER_FAILED=true" >> $GITHUB_ENV && \
-        echo "CA_GH_ACTION_USE_BOOKWORM_BUILDER=true" >> $GITHUB_ENV
+        (echo "CA_GH_ACTION_BUILDER_FAILED=true" >> $GITHUB_ENV && \
+        echo "CA_GH_ACTION_USE_BOOKWORM_BUILDER=true" >> $GITHUB_ENV)
 
     - name: Create runnable application image using bookworm Oryx++ Builder
       if: ${{ inputs.appSourcePath != '' && env.CA_GH_ACTION_DOCKERFILE_PATH == '' && ((inputs.builderStack == '' && env.CA_GH_ACTION_USE_BOOKWORM_BUILDER == 'true') || inputs.builderStack == 'debian-bookworm') }}
