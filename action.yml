@@ -529,8 +529,10 @@ runs:
           --path ${{ inputs.appSourcePath }} \
           --builder mcr.microsoft.com/oryx/builder:debian-bullseye-20231004.1 \
           ${{ env.CA_GH_ACTION_ORYX_BUILDER_ENV_ARG }} \
-          ${{ env.CA_GH_ACTION_ORYX_BUILDER_TELEMETRY_ARG }} || \
-          echo "CA_GH_ACTION_USE_BOOKWORM_BUILDER=true" >> $GITHUB_ENV
+          ${{ env.CA_GH_ACTION_ORYX_BUILDER_TELEMETRY_ARG }} &&
+        echo "CA_GH_ACTION_BUILDER_FAILED=false" >> $GITHUB_ENV || \
+        echo "CA_GH_ACTION_BUILDER_FAILED=true" >> $GITHUB_ENV && \
+        echo "CA_GH_ACTION_USE_BOOKWORM_BUILDER=true" >> $GITHUB_ENV
 
     - name: Create runnable application image using bookworm Oryx++ Builder
       if: ${{ inputs.appSourcePath != '' && env.CA_GH_ACTION_DOCKERFILE_PATH == '' && ((inputs.builderStack == '' && env.CA_GH_ACTION_USE_BOOKWORM_BUILDER == 'true') || inputs.builderStack == 'debian-bookworm') }}
@@ -541,7 +543,9 @@ runs:
           --path ${{ inputs.appSourcePath }} \
           --builder mcr.microsoft.com/oryx/builder:debian-bookworm-20231004.1 \
           ${{ env.CA_GH_ACTION_ORYX_BUILDER_ENV_ARG }} \
-          ${{ env.CA_GH_ACTION_ORYX_BUILDER_TELEMETRY_ARG }}
+          ${{ env.CA_GH_ACTION_ORYX_BUILDER_TELEMETRY_ARG }} && \
+        echo "CA_GH_ACTION_BUILDER_FAILED=false" >> $GITHUB_ENV || \
+        echo "CA_GH_ACTION_BUILDER_FAILED=true" >> $GITHUB_ENV
 
     - name: Create runnable application image using builder version specified by input
       if: ${{ inputs.appSourcePath != '' && env.CA_GH_ACTION_DOCKERFILE_PATH == '' && inputs.builderStack != '' && inputs.builderStack != 'debian-bookworm' && inputs.builderStack != 'debian-bullseye' }}
@@ -552,7 +556,16 @@ runs:
           --path ${{ inputs.appSourcePath }} \
           --builder mcr.microsoft.com/oryx/builder:${{ inputs.builderStack }} \
           ${{ env.CA_GH_ACTION_ORYX_BUILDER_ENV_ARG }} \
-          ${{ env.CA_GH_ACTION_ORYX_BUILDER_TELEMETRY_ARG }}
+          ${{ env.CA_GH_ACTION_ORYX_BUILDER_TELEMETRY_ARG }} && \
+        echo "CA_GH_ACTION_BUILDER_FAILED=false" >> $GITHUB_ENV || \
+        echo "CA_GH_ACTION_BUILDER_FAILED=true" >> $GITHUB_ENV
+
+    - name: Check if no builder was able to build the provided application source
+      if: ${{ env.CA_GH_ACTION_BUILDER_FAILED == 'true' }}
+      shell: bash
+      run: |
+        echo "No builder was able to build the provided application source. Please visit the following page for more information on supported platform versions: https://aka.ms/SourceToCloudSupportedVersions"
+        exit 1
 
     - name: Create runnable application image using provided Dockerfile
       if: ${{ inputs.appSourcePath != '' && env.CA_GH_ACTION_DOCKERFILE_PATH != '' }}
