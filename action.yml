@@ -21,9 +21,9 @@ inputs:
       'The password used to authenticate push requests to the provided Azure Container Registry. If not provided, an
       access token will be generated via "az acr login" and provided to "docker login" to authenticate the requests.'
     required: false
-  buildArguments:
+  dockerfileBuildArguments:
     description: |
-      'A list of build argument(s) for the container. Space-separated values in "key=value"'
+      'A list of build argument(s) that is provided to the `docker build` command when a `Dockerfile` is provided. Space-separated values in "key=value"'
     required: false
   registryUrl:
     description: 'The base URL of the Container Registry that the runnable application image will be pushed to.'
@@ -470,10 +470,10 @@ runs:
       if: ${{ runner.os == 'Windows' && inputs.appSourcePath != '' && env.CA_GH_ACTION_DOCKERFILE_PATH == '' }}
       shell: bash
       run: |
-          mkdir -p $PWD/pack && cd $PWD/pack
-          curl -sSL "https://github.com/buildpacks/pack/releases/download/v0.31.0/pack-v0.31.0-windows.zip" -o "pack-windows.zip"
-          7z x pack-windows.zip > /dev/null 2>&1
-          rm pack-windows.zip && echo "$PWD" >> $GITHUB_PATH
+        mkdir -p $PWD/pack && cd $PWD/pack
+        curl -sSL "https://github.com/buildpacks/pack/releases/download/v0.31.0/pack-v0.31.0-windows.zip" -o "pack-windows.zip"
+        7z x pack-windows.zip > /dev/null 2>&1
+        rm pack-windows.zip && echo "$PWD" >> $GITHUB_PATH
 
     - name: Set Oryx++ Builder as default builder
       if: ${{ inputs.appSourcePath != '' && env.CA_GH_ACTION_DOCKERFILE_PATH == '' }}
@@ -572,18 +572,18 @@ runs:
         exit 1
 
     - name: Convert build arguments to string
-      if: ${{ inputs.buildArguments != '' }}
+      if: ${{ inputs.dockerfileBuildArguments != '' &&  inputs.appSourcePath != '' && env.CA_GH_ACTION_DOCKERFILE_PATH != '' }}
       shell: bash
       run: |
         build_arguments=""
 
-        IFS=' ' read -ra build_arguments_array <<< "${{ inputs.buildArguments }}"
+        IFS=' ' read -ra build_arguments_array <<< "${{ inputs.dockerfileBuildArguments }}"
 
         for build_argument in "${build_arguments_array[@]}"; do
           build_arguments+=" --build-arg $build_argument"
         done
 
-        echo "CA_GH_ACTION_BUILD_ARG=${build_arguments}" >> $GITHUB_ENV
+        echo "CA_GH_ACTION_DOCKERFILE_PATH=${build_arguments}" >> $GITHUB_ENV
 
     - name: Create runnable application image using provided Dockerfile
       if: ${{ inputs.appSourcePath != '' && env.CA_GH_ACTION_DOCKERFILE_PATH != '' }}
@@ -592,7 +592,7 @@ runs:
         docker build \
           --tag ${{ env.CA_GH_ACTION_IMAGE_TO_DEPLOY }} \
           --file ${{ env.CA_GH_ACTION_DOCKERFILE_PATH }} \
-          ${{ env.CA_GH_ACTION_BUILD_ARG:-'' }} \
+          ${{ env.CA_GH_ACTION_DOCKERFILE_PATH:-'' }} \
           ${{ inputs.appSourcePath }}
 
     - name: Push image to Container Registry
