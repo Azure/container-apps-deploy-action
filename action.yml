@@ -670,8 +670,7 @@ runs:
           ${{ env.CA_GH_ACTION_TARGET_PORT_ARG }} \
           ${{ env.CA_GH_ACTION_INGRESS_ARG }} \
           ${{ env.CA_GH_ACTION_CONTAINER_APP_ENVIRONMENT_VARIABLES_ARG }} \
-          ${{ env.CA_GH_ACTION_REGISTRY_LOGIN_ARG }} \
-          --output none
+          ${{ env.CA_GH_ACTION_REGISTRY_LOGIN_ARG }}
 
     - name: Disable ingress on the existing Container App
       if: ${{ env.CA_GH_ACTION_RESOURCE_EXISTS == 'true' && inputs.ingress == 'disabled' && env.CA_GH_ACTION_YAML_PROVIDED != 'true' }}
