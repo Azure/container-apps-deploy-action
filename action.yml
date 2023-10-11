@@ -344,7 +344,7 @@ runs:
         az containerapp show \
           -g ${{ env.CA_GH_ACTION_RESOURCE_GROUP }} \
           -n ${{ inputs.containerAppName }} \
-          --output && CA_GH_ACTION_RESOURCE_EXISTS=true || CA_GH_ACTION_RESOURCE_EXISTS=false
+          --output none && CA_GH_ACTION_RESOURCE_EXISTS=true || CA_GH_ACTION_RESOURCE_EXISTS=false
         echo "CA_GH_ACTION_RESOURCE_EXISTS=${CA_GH_ACTION_RESOURCE_EXISTS}" >> $GITHUB_ENV
 
     - name: Export environment to environment variable
