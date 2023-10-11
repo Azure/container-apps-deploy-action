@@ -308,7 +308,7 @@ runs:
       run: |
         az group show \
           -n ${{ env.CA_GH_ACTION_RESOURCE_GROUP }} \
-          -o none && CA_GH_ACTION_RG_EXISTS=true || CA_GH_ACTION_RG_EXISTS=false
+          --output none && CA_GH_ACTION_RG_EXISTS=true || CA_GH_ACTION_RG_EXISTS=false
         echo "CA_GH_ACTION_RG_EXISTS=${CA_GH_ACTION_RG_EXISTS}" >> $GITHUB_ENV
 
     - name: Get default location for Container Apps to use if resource group doesn't exist and location wasn't provided
@@ -348,7 +348,7 @@ runs:
         az containerapp show \
           -g ${{ env.CA_GH_ACTION_RESOURCE_GROUP }} \
           -n ${{ inputs.containerAppName }} \
-          -o none && CA_GH_ACTION_RESOURCE_EXISTS=true || CA_GH_ACTION_RESOURCE_EXISTS=false
+          --output none && CA_GH_ACTION_RESOURCE_EXISTS=true || CA_GH_ACTION_RESOURCE_EXISTS=false
         echo "CA_GH_ACTION_RESOURCE_EXISTS=${CA_GH_ACTION_RESOURCE_EXISTS}" >> $GITHUB_ENV
 
     - name: Export environment to environment variable
@@ -372,7 +372,7 @@ runs:
         az containerapp env show \
           -g ${{ env.CA_GH_ACTION_RESOURCE_GROUP }} \
           -n ${{ env.CA_GH_ACTION_CONTAINER_APP_ENVIRONMENT }} \
-          -o none && CA_GH_ACTION_ENVIRONMENT_EXISTS=true || CA_GH_ACTION_ENVIRONMENT_EXISTS=false
+          --output none && CA_GH_ACTION_ENVIRONMENT_EXISTS=true || CA_GH_ACTION_ENVIRONMENT_EXISTS=false
         echo "CA_GH_ACTION_ENVIRONMENT_EXISTS=${CA_GH_ACTION_ENVIRONMENT_EXISTS}" >> $GITHUB_ENV
 
     - name: Reuse an existing Container App environment if found in the resource group
@@ -607,7 +607,8 @@ runs:
         az containerapp create \
           -g ${{ env.CA_GH_ACTION_RESOURCE_GROUP }} \
           -n ${{ inputs.containerAppName }} \
-          --yaml ${{ inputs.yamlConfigPath }}
+          --yaml ${{ inputs.yamlConfigPath }} \
+          --output none
 
     - name: Create the Container App from provided arguments
       if: ${{ env.CA_GH_ACTION_YAML_PROVIDED != 'true' && env.CA_GH_ACTION_RESOURCE_EXISTS == 'false' }}
@@ -621,7 +622,8 @@ runs:
           ${{ env.CA_GH_ACTION_INGRESS_ARG }} \
           ${{ env.CA_GH_ACTION_TARGET_PORT_ARG }} \
           ${{ env.CA_GH_ACTION_REGISTRY_LOGIN_ARG }} \
-          ${{ env.CA_GH_ACTION_CONTAINER_APP_ENVIRONMENT_VARIABLES_ARG }}
+          ${{ env.CA_GH_ACTION_CONTAINER_APP_ENVIRONMENT_VARIABLES_ARG }} \
+          --output none
 
     - name: Update the existing Container App from a YAML configuration file
       if: ${{ env.CA_GH_ACTION_YAML_PROVIDED == 'true' && env.CA_GH_ACTION_RESOURCE_EXISTS == 'true' }}
@@ -630,7 +632,8 @@ runs:
         az containerapp update \
           -g ${{ env.CA_GH_ACTION_RESOURCE_GROUP }} \
           -n ${{ inputs.containerAppName }} \
-          --yaml ${{ inputs.yamlConfigPath }}
+          --yaml ${{ inputs.yamlConfigPath }} \
+          --output none
 
     - name: Determine whether or not 'update' or 'up' should be used
       if: ${{ env.CA_GH_ACTION_YAML_PROVIDED != 'true' && env.CA_GH_ACTION_RESOURCE_EXISTS == 'true' && (inputs.targetPort != '' || inputs.ingress != '') }}
@@ -658,7 +661,8 @@ runs:
           -g ${{ env.CA_GH_ACTION_RESOURCE_GROUP }} \
           -n ${{ inputs.containerAppName }} \
           -i ${{ env.CA_GH_ACTION_IMAGE_TO_DEPLOY }} \
-          ${{ env.CA_GH_ACTION_CONTAINER_APP_ENVIRONMENT_VARIABLES_ARG }}
+          ${{ env.CA_GH_ACTION_CONTAINER_APP_ENVIRONMENT_VARIABLES_ARG }} \
+          --output none
 
     - name: Reset the ingress argument environment variable if it wasn't provided (use default ingress value)
       if: ${{ inputs.ingress == '' && env.CA_GH_ACTION_YAML_PROVIDED != 'true' && env.CA_GH_ACTION_RESOURCE_EXISTS == 'true' }}
