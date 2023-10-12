@@ -130,16 +130,16 @@ export class azurecontainerapps {
     private static validateSupportedScenarioArguments() {
 
         // Get the path to the application source to build and run, if provided
-        this.appSourcePath = this.toolHelper.getInput('appSourcePath', { required: false });
+        this.appSourcePath = this.toolHelper.getInput('appSourcePath', false) as string;
 
         // Get the name of the ACR instance to push images to, if provided
-        this.acrName = this.toolHelper.getInput('acrName', { required: false });
+        this.acrName = this.toolHelper.getInput('acrName', false) as string;
 
         // Get the previously built image to deploy, if provided
-        this.imageToDeploy = this.toolHelper.getInput('imageToDeploy', { required: false });
+        this.imageToDeploy = this.toolHelper.getInput('imageToDeploy', false) as string;
 
         // Get the YAML configuration file, if provided
-        this.yamlConfigPath = this.toolHelper.getInput('yamlConfigPath', { required: false });
+        this.yamlConfigPath = this.toolHelper.getInput('yamlConfigPath', false) as string;
 
         // Ensure that acrName is also provided if appSourcePath is provided
         if (!this.util.isNullOrEmpty(this.appSourcePath) && this.util.isNullOrEmpty(this.acrName)) {
@@ -197,7 +197,7 @@ export class azurecontainerapps {
      * @returns The name of the Container App to use for the task.
      */
     private static getContainerAppName(): string {
-        let containerAppName: string = this.toolHelper.getInput('containerAppName', { required: false });
+        let containerAppName: string = this.toolHelper.getInput('containerAppName', false);
         if (this.util.isNullOrEmpty(containerAppName)) {
             return this.toolHelper.getDefaultContainerAppName(containerAppName);
         }
@@ -212,7 +212,7 @@ export class azurecontainerapps {
      */
     private static async getLocation(): Promise<string> {
         // Set deployment location, if provided
-        let location: string = this.toolHelper.getInput('location', { required: false });
+        let location: string = this.toolHelper.getInput('location', false);
 
         // If no location was provided, use the default location for the Container App service
         if (this.util.isNullOrEmpty(location)) {
@@ -232,7 +232,7 @@ export class azurecontainerapps {
      */
     private static async getOrCreateResourceGroup(containerAppName: string, location: string): Promise<string> {
         // Get the resource group to deploy to if it was provided, or generate it from the Container App name
-        let resourceGroup: string = this.toolHelper.getInput('resourceGroup', { required: false });
+        let resourceGroup: string = this.toolHelper.getInput('resourceGroup', false);
         if (this.util.isNullOrEmpty(resourceGroup)) {
             resourceGroup = `${containerAppName}-rg`;
             this.toolHelper.writeInfo(`Default resource group name: ${resourceGroup}`);
@@ -262,7 +262,7 @@ export class azurecontainerapps {
         resourceGroup: string,
         location: string): Promise<string> {
         // Get the Container App environment if it was provided
-        let containerAppEnvironment: string = this.toolHelper.getInput('containerAppEnvironment', { required: false });
+        let containerAppEnvironment: string = this.toolHelper.getInput('containerAppEnvironment', false);
 
         // See if we can reuse an existing Container App environment found in the resource group
         if (this.util.isNullOrEmpty(containerAppEnvironment)) {
@@ -292,8 +292,8 @@ export class azurecontainerapps {
      * Authenticates calls to the provided Azure Container Registry.
      */
     private static async authenticateAzureContainerRegistryAsync() {
-        this.acrUsername = this.toolHelper.getInput('acrUsername', { required: false });
-        this.acrPassword = this.toolHelper.getInput('acrPassword', { required: false });
+        this.acrUsername = this.toolHelper.getInput('acrUsername', false);
+        this.acrPassword = this.toolHelper.getInput('acrPassword', false);
 
         // Login to ACR if credentials were provided
         if (!this.util.isNullOrEmpty(this.acrUsername) && !this.util.isNullOrEmpty(this.acrPassword)) {
@@ -318,9 +318,10 @@ export class azurecontainerapps {
      */
     private static async buildAndPushImageAsync() {
         // Get the name of the image to build if it was provided, or generate it from build variables
-        this.imageToBuild = this.toolHelper.getInput('imageToBuild', { required: false });
+        this.imageToBuild = this.toolHelper.getInput('imageToBuild', false);
         if (this.util.isNullOrEmpty(this.imageToBuild)) {
-            this.imageToBuild = `${this.acrName}.azurecr.io/gh-action/container-app:${this.buildId}.${this.buildNumber}`;
+            const imageRepository = this.toolHelper.getDefaultImageRepository()
+            this.imageToBuild = `${this.acrName}.azurecr.io/${imageRepository}:${this.buildId}.${this.buildNumber}`;
             this.toolHelper.writeInfo(`Default image to build: ${this.imageToBuild}`);
         }
 
@@ -331,7 +332,7 @@ export class azurecontainerapps {
         }
 
         // Get Dockerfile to build, if provided, or check if one exists at the root of the provided application
-        let dockerfilePath: string = this.toolHelper.getInput('dockerfilePath', { required: false });
+        let dockerfilePath: string = this.toolHelper.getInput('dockerfilePath', false);
         if (this.util.isNullOrEmpty(dockerfilePath)) {
             this.toolHelper.writeInfo(`No Dockerfile path provided; checking for Dockerfile at root of application source.`);
             const rootDockerfilePath = path.join(this.appSourcePath, 'Dockerfile');
@@ -366,7 +367,7 @@ export class azurecontainerapps {
         this.toolHelper.writeInfo(`Successfully installed the pack CLI.`)
 
         // Get the runtime stack if provided, or determine it using Oryx
-        this.runtimeStack = this.toolHelper.getInput('runtimeStack', { required: false });
+        this.runtimeStack = this.toolHelper.getInput('runtimeStack', false);
         if (this.util.isNullOrEmpty(this.runtimeStack)) {
             this.runtimeStack = await this.appHelper.determineRuntimeStackAsync(appSourcePath);
             this.toolHelper.writeInfo(`Runtime stack determined to be: ${this.runtimeStack}`);
@@ -406,8 +407,8 @@ export class azurecontainerapps {
         this.commandLineArgs = [];
 
         // Get the ingress inputs
-        this.ingress = this.toolHelper.getInput('ingress', { required: false });
-        this.targetPort = this.toolHelper.getInput('targetPort', { required: false });
+        this.ingress = this.toolHelper.getInput('ingress', false);
+        this.targetPort = this.toolHelper.getInput('targetPort', false);
 
         // If both ingress and target port were not provided for an existing Container App, or if ingress is to be disabled,
         // use the 'update' command, otherwise we should use the 'up' command that performs a PATCH operation on the ingress properties.
@@ -443,7 +444,7 @@ export class azurecontainerapps {
             // Handle setup for ingress values when enabled
             if (this.ingressEnabled) {
                 // Get the target port if provided, or determine it based on the application type
-                this.targetPort = this.toolHelper.getInput('targetPort', { required: false });
+                this.targetPort = this.toolHelper.getInput('targetPort', false);
                 if (this.util.isNullOrEmpty(this.targetPort)) {
                     if (!this.util.isNullOrEmpty(this.runtimeStack) && this.runtimeStack.startsWith('python:')) {
                         this.targetPort = '80';
@@ -467,7 +468,7 @@ export class azurecontainerapps {
             }
         }
 
-        const environmentVariables: string = this.toolHelper.getInput('environmentVariables', { required: false });
+        const environmentVariables: string = this.toolHelper.getInput('environmentVariables', false);
 
         // Add user-specified environment variables
         if (!this.util.isNullOrEmpty(environmentVariables)) {

@@ -59,7 +59,10 @@ export class GitHubActionsToolHelper {
         }
     }
 
-    public getInput(name: string, options?: core.InputOptions): string {
+    public getInput(name: string, required?: boolean): string {
+        const options: core.InputOptions = {
+            required:required
+        }
         return core.getInput(name, options);
     }
 
@@ -80,10 +83,14 @@ export class GitHubActionsToolHelper {
     }
 
     public getTelemetryArg(): string {
-        return `CALLER_ID=github-actions-v1`;
+        return `CALLER_ID=github-actions-v2`;
     }
 
     public getEventName(): string {
-        return `ContainerAppsGitHubActionV1`;
+        return `ContainerAppsGitHubActionV2`;
+    }
+
+    public getDefaultImageRepository(): string {
+        return `gh-action/container-app`;
     }
 }
