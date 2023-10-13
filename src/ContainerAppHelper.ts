@@ -207,7 +207,7 @@ export class ContainerAppHelper {
     public async getDefaultContainerAppLocation(): Promise<string> {
         toolHelper.writeDebug(`Attempting to get the default location for the Container App service for the subscription.`);
         try {
-            let command = `az provider show -n Microsoft.App --query resourceTypes[?resourceType=='containerApps'].locations[] | [0]`
+            let command = `az provider show -n Microsoft.App --query "resourceTypes[?resourceType=='containerApps'].locations[] | [0]"`
             let executionResult = await util.executeAndThrowIfError(command);
             // If successful, strip out double quotes, spaces and parentheses from the first location returned
             return executionResult.exitCode === 0 ? executionResult.stdout.toLowerCase().replace(/["() ]/g, "").trim() : `eastus2`;
@@ -361,7 +361,7 @@ export class ContainerAppHelper {
         toolHelper.writeDebug('Attempting to determine the runtime stack needed for the provided application source');
         try {
             // Use 'oryx dockerfile' command to determine the runtime stack to use and write it to a temp file
-            let command = `docker run --rm -v ${appSourcePath}:/app ${ORYX_CLI_IMAGE} /bin/bash -c \"oryx dockerfile /app | head -n 1 | sed 's/ARG RUNTIME=//' >> /app/oryx-runtime.txt\"`
+            let command = `docker run --rm -v ${appSourcePath}:/app ${ORYX_CLI_IMAGE} /bin/bash -c "oryx dockerfile /app | head -n 1 | sed 's/ARG RUNTIME=//' >> /app/oryx-runtime.txt"`
             await util.executeAndThrowIfError(command)
 
             // Read the temp file to get the runtime stack into a variable
@@ -421,7 +421,7 @@ export class ContainerAppHelper {
                 commandLine = 'pwsh';
             } else {
                 let tgzSuffix = os.platform() == 'darwin' ? 'macos' : 'linux';
-                command = `(curl -sSL https://github.com/buildpacks/pack/releases/download/v0.27.0/pack-v0.27.0-${tgzSuffix}.tgz | ` +
+                command = `(curl -sSL "https://github.com/buildpacks/pack/releases/download/v0.27.0/pack-v0.27.0-${tgzSuffix}.tgz" | ` +
                     'tar -C /usr/local/bin/ --no-same-owner -xzv pack)';
                 commandLine = 'bash';
             }
