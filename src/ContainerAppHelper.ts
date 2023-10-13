@@ -38,7 +38,7 @@ export class ContainerAppHelper {
             optionalCmdArgs.forEach(function (val: string) {
                 command += ` ${val}`;
             });
-            await util.executeAndThrowIfError(command);
+            await util.execute(command);
         } catch (err) {
             toolHelper.writeError(err.message);
             throw err;
@@ -58,7 +58,7 @@ export class ContainerAppHelper {
         toolHelper.writeDebug(`Attempting to create Container App with name "${containerAppName}" in resource group "${resourceGroup}" from provided YAML "${yamlConfigPath}"`);
         try {
             let command = `az containerapp create -n ${containerAppName} -g ${resourceGroup} --yaml ${yamlConfigPath} --output none`;
-            await util.executeAndThrowIfError(command);
+            await util.execute(command);
         } catch (err) {
             toolHelper.writeError(err.message);
             throw err;
@@ -83,7 +83,7 @@ export class ContainerAppHelper {
             optionalCmdArgs.forEach(function (val: string) {
                 command += ` ${val}`;
             });
-            await util.executeAndThrowIfError(command);
+            await util.execute(command);
         } catch (err) {
             toolHelper.writeError(err.message);
             throw err;
@@ -120,7 +120,7 @@ export class ContainerAppHelper {
             if (!util.isNullOrEmpty(targetPort)) {
                 command += ` --target-port ${targetPort}`;
             }
-            await util.executeAndThrowIfError(command);
+            await util.execute(command);
         } catch (err) {
             toolHelper.writeError(err.message);
             throw err;
@@ -140,7 +140,7 @@ export class ContainerAppHelper {
         toolHelper.writeDebug(`Attempting to update Container App with name "${containerAppName}" in resource group "${resourceGroup}" from provided YAML "${yamlConfigPath}"`);
         try {
             let command = `az containerapp update -n ${containerAppName} -g ${resourceGroup} --yaml ${yamlConfigPath} --output none`;
-            await util.executeAndThrowIfError(command);
+            await util.execute(command);
         } catch (err) {
             toolHelper.writeError(err.message);
             throw err;
@@ -157,10 +157,10 @@ export class ContainerAppHelper {
         toolHelper.writeDebug(`Attempting to determine if Container App with name "${containerAppName}" exists in resource group "${resourceGroup}"`);
         try {
             let command = `az containerapp show -n ${containerAppName} -g ${resourceGroup} -o none`;
-            let executionResult = await util.executeAndThrowIfError(command);
+            let executionResult = await util.execute(command);
             return executionResult.exitCode === 0;
         } catch (err) {
-            toolHelper.writeWarning(err.message);
+            toolHelper.writeInfo(err.message);
             return false;
         }
     }
@@ -175,10 +175,10 @@ export class ContainerAppHelper {
         toolHelper.writeDebug(`Attempting to determine if Container App Environment with name "${containerAppEnvironment}" exists in resource group "${resourceGroup}"`);
         try {
             let command = `az containerapp env show -n ${containerAppEnvironment} -g ${resourceGroup} -o none`;
-            let executionResult = await util.executeAndThrowIfError(command);
+            let executionResult = await util.execute(command);
             return executionResult.exitCode === 0;
         } catch (err) {
-            toolHelper.writeWarning(err.message);
+            toolHelper.writeInfo(err.message);
             return false;
         }
     }
@@ -192,10 +192,10 @@ export class ContainerAppHelper {
         toolHelper.writeDebug(`Attempting to determine if resource group "${resourceGroup}" exists`);
         try {
             let command = `az group show -n ${resourceGroup} -o none`;
-            let executionResult = await util.executeAndThrowIfError(command);
+            let executionResult = await util.execute(command);
             return executionResult.exitCode === 0;
         } catch (err) {
-            toolHelper.writeWarning(err.message);
+            toolHelper.writeInfo(err.message);
             return false;
         }
     }
@@ -208,11 +208,11 @@ export class ContainerAppHelper {
         toolHelper.writeDebug(`Attempting to get the default location for the Container App service for the subscription.`);
         try {
             let command = `az provider show -n Microsoft.App --query "resourceTypes[?resourceType=='containerApps'].locations[] | [0]"`
-            let executionResult = await util.executeAndThrowIfError(command);
+            let executionResult = await util.execute(command);
             // If successful, strip out double quotes, spaces and parentheses from the first location returned
             return executionResult.exitCode === 0 ? executionResult.stdout.toLowerCase().replace(/["() ]/g, "").trim() : `eastus2`;
         } catch (err) {
-            toolHelper.writeWarning(err.message);
+            toolHelper.writeInfo(err.message);
             return `eastus2`;
         }
     }
@@ -226,7 +226,7 @@ export class ContainerAppHelper {
         toolHelper.writeDebug(`Attempting to create resource group "${name}" in location "${location}"`);
         try {
             let command = `az group create -n ${name} -l ${location}`;
-            await util.executeAndThrowIfError(command);
+            await util.execute(command);
         } catch (err) {
             toolHelper.writeError(err.message);
             throw err;
@@ -242,10 +242,10 @@ export class ContainerAppHelper {
         toolHelper.writeDebug(`Attempting to get the existing Container App Environment in resource group "${resourceGroup}"`);
         try {
             let command = `az containerapp env list -g ${resourceGroup} --query "[0].name"`
-            let executionResult = await util.executeAndThrowIfError(command);
+            let executionResult = await util.execute(command);
             return executionResult.exitCode === 0 ? executionResult.stdout : null;
         } catch (err) {
-            toolHelper.writeWarning(err.message);
+            toolHelper.writeInfo(err.message);
             return null;
         }
     }
@@ -264,7 +264,7 @@ export class ContainerAppHelper {
             if (!util.isNullOrEmpty(location)) {
                 command += ` -l ${location}`;
             }
-            await util.executeAndThrowIfError(command);
+            await util.execute(command);
         } catch (err) {
             toolHelper.writeError(err.message);
             throw err;
@@ -280,7 +280,7 @@ export class ContainerAppHelper {
         toolHelper.writeDebug(`Attempting to disable ingress for Container App with name "${name}" in resource group "${resourceGroup}"`);
         try {
             let command = `az containerapp ingress disable -n ${name} -g ${resourceGroup}`;
-            await util.executeAndThrowIfError(command);
+            await util.execute(command);
         } catch (err) {
             toolHelper.writeError(err.message);
             throw err;
@@ -299,7 +299,7 @@ export class ContainerAppHelper {
         toolHelper.writeDebug(`Attempting to set the ACR details for Container App with name "${name}" in resource group "${resourceGroup}"`);
         try {
             let command = `az containerapp registry set -n ${name} -g ${resourceGroup} --server ${acrName}.azurecr.io --username ${acrUsername} --password ${acrPassword}`;
-            await util.executeAndThrowIfError(command);
+            await util.execute(command);
         } catch (err) {
             toolHelper.writeError(err.message);
             throw err;
@@ -323,7 +323,7 @@ export class ContainerAppHelper {
                 telemetryArg = `ORYX_DISABLE_TELEMETRY=true`;
             }
             let command = `build ${imageToDeploy} --path ${appSourcePath} --builder ${ORYX_BUILDER_IMAGE} --run-image mcr.microsoft.com/oryx/${runtimeStack} --env ${telemetryArg}`;
-            await util.executeAndThrowIfError(`${PACK_CMD} ${command}`);
+            await util.execute(`${PACK_CMD} ${command}`);
         } catch (err) {
             toolHelper.writeError(err.message);
             throw err;
@@ -344,7 +344,7 @@ export class ContainerAppHelper {
         toolHelper.writeDebug(`Attempting to create a runnable application image from the provided/found Dockerfile "${dockerfilePath}" with image name "${imageToDeploy}"`);
         try {
             let command = `docker build --file ${dockerfilePath} ${appSourcePath} --tag ${imageToDeploy}`;
-            await util.executeAndThrowIfError(command);
+            await util.execute(command);
             toolHelper.writeDebug(`Successfully created runnable application image from the provided/found Dockerfile "${dockerfilePath}" with image name "${imageToDeploy}"`);
         } catch (err) {
             toolHelper.writeError(err.message);
@@ -362,7 +362,7 @@ export class ContainerAppHelper {
         try {
             // Use 'oryx dockerfile' command to determine the runtime stack to use and write it to a temp file
             let command = `docker run --rm -v ${appSourcePath}:/app ${ORYX_CLI_IMAGE} /bin/bash -c "oryx dockerfile /app | head -n 1 | sed 's/ARG RUNTIME=//' >> /app/oryx-runtime.txt"`
-            await util.executeAndThrowIfError(command)
+            await util.execute(command)
 
             // Read the temp file to get the runtime stack into a variable
             let oryxRuntimeTxtPath = path.join(appSourcePath, 'oryx-runtime.txt');
@@ -397,7 +397,7 @@ export class ContainerAppHelper {
         toolHelper.writeInfo('Setting the Oryx++ Builder as the default builder via the pack CLI');
         try {
             let command = `config default-builder ${ORYX_BUILDER_IMAGE}`
-            await util.executeAndThrowIfError(`${PACK_CMD} ${command}`);
+            await util.execute(`${PACK_CMD} ${command}`);
         }
         catch (err) {
             toolHelper.writeError(err.message);
@@ -425,7 +425,7 @@ export class ContainerAppHelper {
                     'tar -C /usr/local/bin/ --no-same-owner -xzv pack)';
                 commandLine = 'bash';
             }
-            await util.executeAndThrowIfError(`${commandLine} -c "${command}"`);
+            await util.execute(`${commandLine} -c "${command}"`);
         } catch (err) {
             toolHelper.writeError(`Unable to install the pack CLI. Error: ${err.message}`);
             throw err;

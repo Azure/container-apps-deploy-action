@@ -10,13 +10,8 @@ export class Utility {
    * @param continueOnError - whether or not to continue execution if the command fails
    */
 
-  public async executeAndThrowIfError(commandLine: string, args?: string[], inputOptions?:Buffer): Promise<{ exitCode: number, stdout: string, stderr: string }> {
-    try {
-      return await toolHelper.exec(commandLine, args, inputOptions);
-    } catch (error) {
-      toolHelper.writeError(`Error: ${error.message}`);
-      throw error; // Re-throw the error
-    }
+  public async execute(commandLine: string, args?: string[], inputOptions?:Buffer): Promise<{ exitCode: number, stdout: string, stderr: string }> {
+    return await toolHelper.exec(commandLine, args, inputOptions);
   }
 
   /**
@@ -24,7 +19,7 @@ export class Utility {
    * Azure Container Apps module being dynamically installed while it's still in preview.
    */
   public async setAzureCliDynamicInstall() {
-    await this.executeAndThrowIfError(`az config set extension.use_dynamic_install=yes_without_prompt`);
+    await this.execute(`az config set extension.use_dynamic_install=yes_without_prompt`);
   }
 
   /**

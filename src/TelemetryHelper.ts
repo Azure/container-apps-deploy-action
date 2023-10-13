@@ -86,7 +86,7 @@ export class TelemetryHelper {
                 }
 
                 let eventName = toolHelper.getEventName();
-                await util.executeAndThrowIfError(`docker run --rm ${ORYX_CLI_IMAGE} /bin/bash -c "oryx telemetry --event-name ${eventName} --processing-time ${taskLengthMilliseconds} ${resultArg} ${scenarioArg} ${errorMessageArg}"`);
+                await util.execute(`docker run --rm ${ORYX_CLI_IMAGE} /bin/bash -c "oryx telemetry --event-name ${eventName} --processing-time ${taskLengthMilliseconds} ${resultArg} ${scenarioArg} ${errorMessageArg}"`);
             } catch (err) {
                 toolHelper.writeWarning(`Skipping telemetry logging due to the following exception: ${err.message}`);
             }

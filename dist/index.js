@@ -4675,7 +4675,7 @@ var ContainerAppHelper = /** @class */ (function () {
                         optionalCmdArgs.forEach(function (val) {
                             command_1 += " " + val;
                         });
-                        return [4 /*yield*/, util.executeAndThrowIfError(command_1)];
+                        return [4 /*yield*/, util.execute(command_1)];
                     case 2:
                         _a.sent();
                         return [3 /*break*/, 4];
@@ -4705,7 +4705,7 @@ var ContainerAppHelper = /** @class */ (function () {
                     case 1:
                         _a.trys.push([1, 3, , 4]);
                         command = "az containerapp create -n " + containerAppName + " -g " + resourceGroup + " --yaml " + yamlConfigPath + " --output none";
-                        return [4 /*yield*/, util.executeAndThrowIfError(command)];
+                        return [4 /*yield*/, util.execute(command)];
                     case 2:
                         _a.sent();
                         return [3 /*break*/, 4];
@@ -4739,7 +4739,7 @@ var ContainerAppHelper = /** @class */ (function () {
                         optionalCmdArgs.forEach(function (val) {
                             command_2 += " " + val;
                         });
-                        return [4 /*yield*/, util.executeAndThrowIfError(command_2)];
+                        return [4 /*yield*/, util.execute(command_2)];
                     case 2:
                         _a.sent();
                         return [3 /*break*/, 4];
@@ -4781,7 +4781,7 @@ var ContainerAppHelper = /** @class */ (function () {
                         if (!util.isNullOrEmpty(targetPort)) {
                             command_3 += " --target-port " + targetPort;
                         }
-                        return [4 /*yield*/, util.executeAndThrowIfError(command_3)];
+                        return [4 /*yield*/, util.execute(command_3)];
                     case 2:
                         _a.sent();
                         return [3 /*break*/, 4];
@@ -4811,7 +4811,7 @@ var ContainerAppHelper = /** @class */ (function () {
                     case 1:
                         _a.trys.push([1, 3, , 4]);
                         command = "az containerapp update -n " + containerAppName + " -g " + resourceGroup + " --yaml " + yamlConfigPath + " --output none";
-                        return [4 /*yield*/, util.executeAndThrowIfError(command)];
+                        return [4 /*yield*/, util.execute(command)];
                     case 2:
                         _a.sent();
                         return [3 /*break*/, 4];
@@ -4841,13 +4841,13 @@ var ContainerAppHelper = /** @class */ (function () {
                     case 1:
                         _a.trys.push([1, 3, , 4]);
                         command = "az containerapp show -n " + containerAppName + " -g " + resourceGroup + " -o none";
-                        return [4 /*yield*/, util.executeAndThrowIfError(command)];
+                        return [4 /*yield*/, util.execute(command)];
                     case 2:
                         executionResult = _a.sent();
                         return [2 /*return*/, executionResult.exitCode === 0];
                     case 3:
                         err_6 = _a.sent();
-                        toolHelper.writeWarning(err_6.message);
+                        toolHelper.writeInfo(err_6.message);
                         return [2 /*return*/, false];
                     case 4: return [2 /*return*/];
                 }
@@ -4871,13 +4871,13 @@ var ContainerAppHelper = /** @class */ (function () {
                     case 1:
                         _a.trys.push([1, 3, , 4]);
                         command = "az containerapp env show -n " + containerAppEnvironment + " -g " + resourceGroup + " -o none";
-                        return [4 /*yield*/, util.executeAndThrowIfError(command)];
+                        return [4 /*yield*/, util.execute(command)];
                     case 2:
                         executionResult = _a.sent();
                         return [2 /*return*/, executionResult.exitCode === 0];
                     case 3:
                         err_7 = _a.sent();
-                        toolHelper.writeWarning(err_7.message);
+                        toolHelper.writeInfo(err_7.message);
                         return [2 /*return*/, false];
                     case 4: return [2 /*return*/];
                 }
@@ -4900,13 +4900,13 @@ var ContainerAppHelper = /** @class */ (function () {
                     case 1:
                         _a.trys.push([1, 3, , 4]);
                         command = "az group show -n " + resourceGroup + " -o none";
-                        return [4 /*yield*/, util.executeAndThrowIfError(command)];
+                        return [4 /*yield*/, util.execute(command)];
                     case 2:
                         executionResult = _a.sent();
                         return [2 /*return*/, executionResult.exitCode === 0];
                     case 3:
                         err_8 = _a.sent();
-                        toolHelper.writeWarning(err_8.message);
+                        toolHelper.writeInfo(err_8.message);
                         return [2 /*return*/, false];
                     case 4: return [2 /*return*/];
                 }
@@ -4928,14 +4928,14 @@ var ContainerAppHelper = /** @class */ (function () {
                     case 1:
                         _a.trys.push([1, 3, , 4]);
                         command = "az provider show -n Microsoft.App --query \"resourceTypes[?resourceType=='containerApps'].locations[] | [0]\"";
-                        return [4 /*yield*/, util.executeAndThrowIfError(command)];
+                        return [4 /*yield*/, util.execute(command)];
                     case 2:
                         executionResult = _a.sent();
                         // If successful, strip out double quotes, spaces and parentheses from the first location returned
                         return [2 /*return*/, executionResult.exitCode === 0 ? executionResult.stdout.toLowerCase().replace(/["() ]/g, "").trim() : "eastus2"];
                     case 3:
                         err_9 = _a.sent();
-                        toolHelper.writeWarning(err_9.message);
+                        toolHelper.writeInfo(err_9.message);
                         return [2 /*return*/, "eastus2"];
                     case 4: return [2 /*return*/];
                 }
@@ -4958,7 +4958,7 @@ var ContainerAppHelper = /** @class */ (function () {
                     case 1:
                         _a.trys.push([1, 3, , 4]);
                         command = "az group create -n " + name + " -l " + location;
-                        return [4 /*yield*/, util.executeAndThrowIfError(command)];
+                        return [4 /*yield*/, util.execute(command)];
                     case 2:
                         _a.sent();
                         return [3 /*break*/, 4];
@@ -4987,13 +4987,13 @@ var ContainerAppHelper = /** @class */ (function () {
                     case 1:
                         _a.trys.push([1, 3, , 4]);
                         command = "az containerapp env list -g " + resourceGroup + " --query \"[0].name\"";
-                        return [4 /*yield*/, util.executeAndThrowIfError(command)];
+                        return [4 /*yield*/, util.execute(command)];
                     case 2:
                         executionResult = _a.sent();
                         return [2 /*return*/, executionResult.exitCode === 0 ? executionResult.stdout : null];
                     case 3:
                         err_11 = _a.sent();
-                        toolHelper.writeWarning(err_11.message);
+                        toolHelper.writeInfo(err_11.message);
                         return [2 /*return*/, null];
                     case 4: return [2 /*return*/];
                 }
@@ -5021,7 +5021,7 @@ var ContainerAppHelper = /** @class */ (function () {
                         if (!util.isNullOrEmpty(location)) {
                             command += " -l " + location;
                         }
-                        return [4 /*yield*/, util.executeAndThrowIfError(command)];
+                        return [4 /*yield*/, util.execute(command)];
                     case 2:
                         _a.sent();
                         return [3 /*break*/, 4];
@@ -5050,7 +5050,7 @@ var ContainerAppHelper = /** @class */ (function () {
                     case 1:
                         _a.trys.push([1, 3, , 4]);
                         command = "az containerapp ingress disable -n " + name + " -g " + resourceGroup;
-                        return [4 /*yield*/, util.executeAndThrowIfError(command)];
+                        return [4 /*yield*/, util.execute(command)];
                     case 2:
                         _a.sent();
                         return [3 /*break*/, 4];
@@ -5082,7 +5082,7 @@ var ContainerAppHelper = /** @class */ (function () {
                     case 1:
                         _a.trys.push([1, 3, , 4]);
                         command = "az containerapp registry set -n " + name + " -g " + resourceGroup + " --server " + acrName + ".azurecr.io --username " + acrUsername + " --password " + acrPassword;
-                        return [4 /*yield*/, util.executeAndThrowIfError(command)];
+                        return [4 /*yield*/, util.execute(command)];
                     case 2:
                         _a.sent();
                         return [3 /*break*/, 4];
@@ -5116,7 +5116,7 @@ var ContainerAppHelper = /** @class */ (function () {
                             telemetryArg = "ORYX_DISABLE_TELEMETRY=true";
                         }
                         command = "build " + imageToDeploy + " --path " + appSourcePath + " --builder " + ORYX_BUILDER_IMAGE + " --run-image mcr.microsoft.com/oryx/" + runtimeStack + " --env " + telemetryArg;
-                        return [4 /*yield*/, util.executeAndThrowIfError(PACK_CMD + " " + command)];
+                        return [4 /*yield*/, util.execute(PACK_CMD + " " + command)];
                     case 2:
                         _a.sent();
                         return [3 /*break*/, 4];
@@ -5147,7 +5147,7 @@ var ContainerAppHelper = /** @class */ (function () {
                     case 1:
                         _a.trys.push([1, 3, , 4]);
                         command = "docker build --file " + dockerfilePath + " " + appSourcePath + " --tag " + imageToDeploy;
-                        return [4 /*yield*/, util.executeAndThrowIfError(command)];
+                        return [4 /*yield*/, util.execute(command)];
                     case 2:
                         _a.sent();
                         toolHelper.writeDebug("Successfully created runnable application image from the provided/found Dockerfile \"" + dockerfilePath + "\" with image name \"" + imageToDeploy + "\"");
@@ -5177,7 +5177,7 @@ var ContainerAppHelper = /** @class */ (function () {
                     case 1:
                         _a.trys.push([1, 3, , 4]);
                         command = "docker run --rm -v " + appSourcePath + ":/app " + ORYX_CLI_IMAGE + " /bin/bash -c \"oryx dockerfile /app | head -n 1 | sed 's/ARG RUNTIME=//' >> /app/oryx-runtime.txt\"";
-                        return [4 /*yield*/, util.executeAndThrowIfError(command)
+                        return [4 /*yield*/, util.execute(command)
                             // Read the temp file to get the runtime stack into a variable
                         ];
                     case 2:
@@ -5221,7 +5221,7 @@ var ContainerAppHelper = /** @class */ (function () {
                     case 1:
                         _a.trys.push([1, 3, , 4]);
                         command = "config default-builder " + ORYX_BUILDER_IMAGE;
-                        return [4 /*yield*/, util.executeAndThrowIfError(PACK_CMD + " " + command)];
+                        return [4 /*yield*/, util.execute(PACK_CMD + " " + command)];
                     case 2:
                         _a.sent();
                         return [3 /*break*/, 4];
@@ -5262,7 +5262,7 @@ var ContainerAppHelper = /** @class */ (function () {
                                 'tar -C /usr/local/bin/ --no-same-owner -xzv pack)';
                             commandLine = 'bash';
                         }
-                        return [4 /*yield*/, util.executeAndThrowIfError(commandLine + " -c \"" + command + "\"")];
+                        return [4 /*yield*/, util.execute(commandLine + " -c \"" + command + "\"")];
                     case 2:
                         _a.sent();
                         return [3 /*break*/, 4];
@@ -5349,7 +5349,7 @@ var ContainerRegistryHelper = /** @class */ (function () {
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
-                        return [4 /*yield*/, util.executeAndThrowIfError("docker login --username " + acrUsername + " --password " + acrPassword + " " + acrName + ".azurecr.io", [], Buffer.from(acrPassword))];
+                        return [4 /*yield*/, util.execute("docker login --username " + acrUsername + " --password " + acrPassword + " " + acrName + ".azurecr.io", [], Buffer.from(acrPassword))];
                     case 2:
                         _a.sent();
                         return [3 /*break*/, 4];
@@ -5378,7 +5378,7 @@ var ContainerRegistryHelper = /** @class */ (function () {
                     case 1:
                         _a.trys.push([1, 3, , 4]);
                         commandLine = os.platform() === 'win32' ? 'pwsh' : 'bash';
-                        return [4 /*yield*/, util.executeAndThrowIfError(commandLine + " -c \"CA_ADO_TASK_ACR_ACCESS_TOKEN=$(az acr login --name " + acrName + " --output json --expose-token --only-show-errors | jq -r '.accessToken'); docker login " + acrName + ".azurecr.io -u 00000000-0000-0000-0000-000000000000 -p $CA_ADO_TASK_ACR_ACCESS_TOKEN > /dev/null 2>&1\"")];
+                        return [4 /*yield*/, util.execute(commandLine + " -c \"CA_ADO_TASK_ACR_ACCESS_TOKEN=$(az acr login --name " + acrName + " --output json --expose-token --only-show-errors | jq -r '.accessToken'); docker login " + acrName + ".azurecr.io -u 00000000-0000-0000-0000-000000000000 -p $CA_ADO_TASK_ACR_ACCESS_TOKEN > /dev/null 2>&1\"")];
                     case 2:
                         _a.sent();
                         return [3 /*break*/, 4];
@@ -5405,7 +5405,7 @@ var ContainerRegistryHelper = /** @class */ (function () {
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
-                        return [4 /*yield*/, util.executeAndThrowIfError("docker push " + imageToPush)];
+                        return [4 /*yield*/, util.execute("docker push " + imageToPush)];
                     case 2:
                         _a.sent();
                         return [3 /*break*/, 4];
@@ -5683,7 +5683,7 @@ var TelemetryHelper = /** @class */ (function () {
                             errorMessageArg = "--property errorMessage=" + this.errorMessage;
                         }
                         eventName = toolHelper.getEventName();
-                        return [4 /*yield*/, util.executeAndThrowIfError("docker run --rm " + ORYX_CLI_IMAGE + " /bin/bash -c \"oryx telemetry --event-name " + eventName + " --processing-time " + taskLengthMilliseconds + " " + resultArg + " " + scenarioArg + " " + errorMessageArg + "\"")];
+                        return [4 /*yield*/, util.execute("docker run --rm " + ORYX_CLI_IMAGE + " /bin/bash -c \"oryx telemetry --event-name " + eventName + " --processing-time " + taskLengthMilliseconds + " " + resultArg + " " + scenarioArg + " " + errorMessageArg + "\"")];
                     case 2:
                         _a.sent();
                         return [3 /*break*/, 4];
@@ -5757,20 +5757,12 @@ var Utility = /** @class */ (function () {
      * @param args - the arguments to pass to the command
      * @param continueOnError - whether or not to continue execution if the command fails
      */
-    Utility.prototype.executeAndThrowIfError = function (commandLine, args, inputOptions) {
+    Utility.prototype.execute = function (commandLine, args, inputOptions) {
         return __awaiter(this, void 0, void 0, function () {
-            var error_1;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0:
-                        _a.trys.push([0, 2, , 3]);
-                        return [4 /*yield*/, toolHelper.exec(commandLine, args, inputOptions)];
+                    case 0: return [4 /*yield*/, toolHelper.exec(commandLine, args, inputOptions)];
                     case 1: return [2 /*return*/, _a.sent()];
-                    case 2:
-                        error_1 = _a.sent();
-                        toolHelper.writeError("Error: " + error_1.message);
-                        throw error_1; // Re-throw the error
-                    case 3: return [2 /*return*/];
                 }
             });
         });
@@ -5783,7 +5775,7 @@ var Utility = /** @class */ (function () {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.executeAndThrowIfError("az config set extension.use_dynamic_install=yes_without_prompt")];
+                    case 0: return [4 /*yield*/, this.execute("az config set extension.use_dynamic_install=yes_without_prompt")];
                     case 1:
                         _a.sent();
                         return [2 /*return*/];

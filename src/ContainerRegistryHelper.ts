@@ -15,7 +15,7 @@ export class ContainerRegistryHelper {
     public async loginAcrWithUsernamePassword(acrName: string, acrUsername: string, acrPassword: string) {
         toolHelper.writeDebug(`Attempting to log in to ACR instance "${acrName}" with username and password credentials`);
         try {
-            await util.executeAndThrowIfError(`docker login --username ${acrUsername} --password ${acrPassword} ${acrName}.azurecr.io`, [], Buffer.from(acrPassword));
+            await util.execute(`docker login --username ${acrUsername} --password ${acrPassword} ${acrName}.azurecr.io`, [], Buffer.from(acrPassword));
         } catch (err) {
             toolHelper.writeError(`Failed to log in to ACR instance "${acrName}" with username and password credentials`);
             throw err;
@@ -31,7 +31,7 @@ export class ContainerRegistryHelper {
         toolHelper.writeDebug(`Attempting to log in to ACR instance "${acrName}" with access token`);
         try {
             let commandLine = os.platform() === 'win32' ? 'pwsh' : 'bash';
-            await util.executeAndThrowIfError(`${commandLine} -c "CA_ADO_TASK_ACR_ACCESS_TOKEN=$(az acr login --name ${acrName} --output json --expose-token --only-show-errors | jq -r '.accessToken'); docker login ${acrName}.azurecr.io -u 00000000-0000-0000-0000-000000000000 -p $CA_ADO_TASK_ACR_ACCESS_TOKEN > /dev/null 2>&1"`);
+            await util.execute(`${commandLine} -c "CA_ADO_TASK_ACR_ACCESS_TOKEN=$(az acr login --name ${acrName} --output json --expose-token --only-show-errors | jq -r '.accessToken'); docker login ${acrName}.azurecr.io -u 00000000-0000-0000-0000-000000000000 -p $CA_ADO_TASK_ACR_ACCESS_TOKEN > /dev/null 2>&1"`);
         } catch (err) {
             toolHelper.writeError(`Failed to log in to ACR instance "${acrName}" with access token`)
             throw err;
@@ -45,7 +45,7 @@ export class ContainerRegistryHelper {
     public async pushImageToAcr(imageToPush: string) {
         toolHelper.writeDebug(`Attempting to push image "${imageToPush}" to ACR`);
         try {
-            await util.executeAndThrowIfError(`docker push ${imageToPush}`);
+            await util.execute(`docker push ${imageToPush}`);
         } catch (err) {
             toolHelper.writeError(`Failed to push image "${imageToPush}" to ACR. Error: ${err.message}`);
             throw err;
