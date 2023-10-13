@@ -4986,7 +4986,7 @@ var ContainerAppHelper = /** @class */ (function () {
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
-                        command = "az containerapp env list -g " + resourceGroup + " --query [0].name";
+                        command = "az containerapp env list -g " + resourceGroup + " --query \"[0].name\"";
                         return [4 /*yield*/, util.executeAndThrowIfError(command)];
                     case 2:
                         executionResult = _a.sent();
@@ -5378,7 +5378,7 @@ var ContainerRegistryHelper = /** @class */ (function () {
                     case 1:
                         _a.trys.push([1, 3, , 4]);
                         commandLine = os.platform() === 'win32' ? 'pwsh' : 'bash';
-                        return [4 /*yield*/, util.executeAndThrowIfError(commandLine + " -c CA_ADO_TASK_ACR_ACCESS_TOKEN=$(az acr login --name " + acrName + " --output json --expose-token --only-show-errors | jq -r '.accessToken'); docker login " + acrName + ".azurecr.io -u 00000000-0000-0000-0000-000000000000 -p $CA_ADO_TASK_ACR_ACCESS_TOKEN > /dev/null 2>&1")];
+                        return [4 /*yield*/, util.executeAndThrowIfError(commandLine + " -c \"CA_ADO_TASK_ACR_ACCESS_TOKEN=$(az acr login --name " + acrName + " --output json --expose-token --only-show-errors | jq -r '.accessToken'); docker login " + acrName + ".azurecr.io -u 00000000-0000-0000-0000-000000000000 -p $CA_ADO_TASK_ACR_ACCESS_TOKEN > /dev/null 2>&1\"")];
                     case 2:
                         _a.sent();
                         return [3 /*break*/, 4];
@@ -5683,7 +5683,7 @@ var TelemetryHelper = /** @class */ (function () {
                             errorMessageArg = "--property errorMessage=" + this.errorMessage;
                         }
                         eventName = toolHelper.getEventName();
-                        return [4 /*yield*/, util.executeAndThrowIfError("docker run --rm " + ORYX_CLI_IMAGE + " /bin/bash -c oryx telemetry --event-name " + eventName + " --processing-time " + taskLengthMilliseconds + " " + resultArg + " " + scenarioArg + " " + errorMessageArg)];
+                        return [4 /*yield*/, util.executeAndThrowIfError("docker run --rm " + ORYX_CLI_IMAGE + " /bin/bash -c \"oryx telemetry --event-name " + eventName + " --processing-time " + taskLengthMilliseconds + " " + resultArg + " " + scenarioArg + " " + errorMessageArg + "\"")];
                     case 2:
                         _a.sent();
                         return [3 /*break*/, 4];

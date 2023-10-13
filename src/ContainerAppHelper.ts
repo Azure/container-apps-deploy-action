@@ -241,7 +241,7 @@ export class ContainerAppHelper {
     public async getExistingContainerAppEnvironment(resourceGroup: string) {
         toolHelper.writeDebug(`Attempting to get the existing Container App Environment in resource group "${resourceGroup}"`);
         try {
-            let command = `az containerapp env list -g ${resourceGroup} --query [0].name`
+            let command = `az containerapp env list -g ${resourceGroup} --query "[0].name"`
             let executionResult = await util.executeAndThrowIfError(command);
             return executionResult.exitCode === 0 ? executionResult.stdout : null;
         } catch (err) {
