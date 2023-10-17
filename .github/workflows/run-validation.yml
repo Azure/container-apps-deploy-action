@@ -51,6 +51,7 @@ jobs:
           containerAppName: ${{ env.TEST_CONTAINER_APP_NAME }}
           containerAppEnvironment: ${{ vars.TEST_EXISTING_CONTAINER_APP_ENV }}
           resourceGroup: ${{ vars.TEST_RESOURCE_GROUP_NAME }}
+          imageToBuild: docker.io/snehapar9/test:latest
           disableTelemetry: ${{ vars.TEST_DISABLE_TELEMETRY }}
 
       - name: Delete created Azure Container App
