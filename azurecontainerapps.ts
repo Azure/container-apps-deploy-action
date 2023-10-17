@@ -309,7 +309,7 @@ export class azurecontainerapps {
      */
     private static async authenticateAzureContainerRegistryAsync() {
         this.registryUsername = this.toolHelper.getInput('acrUsername', false);
-        this.registryPassword= this.toolHelper.getInput('acrPassword', false);
+        this.registryPassword = this.toolHelper.getInput('acrPassword', false);
         this.registryUrl = `${this.acrName}.azurecr.io`;
 
         // Login to ACR if credentials were provided
