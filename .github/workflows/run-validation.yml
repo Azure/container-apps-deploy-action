@@ -45,9 +45,9 @@ jobs:
         uses: ./
         with:
           appSourcePath: '${{ github.workspace }}/oryx/tests/SampleApps/DotNetCore/NetCore6PreviewWebApp'
-          acrName: ${{ vars.TEST_ACR_NAME }}
-          acrUsername: ${{ secrets.TEST_REGISTRY_USERNAME }}
-          acrPassword: ${{ secrets.TEST_REGISTRY_PASSWORD }}
+          registryUrl: ${{ secrets.DOCKER_USERNAME }}.docker.io
+          registryUsername: ${{ secrets.DOCKER_USERNAME }}
+          registryPassword: ${{ secrets.DOCKER_PASSWORD }}
           containerAppName: ${{ env.TEST_CONTAINER_APP_NAME }}
           containerAppEnvironment: ${{ vars.TEST_EXISTING_CONTAINER_APP_ENV }}
           resourceGroup: ${{ vars.TEST_RESOURCE_GROUP_NAME }}
