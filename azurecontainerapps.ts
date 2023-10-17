@@ -21,14 +21,14 @@ export class azurecontainerapps {
             // Set up the resources required to deploy a Container App
             await this.setupResources();
 
+             // If a Container Registry URL was provided, try to authenticate against it
+            if (!this.util.isNullOrEmpty(this.registryUrl)) {
+                await this.authenticateContainerRegistryAsync();
+            }
+
             // If an Azure Container Registry name was provided, try to authenticate against it
             if (!this.util.isNullOrEmpty(this.acrName)) {
                 await this.authenticateAzureContainerRegistryAsync();
-            }
-
-            // If a Container Registry URL was provided, try to authenticate against it
-            if (!this.util.isNullOrEmpty(this.registryUrl)) {
-                await this.authenticateContainerRegistryAsync();
             }
 
             // If the application source was provided, build a runnable application image from it
