@@ -1,5 +1,8 @@
-import * as core from '@actions/core';
-import * as exec from '@actions/exec';
+// Note: This file is used to define utility functions that can be used across the project.
+import { GitHubActionsToolHelper } from './GitHubActionsToolHelper';
+
+const toolHelper = new GitHubActionsToolHelper();
+
 export class Utility {
   /**
    * @param commandLine - the command to execute
@@ -7,40 +10,8 @@ export class Utility {
    * @param continueOnError - whether or not to continue execution if the command fails
    */
 
-  public async executeAndThrowIfError(commandLine: string, args: string[], continueOnError: boolean = false): Promise<{ exitCode: number, stdout: string, stderr: string }> {
-    try {
-      let stdout = '';
-      let stderr = '';
-
-      const options: exec.ExecOptions = {
-        listeners: {
-          stdout: (data: Buffer) => {
-            stdout += data.toString();
-          },
-          stderr: (data: Buffer) => {
-            stderr += data.toString();
-          },
-        },
-      };
-
-      const exitCode = await exec.exec(commandLine, args, options);
-
-      if (!continueOnError && exitCode !== 0) {
-        core.error(`Command failed with exit code ${exitCode}. Error stream: ${stderr}`);
-        throw new Error(`Command failed with exit code ${exitCode}. Error stream: ${stderr}`);
-      }
-      return new Promise((resolve, reject) => {
-        const executionResult = {
-          exitCode: exitCode,
-          stdout: stdout,
-          stderr: stderr
-        }
-        resolve(executionResult);
-      });
-    } catch (error) {
-      core.setFailed(`Error: ${error.message}`);
-      throw error; // Re-throw the error
-    }
+  public async execute(commandLine: string, args?: string[], inputOptions?:Buffer): Promise<{ exitCode: number, stdout: string, stderr: string }> {
+    return await toolHelper.exec(commandLine, args, inputOptions);
   }
 
   /**
@@ -48,7 +19,7 @@ export class Utility {
    * Azure Container Apps module being dynamically installed while it's still in preview.
    */
   public async setAzureCliDynamicInstall() {
-    await this.executeAndThrowIfError('az', [`config`, `set`, `extension.use_dynamic_install=yes_without_prompt`]);
+    await this.execute(`az config set extension.use_dynamic_install=yes_without_prompt`);
   }
 
   /**

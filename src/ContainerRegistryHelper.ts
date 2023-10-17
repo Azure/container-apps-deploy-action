@@ -1,22 +1,23 @@
-import * as core from '@actions/core';
-import * as exec from '@actions/exec';
-import * as io from '@actions/io';
 import * as os from 'os';
 import { Utility } from './Utility';
+import { GitHubActionsToolHelper } from './GitHubActionsToolHelper';
+
+const toolHelper = new GitHubActionsToolHelper();
+const util = new Utility();
 
 export class ContainerRegistryHelper {
     /**
-     * Authorizes Docker to make calls to the provided ACR instance using username and password.
-     * @param acrName - the name of the ACR instance to authenticate calls to
-     * @param acrUsername - the username for authentication
-     * @param acrPassword - the password for authentication
+     * Authorizes Docker to make calls to the provided Container Registry instance using username and password.
+     * @param registryUrl - the name of the Container Registry instance to authenticate calls to
+     * @param registryUsername - the username for authentication
+     * @param registryPassword - the password for authentication
      */
-    public async loginAcrWithUsernamePassword(acrName: string, acrUsername: string, acrPassword: string) {
-        core.debug(`Attempting to log in to ACR instance "${acrName}" with username and password credentials`);
+    public async loginContainerRegistryWithUsernamePassword(registryUrl: string, registryUsername: string, registryPassword: string) {
+        toolHelper.writeDebug(`Attempting to log in to Container Registry instance"${registryUrl}" with username and password credentials`);
         try {
-            await exec.exec('docker', [`login`, `--password-stdin`, `--username`, `${acrUsername}`, `${acrName}.azurecr.io`], { input: Buffer.from(acrPassword) });
+            await util.execute(`docker login --username ${registryUsername} --password ${registryPassword} ${registryUrl}`, [], Buffer.from(registryPassword));
         } catch (err) {
-            core.error(`Failed to log in to ACR instance "${acrName}" with username and password credentials`);
+            toolHelper.writeError(`Failed to log in to Container Registry instance "${registryUrl}" with username and password credentials`);
             throw err;
         }
     }
@@ -27,29 +28,26 @@ export class ContainerRegistryHelper {
      * @param acrName - the name of the ACR instance to authenticate calls to.
      */
     public async loginAcrWithAccessTokenAsync(acrName: string) {
-        core.debug(`Attempting to log in to ACR instance "${acrName}" with access token`);
+        toolHelper.writeDebug(`Attempting to log in to ACR instance "${acrName}" with access token`);
         try {
-            const command: string = `CA_ADO_TASK_ACR_ACCESS_TOKEN=$(az acr login --name ${acrName} --output json --expose-token --only-show-errors | jq -r '.accessToken'); docker login ${acrName}.azurecr.io -u 00000000-0000-0000-0000-000000000000 -p $CA_ADO_TASK_ACR_ACCESS_TOKEN > /dev/null 2>&1`;
-            const shell = os.platform() === 'win32' ? 'pwsh' : 'bash';
-            await exec.exec(shell, ['-c', command]);
+            let commandLine = os.platform() === 'win32' ? 'pwsh' : 'bash';
+            await util.execute(`${commandLine} -c "CA_ADO_TASK_ACR_ACCESS_TOKEN=$(az acr login --name ${acrName} --output json --expose-token --only-show-errors | jq -r '.accessToken'); docker login ${acrName}.azurecr.io -u 00000000-0000-0000-0000-000000000000 -p $CA_ADO_TASK_ACR_ACCESS_TOKEN > /dev/null 2>&1"`);
         } catch (err) {
-            core.error(`Failed to log in to ACR instance "${acrName}" with access token`)
+            toolHelper.writeError(`Failed to log in to ACR instance "${acrName}" with access token`)
             throw err;
         }
     }
 
     /**
-     * Pushes an image to the ACR instance that was previously authenticated against.
-     * @param imageToPush - the name of the image to push to ACR
+     * Pushes an image to the Container Registry instance that was previously authenticated against.
+     * @param imageToPush - the name of the image to push to the Container Registry instance
      */
-    public async pushImageToAcr(imageToPush: string) {
-        core.debug(`Attempting to push image "${imageToPush}" to ACR`);
+    public async pushImageToContainerRegistry(imageToPush: string) {
+        toolHelper.writeDebug(`Attempting to push image "${imageToPush}" to Container Registry`);
         try {
-            const dockerTool: string = await io.which("docker", true);
-            await new Utility().executeAndThrowIfError(dockerTool, [`push`, `${imageToPush}`]);
+            await util.execute(`docker push ${imageToPush}`);
         } catch (err) {
-            core.error(`Failed to push image "${imageToPush}" to ACR. Error: ${err.message}`);
-            core.setFailed(err.message);
+            toolHelper.writeError(`Failed to push image "${imageToPush}" to Container Registry. Error: ${err.message}`);
             throw err;
         }
     }
