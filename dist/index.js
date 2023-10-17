@@ -5385,7 +5385,7 @@ var ContainerRegistryHelper = /** @class */ (function () {
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
-                        return [4 /*yield*/, util.execute("docker login --username " + registryUsername + " --password " + registryPassword + " " + registryUrl, [], Buffer.from(registryPassword))];
+                        return [4 /*yield*/, util.execute("docker login --password-stdin --username " + registryUsername + " " + registryUrl, [], Buffer.from(registryPassword))];
                     case 2:
                         _a.sent();
                         return [3 /*break*/, 4];

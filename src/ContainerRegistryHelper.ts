@@ -15,7 +15,7 @@ export class ContainerRegistryHelper {
     public async loginContainerRegistryWithUsernamePassword(registryUrl: string, registryUsername: string, registryPassword: string) {
         toolHelper.writeDebug(`Attempting to log in to Container Registry instance"${registryUrl}" with username and password credentials`);
         try {
-            await util.execute(`docker login --username ${registryUsername} --password ${registryPassword} ${registryUrl}`, [], Buffer.from(registryPassword));
+            await util.execute(`docker login --password-stdin --username ${registryUsername} ${registryUrl}`, [], Buffer.from(registryPassword));
         } catch (err) {
             toolHelper.writeError(`Failed to log in to Container Registry instance "${registryUrl}" with username and password credentials`);
             throw err;
