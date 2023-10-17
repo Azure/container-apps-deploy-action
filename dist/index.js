@@ -76,14 +76,14 @@ var azurecontainerapps = /** @class */ (function () {
                     case 3:
                         // Set up the resources required to deploy a Container App
                         _a.sent();
-                        if (!!this.util.isNullOrEmpty(this.acrName)) return [3 /*break*/, 5];
-                        return [4 /*yield*/, this.authenticateAzureContainerRegistryAsync()];
+                        if (!!this.util.isNullOrEmpty(this.registryUrl)) return [3 /*break*/, 5];
+                        return [4 /*yield*/, this.authenticateContainerRegistryAsync()];
                     case 4:
                         _a.sent();
                         _a.label = 5;
                     case 5:
-                        if (!!this.util.isNullOrEmpty(this.registryUrl)) return [3 /*break*/, 7];
-                        return [4 /*yield*/, this.authenticateContainerRegistryAsync()];
+                        if (!!this.util.isNullOrEmpty(this.acrName)) return [3 /*break*/, 7];
+                        return [4 /*yield*/, this.authenticateAzureContainerRegistryAsync()];
                     case 6:
                         _a.sent();
                         _a.label = 7;
