@@ -26,6 +26,11 @@ export class azurecontainerapps {
                 await this.authenticateAzureContainerRegistryAsync();
             }
 
+            // If a Container Registry URL was provided, try to authenticate against it
+            if (!this.util.isNullOrEmpty(this.registryUrl)) {
+                await this.authenticateContainerRegistryAsync();
+            }
+
             // If the application source was provided, build a runnable application image from it
             if (!this.util.isNullOrEmpty(this.appSourcePath)) {
                 await this.buildAndPushImageAsync();
@@ -73,9 +78,10 @@ export class azurecontainerapps {
     private static containerAppEnvironment: string;
     private static ingressEnabled: boolean;
 
-    // ACR properties
-    private static acrUsername: string;
-    private static acrPassword: string;
+    // Container Registry properties
+    private static registryUsername: string;
+    private static registryPassword: string;
+    private static registryUrl: string;
 
     // Command line arguments
     private static commandLineArgs: string[];
@@ -119,7 +125,7 @@ export class azurecontainerapps {
         // Set up ContainerAppHelper for managing calls around the Container App
         this.appHelper = new ContainerAppHelper(disableTelemetry);
 
-        // Set up ContainerRegistryHelper for managing calls around ACR
+        // Set up ContainerRegistryHelper for managing calls around the Container Registry
         this.registryHelper = new ContainerRegistryHelper();
     }
 
@@ -135,17 +141,20 @@ export class azurecontainerapps {
         // Get the name of the ACR instance to push images to, if provided
         this.acrName = this.toolHelper.getInput('acrName', false) as string;
 
+        // Get the name of the RegistryUrl to push images to, if provided
+        this.registryUrl = this.toolHelper.getInput('registryUrl', false) as string;
+
         // Get the previously built image to deploy, if provided
         this.imageToDeploy = this.toolHelper.getInput('imageToDeploy', false) as string;
 
         // Get the YAML configuration file, if provided
         this.yamlConfigPath = this.toolHelper.getInput('yamlConfigPath', false) as string;
 
-        // Ensure that acrName is also provided if appSourcePath is provided
-        if (!this.util.isNullOrEmpty(this.appSourcePath) && this.util.isNullOrEmpty(this.acrName)) {
-            let missingAcrNameMessage = `The 'acrName' argument must be provided when the 'appSourcePath' argument is provided.`;
-            this.toolHelper.writeError(missingAcrNameMessage);
-            throw Error(missingAcrNameMessage);
+        // Ensure that acrName or registryUrl is also provided if appSourcePath is provided
+        if (!this.util.isNullOrEmpty(this.appSourcePath) && this.util.isNullOrEmpty(this.acrName) && this.util.isNullOrEmpty(this.registryUrl)) {
+            let missingRegistryUrlMessage = `The 'acrName' or 'registryUrl' argument must be provided when the 'appSourcePath' argument is provided.`;
+            this.toolHelper.writeError(missingRegistryUrlMessage);
+            throw Error(missingRegistryUrlMessage);
         }
 
         // Ensure that one of appSourcePath, imageToDeploy, or yamlConfigPath is provided
@@ -153,6 +162,13 @@ export class azurecontainerapps {
             let requiredArgumentMessage = `One of the following arguments must be provided: 'appSourcePath', 'imageToDeploy', or 'yamlConfigPath'.`;
             this.toolHelper.writeError(requiredArgumentMessage);
             throw Error(requiredArgumentMessage);
+        }
+
+        // Ensure that an ACR name and registry URL are not both provided
+        if (!this.util.isNullOrEmpty(this.acrName) && !this.util.isNullOrEmpty(this.registryUrl)) {
+            let conflictingArgumentsMessage = `The 'acrName' and 'registryUrl' arguments cannot both be provided.`;
+            this.toolHelper.writeError(conflictingArgumentsMessage);
+            throw Error(conflictingArgumentsMessage);
         }
     }
 
@@ -292,16 +308,31 @@ export class azurecontainerapps {
      * Authenticates calls to the provided Azure Container Registry.
      */
     private static async authenticateAzureContainerRegistryAsync() {
-        this.acrUsername = this.toolHelper.getInput('acrUsername', false);
-        this.acrPassword = this.toolHelper.getInput('acrPassword', false);
+        this.registryUsername = this.toolHelper.getInput('acrUsername', false);
+        this.registryPassword= this.toolHelper.getInput('acrPassword', false);
+        this.registryUrl = `${this.acrName}.azurecr.io`;
 
         // Login to ACR if credentials were provided
-        if (!this.util.isNullOrEmpty(this.acrUsername) && !this.util.isNullOrEmpty(this.acrPassword)) {
+        if (!this.util.isNullOrEmpty(this.registryUsername) && !this.util.isNullOrEmpty(this.registryPassword)) {
             this.toolHelper.writeInfo(`Logging in to ACR instance "${this.acrName}" with username and password credentials`);
-            await this.registryHelper.loginAcrWithUsernamePassword(this.acrName, this.acrUsername, this.acrPassword);
+            await this.registryHelper.loginContainerRegistryWithUsernamePassword(this.registryUrl, this.registryUsername, this.registryPassword);
         } else {
             this.toolHelper.writeInfo(`No ACR credentials provided; attempting to log in to ACR instance "${this.acrName}" with access token`);
             await this.registryHelper.loginAcrWithAccessTokenAsync(this.acrName);
+        }
+    }
+
+    /**
+     * Authenticates calls to the provided Container Registry.
+     */
+    private static async authenticateContainerRegistryAsync() {
+        this.registryUsername = this.toolHelper.getInput('registryUsername', false);
+        this.registryPassword = this.toolHelper.getInput('registryPassword', false);
+
+        // Login to Container Registry if credentials were provided
+        if (!this.util.isNullOrEmpty(this.registryUsername) && !this.util.isNullOrEmpty(this.registryPassword)) {
+            this.toolHelper.writeInfo(`Logging in to Container Registry "${this.registryUrl}" with username and password credentials`);
+            await this.registryHelper.loginContainerRegistryWithUsernamePassword(this.registryUrl, this.registryUsername, this.registryPassword);
         }
     }
 
@@ -314,14 +345,14 @@ export class azurecontainerapps {
     }
 
     /**
-     * Builds a runnable application image using a Dockerfile or the builder and pushes it to ACR.
+     * Builds a runnable application image using a Dockerfile or the builder and pushes it to the Container Registry.
      */
     private static async buildAndPushImageAsync() {
         // Get the name of the image to build if it was provided, or generate it from build variables
         this.imageToBuild = this.toolHelper.getInput('imageToBuild', false);
         if (this.util.isNullOrEmpty(this.imageToBuild)) {
             const imageRepository = this.toolHelper.getDefaultImageRepository()
-            this.imageToBuild = `${this.acrName}.azurecr.io/${imageRepository}:${this.buildId}.${this.buildNumber}`;
+            this.imageToBuild = `${this.registryUrl}/${imageRepository}:${this.buildId}.${this.buildNumber}`;
             this.toolHelper.writeInfo(`Default image to build: ${this.imageToBuild}`);
         }
 
@@ -352,8 +383,8 @@ export class azurecontainerapps {
             await this.builderImageFromDockerfile(this.appSourcePath, dockerfilePath, this.imageToBuild);
         }
 
-        // Push the image to ACR
-        await this.registryHelper.pushImageToAcr(this.imageToBuild);
+        // Push the image to the Container Registry
+        await this.registryHelper.pushImageToContainerRegistry(this.imageToBuild);
     }
 
     /**
@@ -416,13 +447,13 @@ export class azurecontainerapps {
             this.util.isNullOrEmpty(this.targetPort) &&
             (this.util.isNullOrEmpty(this.ingress) || this.ingress == 'disabled');
 
-        // Pass the ACR credentials when creating a Container App or updating a Container App via the 'up' command
-        if (!this.util.isNullOrEmpty(this.acrName) && !this.util.isNullOrEmpty(this.acrUsername) && !this.util.isNullOrEmpty(this.acrPassword) &&
+        // Pass the Container Registry credentials when creating a Container App or updating a Container App via the 'up' command
+        if (!this.util.isNullOrEmpty(this.registryUrl) && !this.util.isNullOrEmpty(this.registryUsername) && !this.util.isNullOrEmpty(this.registryPassword) &&
             (!this.containerAppExists || (this.containerAppExists && !this.shouldUseUpdateCommand))) {
             this.commandLineArgs.push(
-                `--registry-server ${this.acrName}.azurecr.io`,
-                `--registry-username ${this.acrUsername}`,
-                `--registry-password ${this.acrPassword}`);
+                `--registry-server ${this.registryUrl}`,
+                `--registry-username ${this.registryUsername}`,
+                `--registry-password ${this.registryPassword}`);
         }
 
         // Determine default values only for the 'create' scenario to avoid overriding existing values for the 'update' scenario
@@ -506,9 +537,9 @@ export class azurecontainerapps {
         }
 
         if (this.shouldUseUpdateCommand) {
-            // Update the ACR details on the existing Container App, if provided as an input
-            if (!this.util.isNullOrEmpty(this.acrName) && !this.util.isNullOrEmpty(this.acrUsername) && !this.util.isNullOrEmpty(this.acrPassword)) {
-                await this.appHelper.updateContainerAppRegistryDetails(this.containerAppName, this.resourceGroup, this.acrName, this.acrUsername, this.acrPassword);
+            // Update the Container Registry details on the existing Container App, if provided as an input
+            if (!this.util.isNullOrEmpty(this.registryUrl) && !this.util.isNullOrEmpty(this.registryUsername) && !this.util.isNullOrEmpty(this.registryPassword)) {
+                await this.appHelper.updateContainerAppRegistryDetails(this.containerAppName, this.resourceGroup, this.registryUrl, this.registryUsername, this.registryPassword);
             }
 
             // Update the Container App using the 'update' command

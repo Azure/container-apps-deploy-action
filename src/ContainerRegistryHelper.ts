@@ -7,17 +7,17 @@ const util = new Utility();
 
 export class ContainerRegistryHelper {
     /**
-     * Authorizes Docker to make calls to the provided ACR instance using username and password.
-     * @param acrName - the name of the ACR instance to authenticate calls to
-     * @param acrUsername - the username for authentication
-     * @param acrPassword - the password for authentication
+     * Authorizes Docker to make calls to the provided Container Registry instance using username and password.
+     * @param registryUrl - the name of the Container Registry instance to authenticate calls to
+     * @param registryUsername - the username for authentication
+     * @param registryPassword - the password for authentication
      */
-    public async loginAcrWithUsernamePassword(acrName: string, acrUsername: string, acrPassword: string) {
-        toolHelper.writeDebug(`Attempting to log in to ACR instance "${acrName}" with username and password credentials`);
+    public async loginContainerRegistryWithUsernamePassword(registryUrl: string, registryUsername: string, registryPassword: string) {
+        toolHelper.writeDebug(`Attempting to log in to Container Registry instance"${registryUrl}" with username and password credentials`);
         try {
-            await util.execute(`docker login --username ${acrUsername} --password ${acrPassword} ${acrName}.azurecr.io`, [], Buffer.from(acrPassword));
+            await util.execute(`docker login --username ${registryUsername} --password ${registryPassword} ${registryUrl}`, [], Buffer.from(registryPassword));
         } catch (err) {
-            toolHelper.writeError(`Failed to log in to ACR instance "${acrName}" with username and password credentials`);
+            toolHelper.writeError(`Failed to log in to Container Registry instance "${registryUrl}" with username and password credentials`);
             throw err;
         }
     }
@@ -39,15 +39,15 @@ export class ContainerRegistryHelper {
     }
 
     /**
-     * Pushes an image to the ACR instance that was previously authenticated against.
-     * @param imageToPush - the name of the image to push to ACR
+     * Pushes an image to the Container Registry instance that was previously authenticated against.
+     * @param imageToPush - the name of the image to push to the Container Registry instance
      */
-    public async pushImageToAcr(imageToPush: string) {
-        toolHelper.writeDebug(`Attempting to push image "${imageToPush}" to ACR`);
+    public async pushImageToContainerRegistry(imageToPush: string) {
+        toolHelper.writeDebug(`Attempting to push image "${imageToPush}" to Container Registry`);
         try {
             await util.execute(`docker push ${imageToPush}`);
         } catch (err) {
-            toolHelper.writeError(`Failed to push image "${imageToPush}" to ACR. Error: ${err.message}`);
+            toolHelper.writeError(`Failed to push image "${imageToPush}" to Container Registry. Error: ${err.message}`);
             throw err;
         }
     }

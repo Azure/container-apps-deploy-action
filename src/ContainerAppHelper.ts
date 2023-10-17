@@ -288,17 +288,17 @@ export class ContainerAppHelper {
     }
 
     /**
-     * Updates the ACR details on an existing Container App.
+     * Updates the Container Registry details on an existing Container App.
      * @param name - the name of the Container App
      * @param resourceGroup - the resource group that the Container App is found in
-     * @param acrName - the name of the Azure Container Registry (without the .azurecr.io suffix)
-     * @param acrUsername - the username used to authenticate with the Azure Container Registry
-     * @param acrPassword - the password used to authenticate with the Azure Container Registry
+     * @param registryUrl - the name of the Container Registry
+     * @param registryUsername - the username used to authenticate with the Container Registry
+     * @param registryPassword - the password used to authenticate with the Container Registry
      */
-    public async updateContainerAppRegistryDetails(name: string, resourceGroup: string, acrName: string, acrUsername: string, acrPassword: string) {
-        toolHelper.writeDebug(`Attempting to set the ACR details for Container App with name "${name}" in resource group "${resourceGroup}"`);
+    public async updateContainerAppRegistryDetails(name: string, resourceGroup: string, registryUrl: string, registryUsername: string, registryPassword: string) {
+        toolHelper.writeDebug(`Attempting to set the Container Registry details for Container App with name "${name}" in resource group "${resourceGroup}"`);
         try {
-            let command = `az containerapp registry set -n ${name} -g ${resourceGroup} --server ${acrName}.azurecr.io --username ${acrUsername} --password ${acrPassword}`;
+            let command = `az containerapp registry set -n ${name} -g ${resourceGroup} --server ${registryUrl} --username ${registryUsername} --password ${registryPassword}`;
             await util.execute(command);
         } catch (err) {
             toolHelper.writeError(err.message);
