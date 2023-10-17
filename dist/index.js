@@ -63,7 +63,7 @@ var azurecontainerapps = /** @class */ (function () {
                         this.initializeHelpers();
                         _a.label = 1;
                     case 1:
-                        _a.trys.push([1, 9, 10, 12]);
+                        _a.trys.push([1, 11, 12, 14]);
                         // Validate that the arguments provided can be used for one of the supported scenarios
                         this.validateSupportedScenarioArguments();
                         // Set up the Azure CLI to be used for this task
@@ -82,12 +82,18 @@ var azurecontainerapps = /** @class */ (function () {
                         _a.sent();
                         _a.label = 5;
                     case 5:
-                        if (!!this.util.isNullOrEmpty(this.appSourcePath)) return [3 /*break*/, 7];
-                        return [4 /*yield*/, this.buildAndPushImageAsync()];
+                        if (!!this.util.isNullOrEmpty(this.registryUrl)) return [3 /*break*/, 7];
+                        return [4 /*yield*/, this.authenticateContainerRegistryAsync()];
                     case 6:
                         _a.sent();
                         _a.label = 7;
                     case 7:
+                        if (!!this.util.isNullOrEmpty(this.appSourcePath)) return [3 /*break*/, 9];
+                        return [4 /*yield*/, this.buildAndPushImageAsync()];
+                    case 8:
+                        _a.sent();
+                        _a.label = 9;
+                    case 9:
                         // If no application source was provided, set up the scenario for deploying an existing image
                         if (this.util.isNullOrEmpty(this.appSourcePath)) {
                             this.setupExistingImageScenario();
@@ -98,25 +104,25 @@ var azurecontainerapps = /** @class */ (function () {
                         }
                         // Create/update the Container App
                         return [4 /*yield*/, this.createOrUpdateContainerApp()];
-                    case 8:
+                    case 10:
                         // Create/update the Container App
                         _a.sent();
                         // If telemetry is enabled, log that the task completed successfully
                         this.telemetryHelper.setSuccessfulResult();
-                        return [3 /*break*/, 12];
-                    case 9:
+                        return [3 /*break*/, 14];
+                    case 11:
                         err_1 = _a.sent();
                         this.toolHelper.setFailed(err_1.message);
                         this.telemetryHelper.setFailedResult(err_1.message);
-                        return [3 /*break*/, 12];
-                    case 10: 
+                        return [3 /*break*/, 14];
+                    case 12: 
                     // If telemetry is enabled, will log metadata for this task run
                     return [4 /*yield*/, this.telemetryHelper.sendLogs()];
-                    case 11:
+                    case 13:
                         // If telemetry is enabled, will log metadata for this task run
                         _a.sent();
                         return [7 /*endfinally*/];
-                    case 12: return [2 /*return*/];
+                    case 14: return [2 /*return*/];
                 }
             });
         });
@@ -139,7 +145,7 @@ var azurecontainerapps = /** @class */ (function () {
         this.telemetryHelper = new TelemetryHelper_1.TelemetryHelper(disableTelemetry);
         // Set up ContainerAppHelper for managing calls around the Container App
         this.appHelper = new ContainerAppHelper_1.ContainerAppHelper(disableTelemetry);
-        // Set up ContainerRegistryHelper for managing calls around ACR
+        // Set up ContainerRegistryHelper for managing calls around the Container Registry
         this.registryHelper = new ContainerRegistryHelper_1.ContainerRegistryHelper();
     };
     /**
@@ -151,21 +157,29 @@ var azurecontainerapps = /** @class */ (function () {
         this.appSourcePath = this.toolHelper.getInput('appSourcePath', false);
         // Get the name of the ACR instance to push images to, if provided
         this.acrName = this.toolHelper.getInput('acrName', false);
+        // Get the name of the RegistryUrl to push images to, if provided
+        this.registryUrl = this.toolHelper.getInput('registryUrl', false);
         // Get the previously built image to deploy, if provided
         this.imageToDeploy = this.toolHelper.getInput('imageToDeploy', false);
         // Get the YAML configuration file, if provided
         this.yamlConfigPath = this.toolHelper.getInput('yamlConfigPath', false);
-        // Ensure that acrName is also provided if appSourcePath is provided
-        if (!this.util.isNullOrEmpty(this.appSourcePath) && this.util.isNullOrEmpty(this.acrName)) {
-            var missingAcrNameMessage = "The 'acrName' argument must be provided when the 'appSourcePath' argument is provided.";
-            this.toolHelper.writeError(missingAcrNameMessage);
-            throw Error(missingAcrNameMessage);
+        // Ensure that acrName or registryUrl is also provided if appSourcePath is provided
+        if (!this.util.isNullOrEmpty(this.appSourcePath) && this.util.isNullOrEmpty(this.acrName) && this.util.isNullOrEmpty(this.registryUrl)) {
+            var missingRegistryUrlMessage = "The 'acrName' or 'registryUrl' argument must be provided when the 'appSourcePath' argument is provided.";
+            this.toolHelper.writeError(missingRegistryUrlMessage);
+            throw Error(missingRegistryUrlMessage);
         }
         // Ensure that one of appSourcePath, imageToDeploy, or yamlConfigPath is provided
         if (this.util.isNullOrEmpty(this.appSourcePath) && this.util.isNullOrEmpty(this.imageToDeploy) && this.util.isNullOrEmpty(this.yamlConfigPath)) {
             var requiredArgumentMessage = "One of the following arguments must be provided: 'appSourcePath', 'imageToDeploy', or 'yamlConfigPath'.";
             this.toolHelper.writeError(requiredArgumentMessage);
             throw Error(requiredArgumentMessage);
+        }
+        // Ensure that an ACR name and registry URL are not both provided
+        if (!this.util.isNullOrEmpty(this.acrName) && !this.util.isNullOrEmpty(this.registryUrl)) {
+            var conflictingArgumentsMessage = "The 'acrName' and 'registryUrl' arguments cannot both be provided.";
+            this.toolHelper.writeError(conflictingArgumentsMessage);
+            throw Error(conflictingArgumentsMessage);
         }
     };
     /**
@@ -349,11 +363,12 @@ var azurecontainerapps = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        this.acrUsername = this.toolHelper.getInput('acrUsername', false);
-                        this.acrPassword = this.toolHelper.getInput('acrPassword', false);
-                        if (!(!this.util.isNullOrEmpty(this.acrUsername) && !this.util.isNullOrEmpty(this.acrPassword))) return [3 /*break*/, 2];
+                        this.registryUsername = this.toolHelper.getInput('acrUsername', false);
+                        this.registryPassword = this.toolHelper.getInput('acrPassword', false);
+                        this.registryUrl = this.acrName + ".azurecr.io";
+                        if (!(!this.util.isNullOrEmpty(this.registryUsername) && !this.util.isNullOrEmpty(this.registryPassword))) return [3 /*break*/, 2];
                         this.toolHelper.writeInfo("Logging in to ACR instance \"" + this.acrName + "\" with username and password credentials");
-                        return [4 /*yield*/, this.registryHelper.loginAcrWithUsernamePassword(this.acrName, this.acrUsername, this.acrPassword)];
+                        return [4 /*yield*/, this.registryHelper.loginContainerRegistryWithUsernamePassword(this.registryUrl, this.registryUsername, this.registryPassword)];
                     case 1:
                         _a.sent();
                         return [3 /*break*/, 4];
@@ -369,6 +384,27 @@ var azurecontainerapps = /** @class */ (function () {
         });
     };
     /**
+     * Authenticates calls to the provided Container Registry.
+     */
+    azurecontainerapps.authenticateContainerRegistryAsync = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        this.registryUsername = this.toolHelper.getInput('registryUsername', false);
+                        this.registryPassword = this.toolHelper.getInput('registryPassword', false);
+                        if (!(!this.util.isNullOrEmpty(this.registryUsername) && !this.util.isNullOrEmpty(this.registryPassword))) return [3 /*break*/, 2];
+                        this.toolHelper.writeInfo("Logging in to Container Registry \"" + this.registryUrl + "\" with username and password credentials");
+                        return [4 /*yield*/, this.registryHelper.loginContainerRegistryWithUsernamePassword(this.registryUrl, this.registryUsername, this.registryPassword)];
+                    case 1:
+                        _a.sent();
+                        _a.label = 2;
+                    case 2: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    /**
      * Sets up the scenario where an existing image is used for the Container App.
      */
     azurecontainerapps.setupExistingImageScenario = function () {
@@ -376,7 +412,7 @@ var azurecontainerapps = /** @class */ (function () {
         this.telemetryHelper.setImageScenario();
     };
     /**
-     * Builds a runnable application image using a Dockerfile or the builder and pushes it to ACR.
+     * Builds a runnable application image using a Dockerfile or the builder and pushes it to the Container Registry.
      */
     azurecontainerapps.buildAndPushImageAsync = function () {
         return __awaiter(this, void 0, void 0, function () {
@@ -388,7 +424,7 @@ var azurecontainerapps = /** @class */ (function () {
                         this.imageToBuild = this.toolHelper.getInput('imageToBuild', false);
                         if (this.util.isNullOrEmpty(this.imageToBuild)) {
                             imageRepository = this.toolHelper.getDefaultImageRepository();
-                            this.imageToBuild = this.acrName + ".azurecr.io/" + imageRepository + ":" + this.buildId + "." + this.buildNumber;
+                            this.imageToBuild = this.registryUrl + "/" + imageRepository + ":" + this.buildId + "." + this.buildNumber;
                             this.toolHelper.writeInfo("Default image to build: " + this.imageToBuild);
                         }
                         // Get the name of the image to deploy if it was provided, or set it to the value of 'imageToBuild'
@@ -424,10 +460,10 @@ var azurecontainerapps = /** @class */ (function () {
                         _a.sent();
                         _a.label = 7;
                     case 7: 
-                    // Push the image to ACR
-                    return [4 /*yield*/, this.registryHelper.pushImageToAcr(this.imageToBuild)];
+                    // Push the image to the Container Registry
+                    return [4 /*yield*/, this.registryHelper.pushImageToContainerRegistry(this.imageToBuild)];
                     case 8:
-                        // Push the image to ACR
+                        // Push the image to the Container Registry
                         _a.sent();
                         return [2 /*return*/];
                 }
@@ -515,10 +551,10 @@ var azurecontainerapps = /** @class */ (function () {
         this.shouldUseUpdateCommand = this.containerAppExists &&
             this.util.isNullOrEmpty(this.targetPort) &&
             (this.util.isNullOrEmpty(this.ingress) || this.ingress == 'disabled');
-        // Pass the ACR credentials when creating a Container App or updating a Container App via the 'up' command
-        if (!this.util.isNullOrEmpty(this.acrName) && !this.util.isNullOrEmpty(this.acrUsername) && !this.util.isNullOrEmpty(this.acrPassword) &&
+        // Pass the Container Registry credentials when creating a Container App or updating a Container App via the 'up' command
+        if (!this.util.isNullOrEmpty(this.registryUrl) && !this.util.isNullOrEmpty(this.registryUsername) && !this.util.isNullOrEmpty(this.registryPassword) &&
             (!this.containerAppExists || (this.containerAppExists && !this.shouldUseUpdateCommand))) {
-            this.commandLineArgs.push("--registry-server " + this.acrName + ".azurecr.io", "--registry-username " + this.acrUsername, "--registry-password " + this.acrPassword);
+            this.commandLineArgs.push("--registry-server " + this.registryUrl, "--registry-username " + this.registryUsername, "--registry-password " + this.registryPassword);
         }
         // Determine default values only for the 'create' scenario to avoid overriding existing values for the 'update' scenario
         if (!this.containerAppExists) {
@@ -604,8 +640,8 @@ var azurecontainerapps = /** @class */ (function () {
                         return [2 /*return*/];
                     case 7:
                         if (!this.shouldUseUpdateCommand) return [3 /*break*/, 11];
-                        if (!(!this.util.isNullOrEmpty(this.acrName) && !this.util.isNullOrEmpty(this.acrUsername) && !this.util.isNullOrEmpty(this.acrPassword))) return [3 /*break*/, 9];
-                        return [4 /*yield*/, this.appHelper.updateContainerAppRegistryDetails(this.containerAppName, this.resourceGroup, this.acrName, this.acrUsername, this.acrPassword)];
+                        if (!(!this.util.isNullOrEmpty(this.registryUrl) && !this.util.isNullOrEmpty(this.registryUsername) && !this.util.isNullOrEmpty(this.registryPassword))) return [3 /*break*/, 9];
+                        return [4 /*yield*/, this.appHelper.updateContainerAppRegistryDetails(this.containerAppName, this.resourceGroup, this.registryUrl, this.registryUsername, this.registryPassword)];
                     case 8:
                         _a.sent();
                         _a.label = 9;
@@ -5064,24 +5100,24 @@ var ContainerAppHelper = /** @class */ (function () {
         });
     };
     /**
-     * Updates the ACR details on an existing Container App.
+     * Updates the Container Registry details on an existing Container App.
      * @param name - the name of the Container App
      * @param resourceGroup - the resource group that the Container App is found in
-     * @param acrName - the name of the Azure Container Registry (without the .azurecr.io suffix)
-     * @param acrUsername - the username used to authenticate with the Azure Container Registry
-     * @param acrPassword - the password used to authenticate with the Azure Container Registry
+     * @param registryUrl - the name of the Container Registry
+     * @param registryUsername - the username used to authenticate with the Container Registry
+     * @param registryPassword - the password used to authenticate with the Container Registry
      */
-    ContainerAppHelper.prototype.updateContainerAppRegistryDetails = function (name, resourceGroup, acrName, acrUsername, acrPassword) {
+    ContainerAppHelper.prototype.updateContainerAppRegistryDetails = function (name, resourceGroup, registryUrl, registryUsername, registryPassword) {
         return __awaiter(this, void 0, void 0, function () {
             var command, err_14;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        toolHelper.writeDebug("Attempting to set the ACR details for Container App with name \"" + name + "\" in resource group \"" + resourceGroup + "\"");
+                        toolHelper.writeDebug("Attempting to set the Container Registry details for Container App with name \"" + name + "\" in resource group \"" + resourceGroup + "\"");
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
-                        command = "az containerapp registry set -n " + name + " -g " + resourceGroup + " --server " + acrName + ".azurecr.io --username " + acrUsername + " --password " + acrPassword;
+                        command = "az containerapp registry set -n " + name + " -g " + resourceGroup + " --server " + registryUrl + " --username " + registryUsername + " --password " + registryPassword;
                         return [4 /*yield*/, util.execute(command)];
                     case 2:
                         _a.sent();
@@ -5334,28 +5370,28 @@ var ContainerRegistryHelper = /** @class */ (function () {
     function ContainerRegistryHelper() {
     }
     /**
-     * Authorizes Docker to make calls to the provided ACR instance using username and password.
-     * @param acrName - the name of the ACR instance to authenticate calls to
-     * @param acrUsername - the username for authentication
-     * @param acrPassword - the password for authentication
+     * Authorizes Docker to make calls to the provided Container Registry instance using username and password.
+     * @param registryUrl - the name of the Container Registry instance to authenticate calls to
+     * @param registryUsername - the username for authentication
+     * @param registryPassword - the password for authentication
      */
-    ContainerRegistryHelper.prototype.loginAcrWithUsernamePassword = function (acrName, acrUsername, acrPassword) {
+    ContainerRegistryHelper.prototype.loginContainerRegistryWithUsernamePassword = function (registryUrl, registryUsername, registryPassword) {
         return __awaiter(this, void 0, void 0, function () {
             var err_1;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        toolHelper.writeDebug("Attempting to log in to ACR instance \"" + acrName + "\" with username and password credentials");
+                        toolHelper.writeDebug("Attempting to log in to Container Registry instance\"" + registryUrl + "\" with username and password credentials");
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
-                        return [4 /*yield*/, util.execute("docker login --username " + acrUsername + " --password " + acrPassword + " " + acrName + ".azurecr.io", [], Buffer.from(acrPassword))];
+                        return [4 /*yield*/, util.execute("docker login --username " + registryUsername + " --password " + registryPassword + " " + registryUrl, [], Buffer.from(registryPassword))];
                     case 2:
                         _a.sent();
                         return [3 /*break*/, 4];
                     case 3:
                         err_1 = _a.sent();
-                        toolHelper.writeError("Failed to log in to ACR instance \"" + acrName + "\" with username and password credentials");
+                        toolHelper.writeError("Failed to log in to Container Registry instance \"" + registryUrl + "\" with username and password credentials");
                         throw err_1;
                     case 4: return [2 /*return*/];
                 }
@@ -5392,16 +5428,16 @@ var ContainerRegistryHelper = /** @class */ (function () {
         });
     };
     /**
-     * Pushes an image to the ACR instance that was previously authenticated against.
-     * @param imageToPush - the name of the image to push to ACR
+     * Pushes an image to the Container Registry instance that was previously authenticated against.
+     * @param imageToPush - the name of the image to push to the Container Registry instance
      */
-    ContainerRegistryHelper.prototype.pushImageToAcr = function (imageToPush) {
+    ContainerRegistryHelper.prototype.pushImageToContainerRegistry = function (imageToPush) {
         return __awaiter(this, void 0, void 0, function () {
             var err_3;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        toolHelper.writeDebug("Attempting to push image \"" + imageToPush + "\" to ACR");
+                        toolHelper.writeDebug("Attempting to push image \"" + imageToPush + "\" to Container Registry");
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
@@ -5411,7 +5447,7 @@ var ContainerRegistryHelper = /** @class */ (function () {
                         return [3 /*break*/, 4];
                     case 3:
                         err_3 = _a.sent();
-                        toolHelper.writeError("Failed to push image \"" + imageToPush + "\" to ACR. Error: " + err_3.message);
+                        toolHelper.writeError("Failed to push image \"" + imageToPush + "\" to Container Registry. Error: " + err_3.message);
                         throw err_3;
                     case 4: return [2 /*return*/];
                 }
