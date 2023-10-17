@@ -45,7 +45,7 @@ jobs:
         uses: ./
         with:
           appSourcePath: '${{ github.workspace }}/oryx/tests/SampleApps/DotNetCore/NetCore6PreviewWebApp'
-          registryUrl: https://hub.docker.com
+          registryUrl: docker.io
           registryUsername: ${{ secrets.DOCKER_USERNAME }}
           registryPassword: ${{ secrets.DOCKER_PASSWORD }}
           containerAppName: ${{ env.TEST_CONTAINER_APP_NAME }}
