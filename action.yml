@@ -88,6 +88,13 @@ inputs:
       for that stack will be used. If no stack is provided, this action will attempt to build the provided application
       source with each supported stack until there's a successful build.'
     required: false
+  buildArguments:
+    description: |
+      'A list of build arguments provided as KEY=VALUE pairings and are comma-separated. If the a Dockerfile has been
+      provided or is discovered in the application source, each build argument will be passed to the "docker build"
+      command via the --build-arg flag. If the Oryx++ builder is used to create a runnable application image, each
+      build argument will be passed to the "pack build" command via the --env flag.'
+    required: false
   targetPort:
     description: |
       'The designated port for the application to run on. If no value is provided and the builder is used to build the

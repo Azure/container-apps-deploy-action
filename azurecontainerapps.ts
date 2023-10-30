@@ -361,6 +361,13 @@ export class azurecontainerapps {
             this.toolHelper.writeInfo(`Default image to deploy: ${this.imageToDeploy}`);
         }
 
+        // Set up the build arguments to pass to the Dockerfile or builder
+        let buildArguments: string[] = [];
+        const buildArgumentsValue = this.toolHelper.getInput('buildArguments', false);
+        if (!this.util.isNullOrEmpty(buildArgumentsValue)) {
+            buildArguments = buildArgumentsValue.split(',');
+        }
+
         // Get Dockerfile to build, if provided, or check if one exists at the root of the provided application
         let dockerfilePath: string = this.toolHelper.getInput('dockerfilePath', false);
         if (this.util.isNullOrEmpty(dockerfilePath)) {
@@ -371,7 +378,7 @@ export class azurecontainerapps {
                 dockerfilePath = rootDockerfilePath;
             } else {
                 // No Dockerfile found or provided, build the image using the builder
-                await this.buildImageFromBuilderAsync(this.appSourcePath, this.imageToBuild);
+                await this.buildImageFromBuilderAsync(this.appSourcePath, this.imageToBuild, buildArguments);
             }
         } else {
             dockerfilePath = path.join(this.appSourcePath, dockerfilePath);
@@ -379,7 +386,7 @@ export class azurecontainerapps {
 
         if (!this.util.isNullOrEmpty(dockerfilePath)) {
             // Build the image from the provided/discovered Dockerfile
-            await this.buildImageFromDockerfile(this.appSourcePath, dockerfilePath, this.imageToBuild);
+            await this.buildImageFromDockerfile(this.appSourcePath, dockerfilePath, this.imageToBuild, buildArguments);
         }
 
         // Push the image to the Container Registry
@@ -390,8 +397,9 @@ export class azurecontainerapps {
      * Builds a runnable application image using the builder.
      * @param appSourcePath - The path to the application source code.
      * @param imageToBuild - The name of the image to build.
+     * @param buildArguments - The build arguments to pass to the builder.
      */
-    private static async buildImageFromBuilderAsync(appSourcePath: string, imageToBuild: string) {
+    private static async buildImageFromBuilderAsync(appSourcePath: string, imageToBuild: string, buildArguments: string[]) {
         // Install the pack CLI
         await this.appHelper.installPackCliAsync();
         this.toolHelper.writeInfo(`Successfully installed the pack CLI.`);
@@ -421,6 +429,11 @@ export class azurecontainerapps {
             environmentVariables.push(`ORYX_RUNTIME_PORT=${this.targetPort}`);
         }
 
+        // Provide any additional build arguments to the builder
+        if (buildArguments.length > 0) {
+            environmentVariables = environmentVariables.concat(buildArguments);
+        }
+
         this.toolHelper.writeInfo(`Building image "${imageToBuild}" using the Oryx++ Builder`);
 
         // Set the Oryx++ Builder as the default builder locally
@@ -438,10 +451,15 @@ export class azurecontainerapps {
      * @param appSourcePath - The path to the application source code.
      * @param dockerfilePath - The path to the Dockerfile to build.
      * @param imageToBuild - The name of the image to build.
+     * @param buildArguments - The build arguments to pass to the Dockerfile.
      */
-    private static async buildImageFromDockerfile(appSourcePath: string, dockerfilePath: string, imageToBuild: string) {
+    private static async buildImageFromDockerfile(
+        appSourcePath: string,
+        dockerfilePath: string,
+        imageToBuild: string,
+        buildArguments: string[]) {
         this.toolHelper.writeInfo(`Building image "${imageToBuild}" using the provided Dockerfile`);
-        await this.appHelper.createRunnableAppImageFromDockerfile(imageToBuild, appSourcePath, dockerfilePath);
+        await this.appHelper.createRunnableAppImageFromDockerfile(imageToBuild, appSourcePath, dockerfilePath, buildArguments);
 
         // If telemetry is enabled, log that the Dockerfile scenario was targeted for this task
         this.telemetryHelper.setDockerfileScenario();
