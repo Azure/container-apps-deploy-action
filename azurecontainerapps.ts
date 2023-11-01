@@ -150,8 +150,12 @@ export class azurecontainerapps {
         // Get the YAML configuration file, if provided
         this.yamlConfigPath = this.toolHelper.getInput('yamlConfigPath', false) as string;
 
+        // Get the name of the image to build, if provided
+        this.imageToBuild = this.toolHelper.getInput('imageToBuild', false) as string;
+
         // Ensure that acrName or registryUrl is also provided if appSourcePath is provided
-        if (!this.util.isNullOrEmpty(this.appSourcePath) && this.util.isNullOrEmpty(this.acrName) && this.util.isNullOrEmpty(this.registryUrl)) {
+        // and if imageToBuild is either empty or doesn't start with 'default/' (i.e. it's not source to cloud scenario)
+        if (!this.util.isNullOrEmpty(this.appSourcePath) && this.util.isNullOrEmpty(this.acrName) && this.util.isNullOrEmpty(this.registryUrl) && (this.util.isNullOrEmpty(this.imageToBuild) || !this.imageToBuild.startsWith('default/'))) {
             let missingRegistryUrlMessage = `The 'acrName' or 'registryUrl' argument must be provided when the 'appSourcePath' argument is provided.`;
             this.toolHelper.writeError(missingRegistryUrlMessage);
             throw Error(missingRegistryUrlMessage);
@@ -167,6 +171,20 @@ export class azurecontainerapps {
         // Ensure that an ACR name and registry URL are not both provided
         if (!this.util.isNullOrEmpty(this.acrName) && !this.util.isNullOrEmpty(this.registryUrl)) {
             let conflictingArgumentsMessage = `The 'acrName' and 'registryUrl' arguments cannot both be provided.`;
+            this.toolHelper.writeError(conflictingArgumentsMessage);
+            throw Error(conflictingArgumentsMessage);
+        }
+
+        // Ensure that the imageToBuild and source arguments are both provided and imageToBuild starts with 'default/'
+        if (!this.util.isNullOrEmpty(this.imageToBuild) && !this.util.isNullOrEmpty(this.appSourcePath) && !this.imageToBuild.startsWith('default/')) {
+            let conflictingArgumentsMessage = `The 'imageToBuild' and 'appSourcePath' arguments must both be provided and 'imageToBuild' must start with 'default/'.`;
+            this.toolHelper.writeError(conflictingArgumentsMessage);
+            throw Error(conflictingArgumentsMessage);
+        }
+
+        // Ensure that that the registryUrl is not provided if the imageToBuild starts with 'default/'
+        if (!this.util.isNullOrEmpty(this.registryUrl) && this.imageToBuild.startsWith('default/')) {
+            let conflictingArgumentsMessage = `The 'registryUrl' argument cannot be provided if 'imageToBuild' starts with 'default/'.`;
             this.toolHelper.writeError(conflictingArgumentsMessage);
             throw Error(conflictingArgumentsMessage);
         }
@@ -521,7 +539,12 @@ export class azurecontainerapps {
             if (!this.util.isNullOrEmpty(this.yamlConfigPath)) {
                 // Create the Container App from the YAML configuration file
                 await this.appHelper.createContainerAppFromYaml(this.containerAppName, this.resourceGroup, this.yamlConfigPath);
-            } else {
+            }
+            else if (!this.util.isNullOrEmpty(this.imageToDeploy) && this.imageToDeploy.startsWith('default/')) {
+                // Create the Container App from application source for the 'source to cloud' scenario
+                await this.appHelper.createOrUpdateContainerAppFromAppSource(this.containerAppEnvironment, this.resourceGroup, this.containerAppEnvironment, this.appSourcePath, this.commandLineArgs);
+            }
+            else {
                 // Create the Container App from command line arguments
                 await this.appHelper.createContainerApp(this.containerAppName, this.resourceGroup, this.containerAppEnvironment, this.imageToDeploy, this.commandLineArgs);
             }
@@ -544,7 +567,12 @@ export class azurecontainerapps {
 
             // Update the Container App using the 'update' command
             await this.appHelper.updateContainerApp(this.containerAppName, this.resourceGroup, this.imageToDeploy, this.commandLineArgs);
-        } else {
+        }
+        else if (!this.util.isNullOrEmpty(this.imageToDeploy) && this.imageToDeploy.startsWith('default/')) {
+            // Create the Container App from application source for the 'source to cloud' scenario
+            await this.appHelper.createOrUpdateContainerAppFromAppSource(this.containerAppEnvironment, this.resourceGroup, this.containerAppEnvironment, this.appSourcePath, this.commandLineArgs);
+        }
+        else {
             // Update the Container App using the 'up' command
             await this.appHelper.updateContainerAppWithUp(this.containerAppName, this.resourceGroup, this.imageToDeploy, this.commandLineArgs, this.ingress, this.targetPort);
         }

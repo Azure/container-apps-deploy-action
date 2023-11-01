@@ -66,6 +66,33 @@ export class ContainerAppHelper {
     }
 
     /**
+     * Creates or updates an Azure Container App from application source for source to cloud scenario.
+     * @param containerAppEnvironment - the name of the Container App Environment
+     * @param resourceGroup - the resource group that the Container App Environment will be created in
+     * @param containerAppName - the name of the Container App
+     * @param appSourcePath - the path to the application source on the machine
+     * @param optionalCmdArgs - a set of optional command line arguments
+     */
+    public async createOrUpdateContainerAppFromAppSource(
+        containerAppEnvironment: string,
+        resourceGroup: string,
+        containerAppName: string,
+        appSourcePath: string,
+        optionalCmdArgs: string[]) {
+        toolHelper.writeDebug(`Attempting to create or update Container App with name "${containerAppName}" in resource group "${resourceGroup}" from application source "${appSourcePath}"`);
+        try {
+            let command = `az containerapp up -n ${containerAppName} -g ${resourceGroup} --environment ${containerAppEnvironment} --source ${appSourcePath} --output none`;
+            optionalCmdArgs.forEach(function (val: string) {
+                command += ` ${val}`;
+            });
+            await util.execute(command);
+        } catch (err) {
+            toolHelper.writeError(err.message);
+            throw err;
+        }
+    }
+
+    /**
      * Updates an existing Azure Container App based from an image that was previously built.
      * @param containerAppName - the name of the existing Container App
      * @param resourceGroup - the resource group that the existing Container App is found in
