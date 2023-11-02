@@ -89,7 +89,7 @@ var azurecontainerapps = /** @class */ (function () {
                         _a.label = 7;
                     case 7:
                         // Determine if the image should be built and pushed using the CLI
-                        this.useCLIToBuildAndPushImage = !this.util.isNullOrEmpty(this.appSourcePath) && (!this.util.isNullOrEmpty(this.registryUrl) && this.registryUrl.endsWith('.azurecr.io')) || (this.util.isNullOrEmpty(this.registryUrl) && this.imageToBuild.startsWith('default/'));
+                        this.useCLIToBuildAndPushImage = !this.util.isNullOrEmpty(this.appSourcePath) && ((!this.util.isNullOrEmpty(this.registryUrl) && this.registryUrl.endsWith('.azurecr.io')) || (this.util.isNullOrEmpty(this.registryUrl) && this.imageToBuild.startsWith('default/')));
                         if (!!this.useCLIToBuildAndPushImage) return [3 /*break*/, 9];
                         return [4 /*yield*/, this.buildAndPushImageAsync()];
                     case 8:
