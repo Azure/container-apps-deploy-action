@@ -180,7 +180,7 @@ export class azurecontainerapps {
         }
 
         // Ensure that the imageToBuild and source arguments are both provided and imageToBuild starts with 'default/'
-        if (!this.util.isNullOrEmpty(this.imageToBuild) && !this.util.isNullOrEmpty(this.appSourcePath) && !this.imageToBuild.startsWith('default/')) {
+        if (!this.util.isNullOrEmpty(this.imageToBuild) && !this.util.isNullOrEmpty(this.appSourcePath) && this.imageToBuild.startsWith('default/')) {
             let conflictingArgumentsMessage = `The 'imageToBuild' and 'appSourcePath' arguments must both be provided if the internal private registry is used.`;
             this.toolHelper.writeError(conflictingArgumentsMessage);
             throw Error(conflictingArgumentsMessage);
