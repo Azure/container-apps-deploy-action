@@ -31,11 +31,14 @@ export class azurecontainerapps {
                 await this.authenticateAzureContainerRegistryAsync();
             }
 
+            const useAzureContainerRegistry = !this.util.isNullOrEmpty(this.registryUrl) && this.registryUrl.endsWith('.azurecr.io');
+            const useInternalRegistry = this.util.isNullOrEmpty(this.registryUrl) && this.imageToBuild.startsWith('default/');
+
             // Determine if the image should be built and pushed using the CLI
-            this.useCLIToBuildAndPushImage = !this.util.isNullOrEmpty(this.appSourcePath) && ((!this.util.isNullOrEmpty(this.registryUrl) && this.registryUrl.endsWith('.azurecr.io')) || (this.util.isNullOrEmpty(this.registryUrl) && this.imageToBuild.startsWith('default/')))
+            this.useCliToBuildAndPushImage = !this.util.isNullOrEmpty(this.appSourcePath) && (useAzureContainerRegistry || useInternalRegistry);
 
             // If the application source was provided, build a runnable application image from it
-            if (!this.useCLIToBuildAndPushImage) {
+            if (!this.useCliToBuildAndPushImage) {
                 await this.buildAndPushImageAsync();
             }
 
@@ -102,7 +105,7 @@ export class azurecontainerapps {
     private static ingress: string;
     private static targetPort: string;
     private static shouldUseUpdateCommand: boolean;
-    private static useCLIToBuildAndPushImage: boolean;
+    private static useCliToBuildAndPushImage: boolean;
 
     /**
      * Initializes the helpers used by this task.
@@ -154,17 +157,6 @@ export class azurecontainerapps {
         // Get the YAML configuration file, if provided
         this.yamlConfigPath = this.toolHelper.getInput('yamlConfigPath', false) as string;
 
-        // Get the name of the image to build, if provided
-        this.imageToBuild = this.toolHelper.getInput('imageToBuild', false) as string;
-
-        // Ensure that acrName or registryUrl is also provided if appSourcePath is provided
-        // and if imageToBuild is either empty or doesn't start with 'default/' (i.e. it's not source to cloud scenario)
-        if (!this.util.isNullOrEmpty(this.appSourcePath) && this.util.isNullOrEmpty(this.acrName) && this.util.isNullOrEmpty(this.registryUrl) && (this.util.isNullOrEmpty(this.imageToBuild) || !this.imageToBuild.startsWith('default/'))) {
-            let missingRegistryUrlMessage = `The 'acrName' or 'registryUrl' argument must be provided when the 'appSourcePath' argument is provided.`;
-            this.toolHelper.writeError(missingRegistryUrlMessage);
-            throw Error(missingRegistryUrlMessage);
-        }
-
         // Ensure that one of appSourcePath, imageToDeploy, or yamlConfigPath is provided
         if (this.util.isNullOrEmpty(this.appSourcePath) && this.util.isNullOrEmpty(this.imageToDeploy) && this.util.isNullOrEmpty(this.yamlConfigPath)) {
             let requiredArgumentMessage = `One of the following arguments must be provided: 'appSourcePath', 'imageToDeploy', or 'yamlConfigPath'.`;
@@ -175,20 +167,6 @@ export class azurecontainerapps {
         // Ensure that an ACR name and registry URL are not both provided
         if (!this.util.isNullOrEmpty(this.acrName) && !this.util.isNullOrEmpty(this.registryUrl)) {
             let conflictingArgumentsMessage = `The 'acrName' and 'registryUrl' arguments cannot both be provided.`;
-            this.toolHelper.writeError(conflictingArgumentsMessage);
-            throw Error(conflictingArgumentsMessage);
-        }
-
-        // Ensure that the imageToBuild and source arguments are both provided and imageToBuild starts with 'default/'
-        if (!this.util.isNullOrEmpty(this.imageToBuild) && !this.util.isNullOrEmpty(this.appSourcePath) && this.imageToBuild.startsWith('default/')) {
-            let conflictingArgumentsMessage = `The 'imageToBuild' and 'appSourcePath' arguments must both be provided if the internal private registry is used.`;
-            this.toolHelper.writeError(conflictingArgumentsMessage);
-            throw Error(conflictingArgumentsMessage);
-        }
-
-        // Ensure that that the registryUrl is not provided if the imageToBuild starts with 'default/'
-        if (!this.util.isNullOrEmpty(this.registryUrl) && this.imageToBuild.startsWith('default/')) {
-            let conflictingArgumentsMessage = `The 'registryUrl' argument cannot be provided if the internal private registry is used.`;
             this.toolHelper.writeError(conflictingArgumentsMessage);
             throw Error(conflictingArgumentsMessage);
         }
@@ -534,7 +512,7 @@ export class azurecontainerapps {
             }
         }
 
-        if (this.useCLIToBuildAndPushImage) {
+        if (this.useCliToBuildAndPushImage) {
             this.commandLineArgs.push(`--source ${this.appSourcePath}`);
         }
     }
