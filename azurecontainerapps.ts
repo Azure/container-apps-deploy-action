@@ -21,7 +21,7 @@ export class azurecontainerapps {
             // Set up the resources required to deploy a Container App
             await this.setupResources();
 
-             // If a Container Registry URL was provided, try to authenticate against it
+            // If a Container Registry URL was provided, try to authenticate against it
             if (!this.util.isNullOrEmpty(this.registryUrl)) {
                 await this.authenticateContainerRegistryAsync();
             }
@@ -534,7 +534,7 @@ export class azurecontainerapps {
             }
         }
 
-        if(this.useCLIToBuildAndPushImage) {
+        if (this.useCLIToBuildAndPushImage) {
             this.commandLineArgs.push(`--source ${this.appSourcePath}`);
         }
     }
@@ -547,8 +547,7 @@ export class azurecontainerapps {
             if (!this.util.isNullOrEmpty(this.yamlConfigPath)) {
                 // Create the Container App from the YAML configuration file
                 await this.appHelper.createContainerAppFromYaml(this.containerAppName, this.resourceGroup, this.yamlConfigPath);
-            }
-            else {
+            } else {
                 // Create the Container App from command line arguments
                 await this.appHelper.createContainerApp(this.containerAppName, this.resourceGroup, this.containerAppEnvironment, this.imageToDeploy, this.commandLineArgs);
             }
@@ -571,8 +570,7 @@ export class azurecontainerapps {
 
             // Update the Container App using the 'update' command
             await this.appHelper.updateContainerApp(this.containerAppName, this.resourceGroup, this.imageToDeploy, this.commandLineArgs);
-        }
-        else {
+        } else {
             // Update the Container App using the 'up' command
             await this.appHelper.updateContainerAppWithUp(this.containerAppName, this.resourceGroup, this.imageToDeploy, this.commandLineArgs, this.ingress, this.targetPort);
         }
