@@ -88,7 +88,9 @@ var azurecontainerapps = /** @class */ (function () {
                         _a.sent();
                         _a.label = 7;
                     case 7:
-                        if (!!this.util.isNullOrEmpty(this.appSourcePath)) return [3 /*break*/, 9];
+                        // Determine if the image should be built and pushed using the CLI
+                        this.useCLIToBuildAndPushImage = !this.util.isNullOrEmpty(this.appSourcePath) && (!this.util.isNullOrEmpty(this.registryUrl) && this.registryUrl.endsWith('.azurecr.io')) || (this.util.isNullOrEmpty(this.registryUrl) && this.imageToBuild.startsWith('default/'));
+                        if (!!this.useCLIToBuildAndPushImage) return [3 /*break*/, 9];
                         return [4 /*yield*/, this.buildAndPushImageAsync()];
                     case 8:
                         _a.sent();
@@ -163,8 +165,11 @@ var azurecontainerapps = /** @class */ (function () {
         this.imageToDeploy = this.toolHelper.getInput('imageToDeploy', false);
         // Get the YAML configuration file, if provided
         this.yamlConfigPath = this.toolHelper.getInput('yamlConfigPath', false);
+        // Get the name of the image to build, if provided
+        this.imageToBuild = this.toolHelper.getInput('imageToBuild', false);
         // Ensure that acrName or registryUrl is also provided if appSourcePath is provided
-        if (!this.util.isNullOrEmpty(this.appSourcePath) && this.util.isNullOrEmpty(this.acrName) && this.util.isNullOrEmpty(this.registryUrl)) {
+        // and if imageToBuild is either empty or doesn't start with 'default/' (i.e. it's not source to cloud scenario)
+        if (!this.util.isNullOrEmpty(this.appSourcePath) && this.util.isNullOrEmpty(this.acrName) && this.util.isNullOrEmpty(this.registryUrl) && (this.util.isNullOrEmpty(this.imageToBuild) || !this.imageToBuild.startsWith('default/'))) {
             var missingRegistryUrlMessage = "The 'acrName' or 'registryUrl' argument must be provided when the 'appSourcePath' argument is provided.";
             this.toolHelper.writeError(missingRegistryUrlMessage);
             throw Error(missingRegistryUrlMessage);
@@ -178,6 +183,18 @@ var azurecontainerapps = /** @class */ (function () {
         // Ensure that an ACR name and registry URL are not both provided
         if (!this.util.isNullOrEmpty(this.acrName) && !this.util.isNullOrEmpty(this.registryUrl)) {
             var conflictingArgumentsMessage = "The 'acrName' and 'registryUrl' arguments cannot both be provided.";
+            this.toolHelper.writeError(conflictingArgumentsMessage);
+            throw Error(conflictingArgumentsMessage);
+        }
+        // Ensure that the imageToBuild and source arguments are both provided and imageToBuild starts with 'default/'
+        if (!this.util.isNullOrEmpty(this.imageToBuild) && !this.util.isNullOrEmpty(this.appSourcePath) && !this.imageToBuild.startsWith('default/')) {
+            var conflictingArgumentsMessage = "The 'imageToBuild' and 'appSourcePath' arguments must both be provided if the internal private registry is used.";
+            this.toolHelper.writeError(conflictingArgumentsMessage);
+            throw Error(conflictingArgumentsMessage);
+        }
+        // Ensure that that the registryUrl is not provided if the imageToBuild starts with 'default/'
+        if (!this.util.isNullOrEmpty(this.registryUrl) && this.imageToBuild.startsWith('default/')) {
+            var conflictingArgumentsMessage = "The 'registryUrl' argument cannot be provided if the internal private registry is used.";
             this.toolHelper.writeError(conflictingArgumentsMessage);
             throw Error(conflictingArgumentsMessage);
         }
@@ -604,6 +621,9 @@ var azurecontainerapps = /** @class */ (function () {
             else {
                 this.commandLineArgs.push("--env-vars " + environmentVariables);
             }
+        }
+        if (this.useCLIToBuildAndPushImage) {
+            this.commandLineArgs.push("--source " + this.appSourcePath);
         }
     };
     /**

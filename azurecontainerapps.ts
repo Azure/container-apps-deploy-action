@@ -31,8 +31,11 @@ export class azurecontainerapps {
                 await this.authenticateAzureContainerRegistryAsync();
             }
 
+            // Determine if the image should be built and pushed using the CLI
+            this.useCLIToBuildAndPushImage = !this.util.isNullOrEmpty(this.appSourcePath) && (!this.util.isNullOrEmpty(this.registryUrl) && this.registryUrl.endsWith('.azurecr.io')) || (this.util.isNullOrEmpty(this.registryUrl) && this.imageToBuild.startsWith('default/'))
+
             // If the application source was provided, build a runnable application image from it
-            if (!this.util.isNullOrEmpty(this.appSourcePath)) {
+            if (!this.useCLIToBuildAndPushImage) {
                 await this.buildAndPushImageAsync();
             }
 
@@ -99,6 +102,7 @@ export class azurecontainerapps {
     private static ingress: string;
     private static targetPort: string;
     private static shouldUseUpdateCommand: boolean;
+    private static useCLIToBuildAndPushImage: boolean;
 
     /**
      * Initializes the helpers used by this task.
@@ -177,14 +181,14 @@ export class azurecontainerapps {
 
         // Ensure that the imageToBuild and source arguments are both provided and imageToBuild starts with 'default/'
         if (!this.util.isNullOrEmpty(this.imageToBuild) && !this.util.isNullOrEmpty(this.appSourcePath) && !this.imageToBuild.startsWith('default/')) {
-            let conflictingArgumentsMessage = `The 'imageToBuild' and 'appSourcePath' arguments must both be provided and 'imageToBuild' must start with 'default/'.`;
+            let conflictingArgumentsMessage = `The 'imageToBuild' and 'appSourcePath' arguments must both be provided if the internal private registry is used.`;
             this.toolHelper.writeError(conflictingArgumentsMessage);
             throw Error(conflictingArgumentsMessage);
         }
 
         // Ensure that that the registryUrl is not provided if the imageToBuild starts with 'default/'
         if (!this.util.isNullOrEmpty(this.registryUrl) && this.imageToBuild.startsWith('default/')) {
-            let conflictingArgumentsMessage = `The 'registryUrl' argument cannot be provided if 'imageToBuild' starts with 'default/'.`;
+            let conflictingArgumentsMessage = `The 'registryUrl' argument cannot be provided if the internal private registry is used.`;
             this.toolHelper.writeError(conflictingArgumentsMessage);
             throw Error(conflictingArgumentsMessage);
         }
@@ -529,6 +533,10 @@ export class azurecontainerapps {
                 this.commandLineArgs.push(`--env-vars ${environmentVariables}`);
             }
         }
+
+        if(this.useCLIToBuildAndPushImage) {
+            this.commandLineArgs.push(`--source ${this.appSourcePath}`);
+        }
     }
 
     /**
@@ -539,10 +547,6 @@ export class azurecontainerapps {
             if (!this.util.isNullOrEmpty(this.yamlConfigPath)) {
                 // Create the Container App from the YAML configuration file
                 await this.appHelper.createContainerAppFromYaml(this.containerAppName, this.resourceGroup, this.yamlConfigPath);
-            }
-            else if (!this.util.isNullOrEmpty(this.imageToDeploy) && this.imageToDeploy.startsWith('default/')) {
-                // Create the Container App from application source for the 'source to cloud' scenario
-                await this.appHelper.createOrUpdateContainerAppFromAppSource(this.containerAppEnvironment, this.resourceGroup, this.containerAppEnvironment, this.appSourcePath, this.commandLineArgs);
             }
             else {
                 // Create the Container App from command line arguments
@@ -567,10 +571,6 @@ export class azurecontainerapps {
 
             // Update the Container App using the 'update' command
             await this.appHelper.updateContainerApp(this.containerAppName, this.resourceGroup, this.imageToDeploy, this.commandLineArgs);
-        }
-        else if (!this.util.isNullOrEmpty(this.imageToDeploy) && this.imageToDeploy.startsWith('default/')) {
-            // Create the Container App from application source for the 'source to cloud' scenario
-            await this.appHelper.createOrUpdateContainerAppFromAppSource(this.containerAppEnvironment, this.resourceGroup, this.containerAppEnvironment, this.appSourcePath, this.commandLineArgs);
         }
         else {
             // Update the Container App using the 'up' command
