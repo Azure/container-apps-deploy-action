@@ -27,8 +27,6 @@ jobs:
       TEST_CONTAINER_APP_NAME: 'gh-ca-bs-${{ github.run_id }}'
 
     steps:
-      - name: Checkout action repository
-        uses: actions/checkout@v3
 
       - name: Clone azure-cli-extensions repo
         uses: actions/checkout@v3
@@ -38,6 +36,10 @@ jobs:
 
       - name: Install latest azure-cli-extensions wheel
         run: az extension add --source ${{ github.workspace }}/azure-cli-extensions/azure_cli_containerapp-0.0.1-py2.py3-none-any.whl --yes
+
+      - name: Checkout action repository
+        uses: actions/checkout@v3
+
 
       - name: Clone Oryx repository
         uses: actions/checkout@v3
