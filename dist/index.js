@@ -167,6 +167,8 @@ var azurecontainerapps = /** @class */ (function () {
         this.imageToDeploy = this.toolHelper.getInput('imageToDeploy', false);
         // Get the YAML configuration file, if provided
         this.yamlConfigPath = this.toolHelper.getInput('yamlConfigPath', false);
+        // Get the name of the image to build if it was provided, or generate it from build variables
+        this.imageToBuild = this.toolHelper.getInput('imageToBuild', false);
         // Ensure that one of appSourcePath, imageToDeploy, or yamlConfigPath is provided
         if (this.util.isNullOrEmpty(this.appSourcePath) && this.util.isNullOrEmpty(this.imageToDeploy) && this.util.isNullOrEmpty(this.yamlConfigPath)) {
             var requiredArgumentMessage = "One of the following arguments must be provided: 'appSourcePath', 'imageToDeploy', or 'yamlConfigPath'.";
@@ -418,8 +420,6 @@ var azurecontainerapps = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        // Get the name of the image to build if it was provided, or generate it from build variables
-                        this.imageToBuild = this.toolHelper.getInput('imageToBuild', false);
                         if (this.util.isNullOrEmpty(this.imageToBuild)) {
                             imageRepository = this.toolHelper.getDefaultImageRepository();
                             this.imageToBuild = this.registryUrl + "/" + imageRepository + ":" + this.buildId + "." + this.buildNumber;
