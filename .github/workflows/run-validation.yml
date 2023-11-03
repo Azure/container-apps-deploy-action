@@ -33,7 +33,6 @@ jobs:
         with:
           repository: snehapar9/azure-cli-extensions
           path: azure-cli-extensions
-
       - name: Install latest azure-cli-extensions wheel
         run: az extension add --source '${{ github.workspace }}/azure-cli-extensions/containerapp-0.3.42-py2.py3-none-any.whl' --yes
 
@@ -687,7 +686,6 @@ jobs:
           disableTelemetry: ${{ vars.TEST_DISABLE_TELEMETRY }}
 
   update-using-image-yaml:
-
     name: 'Update app using image with YAML configuration'
     runs-on: ubuntu-latest
     timeout-minutes: 10
