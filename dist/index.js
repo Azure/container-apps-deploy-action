@@ -89,7 +89,7 @@ var azurecontainerapps = /** @class */ (function () {
                         _a.label = 7;
                     case 7:
                         useAzureContainerRegistry = !this.util.isNullOrEmpty(this.registryUrl) && this.registryUrl.endsWith('.azurecr.io');
-                        useInternalRegistry = this.util.isNullOrEmpty(this.registryUrl) && this.imageToBuild.startsWith('default/');
+                        useInternalRegistry = this.util.isNullOrEmpty(this.registryUrl) || this.imageToBuild.startsWith('default/');
                         // Determine if the image should be built and pushed using the CLI
                         this.useCliToBuildAndPushImage = !this.util.isNullOrEmpty(this.appSourcePath) && (useAzureContainerRegistry || useInternalRegistry);
                         if (!!this.useCliToBuildAndPushImage) return [3 /*break*/, 9];
