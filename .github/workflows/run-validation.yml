@@ -64,6 +64,49 @@ jobs:
         shell: bash
         run: az acr repository delete -n ${{ vars.TEST_ACR_NAME }} -t ${{ env.TEST_IMAGE_REPOSITORY }}:${{ env.TEST_IMAGE_TAG }} -y
 
+  create-using-builder-and-internal-registry:
+    name: 'Create app using builder and push to internal registry'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    env:
+      TEST_IMAGE_TAG: 'bs-${{ github.run_id }}'
+      TEST_CONTAINER_APP_NAME: 'gh-ca-bs-${{ github.run_id }}'
+
+    steps:
+      - name: Checkout action repository
+        uses: actions/checkout@v3
+
+      - name: Clone Oryx repository
+        uses: actions/checkout@v3
+        with:
+          repository: microsoft/Oryx
+          path: oryx
+
+      - name: Log in to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.TEST_AZURE_CREDENTIALS }}
+
+      - name: Execute Azure Container Apps Build and Deploy Action
+        uses: ./
+        with:
+          appSourcePath: '${{ github.workspace }}/oryx/tests/SampleApps/DotNetCore/NetCore6PreviewWebApp'
+          containerAppName: ${{ env.TEST_CONTAINER_APP_NAME }}
+          containerAppEnvironment: ${{ vars.TEST_EXISTING_CONTAINER_APP_ENV }}
+          resourceGroup: ${{ vars.TEST_RESOURCE_GROUP_NAME }}
+          disableTelemetry: ${{ vars.TEST_DISABLE_TELEMETRY }}
+
+      - name: Delete created Azure Container App
+        if: ${{ always() }}
+        shell: bash
+        run: az containerapp delete -n ${{ env.TEST_CONTAINER_APP_NAME }} -g ${{ vars.TEST_RESOURCE_GROUP_NAME }} -y
+
+      - name: Delete pushed image
+        if: ${{ always() }}
+        shell: bash
+        run: az acr repository delete -n ${{ vars.TEST_ACR_NAME }} -t ${{ env.TEST_IMAGE_REPOSITORY }}:${{ env.TEST_IMAGE_TAG }} -y
+
   create-using-found-dockerfile:
     name: 'Create app using found Dockerfile'
     runs-on: ubuntu-latest
@@ -463,6 +506,49 @@ jobs:
           containerAppEnvironment: ${{ vars.TEST_EXISTING_CONTAINER_APP_ENV }}
           resourceGroup: ${{ vars.TEST_RESOURCE_GROUP_NAME }}
           imageToBuild: ${{ env.TEST_FULL_ACR_NAME }}/${{ env.TEST_IMAGE_REPOSITORY }}:${{ env.TEST_IMAGE_TAG }}
+          disableTelemetry: ${{ vars.TEST_DISABLE_TELEMETRY }}
+
+      - name: Delete pushed image
+        if: ${{ always() }}
+        shell: bash
+        run: az acr repository delete -n ${{ vars.TEST_ACR_NAME }} -t ${{ env.TEST_IMAGE_REPOSITORY }}:${{ env.TEST_IMAGE_TAG }} -y
+
+      - name: Update Container App with existing image
+        if: ${{ always() }}
+        shell: bash
+        run: az containerapp update -n ${{ env.TEST_CONTAINER_APP_NAME }} -g ${{ vars.TEST_RESOURCE_GROUP_NAME }} -i mcr.microsoft.com/azuredocs/containerapps-helloworld:latest
+
+  update-using-builder-and-internal-registry:
+    name: 'Update existing app using builder and push to internal registry'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    env:
+      TEST_IMAGE_TAG: 'bs-up-${{ github.run_id }}'
+      TEST_CONTAINER_APP_NAME: 'update-using-builder-app'
+
+    steps:
+      - name: Checkout action repository
+        uses: actions/checkout@v3
+
+      - name: Clone Oryx repository
+        uses: actions/checkout@v3
+        with:
+          repository: microsoft/Oryx
+          path: oryx
+
+      - name: Log in to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.TEST_AZURE_CREDENTIALS }}
+
+      - name: Execute Azure Container Apps Build and Deploy Action
+        uses: ./
+        with:
+          appSourcePath: '${{ github.workspace }}/oryx/tests/SampleApps/DotNetCore/NetCore6PreviewWebApp'
+          containerAppName: ${{ env.TEST_CONTAINER_APP_NAME }}
+          containerAppEnvironment: ${{ vars.TEST_EXISTING_CONTAINER_APP_ENV }}
+          resourceGroup: ${{ vars.TEST_RESOURCE_GROUP_NAME }}
           disableTelemetry: ${{ vars.TEST_DISABLE_TELEMETRY }}
 
       - name: Delete pushed image
