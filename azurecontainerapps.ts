@@ -157,6 +157,9 @@ export class azurecontainerapps {
         // Get the YAML configuration file, if provided
         this.yamlConfigPath = this.toolHelper.getInput('yamlConfigPath', false) as string;
 
+        // Get the name of the image to build if it was provided, or generate it from build variables
+        this.imageToBuild = this.toolHelper.getInput('imageToBuild', false);
+
         // Ensure that one of appSourcePath, imageToDeploy, or yamlConfigPath is provided
         if (this.util.isNullOrEmpty(this.appSourcePath) && this.util.isNullOrEmpty(this.imageToDeploy) && this.util.isNullOrEmpty(this.yamlConfigPath)) {
             let requiredArgumentMessage = `One of the following arguments must be provided: 'appSourcePath', 'imageToDeploy', or 'yamlConfigPath'.`;
@@ -348,8 +351,6 @@ export class azurecontainerapps {
      * Builds a runnable application image using a Dockerfile or the builder and pushes it to the Container Registry.
      */
     private static async buildAndPushImageAsync() {
-        // Get the name of the image to build if it was provided, or generate it from build variables
-        this.imageToBuild = this.toolHelper.getInput('imageToBuild', false);
         if (this.util.isNullOrEmpty(this.imageToBuild)) {
             const imageRepository = this.toolHelper.getDefaultImageRepository()
             this.imageToBuild = `${this.registryUrl}/${imageRepository}:${this.buildId}.${this.buildNumber}`;
