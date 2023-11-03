@@ -169,6 +169,16 @@ var azurecontainerapps = /** @class */ (function () {
         this.yamlConfigPath = this.toolHelper.getInput('yamlConfigPath', false);
         // Get the name of the image to build if it was provided, or generate it from build variables
         this.imageToBuild = this.toolHelper.getInput('imageToBuild', false);
+        if (this.util.isNullOrEmpty(this.imageToBuild)) {
+            var imageRepository = this.toolHelper.getDefaultImageRepository();
+            this.imageToBuild = "default/" + imageRepository + ":" + this.buildId + "." + this.buildNumber;
+            this.toolHelper.writeInfo("Default image to build: " + this.imageToBuild);
+        }
+        // Get the name of the image to deploy if it was provided, or set it to the value of 'imageToBuild'
+        if (this.util.isNullOrEmpty(this.imageToDeploy)) {
+            this.imageToDeploy = this.imageToBuild;
+            this.toolHelper.writeInfo("Default image to deploy: " + this.imageToDeploy);
+        }
         // Ensure that one of appSourcePath, imageToDeploy, or yamlConfigPath is provided
         if (this.util.isNullOrEmpty(this.appSourcePath) && this.util.isNullOrEmpty(this.imageToDeploy) && this.util.isNullOrEmpty(this.yamlConfigPath)) {
             var requiredArgumentMessage = "One of the following arguments must be provided: 'appSourcePath', 'imageToDeploy', or 'yamlConfigPath'.";
@@ -416,20 +426,10 @@ var azurecontainerapps = /** @class */ (function () {
      */
     azurecontainerapps.buildAndPushImageAsync = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var imageRepository, dockerfilePath, rootDockerfilePath;
+            var dockerfilePath, rootDockerfilePath;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        if (this.util.isNullOrEmpty(this.imageToBuild)) {
-                            imageRepository = this.toolHelper.getDefaultImageRepository();
-                            this.imageToBuild = this.registryUrl + "/" + imageRepository + ":" + this.buildId + "." + this.buildNumber;
-                            this.toolHelper.writeInfo("Default image to build: " + this.imageToBuild);
-                        }
-                        // Get the name of the image to deploy if it was provided, or set it to the value of 'imageToBuild'
-                        if (this.util.isNullOrEmpty(this.imageToDeploy)) {
-                            this.imageToDeploy = this.imageToBuild;
-                            this.toolHelper.writeInfo("Default image to deploy: " + this.imageToDeploy);
-                        }
                         dockerfilePath = this.toolHelper.getInput('dockerfilePath', false);
                         if (!this.util.isNullOrEmpty(dockerfilePath)) return [3 /*break*/, 4];
                         this.toolHelper.writeInfo("No Dockerfile path provided; checking for Dockerfile at root of application source.");
