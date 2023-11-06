@@ -4725,7 +4725,7 @@ var ContainerAppHelper = /** @class */ (function () {
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
-                        command_1 = "az containerapp create -n " + containerAppName + " -g " + resourceGroup + " --environment " + environment + " --output none --debug";
+                        command_1 = "az containerapp create -n " + containerAppName + " -g " + resourceGroup + " --environment " + environment + " --output none";
                         optionalCmdArgs.forEach(function (val) {
                             command_1 += " " + val;
                         });
@@ -4760,7 +4760,7 @@ var ContainerAppHelper = /** @class */ (function () {
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
-                        command_2 = "az containerapp up -n " + containerAppName + " -g " + resourceGroup + " --source " + appSourcePath + " --environment " + environment + " --debug";
+                        command_2 = "az containerapp up -n " + containerAppName + " -g " + resourceGroup + " --source " + appSourcePath + " --environment " + environment;
                         optionalCmdArgs.forEach(function (val) {
                             command_2 += " " + val;
                         });
@@ -4793,7 +4793,7 @@ var ContainerAppHelper = /** @class */ (function () {
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
-                        command = "az containerapp create -n " + containerAppName + " -g " + resourceGroup + " --yaml " + yamlConfigPath + " --output none --debug";
+                        command = "az containerapp create -n " + containerAppName + " -g " + resourceGroup + " --yaml " + yamlConfigPath + " --output none";
                         return [4 /*yield*/, util.execute(command)];
                     case 2:
                         _a.sent();
