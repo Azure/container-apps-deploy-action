@@ -30,38 +30,10 @@ export class ContainerAppHelper {
         containerAppName: string,
         resourceGroup: string,
         environment: string,
-        imageToDeploy: string,
         optionalCmdArgs: string[]) {
         toolHelper.writeDebug(`Attempting to create Container App with name "${containerAppName}" in resource group "${resourceGroup}" based from image "${imageToDeploy}"`);
         try {
-            let command = `az containerapp create -n ${containerAppName} -g ${resourceGroup} -i ${imageToDeploy} --environment ${environment} --output none`;
-            optionalCmdArgs.forEach(function (val: string) {
-                command += ` ${val}`;
-            });
-            await util.execute(command);
-        } catch (err) {
-            toolHelper.writeError(err.message);
-            throw err;
-        }
-    }
-
-     /**
-     * Creates an Azure Container App based on the application source.
-     * @param containerAppName - the name of the Container App
-     * @param resourceGroup - the resource group that the Container App is found in
-     * @param environment - the Container App Environment that will be associated with the Container App
-     * @param appSourcePath - the path to the application source
-     * @param optionalCmdArgs - a set of optional command line arguments
-     */
-     public async createContainerAppWithUp(
-        containerAppName: string,
-        resourceGroup: string,
-        environment: string,
-        appSourcePath: string,
-        optionalCmdArgs: string[]) {
-        toolHelper.writeDebug(`Attempting to create Container App with name "${containerAppName}" in resource group "${resourceGroup}" based on the application source path "${appSourcePath}"`);
-        try {
-            let command = `az containerapp up -n ${containerAppName} -g ${resourceGroup} --source ${appSourcePath} --environment ${environment}`;
+            let command = `az containerapp create -n ${containerAppName} -g ${resourceGroup} --environment ${environment} --output none`;
             optionalCmdArgs.forEach(function (val: string) {
                 command += ` ${val}`;
             });
@@ -102,11 +74,10 @@ export class ContainerAppHelper {
     public async updateContainerApp(
         containerAppName: string,
         resourceGroup: string,
-        imageToDeploy: string,
         optionalCmdArgs: string[]) {
         toolHelper.writeDebug(`Attempting to update Container App with name "${containerAppName}" in resource group "${resourceGroup}" based from image "${imageToDeploy}"`);
         try {
-            let command = `az containerapp update -n ${containerAppName} -g ${resourceGroup} -i ${imageToDeploy} --output none`;
+            let command = `az containerapp update -n ${containerAppName} -g ${resourceGroup} --output none`;
             optionalCmdArgs.forEach(function (val: string) {
                 command += ` ${val}`;
             });
@@ -130,13 +101,12 @@ export class ContainerAppHelper {
     public async updateContainerAppWithUp(
         containerAppName: string,
         resourceGroup: string,
-        imageToDeploy: string,
         optionalCmdArgs: string[],
         ingress?: string,
         targetPort?: string) {
-        toolHelper.writeDebug(`Attempting to update Container App with name "${containerAppName}" in resource group "${resourceGroup}" based from image "${imageToDeploy}"`);
+        toolHelper.writeDebug(`Attempting to update Container App with name "${containerAppName}" in resource group "${resourceGroup}"`);
         try {
-            let command = `az containerapp up -n ${containerAppName} -g ${resourceGroup} -i ${imageToDeploy}`;
+            let command = `az containerapp up -n ${containerAppName} -g ${resourceGroup}`;
             optionalCmdArgs.forEach(function (val: string) {
                 command += ` ${val}`;
             });
