@@ -4764,7 +4764,7 @@ var ContainerAppHelper = /** @class */ (function () {
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
-                        command_2 = "az containerapp up -n " + containerAppName + " -g " + resourceGroup + " --source " + appSourcePath + " --environment " + environment + " --output none";
+                        command_2 = "az containerapp up -n " + containerAppName + " -g " + resourceGroup + " --source " + appSourcePath + " --environment " + environment;
                         optionalCmdArgs.forEach(function (val) {
                             command_2 += " " + val;
                         });
