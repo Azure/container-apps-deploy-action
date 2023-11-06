@@ -45,6 +45,33 @@ export class ContainerAppHelper {
         }
     }
 
+     /**
+     * Creates an Azure Container App based on the application source.
+     * @param containerAppName - the name of the Container App
+     * @param resourceGroup - the resource group that the Container App is found in
+     * @param environment - the Container App Environment that will be associated with the Container App
+     * @param appSourcePath - the path to the application source
+     * @param optionalCmdArgs - a set of optional command line arguments
+     */
+     public async createOrUpdateContainerAppWithUp(
+        containerAppName: string,
+        resourceGroup: string,
+        environment: string,
+        appSourcePath: string,
+        optionalCmdArgs: string[]) {
+        toolHelper.writeDebug(`Attempting to create Container App with name "${containerAppName}" in resource group "${resourceGroup}" based on the application source path "${appSourcePath}"`);
+        try {
+            let command = `az containerapp up -n ${containerAppName} -g ${resourceGroup} --source ${appSourcePath} --environment ${environment} --output none`;
+            optionalCmdArgs.forEach(function (val: string) {
+                command += ` ${val}`;
+            });
+            await util.execute(command);
+        } catch (err) {
+            toolHelper.writeError(err.message);
+            throw err;
+        }
+    }
+
     /**
      * Creates an Azure Container App based from a YAML configuration file.
      * @param containerAppName - the name of the Container App
@@ -100,14 +127,13 @@ export class ContainerAppHelper {
      * @param targetPort - the target port that the Container App will be exposed on
      * @param appSourcePath - the path to the application source on the machine
      */
-    public async createOrUpdateContainerAppWithUp(
+    public async updateContainerAppWithUp(
         containerAppName: string,
         resourceGroup: string,
         imageToDeploy: string,
         optionalCmdArgs: string[],
         ingress?: string,
-        targetPort?: string,
-        appSourcePath?: string) {
+        targetPort?: string) {
         toolHelper.writeDebug(`Attempting to update Container App with name "${containerAppName}" in resource group "${resourceGroup}" based from image "${imageToDeploy}"`);
         try {
             let command = `az containerapp up -n ${containerAppName} -g ${resourceGroup} -i ${imageToDeploy}`;
@@ -123,9 +149,6 @@ export class ContainerAppHelper {
                 command += ` --target-port ${targetPort}`;
             }
 
-            if(!util.isNullOrEmpty(appSourcePath)) {
-                command += ` --source ${appSourcePath}`;
-            }
             await util.execute(command);
         } catch (err) {
             toolHelper.writeError(err.message);
