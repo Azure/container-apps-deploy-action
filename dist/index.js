@@ -629,69 +629,61 @@ var azurecontainerapps = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        if (!!this.containerAppExists) return [3 /*break*/, 7];
+                        if (!!this.containerAppExists) return [3 /*break*/, 5];
                         if (!!this.util.isNullOrEmpty(this.yamlConfigPath)) return [3 /*break*/, 2];
                         // Create the Container App from the YAML configuration file
                         return [4 /*yield*/, this.appHelper.createContainerAppFromYaml(this.containerAppName, this.resourceGroup, this.yamlConfigPath)];
                     case 1:
                         // Create the Container App from the YAML configuration file
                         _a.sent();
-                        return [3 /*break*/, 6];
-                    case 2:
-                        if (!(this.useCliToBuildAndPushImage && !this.util.isNullOrEmpty(this.appSourcePath))) return [3 /*break*/, 4];
-                        // Create the Container App from the command line arguments
-                        return [4 /*yield*/, this.appHelper.createContainerAppWithUp(this.containerAppName, this.resourceGroup, this.containerAppEnvironment, this.appSourcePath, this.commandLineArgs)];
-                    case 3:
-                        // Create the Container App from the command line arguments
-                        _a.sent();
-                        return [3 /*break*/, 6];
-                    case 4: 
+                        return [3 /*break*/, 4];
+                    case 2: 
                     // Create the Container App from command line arguments
                     return [4 /*yield*/, this.appHelper.createContainerApp(this.containerAppName, this.resourceGroup, this.containerAppEnvironment, this.commandLineArgs)];
-                    case 5:
+                    case 3:
                         // Create the Container App from command line arguments
                         _a.sent();
-                        _a.label = 6;
-                    case 6: return [2 /*return*/];
-                    case 7:
-                        if (!!this.util.isNullOrEmpty(this.yamlConfigPath)) return [3 /*break*/, 9];
+                        _a.label = 4;
+                    case 4: return [2 /*return*/];
+                    case 5:
+                        if (!!this.util.isNullOrEmpty(this.yamlConfigPath)) return [3 /*break*/, 7];
                         // Update the Container App from the YAML configuration file
                         return [4 /*yield*/, this.appHelper.updateContainerAppFromYaml(this.containerAppName, this.resourceGroup, this.yamlConfigPath)];
-                    case 8:
+                    case 6:
                         // Update the Container App from the YAML configuration file
                         _a.sent();
                         return [2 /*return*/];
-                    case 9:
-                        if (!this.shouldUseUpdateCommand) return [3 /*break*/, 13];
-                        if (!(!this.util.isNullOrEmpty(this.registryUrl) && !this.util.isNullOrEmpty(this.registryUsername) && !this.util.isNullOrEmpty(this.registryPassword))) return [3 /*break*/, 11];
+                    case 7:
+                        if (!this.shouldUseUpdateCommand) return [3 /*break*/, 11];
+                        if (!(!this.util.isNullOrEmpty(this.registryUrl) && !this.util.isNullOrEmpty(this.registryUsername) && !this.util.isNullOrEmpty(this.registryPassword))) return [3 /*break*/, 9];
                         return [4 /*yield*/, this.appHelper.updateContainerAppRegistryDetails(this.containerAppName, this.resourceGroup, this.registryUrl, this.registryUsername, this.registryPassword)];
-                    case 10:
+                    case 8:
                         _a.sent();
-                        _a.label = 11;
-                    case 11:
+                        _a.label = 9;
+                    case 9:
                         if (!this.util.isNullOrEmpty(this.appSourcePath) && this.useCliToBuildAndPushImage) {
                             this.commandLineArgs.push("--source " + this.appSourcePath);
                         }
                         // Update the Container App using the 'update' command
                         return [4 /*yield*/, this.appHelper.updateContainerApp(this.containerAppName, this.resourceGroup, this.commandLineArgs)];
-                    case 12:
+                    case 10:
                         // Update the Container App using the 'update' command
                         _a.sent();
-                        return [3 /*break*/, 15];
-                    case 13: 
+                        return [3 /*break*/, 13];
+                    case 11: 
                     // Update the Container App using the 'up' command
                     return [4 /*yield*/, this.appHelper.updateContainerAppWithUp(this.containerAppName, this.resourceGroup, this.commandLineArgs, this.ingress, this.targetPort)];
-                    case 14:
+                    case 12:
                         // Update the Container App using the 'up' command
                         _a.sent();
-                        _a.label = 15;
-                    case 15:
-                        if (!(this.ingress == 'disabled')) return [3 /*break*/, 17];
+                        _a.label = 13;
+                    case 13:
+                        if (!(this.ingress == 'disabled')) return [3 /*break*/, 15];
                         return [4 /*yield*/, this.appHelper.disableContainerAppIngress(this.containerAppName, this.resourceGroup)];
-                    case 16:
+                    case 14:
                         _a.sent();
-                        _a.label = 17;
-                    case 17: return [2 /*return*/];
+                        _a.label = 15;
+                    case 15: return [2 /*return*/];
                 }
             });
         });
@@ -4733,7 +4725,7 @@ var ContainerAppHelper = /** @class */ (function () {
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
-                        command_1 = "az containerapp create -n " + containerAppName + " -g " + resourceGroup + " --environment " + environment + " --output none";
+                        command_1 = "az containerapp create -n " + containerAppName + " -g " + resourceGroup + " --environment " + environment + " --output none --debug";
                         optionalCmdArgs.forEach(function (val) {
                             command_1 += " " + val;
                         });
@@ -4768,7 +4760,7 @@ var ContainerAppHelper = /** @class */ (function () {
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
-                        command_2 = "az containerapp up -n " + containerAppName + " -g " + resourceGroup + " --source " + appSourcePath + " --environment " + environment;
+                        command_2 = "az containerapp up -n " + containerAppName + " -g " + resourceGroup + " --source " + appSourcePath + " --environment " + environment + " --debug";
                         optionalCmdArgs.forEach(function (val) {
                             command_2 += " " + val;
                         });
@@ -4801,7 +4793,7 @@ var ContainerAppHelper = /** @class */ (function () {
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
-                        command = "az containerapp create -n " + containerAppName + " -g " + resourceGroup + " --yaml " + yamlConfigPath + " --output none";
+                        command = "az containerapp create -n " + containerAppName + " -g " + resourceGroup + " --yaml " + yamlConfigPath + " --output none --debug";
                         return [4 /*yield*/, util.execute(command)];
                     case 2:
                         _a.sent();
