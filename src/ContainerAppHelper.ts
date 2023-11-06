@@ -99,7 +99,7 @@ export class ContainerAppHelper {
      * @param ingress - the ingress that the Container App will be exposed on
      * @param targetPort - the target port that the Container App will be exposed on
      */
-    public async updateContainerAppWithUp(
+    public async createOrUpdateContainerAppWithUp(
         containerAppName: string,
         resourceGroup: string,
         imageToDeploy: string,

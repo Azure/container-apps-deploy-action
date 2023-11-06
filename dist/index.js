@@ -611,9 +611,6 @@ var azurecontainerapps = /** @class */ (function () {
                 this.commandLineArgs.push("--env-vars " + environmentVariables);
             }
         }
-        if (this.useCliToBuildAndPushImage && !this.util.isNullOrEmpty(this.appSourcePath)) {
-            this.commandLineArgs.push("--source " + this.appSourcePath);
-        }
     };
     /**
      * Creates or updates the Container App.
@@ -623,58 +620,66 @@ var azurecontainerapps = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        if (!!this.containerAppExists) return [3 /*break*/, 5];
+                        if (!!this.containerAppExists) return [3 /*break*/, 7];
                         if (!!this.util.isNullOrEmpty(this.yamlConfigPath)) return [3 /*break*/, 2];
                         // Create the Container App from the YAML configuration file
                         return [4 /*yield*/, this.appHelper.createContainerAppFromYaml(this.containerAppName, this.resourceGroup, this.yamlConfigPath)];
                     case 1:
                         // Create the Container App from the YAML configuration file
                         _a.sent();
-                        return [3 /*break*/, 4];
-                    case 2: 
+                        return [3 /*break*/, 6];
+                    case 2:
+                        if (!(this.useCliToBuildAndPushImage && !this.util.isNullOrEmpty(this.appSourcePath))) return [3 /*break*/, 4];
+                        // Create the Container App from the command line arguments
+                        return [4 /*yield*/, this.appHelper.createOrUpdateContainerAppWithUp(this.containerAppName, this.resourceGroup, this.imageToDeploy, this.commandLineArgs, this.ingress, this.targetPort)];
+                    case 3:
+                        // Create the Container App from the command line arguments
+                        _a.sent();
+                        return [3 /*break*/, 6];
+                    case 4: 
                     // Create the Container App from command line arguments
                     return [4 /*yield*/, this.appHelper.createContainerApp(this.containerAppName, this.resourceGroup, this.containerAppEnvironment, this.imageToDeploy, this.commandLineArgs)];
-                    case 3:
+                    case 5:
                         // Create the Container App from command line arguments
                         _a.sent();
-                        _a.label = 4;
-                    case 4: return [2 /*return*/];
-                    case 5:
-                        if (!!this.util.isNullOrEmpty(this.yamlConfigPath)) return [3 /*break*/, 7];
+                        _a.label = 6;
+                    case 6: return [2 /*return*/];
+                    case 7:
+                        if (!!this.util.isNullOrEmpty(this.yamlConfigPath)) return [3 /*break*/, 9];
                         // Update the Container App from the YAML configuration file
                         return [4 /*yield*/, this.appHelper.updateContainerAppFromYaml(this.containerAppName, this.resourceGroup, this.yamlConfigPath)];
-                    case 6:
+                    case 8:
                         // Update the Container App from the YAML configuration file
                         _a.sent();
                         return [2 /*return*/];
-                    case 7:
-                        if (!this.shouldUseUpdateCommand) return [3 /*break*/, 11];
-                        if (!(!this.util.isNullOrEmpty(this.registryUrl) && !this.util.isNullOrEmpty(this.registryUsername) && !this.util.isNullOrEmpty(this.registryPassword))) return [3 /*break*/, 9];
+                    case 9:
+                        if (!this.shouldUseUpdateCommand) return [3 /*break*/, 13];
+                        if (!(!this.util.isNullOrEmpty(this.registryUrl) && !this.util.isNullOrEmpty(this.registryUsername) && !this.util.isNullOrEmpty(this.registryPassword))) return [3 /*break*/, 11];
                         return [4 /*yield*/, this.appHelper.updateContainerAppRegistryDetails(this.containerAppName, this.resourceGroup, this.registryUrl, this.registryUsername, this.registryPassword)];
-                    case 8:
+                    case 10:
                         _a.sent();
-                        _a.label = 9;
-                    case 9: 
+                        _a.label = 11;
+                    case 11: 
                     // Update the Container App using the 'update' command
                     return [4 /*yield*/, this.appHelper.updateContainerApp(this.containerAppName, this.resourceGroup, this.imageToDeploy, this.commandLineArgs)];
-                    case 10:
+                    case 12:
                         // Update the Container App using the 'update' command
                         _a.sent();
-                        return [3 /*break*/, 13];
-                    case 11: 
+                        return [3 /*break*/, 15];
+                    case 13: 
                     // Update the Container App using the 'up' command
-                    return [4 /*yield*/, this.appHelper.updateContainerAppWithUp(this.containerAppName, this.resourceGroup, this.imageToDeploy, this.commandLineArgs, this.ingress, this.targetPort)];
-                    case 12:
+                    return [4 /*yield*/, this.appHelper.createOrUpdateContainerAppWithUp(this.containerAppName, this.resourceGroup, this.imageToDeploy, this.commandLineArgs, this.ingress, this.targetPort)];
+                    case 14:
                         // Update the Container App using the 'up' command
                         _a.sent();
-                        _a.label = 13;
-                    case 13:
-                        if (!(this.ingress == 'disabled')) return [3 /*break*/, 15];
-                        return [4 /*yield*/, this.appHelper.disableContainerAppIngress(this.containerAppName, this.resourceGroup)];
-                    case 14:
-                        _a.sent();
                         _a.label = 15;
-                    case 15: return [2 /*return*/];
+                    case 15:
+                        if (!(this.ingress == 'disabled')) return [3 /*break*/, 17];
+                        return [4 /*yield*/, this.appHelper.disableContainerAppIngress(this.containerAppName, this.resourceGroup)];
+                    case 16:
+                        _a.sent();
+                        _a.label = 17;
+                    case 17: return [2 /*return*/];
                 }
             });
         });
@@ -4806,7 +4811,7 @@ var ContainerAppHelper = /** @class */ (function () {
      * @param ingress - the ingress that the Container App will be exposed on
      * @param targetPort - the target port that the Container App will be exposed on
      */
-    ContainerAppHelper.prototype.updateContainerAppWithUp = function (containerAppName, resourceGroup, imageToDeploy, optionalCmdArgs, ingress, targetPort) {
+    ContainerAppHelper.prototype.createOrUpdateContainerAppWithUp = function (containerAppName, resourceGroup, imageToDeploy, optionalCmdArgs, ingress, targetPort) {
         return __awaiter(this, void 0, void 0, function () {
             var command_3, err_4;
             return __generator(this, function (_a) {

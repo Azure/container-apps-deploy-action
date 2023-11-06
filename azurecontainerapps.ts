@@ -351,20 +351,20 @@ export class azurecontainerapps {
         * file is provided.
         */
     private static setupContainerAppImageProperties() {
-          // Get the name of the image to build if it was provided, or generate it from build variables
-          this.imageToBuild = this.toolHelper.getInput('imageToBuild', false);
+        // Get the name of the image to build if it was provided, or generate it from build variables
+        this.imageToBuild = this.toolHelper.getInput('imageToBuild', false);
 
-          if (this.util.isNullOrEmpty(this.imageToBuild)) {
-              const imageRepository = this.toolHelper.getDefaultImageRepository()
-              this.imageToBuild = this.util.isNullOrEmpty(this.registryUrl) ? `default/${imageRepository}:${this.buildId}.${this.buildNumber}` : `${this.registryUrl}/${imageRepository}:${this.buildId}.${this.buildNumber}`;
-              this.toolHelper.writeInfo(`Default image to build: ${this.imageToBuild}`);
-          }
+        if (this.util.isNullOrEmpty(this.imageToBuild)) {
+            const imageRepository = this.toolHelper.getDefaultImageRepository()
+            this.imageToBuild = this.util.isNullOrEmpty(this.registryUrl) ? `default/${imageRepository}:${this.buildId}.${this.buildNumber}` : `${this.registryUrl}/${imageRepository}:${this.buildId}.${this.buildNumber}`;
+            this.toolHelper.writeInfo(`Default image to build: ${this.imageToBuild}`);
+        }
 
-          // Get the name of the image to deploy if it was provided, or set it to the value of 'imageToBuild'
-          if (this.util.isNullOrEmpty(this.imageToDeploy)) {
-              this.imageToDeploy = this.imageToBuild;
-              this.toolHelper.writeInfo(`Default image to deploy: ${this.imageToDeploy}`);
-          }
+        // Get the name of the image to deploy if it was provided, or set it to the value of 'imageToBuild'
+        if (this.util.isNullOrEmpty(this.imageToDeploy)) {
+            this.imageToDeploy = this.imageToBuild;
+            this.toolHelper.writeInfo(`Default image to deploy: ${this.imageToDeploy}`);
+        }
     }
 
     /**
@@ -520,10 +520,6 @@ export class azurecontainerapps {
                 this.commandLineArgs.push(`--env-vars ${environmentVariables}`);
             }
         }
-
-        if (this.useCliToBuildAndPushImage && !this.util.isNullOrEmpty(this.appSourcePath)) {
-            this.commandLineArgs.push(`--source ${this.appSourcePath}`);
-        }
     }
 
     /**
@@ -534,6 +530,9 @@ export class azurecontainerapps {
             if (!this.util.isNullOrEmpty(this.yamlConfigPath)) {
                 // Create the Container App from the YAML configuration file
                 await this.appHelper.createContainerAppFromYaml(this.containerAppName, this.resourceGroup, this.yamlConfigPath);
+            } else if (this.useCliToBuildAndPushImage && !this.util.isNullOrEmpty(this.appSourcePath)) {
+                // Create the Container App from the command line arguments
+                await this.appHelper.createOrUpdateContainerAppWithUp(this.containerAppName, this.resourceGroup, this.imageToDeploy, this.commandLineArgs, this.ingress, this.targetPort);
             } else {
                 // Create the Container App from command line arguments
                 await this.appHelper.createContainerApp(this.containerAppName, this.resourceGroup, this.containerAppEnvironment, this.imageToDeploy, this.commandLineArgs);
@@ -559,7 +558,7 @@ export class azurecontainerapps {
             await this.appHelper.updateContainerApp(this.containerAppName, this.resourceGroup, this.imageToDeploy, this.commandLineArgs);
         } else {
             // Update the Container App using the 'up' command
-            await this.appHelper.updateContainerAppWithUp(this.containerAppName, this.resourceGroup, this.imageToDeploy, this.commandLineArgs, this.ingress, this.targetPort);
+            await this.appHelper.createOrUpdateContainerAppWithUp(this.containerAppName, this.resourceGroup, this.imageToDeploy, this.commandLineArgs, this.ingress, this.targetPort);
         }
 
         // Disable ingress on the existing Container App, if provided as an input
