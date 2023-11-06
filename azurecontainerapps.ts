@@ -35,7 +35,7 @@ export class azurecontainerapps {
             this.setupContainerAppImageProperties();
 
             const useAzureContainerRegistry = !this.util.isNullOrEmpty(this.registryUrl) && this.registryUrl.endsWith('.azurecr.io');
-            const useInternalRegistry = this.util.isNullOrEmpty(this.registryUrl) && this.imageToBuild.startsWith('default/');
+            const useInternalRegistry = this.util.isNullOrEmpty(this.registryUrl) && this.imageToBuild.startsWith(this.defaultRegistryServer);
 
             // Determine if the image should be built and pushed using the CLI
             this.useCliToBuildAndPushImage = (useAzureContainerRegistry || useInternalRegistry);
@@ -109,6 +109,7 @@ export class azurecontainerapps {
     private static targetPort: string;
     private static shouldUseUpdateCommand: boolean;
     private static useCliToBuildAndPushImage: boolean;
+    private static defaultRegistryServer: string = 'default/';
 
     /**
      * Initializes the helpers used by this task.
@@ -359,7 +360,9 @@ export class azurecontainerapps {
 
         if (this.util.isNullOrEmpty(this.imageToBuild)) {
             const imageRepository = this.toolHelper.getDefaultImageRepository()
-            this.imageToBuild = this.util.isNullOrEmpty(this.registryUrl) ? `default/${imageRepository}:${this.buildId}.${this.buildNumber}` : `${this.registryUrl}/${imageRepository}:${this.buildId}.${this.buildNumber}`;
+            // Constructs the image to build based on the provided registry URL, image repository,  build ID, and build number.
+            // If the registry URL is not provided or is empty, the default registry server is used; otherwise, the provided registry URL is used.
+            this.imageToBuild = this.util.isNullOrEmpty(this.registryUrl) ? `${this.defaultRegistryServer}${imageRepository}:${this.buildId}.${this.buildNumber}` : `${this.registryUrl}/${imageRepository}:${this.buildId}.${this.buildNumber}`;
             this.toolHelper.writeInfo(`Default image to build: ${this.imageToBuild}`);
         }
 
@@ -524,7 +527,7 @@ export class azurecontainerapps {
             }
         }
 
-        if (!this.imageToDeploy.startsWith('default/')) {
+        if (!this.imageToDeploy.startsWith(this.defaultRegistryServer)) {
             this.commandLineArgs.push(`-i ${this.imageToDeploy}`);
         }
 

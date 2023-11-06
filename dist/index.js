@@ -91,7 +91,7 @@ var azurecontainerapps = /** @class */ (function () {
                         // Set up the Container App Image properties if it's not provided by the user.
                         this.setupContainerAppImageProperties();
                         useAzureContainerRegistry = !this.util.isNullOrEmpty(this.registryUrl) && this.registryUrl.endsWith('.azurecr.io');
-                        useInternalRegistry = this.util.isNullOrEmpty(this.registryUrl) && this.imageToBuild.startsWith('default/');
+                        useInternalRegistry = this.util.isNullOrEmpty(this.registryUrl) && this.imageToBuild.startsWith(this.defaultRegistryServer);
                         // Determine if the image should be built and pushed using the CLI
                         this.useCliToBuildAndPushImage = (useAzureContainerRegistry || useInternalRegistry);
                         if (!(!this.useCliToBuildAndPushImage && !this.util.isNullOrEmpty(this.appSourcePath))) return [3 /*break*/, 9];
@@ -422,7 +422,9 @@ var azurecontainerapps = /** @class */ (function () {
         this.imageToBuild = this.toolHelper.getInput('imageToBuild', false);
         if (this.util.isNullOrEmpty(this.imageToBuild)) {
             var imageRepository = this.toolHelper.getDefaultImageRepository();
-            this.imageToBuild = this.util.isNullOrEmpty(this.registryUrl) ? "default/" + imageRepository + ":" + this.buildId + "." + this.buildNumber : this.registryUrl + "/" + imageRepository + ":" + this.buildId + "." + this.buildNumber;
+            // Constructs the image to build based on the provided registry URL, image repository,  build ID, and build number.
+            // If the registry URL is not provided or is empty, the default registry server is used; otherwise, the provided registry URL is used.
+            this.imageToBuild = this.util.isNullOrEmpty(this.registryUrl) ? "" + this.defaultRegistryServer + imageRepository + ":" + this.buildId + "." + this.buildNumber : this.registryUrl + "/" + imageRepository + ":" + this.buildId + "." + this.buildNumber;
             this.toolHelper.writeInfo("Default image to build: " + this.imageToBuild);
         }
         // Get the name of the image to deploy if it was provided, or set it to the value of 'imageToBuild'
@@ -613,7 +615,7 @@ var azurecontainerapps = /** @class */ (function () {
                 this.commandLineArgs.push("--env-vars " + environmentVariables);
             }
         }
-        if (!this.imageToDeploy.startsWith('default/')) {
+        if (!this.imageToDeploy.startsWith(this.defaultRegistryServer)) {
             this.commandLineArgs.push("-i " + this.imageToDeploy);
         }
         if (!this.util.isNullOrEmpty(this.appSourcePath) && this.useCliToBuildAndPushImage) {
@@ -684,6 +686,7 @@ var azurecontainerapps = /** @class */ (function () {
             });
         });
     };
+    azurecontainerapps.defaultRegistryServer = 'default/';
     return azurecontainerapps;
 }());
 exports.azurecontainerapps = azurecontainerapps;
