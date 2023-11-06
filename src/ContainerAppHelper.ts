@@ -58,10 +58,11 @@ export class ContainerAppHelper {
         resourceGroup: string,
         environment: string,
         appSourcePath: string,
+        location: string,
         optionalCmdArgs: string[]) {
         toolHelper.writeDebug(`Attempting to create Container App with name "${containerAppName}" in resource group "${resourceGroup}" based on the application source path "${appSourcePath}"`);
         try {
-            let command = `az containerapp up -n ${containerAppName} -g ${resourceGroup} --source ${appSourcePath} --environment ${environment}`;
+            let command = `az containerapp up -n ${containerAppName} -g ${resourceGroup} --source ${appSourcePath} --environment ${environment} --location ${location}`;
             optionalCmdArgs.forEach(function (val: string) {
                 command += ` ${val}`;
             });
