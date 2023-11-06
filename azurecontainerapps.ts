@@ -524,11 +524,11 @@ export class azurecontainerapps {
             }
         }
 
-        if(!this.imageToDeploy.startsWith('default/')) {
+        if (!this.imageToDeploy.startsWith('default/')) {
             this.commandLineArgs.push(`-i ${this.imageToDeploy}`);
         }
 
-        if(!this.util.isNullOrEmpty(this.appSourcePath) && this.useCliToBuildAndPushImage) {
+        if (!this.util.isNullOrEmpty(this.appSourcePath) && this.useCliToBuildAndPushImage) {
             this.commandLineArgs.push(`--source ${this.appSourcePath}`);
         }
     }

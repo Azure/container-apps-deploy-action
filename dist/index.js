@@ -4716,7 +4716,7 @@ var ContainerAppHelper = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        toolHelper.writeDebug("Attempting to create Container App with name \"" + containerAppName + "\" in resource group \"" + resourceGroup + "\" based from image \"" + imageToDeploy + "\"");
+                        toolHelper.writeDebug("Attempting to create Container App with name \"" + containerAppName + "\" in resource group \"" + resourceGroup + "\"");
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
@@ -4779,7 +4779,7 @@ var ContainerAppHelper = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        toolHelper.writeDebug("Attempting to update Container App with name \"" + containerAppName + "\" in resource group \"" + resourceGroup + "\" based from image \"" + imageToDeploy + "\"");
+                        toolHelper.writeDebug("Attempting to update Container App with name \"" + containerAppName + "\" in resource group \"" + resourceGroup + "\" ");
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
@@ -4807,7 +4807,6 @@ var ContainerAppHelper = /** @class */ (function () {
      * @param optionalCmdArgs - a set of optional command line arguments
      * @param ingress - the ingress that the Container App will be exposed on
      * @param targetPort - the target port that the Container App will be exposed on
-     * @param appSourcePath - the path to the application source on the machine
      */
     ContainerAppHelper.prototype.updateContainerAppWithUp = function (containerAppName, resourceGroup, optionalCmdArgs, ingress, targetPort) {
         return __awaiter(this, void 0, void 0, function () {
@@ -5816,18 +5815,14 @@ var Utility = /** @class */ (function () {
         });
     };
     /**
-     * Sets the Azure CLI to dynamically install extensions that are missing. In this case, we care about the
-     * Azure Container Apps module being dynamically installed while it's still in preview.
+     * Sets the Azure CLI to dynamically install extensions that are missing.
      */
     Utility.prototype.setAzureCliDynamicInstall = function () {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.execute("az config set extension.use_dynamic_install=yes_without_prompt")];
+                    case 0: return [4 /*yield*/, this.execute("az extension add --name containerapp --upgrade")];
                     case 1:
-                        _a.sent();
-                        return [4 /*yield*/, this.execute("az extension add --name containerapp --version 0.3.43")];
-                    case 2:
                         _a.sent();
                         return [2 /*return*/];
                 }

@@ -30,7 +30,7 @@ export class ContainerAppHelper {
         resourceGroup: string,
         environment: string,
         optionalCmdArgs: string[]) {
-        toolHelper.writeDebug(`Attempting to create Container App with name "${containerAppName}" in resource group "${resourceGroup}" based from image "${imageToDeploy}"`);
+        toolHelper.writeDebug(`Attempting to create Container App with name "${containerAppName}" in resource group "${resourceGroup}"`);
         try {
             let command = `az containerapp create -n ${containerAppName} -g ${resourceGroup} --environment ${environment} --output none`;
             optionalCmdArgs.forEach(function (val: string) {
@@ -73,7 +73,7 @@ export class ContainerAppHelper {
         containerAppName: string,
         resourceGroup: string,
         optionalCmdArgs: string[]) {
-        toolHelper.writeDebug(`Attempting to update Container App with name "${containerAppName}" in resource group "${resourceGroup}" based from image "${imageToDeploy}"`);
+        toolHelper.writeDebug(`Attempting to update Container App with name "${containerAppName}" in resource group "${resourceGroup}" `);
         try {
             let command = `az containerapp update -n ${containerAppName} -g ${resourceGroup} --output none`;
             optionalCmdArgs.forEach(function (val: string) {
@@ -93,7 +93,6 @@ export class ContainerAppHelper {
      * @param optionalCmdArgs - a set of optional command line arguments
      * @param ingress - the ingress that the Container App will be exposed on
      * @param targetPort - the target port that the Container App will be exposed on
-     * @param appSourcePath - the path to the application source on the machine
      */
     public async updateContainerAppWithUp(
         containerAppName: string,
