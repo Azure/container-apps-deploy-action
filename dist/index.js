@@ -631,7 +631,7 @@ var azurecontainerapps = /** @class */ (function () {
                     case 2:
                         if (!(this.useCliToBuildAndPushImage && !this.util.isNullOrEmpty(this.appSourcePath))) return [3 /*break*/, 4];
                         // Create the Container App from the command line arguments
-                        return [4 /*yield*/, this.appHelper.createOrUpdateContainerAppWithUp(this.containerAppName, this.resourceGroup, this.containerAppEnvironment, this.appSourcePath, this.location, this.commandLineArgs)];
+                        return [4 /*yield*/, this.appHelper.createContainerAppWithUp(this.containerAppName, this.resourceGroup, this.containerAppEnvironment, this.appSourcePath, this.location, this.commandLineArgs)];
                     case 3:
                         // Create the Container App from the command line arguments
                         _a.sent();
@@ -659,35 +659,30 @@ var azurecontainerapps = /** @class */ (function () {
                     case 10:
                         _a.sent();
                         _a.label = 11;
-                    case 11: 
-                    // Update the Container App using the 'update' command
-                    return [4 /*yield*/, this.appHelper.updateContainerApp(this.containerAppName, this.resourceGroup, this.imageToDeploy, this.commandLineArgs)];
+                    case 11:
+                        if (!this.util.isNullOrEmpty(this.appSourcePath) && this.useCliToBuildAndPushImage) {
+                            this.commandLineArgs.push("--source " + this.appSourcePath);
+                        }
+                        // Update the Container App using the 'update' command
+                        return [4 /*yield*/, this.appHelper.updateContainerApp(this.containerAppName, this.resourceGroup, this.imageToDeploy, this.commandLineArgs)];
                     case 12:
                         // Update the Container App using the 'update' command
                         _a.sent();
-                        return [3 /*break*/, 17];
-                    case 13:
-                        if (!(this.useCliToBuildAndPushImage && !this.util.isNullOrEmpty(this.appSourcePath))) return [3 /*break*/, 15];
-                        // Create the Container App from the command line arguments
-                        return [4 /*yield*/, this.appHelper.createOrUpdateContainerAppWithUp(this.containerAppName, this.resourceGroup, this.containerAppEnvironment, this.appSourcePath, this.location, this.commandLineArgs)];
-                    case 14:
-                        // Create the Container App from the command line arguments
-                        _a.sent();
-                        return [3 /*break*/, 17];
-                    case 15: 
+                        return [3 /*break*/, 15];
+                    case 13: 
                     // Update the Container App using the 'up' command
                     return [4 /*yield*/, this.appHelper.updateContainerAppWithUp(this.containerAppName, this.resourceGroup, this.imageToDeploy, this.commandLineArgs, this.ingress, this.targetPort)];
-                    case 16:
+                    case 14:
                         // Update the Container App using the 'up' command
                         _a.sent();
-                        _a.label = 17;
-                    case 17:
-                        if (!(this.ingress == 'disabled')) return [3 /*break*/, 19];
+                        _a.label = 15;
+                    case 15:
+                        if (!(this.ingress == 'disabled')) return [3 /*break*/, 17];
                         return [4 /*yield*/, this.appHelper.disableContainerAppIngress(this.containerAppName, this.resourceGroup)];
-                    case 18:
+                    case 16:
                         _a.sent();
-                        _a.label = 19;
-                    case 19: return [2 /*return*/];
+                        _a.label = 17;
+                    case 17: return [2 /*return*/];
                 }
             });
         });
@@ -4754,7 +4749,7 @@ var ContainerAppHelper = /** @class */ (function () {
     * @param appSourcePath - the path to the application source
     * @param optionalCmdArgs - a set of optional command line arguments
     */
-    ContainerAppHelper.prototype.createOrUpdateContainerAppWithUp = function (containerAppName, resourceGroup, environment, appSourcePath, location, optionalCmdArgs) {
+    ContainerAppHelper.prototype.createContainerAppWithUp = function (containerAppName, resourceGroup, environment, appSourcePath, location, optionalCmdArgs) {
         return __awaiter(this, void 0, void 0, function () {
             var command_2, err_2;
             return __generator(this, function (_a) {

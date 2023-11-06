@@ -53,7 +53,7 @@ export class ContainerAppHelper {
      * @param appSourcePath - the path to the application source
      * @param optionalCmdArgs - a set of optional command line arguments
      */
-     public async createOrUpdateContainerAppWithUp(
+     public async createContainerAppWithUp(
         containerAppName: string,
         resourceGroup: string,
         environment: string,

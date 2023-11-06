@@ -532,7 +532,7 @@ export class azurecontainerapps {
                 await this.appHelper.createContainerAppFromYaml(this.containerAppName, this.resourceGroup, this.yamlConfigPath);
             } else if (this.useCliToBuildAndPushImage && !this.util.isNullOrEmpty(this.appSourcePath)) {
                 // Create the Container App from the command line arguments
-                await this.appHelper.createOrUpdateContainerAppWithUp(this.containerAppName, this.resourceGroup, this.containerAppEnvironment, this.appSourcePath, this.location, this.commandLineArgs);
+                await this.appHelper.createContainerAppWithUp(this.containerAppName, this.resourceGroup, this.containerAppEnvironment, this.appSourcePath, this.location, this.commandLineArgs);
             } else {
                 // Create the Container App from command line arguments
                 await this.appHelper.createContainerApp(this.containerAppName, this.resourceGroup, this.containerAppEnvironment, this.imageToDeploy, this.commandLineArgs);
@@ -554,11 +554,12 @@ export class azurecontainerapps {
                 await this.appHelper.updateContainerAppRegistryDetails(this.containerAppName, this.resourceGroup, this.registryUrl, this.registryUsername, this.registryPassword);
             }
 
+            if(!this.util.isNullOrEmpty(this.appSourcePath) && this.useCliToBuildAndPushImage) {
+                this.commandLineArgs.push(`--source ${this.appSourcePath}`);
+            }
+
             // Update the Container App using the 'update' command
             await this.appHelper.updateContainerApp(this.containerAppName, this.resourceGroup, this.imageToDeploy, this.commandLineArgs);
-        } else if (this.useCliToBuildAndPushImage && !this.util.isNullOrEmpty(this.appSourcePath)) {
-            // Create the Container App from the command line arguments
-            await this.appHelper.createOrUpdateContainerAppWithUp(this.containerAppName, this.resourceGroup, this.containerAppEnvironment, this.appSourcePath, this.location, this.commandLineArgs);
         } else {
             // Update the Container App using the 'up' command
             await this.appHelper.updateContainerAppWithUp(this.containerAppName, this.resourceGroup, this.imageToDeploy, this.commandLineArgs, this.ingress, this.targetPort);
