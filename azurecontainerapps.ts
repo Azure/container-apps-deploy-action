@@ -523,7 +523,7 @@ export class azurecontainerapps {
 
         if (this.useCliToBuildAndPushImage && !this.util.isNullOrEmpty(this.appSourcePath)) {
             this.commandLineArgs.push(`--source ${this.appSourcePath}`);
-            if (this.util.isNullOrEmpty(this.location)) {
+            if (!this.util.isNullOrEmpty(this.location)) {
                 this.commandLineArgs.push(`--location ${this.location}`);
             }
         }
