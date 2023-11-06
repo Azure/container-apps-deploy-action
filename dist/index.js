@@ -5815,6 +5815,9 @@ var Utility = /** @class */ (function () {
                     case 0: return [4 /*yield*/, this.execute("az config set extension.use_dynamic_install=yes_without_prompt")];
                     case 1:
                         _a.sent();
+                        return [4 /*yield*/, this.execute("az extension add --name containerapp --version 0.3.43")];
+                    case 2:
+                        _a.sent();
                         return [2 /*return*/];
                 }
             });

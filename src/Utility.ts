@@ -20,6 +20,7 @@ export class Utility {
    */
   public async setAzureCliDynamicInstall() {
     await this.execute(`az config set extension.use_dynamic_install=yes_without_prompt`);
+    await this.execute(`az extension add --name containerapp --version 0.3.43`);
   }
 
   /**
