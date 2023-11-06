@@ -27,15 +27,6 @@ jobs:
       TEST_CONTAINER_APP_NAME: 'gh-ca-bs-${{ github.run_id }}'
 
     steps:
-
-      - name: Clone azure-cli-extensions repo
-        uses: actions/checkout@v3
-        with:
-          repository: snehapar9/azure-cli-extensions
-          path: azure-cli-extensions
-      - name: Install latest azure-cli-extensions wheel
-        run: az extension add --source '${{ github.workspace }}/azure-cli-extensions/containerapp-0.3.42-py2.py3-none-any.whl' --yes
-
       - name: Checkout action repository
         uses: actions/checkout@v3
 
@@ -83,14 +74,6 @@ jobs:
       TEST_CONTAINER_APP_NAME: 'gh-ca-bs-${{ github.run_id }}'
 
     steps:
-      - name: Clone azure-cli-extensions repo
-        uses: actions/checkout@v3
-        with:
-          repository: snehapar9/azure-cli-extensions
-          path: azure-cli-extensions
-
-      - name: Install latest azure-cli-extensions wheel
-        run: az extension add --source '${{ github.workspace }}/azure-cli-extensions/containerapp-0.3.42-py2.py3-none-any.whl' --yes
       - name: Checkout action repository
         uses: actions/checkout@v3
 
@@ -134,14 +117,6 @@ jobs:
       TEST_CONTAINER_APP_NAME: 'gh-ca-fd-${{ github.run_id }}'
 
     steps:
-      - name: Clone azure-cli-extensions repo
-        uses: actions/checkout@v3
-        with:
-          repository: snehapar9/azure-cli-extensions
-          path: azure-cli-extensions
-
-      - name: Install latest azure-cli-extensions wheel
-        run: az extension add --source '${{ github.workspace }}/azure-cli-extensions/containerapp-0.3.42-py2.py3-none-any.whl' --yes
       - name: Checkout action repository
         uses: actions/checkout@v3
 
@@ -383,14 +358,6 @@ jobs:
       TEST_YAML_FILE_PATH: '${{ github.workspace }}/yaml-samples/create-with-builder-simple.yaml'
 
     steps:
-      - name: Clone azure-cli-extensions repo
-        uses: actions/checkout@v3
-        with:
-          repository: snehapar9/azure-cli-extensions
-          path: azure-cli-extensions
-
-      - name: Install latest azure-cli-extensions wheel
-        run: az extension add --source '${{ github.workspace }}/azure-cli-extensions/containerapp-0.3.42-py2.py3-none-any.whl' --yes
       - name: Checkout action repository
         uses: actions/checkout@v3
 
@@ -450,14 +417,6 @@ jobs:
       TEST_YAML_FILE_PATH: '${{ github.workspace }}/yaml-samples/create-with-image-simple.yaml'
 
     steps:
-      - name: Clone azure-cli-extensions repo
-        uses: actions/checkout@v3
-        with:
-          repository: snehapar9/azure-cli-extensions
-          path: azure-cli-extensions
-
-      - name: Install latest azure-cli-extensions wheel
-        run: az extension add --source '${{ github.workspace }}/azure-cli-extensions/containerapp-0.3.42-py2.py3-none-any.whl' --yes
       - name: Checkout action repository
         uses: actions/checkout@v3
 
@@ -502,14 +461,6 @@ jobs:
       TEST_YAML_FILE_PATH: 'yaml-samples/create-with-image-simple.yaml'
 
     steps:
-      - name: Clone azure-cli-extensions repo
-        uses: actions/checkout@v3
-        with:
-          repository: snehapar9/azure-cli-extensions
-          path: azure-cli-extensions
-
-      - name: Install latest azure-cli-extensions wheel
-        run: az extension add --source '${{ github.workspace }}/azure-cli-extensions/containerapp-0.3.42-py2.py3-none-any.whl' --yes
       - name: Checkout action repository
         uses: actions/checkout@v3
 
@@ -554,14 +505,6 @@ jobs:
       TEST_CONTAINER_APP_NAME: 'update-using-builder-app'
 
     steps:
-      - name: Clone azure-cli-extensions repo
-        uses: actions/checkout@v3
-        with:
-          repository: snehapar9/azure-cli-extensions
-          path: azure-cli-extensions
-
-      - name: Install latest azure-cli-extensions wheel
-        run: az extension add --source '${{ github.workspace }}/azure-cli-extensions/containerapp-0.3.42-py2.py3-none-any.whl' --yes
       - name: Checkout action repository
         uses: actions/checkout@v3
 
@@ -609,14 +552,6 @@ jobs:
       TEST_CONTAINER_APP_NAME: 'update-using-builder-app'
 
     steps:
-      - name: Clone azure-cli-extensions repo
-        uses: actions/checkout@v3
-        with:
-          repository: snehapar9/azure-cli-extensions
-          path: azure-cli-extensions
-
-      - name: Install latest azure-cli-extensions wheel
-        run: az extension add --source '${{ github.workspace }}/azure-cli-extensions/containerapp-0.3.42-py2.py3-none-any.whl' --yes
       - name: Checkout action repository
         uses: actions/checkout@v3
 
@@ -660,14 +595,6 @@ jobs:
       TEST_CONTAINER_APP_NAME: 'update-using-image-app'
 
     steps:
-      - name: Clone azure-cli-extensions repo
-        uses: actions/checkout@v3
-        with:
-          repository: snehapar9/azure-cli-extensions
-          path: azure-cli-extensions
-
-      - name: Install latest azure-cli-extensions wheel
-        run: az extension add --source '${{ github.workspace }}/azure-cli-extensions/containerapp-0.3.42-py2.py3-none-any.whl' --yes
       - name: Checkout action repository
         uses: actions/checkout@v3
 
@@ -695,14 +622,6 @@ jobs:
       TEST_YAML_FILE_PATH: '${{ github.workspace }}/yaml-samples/update-with-image-simple.yaml'
 
     steps:
-      - name: Clone azure-cli-extensions repo
-        uses: actions/checkout@v3
-        with:
-          repository: snehapar9/azure-cli-extensions
-          path: azure-cli-extensions
-
-      - name: Install latest azure-cli-extensions wheel
-        run: az extension add --source '${{ github.workspace }}/azure-cli-extensions/containerapp-0.3.42-py2.py3-none-any.whl' --yes
       - name: Checkout action repository
         uses: actions/checkout@v3
 

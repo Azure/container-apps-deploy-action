@@ -32,13 +32,13 @@ export class azurecontainerapps {
             }
 
             const useAzureContainerRegistry = !this.util.isNullOrEmpty(this.registryUrl) && this.registryUrl.endsWith('.azurecr.io');
-            const useInternalRegistry = this.util.isNullOrEmpty(this.registryUrl) || this.imageToBuild.startsWith('default/');
+            const useInternalRegistry = this.util.isNullOrEmpty(this.registryUrl) && this.imageToBuild.startsWith('default/');
 
             // Determine if the image should be built and pushed using the CLI
-            this.useCliToBuildAndPushImage = !this.util.isNullOrEmpty(this.appSourcePath) && (useAzureContainerRegistry || useInternalRegistry);
+            this.useCliToBuildAndPushImage = (useAzureContainerRegistry || useInternalRegistry);
 
             // If the application source was provided, build a runnable application image from it
-            if (!this.useCliToBuildAndPushImage) {
+            if (!this.useCliToBuildAndPushImage && !this.util.isNullOrEmpty(this.appSourcePath)) {
                 await this.buildAndPushImageAsync();
             }
 
@@ -513,7 +513,7 @@ export class azurecontainerapps {
             }
         }
 
-        if (this.useCliToBuildAndPushImage) {
+        if (this.useCliToBuildAndPushImage && !this.util.isNullOrEmpty(this.appSourcePath)) {
             this.commandLineArgs.push(`--source ${this.appSourcePath}`);
         }
     }

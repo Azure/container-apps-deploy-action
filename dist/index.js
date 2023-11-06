@@ -89,10 +89,10 @@ var azurecontainerapps = /** @class */ (function () {
                         _a.label = 7;
                     case 7:
                         useAzureContainerRegistry = !this.util.isNullOrEmpty(this.registryUrl) && this.registryUrl.endsWith('.azurecr.io');
-                        useInternalRegistry = this.util.isNullOrEmpty(this.registryUrl) || this.imageToBuild.startsWith('default/');
+                        useInternalRegistry = this.util.isNullOrEmpty(this.registryUrl) && this.imageToBuild.startsWith('default/');
                         // Determine if the image should be built and pushed using the CLI
-                        this.useCliToBuildAndPushImage = !this.util.isNullOrEmpty(this.appSourcePath) && (useAzureContainerRegistry || useInternalRegistry);
-                        if (!!this.useCliToBuildAndPushImage) return [3 /*break*/, 9];
+                        this.useCliToBuildAndPushImage = (useAzureContainerRegistry || useInternalRegistry);
+                        if (!(!this.useCliToBuildAndPushImage && !this.util.isNullOrEmpty(this.appSourcePath))) return [3 /*break*/, 9];
                         return [4 /*yield*/, this.buildAndPushImageAsync()];
                     case 8:
                         _a.sent();
@@ -603,7 +603,7 @@ var azurecontainerapps = /** @class */ (function () {
                 this.commandLineArgs.push("--env-vars " + environmentVariables);
             }
         }
-        if (this.useCliToBuildAndPushImage) {
+        if (this.useCliToBuildAndPushImage && !this.util.isNullOrEmpty(this.appSourcePath)) {
             this.commandLineArgs.push("--source " + this.appSourcePath);
         }
     };
