@@ -4708,7 +4708,6 @@ var ContainerAppHelper = /** @class */ (function () {
      * @param containerAppName - the name of the Container App
      * @param resourceGroup - the resource group that the Container App is found in
      * @param environment - the Container App Environment that will be associated with the Container App
-     * @param imageToDeploy - the name of the runnable application image that the Container App will be based from
      * @param optionalCmdArgs - a set of optional command line arguments
      */
     ContainerAppHelper.prototype.createContainerApp = function (containerAppName, resourceGroup, environment, optionalCmdArgs) {
@@ -4772,7 +4771,6 @@ var ContainerAppHelper = /** @class */ (function () {
      * Updates an existing Azure Container App based from an image that was previously built.
      * @param containerAppName - the name of the existing Container App
      * @param resourceGroup - the resource group that the existing Container App is found in
-     * @param imageToDeploy - the name of the runnable application image that the Container App will be based from
      * @param optionalCmdArgs - a set of optional command line arguments
      */
     ContainerAppHelper.prototype.updateContainerApp = function (containerAppName, resourceGroup, optionalCmdArgs) {
@@ -4806,7 +4804,6 @@ var ContainerAppHelper = /** @class */ (function () {
      * Updates an existing Azure Container App using the 'az containerapp up' command.
      * @param containerAppName - the name of the existing Container App
      * @param resourceGroup - the resource group that the existing Container App is found in
-     * @param imageToDeploy - the name of the runnable application image that the Container App will be based from
      * @param optionalCmdArgs - a set of optional command line arguments
      * @param ingress - the ingress that the Container App will be exposed on
      * @param targetPort - the target port that the Container App will be exposed on
