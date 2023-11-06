@@ -91,7 +91,7 @@ var azurecontainerapps = /** @class */ (function () {
                         // Set up the Container App Image properties if it's not provided by the user.
                         this.setupContainerAppImageProperties();
                         useAzureContainerRegistry = !this.util.isNullOrEmpty(this.registryUrl) && this.registryUrl.endsWith('.azurecr.io');
-                        useInternalRegistry = this.util.isNullOrEmpty(this.registryUrl) && this.imageToBuild.startsWith('default/');
+                        useInternalRegistry = this.util.isNullOrEmpty(this.registryUrl) && this.imageToBuild.startsWith(this.defaultRegistryServer);
                         // Determine if the image should be built and pushed using the CLI
                         this.useCliToBuildAndPushImage = (useAzureContainerRegistry || useInternalRegistry);
                         if (!(!this.useCliToBuildAndPushImage && !this.util.isNullOrEmpty(this.appSourcePath))) return [3 /*break*/, 9];
@@ -169,6 +169,8 @@ var azurecontainerapps = /** @class */ (function () {
         this.imageToDeploy = this.toolHelper.getInput('imageToDeploy', false);
         // Get the YAML configuration file, if provided
         this.yamlConfigPath = this.toolHelper.getInput('yamlConfigPath', false);
+        // Get the name of the image to build if it was provided, or generate it from build variables
+        this.imageToBuild = this.toolHelper.getInput('imageToBuild', false);
         // Ensure that one of appSourcePath, imageToDeploy, or yamlConfigPath is provided
         if (this.util.isNullOrEmpty(this.appSourcePath) && this.util.isNullOrEmpty(this.imageToDeploy) && this.util.isNullOrEmpty(this.yamlConfigPath)) {
             var requiredArgumentMessage = "One of the following arguments must be provided: 'appSourcePath', 'imageToDeploy', or 'yamlConfigPath'.";
@@ -413,14 +415,15 @@ var azurecontainerapps = /** @class */ (function () {
     };
     /**
         * Sets up the Container App Image properties if it's not provided by the user.
-        * file is provided.
-        */
+    */
     azurecontainerapps.setupContainerAppImageProperties = function () {
         // Get the name of the image to build if it was provided, or generate it from build variables
         this.imageToBuild = this.toolHelper.getInput('imageToBuild', false);
         if (this.util.isNullOrEmpty(this.imageToBuild)) {
             var imageRepository = this.toolHelper.getDefaultImageRepository();
-            this.imageToBuild = this.util.isNullOrEmpty(this.registryUrl) ? "default/" + imageRepository + ":" + this.buildId + "." + this.buildNumber : this.registryUrl + "/" + imageRepository + ":" + this.buildId + "." + this.buildNumber;
+            // Constructs the image to build based on the provided registry URL, image repository,  build ID, and build number.
+            // If the registry URL is not provided or is empty, the default registry server is used; otherwise, the provided registry URL is used.
+            this.imageToBuild = this.util.isNullOrEmpty(this.registryUrl) ? "" + this.defaultRegistryServer + imageRepository + ":" + this.buildId + "." + this.buildNumber : this.registryUrl + "/" + imageRepository + ":" + this.buildId + "." + this.buildNumber;
             this.toolHelper.writeInfo("Default image to build: " + this.imageToBuild);
         }
         // Get the name of the image to deploy if it was provided, or set it to the value of 'imageToBuild'
@@ -611,6 +614,12 @@ var azurecontainerapps = /** @class */ (function () {
                 this.commandLineArgs.push("--env-vars " + environmentVariables);
             }
         }
+        if (!this.imageToDeploy.startsWith(this.defaultRegistryServer)) {
+            this.commandLineArgs.push("-i " + this.imageToDeploy);
+        }
+        if (!this.util.isNullOrEmpty(this.appSourcePath) && this.useCliToBuildAndPushImage) {
+            this.commandLineArgs.push("--source " + this.appSourcePath);
+        }
     };
     /**
      * Creates or updates the Container App.
@@ -638,7 +647,7 @@ var azurecontainerapps = /** @class */ (function () {
                         return [3 /*break*/, 6];
                     case 4: 
                     // Create the Container App from command line arguments
-                    return [4 /*yield*/, this.appHelper.createContainerApp(this.containerAppName, this.resourceGroup, this.containerAppEnvironment, this.imageToDeploy, this.commandLineArgs)];
+                    return [4 /*yield*/, this.appHelper.createContainerApp(this.containerAppName, this.resourceGroup, this.containerAppEnvironment, this.commandLineArgs)];
                     case 5:
                         // Create the Container App from command line arguments
                         _a.sent();
@@ -664,14 +673,14 @@ var azurecontainerapps = /** @class */ (function () {
                             this.commandLineArgs.push("--source " + this.appSourcePath);
                         }
                         // Update the Container App using the 'update' command
-                        return [4 /*yield*/, this.appHelper.updateContainerApp(this.containerAppName, this.resourceGroup, this.imageToDeploy, this.commandLineArgs)];
+                        return [4 /*yield*/, this.appHelper.updateContainerApp(this.containerAppName, this.resourceGroup, this.commandLineArgs)];
                     case 12:
                         // Update the Container App using the 'update' command
                         _a.sent();
                         return [3 /*break*/, 15];
                     case 13: 
                     // Update the Container App using the 'up' command
-                    return [4 /*yield*/, this.appHelper.updateContainerAppWithUp(this.containerAppName, this.resourceGroup, this.imageToDeploy, this.commandLineArgs, this.ingress, this.targetPort)];
+                    return [4 /*yield*/, this.appHelper.updateContainerAppWithUp(this.containerAppName, this.resourceGroup, this.commandLineArgs, this.ingress, this.targetPort)];
                     case 14:
                         // Update the Container App using the 'up' command
                         _a.sent();
@@ -687,6 +696,7 @@ var azurecontainerapps = /** @class */ (function () {
             });
         });
     };
+    azurecontainerapps.defaultRegistryServer = 'default/';
     return azurecontainerapps;
 }());
 exports.azurecontainerapps = azurecontainerapps;
@@ -4711,20 +4721,19 @@ var ContainerAppHelper = /** @class */ (function () {
      * @param containerAppName - the name of the Container App
      * @param resourceGroup - the resource group that the Container App is found in
      * @param environment - the Container App Environment that will be associated with the Container App
-     * @param imageToDeploy - the name of the runnable application image that the Container App will be based from
      * @param optionalCmdArgs - a set of optional command line arguments
      */
-    ContainerAppHelper.prototype.createContainerApp = function (containerAppName, resourceGroup, environment, imageToDeploy, optionalCmdArgs) {
+    ContainerAppHelper.prototype.createContainerApp = function (containerAppName, resourceGroup, environment, optionalCmdArgs) {
         return __awaiter(this, void 0, void 0, function () {
             var command_1, err_1;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        toolHelper.writeDebug("Attempting to create Container App with name \"" + containerAppName + "\" in resource group \"" + resourceGroup + "\" based from image \"" + imageToDeploy + "\"");
+                        toolHelper.writeDebug("Attempting to create Container App with name \"" + containerAppName + "\" in resource group \"" + resourceGroup + "\"");
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
-                        command_1 = "az containerapp create -n " + containerAppName + " -g " + resourceGroup + " -i " + imageToDeploy + " --environment " + environment + " --output none";
+                        command_1 = "az containerapp create -n " + containerAppName + " -g " + resourceGroup + " --environment " + environment + " --output none";
                         optionalCmdArgs.forEach(function (val) {
                             command_1 += " " + val;
                         });
@@ -4810,20 +4819,19 @@ var ContainerAppHelper = /** @class */ (function () {
      * Updates an existing Azure Container App based from an image that was previously built.
      * @param containerAppName - the name of the existing Container App
      * @param resourceGroup - the resource group that the existing Container App is found in
-     * @param imageToDeploy - the name of the runnable application image that the Container App will be based from
      * @param optionalCmdArgs - a set of optional command line arguments
      */
-    ContainerAppHelper.prototype.updateContainerApp = function (containerAppName, resourceGroup, imageToDeploy, optionalCmdArgs) {
+    ContainerAppHelper.prototype.updateContainerApp = function (containerAppName, resourceGroup, optionalCmdArgs) {
         return __awaiter(this, void 0, void 0, function () {
             var command_3, err_4;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        toolHelper.writeDebug("Attempting to update Container App with name \"" + containerAppName + "\" in resource group \"" + resourceGroup + "\" based from image \"" + imageToDeploy + "\"");
+                        toolHelper.writeDebug("Attempting to update Container App with name \"" + containerAppName + "\" in resource group \"" + resourceGroup + "\" ");
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
-                        command_3 = "az containerapp update -n " + containerAppName + " -g " + resourceGroup + " -i " + imageToDeploy + " --output none";
+                        command_3 = "az containerapp update -n " + containerAppName + " -g " + resourceGroup + " --output none";
                         optionalCmdArgs.forEach(function (val) {
                             command_3 += " " + val;
                         });
@@ -4844,23 +4852,22 @@ var ContainerAppHelper = /** @class */ (function () {
      * Updates an existing Azure Container App using the 'az containerapp up' command.
      * @param containerAppName - the name of the existing Container App
      * @param resourceGroup - the resource group that the existing Container App is found in
-     * @param imageToDeploy - the name of the runnable application image that the Container App will be based from
      * @param optionalCmdArgs - a set of optional command line arguments
      * @param ingress - the ingress that the Container App will be exposed on
      * @param targetPort - the target port that the Container App will be exposed on
      * @param appSourcePath - the path to the application source on the machine
      */
-    ContainerAppHelper.prototype.updateContainerAppWithUp = function (containerAppName, resourceGroup, imageToDeploy, optionalCmdArgs, ingress, targetPort) {
+    ContainerAppHelper.prototype.updateContainerAppWithUp = function (containerAppName, resourceGroup, optionalCmdArgs, ingress, targetPort) {
         return __awaiter(this, void 0, void 0, function () {
             var command_4, err_5;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        toolHelper.writeDebug("Attempting to update Container App with name \"" + containerAppName + "\" in resource group \"" + resourceGroup + "\" based from image \"" + imageToDeploy + "\"");
+                        toolHelper.writeDebug("Attempting to update Container App with name \"" + containerAppName + "\" in resource group \"" + resourceGroup + "\"");
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
-                        command_4 = "az containerapp up -n " + containerAppName + " -g " + resourceGroup + " -i " + imageToDeploy;
+                        command_4 = "az containerapp up -n " + containerAppName + " -g " + resourceGroup;
                         optionalCmdArgs.forEach(function (val) {
                             command_4 += " " + val;
                         });
@@ -5857,18 +5864,14 @@ var Utility = /** @class */ (function () {
         });
     };
     /**
-     * Sets the Azure CLI to dynamically install extensions that are missing. In this case, we care about the
-     * Azure Container Apps module being dynamically installed while it's still in preview.
+     * Sets the Azure CLI to dynamically install extensions that are missing.
      */
     Utility.prototype.setAzureCliDynamicInstall = function () {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.execute("az config set extension.use_dynamic_install=yes_without_prompt")];
+                    case 0: return [4 /*yield*/, this.execute("az extension add --name containerapp --upgrade")];
                     case 1:
-                        _a.sent();
-                        return [4 /*yield*/, this.execute("az extension add --name containerapp --version 0.3.43")];
-                    case 2:
                         _a.sent();
                         return [2 /*return*/];
                 }
