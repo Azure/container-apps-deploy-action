@@ -631,7 +631,7 @@ var azurecontainerapps = /** @class */ (function () {
                     case 2:
                         if (!(this.useCliToBuildAndPushImage && !this.util.isNullOrEmpty(this.appSourcePath))) return [3 /*break*/, 4];
                         // Create the Container App from the command line arguments
-                        return [4 /*yield*/, this.appHelper.createOrUpdateContainerAppWithUp(this.containerAppName, this.resourceGroup, this.imageToDeploy, this.commandLineArgs, this.ingress, this.targetPort)];
+                        return [4 /*yield*/, this.appHelper.createOrUpdateContainerAppWithUp(this.containerAppName, this.resourceGroup, this.imageToDeploy, this.commandLineArgs, this.ingress, this.targetPort, this.appSourcePath)];
                     case 3:
                         // Create the Container App from the command line arguments
                         _a.sent();
@@ -4810,8 +4810,9 @@ var ContainerAppHelper = /** @class */ (function () {
      * @param optionalCmdArgs - a set of optional command line arguments
      * @param ingress - the ingress that the Container App will be exposed on
      * @param targetPort - the target port that the Container App will be exposed on
+     * @param appSourcePath - the path to the application source on the machine
      */
-    ContainerAppHelper.prototype.createOrUpdateContainerAppWithUp = function (containerAppName, resourceGroup, imageToDeploy, optionalCmdArgs, ingress, targetPort) {
+    ContainerAppHelper.prototype.createOrUpdateContainerAppWithUp = function (containerAppName, resourceGroup, imageToDeploy, optionalCmdArgs, ingress, targetPort, appSourcePath) {
         return __awaiter(this, void 0, void 0, function () {
             var command_3, err_4;
             return __generator(this, function (_a) {
@@ -4830,6 +4831,9 @@ var ContainerAppHelper = /** @class */ (function () {
                         }
                         if (!util.isNullOrEmpty(targetPort)) {
                             command_3 += " --target-port " + targetPort;
+                        }
+                        if (!util.isNullOrEmpty(appSourcePath)) {
+                            command_3 += " --source " + appSourcePath;
                         }
                         return [4 /*yield*/, util.execute(command_3)];
                     case 2:
