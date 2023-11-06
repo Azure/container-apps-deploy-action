@@ -88,6 +88,8 @@ var azurecontainerapps = /** @class */ (function () {
                         _a.sent();
                         _a.label = 7;
                     case 7:
+                        // Set up the Container App Image properties if it's not provided by the user.
+                        this.setupContainerAppImageProperties();
                         useAzureContainerRegistry = !this.util.isNullOrEmpty(this.registryUrl) && this.registryUrl.endsWith('.azurecr.io');
                         useInternalRegistry = this.util.isNullOrEmpty(this.registryUrl) && this.imageToBuild.startsWith('default/');
                         // Determine if the image should be built and pushed using the CLI
@@ -167,18 +169,6 @@ var azurecontainerapps = /** @class */ (function () {
         this.imageToDeploy = this.toolHelper.getInput('imageToDeploy', false);
         // Get the YAML configuration file, if provided
         this.yamlConfigPath = this.toolHelper.getInput('yamlConfigPath', false);
-        // Get the name of the image to build if it was provided, or generate it from build variables
-        this.imageToBuild = this.toolHelper.getInput('imageToBuild', false);
-        if (this.util.isNullOrEmpty(this.imageToBuild)) {
-            var imageRepository = this.toolHelper.getDefaultImageRepository();
-            this.imageToBuild = "default/" + imageRepository + ":" + this.buildId + "." + this.buildNumber;
-            this.toolHelper.writeInfo("Default image to build: " + this.imageToBuild);
-        }
-        // Get the name of the image to deploy if it was provided, or set it to the value of 'imageToBuild'
-        if (this.util.isNullOrEmpty(this.imageToDeploy)) {
-            this.imageToDeploy = this.imageToBuild;
-            this.toolHelper.writeInfo("Default image to deploy: " + this.imageToDeploy);
-        }
         // Ensure that one of appSourcePath, imageToDeploy, or yamlConfigPath is provided
         if (this.util.isNullOrEmpty(this.appSourcePath) && this.util.isNullOrEmpty(this.imageToDeploy) && this.util.isNullOrEmpty(this.yamlConfigPath)) {
             var requiredArgumentMessage = "One of the following arguments must be provided: 'appSourcePath', 'imageToDeploy', or 'yamlConfigPath'.";
@@ -422,6 +412,24 @@ var azurecontainerapps = /** @class */ (function () {
         this.telemetryHelper.setImageScenario();
     };
     /**
+        * Sets up the Container App Image properties if it's not provided by the user.
+        * file is provided.
+        */
+    azurecontainerapps.setupContainerAppImageProperties = function () {
+        // Get the name of the image to build if it was provided, or generate it from build variables
+        this.imageToBuild = this.toolHelper.getInput('imageToBuild', false);
+        if (this.util.isNullOrEmpty(this.imageToBuild)) {
+            var imageRepository = this.toolHelper.getDefaultImageRepository();
+            this.imageToBuild = this.util.isNullOrEmpty(this.registryUrl) ? "default/" + imageRepository + ":" + this.buildId + "." + this.buildNumber : this.registryUrl + "/" + imageRepository + ":" + this.buildId + "." + this.buildNumber;
+            this.toolHelper.writeInfo("Default image to build: " + this.imageToBuild);
+        }
+        // Get the name of the image to deploy if it was provided, or set it to the value of 'imageToBuild'
+        if (this.util.isNullOrEmpty(this.imageToDeploy)) {
+            this.imageToDeploy = this.imageToBuild;
+            this.toolHelper.writeInfo("Default image to deploy: " + this.imageToDeploy);
+        }
+    };
+    /**
      * Builds a runnable application image using a Dockerfile or the builder and pushes it to the Container Registry.
      */
     azurecontainerapps.buildAndPushImageAsync = function () {
@@ -604,7 +612,7 @@ var azurecontainerapps = /** @class */ (function () {
             }
         }
         if (this.useCliToBuildAndPushImage && !this.util.isNullOrEmpty(this.appSourcePath)) {
-            this.commandLineArgs.push("--source " + this.appSourcePath);
+            this.commandLineArgs.push("--source " + this.appSourcePath + " --location " + this.location);
         }
     };
     /**

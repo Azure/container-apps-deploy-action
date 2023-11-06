@@ -31,6 +31,9 @@ export class azurecontainerapps {
                 await this.authenticateAzureContainerRegistryAsync();
             }
 
+            // Set up the Container App Image properties if it's not provided by the user.
+            this.setupContainerAppImageProperties();
+
             const useAzureContainerRegistry = !this.util.isNullOrEmpty(this.registryUrl) && this.registryUrl.endsWith('.azurecr.io');
             const useInternalRegistry = this.util.isNullOrEmpty(this.registryUrl) && this.imageToBuild.startsWith('default/');
 
@@ -156,21 +159,6 @@ export class azurecontainerapps {
 
         // Get the YAML configuration file, if provided
         this.yamlConfigPath = this.toolHelper.getInput('yamlConfigPath', false) as string;
-
-        // Get the name of the image to build if it was provided, or generate it from build variables
-        this.imageToBuild = this.toolHelper.getInput('imageToBuild', false);
-
-        if (this.util.isNullOrEmpty(this.imageToBuild)) {
-            const imageRepository = this.toolHelper.getDefaultImageRepository()
-            this.imageToBuild = `default/${imageRepository}:${this.buildId}.${this.buildNumber}`;
-            this.toolHelper.writeInfo(`Default image to build: ${this.imageToBuild}`);
-        }
-
-        // Get the name of the image to deploy if it was provided, or set it to the value of 'imageToBuild'
-        if (this.util.isNullOrEmpty(this.imageToDeploy)) {
-            this.imageToDeploy = this.imageToBuild;
-            this.toolHelper.writeInfo(`Default image to deploy: ${this.imageToDeploy}`);
-        }
 
         // Ensure that one of appSourcePath, imageToDeploy, or yamlConfigPath is provided
         if (this.util.isNullOrEmpty(this.appSourcePath) && this.util.isNullOrEmpty(this.imageToDeploy) && this.util.isNullOrEmpty(this.yamlConfigPath)) {
@@ -358,6 +346,26 @@ export class azurecontainerapps {
         // If telemetry is enabled, log that the previously built image scenario was targeted for this task
         this.telemetryHelper.setImageScenario();
     }
+    /**
+        * Sets up the Container App Image properties if it's not provided by the user.
+        * file is provided.
+        */
+    private static setupContainerAppImageProperties() {
+          // Get the name of the image to build if it was provided, or generate it from build variables
+          this.imageToBuild = this.toolHelper.getInput('imageToBuild', false);
+
+          if (this.util.isNullOrEmpty(this.imageToBuild)) {
+              const imageRepository = this.toolHelper.getDefaultImageRepository()
+              this.imageToBuild = this.util.isNullOrEmpty(this.registryUrl) ? `default/${imageRepository}:${this.buildId}.${this.buildNumber}` : `${this.registryUrl}/${imageRepository}:${this.buildId}.${this.buildNumber}`;
+              this.toolHelper.writeInfo(`Default image to build: ${this.imageToBuild}`);
+          }
+
+          // Get the name of the image to deploy if it was provided, or set it to the value of 'imageToBuild'
+          if (this.util.isNullOrEmpty(this.imageToDeploy)) {
+              this.imageToDeploy = this.imageToBuild;
+              this.toolHelper.writeInfo(`Default image to deploy: ${this.imageToDeploy}`);
+          }
+    }
 
     /**
      * Builds a runnable application image using a Dockerfile or the builder and pushes it to the Container Registry.
@@ -514,7 +522,7 @@ export class azurecontainerapps {
         }
 
         if (this.useCliToBuildAndPushImage && !this.util.isNullOrEmpty(this.appSourcePath)) {
-            this.commandLineArgs.push(`--source ${this.appSourcePath}`);
+            this.commandLineArgs.push(`--source ${this.appSourcePath} --location ${this.location}`);
         }
     }
 
