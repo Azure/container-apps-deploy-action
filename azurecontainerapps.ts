@@ -352,7 +352,6 @@ export class azurecontainerapps {
     }
     /**
         * Sets up the Container App Image properties if it's not provided by the user.
-        * file is provided.
         */
     private static setupContainerAppImageProperties() {
         // Get the name of the image to build if it was provided, or generate it from build variables
