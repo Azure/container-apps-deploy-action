@@ -415,7 +415,7 @@ var azurecontainerapps = /** @class */ (function () {
     };
     /**
         * Sets up the Container App Image properties if it's not provided by the user.
-        */
+    */
     azurecontainerapps.setupContainerAppImageProperties = function () {
         // Get the name of the image to build if it was provided, or generate it from build variables
         this.imageToBuild = this.toolHelper.getInput('imageToBuild', false);
