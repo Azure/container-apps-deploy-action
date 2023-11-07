@@ -468,11 +468,6 @@ jobs:
           resourceGroup: ${{ vars.TEST_RESOURCE_GROUP_NO_ACR_NAME }}
           disableTelemetry: ${{ vars.TEST_DISABLE_TELEMETRY }}
 
-      - name: Delete pushed image
-        if: ${{ always() }}
-        shell: bash
-        run: az acr repository delete -n ${{ vars.TEST_ACR_NAME }} -t ${{ env.TEST_IMAGE_REPOSITORY }}:${{ env.TEST_IMAGE_TAG }} -y
-
       - name: Update Container App with existing image
         if: ${{ always() }}
         shell: bash
