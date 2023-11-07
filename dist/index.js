@@ -4722,7 +4722,7 @@ var ContainerAppHelper = /** @class */ (function () {
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
-                        command_1 = "az containerapp create -n " + containerAppName + " -g " + resourceGroup + " --environment " + environment + " --output none";
+                        command_1 = "az containerapp create -n " + containerAppName + " -g " + resourceGroup + " --environment " + environment + " --output none --debug";
                         optionalCmdArgs.forEach(function (val) {
                             command_1 += " " + val;
                         });
@@ -4785,7 +4785,7 @@ var ContainerAppHelper = /** @class */ (function () {
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
-                        command_2 = "az containerapp update -n " + containerAppName + " -g " + resourceGroup + " --output none";
+                        command_2 = "az containerapp update -n " + containerAppName + " -g " + resourceGroup + " --output none --debug";
                         optionalCmdArgs.forEach(function (val) {
                             command_2 += " " + val;
                         });
@@ -4821,7 +4821,7 @@ var ContainerAppHelper = /** @class */ (function () {
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
-                        command_3 = "az containerapp up -n " + containerAppName + " -g " + resourceGroup;
+                        command_3 = "az containerapp up -n " + containerAppName + " -g " + resourceGroup + " --debug";
                         optionalCmdArgs.forEach(function (val) {
                             command_3 += " " + val;
                         });
