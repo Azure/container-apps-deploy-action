@@ -638,7 +638,7 @@ var azurecontainerapps = /** @class */ (function () {
                         _a.sent();
                         return [3 /*break*/, 6];
                     case 2:
-                        if (!(!this.util.isNullOrEmpty(this.appSourcePath) && this.useCliToBuildAndPushImage)) return [3 /*break*/, 4];
+                        if (!(!this.util.isNullOrEmpty(this.appSourcePath) && this.useInternalRegistry)) return [3 /*break*/, 4];
                         return [4 /*yield*/, this.appHelper.createContainerAppWithUp(this.containerAppName, this.resourceGroup, this.containerAppEnvironment, this.commandLineArgs)];
                     case 3:
                         _a.sent();
@@ -4762,7 +4762,7 @@ var ContainerAppHelper = /** @class */ (function () {
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
-                        command_2 = "az containerapp up -n " + containerAppName + " -g " + resourceGroup + " --environment " + environment + " --output none";
+                        command_2 = "az containerapp up -n " + containerAppName + " -g " + resourceGroup + " --environment " + environment;
                         optionalCmdArgs.forEach(function (val) {
                             command_2 += " " + val;
                         });

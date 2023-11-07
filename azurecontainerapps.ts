@@ -110,6 +110,7 @@ export class azurecontainerapps {
     private static shouldUseUpdateCommand: boolean;
     private static useCliToBuildAndPushImage: boolean;
     private static defaultRegistryServer: string = 'default/';
+    private static useInternalRegistry: boolean;
 
     /**
      * Initializes the helpers used by this task.
@@ -543,7 +544,7 @@ export class azurecontainerapps {
             if (!this.util.isNullOrEmpty(this.yamlConfigPath)) {
                 // Create the Container App from the YAML configuration file
                 await this.appHelper.createContainerAppFromYaml(this.containerAppName, this.resourceGroup, this.yamlConfigPath);
-            } else if ((!this.util.isNullOrEmpty(this.appSourcePath) && this.useCliToBuildAndPushImage)) {
+            } else if ((!this.util.isNullOrEmpty(this.appSourcePath) && this.useInternalRegistry)) {
                 await this.appHelper.createContainerAppWithUp(this.containerAppName, this.resourceGroup, this.containerAppEnvironment, this.commandLineArgs);
             } else {
                 // Create the Container App from command line arguments
