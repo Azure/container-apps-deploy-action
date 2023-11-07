@@ -35,10 +35,10 @@ export class azurecontainerapps {
             this.setupContainerAppImageProperties();
 
             const useAzureContainerRegistry = !this.util.isNullOrEmpty(this.registryUrl) && this.registryUrl.endsWith('.azurecr.io');
-            const useInternalRegistry = this.util.isNullOrEmpty(this.registryUrl) && this.imageToBuild.startsWith(this.defaultRegistryServer);
+            this.useInternalRegistry = this.util.isNullOrEmpty(this.registryUrl) && this.imageToBuild.startsWith(this.defaultRegistryServer);
 
             // Determine if the image should be built and pushed using the CLI
-            this.useCliToBuildAndPushImage = (useAzureContainerRegistry || useInternalRegistry);
+            this.useCliToBuildAndPushImage = (useAzureContainerRegistry || this.useInternalRegistry);
 
             // If the application source was provided, build a runnable application image from it
             if (!this.useCliToBuildAndPushImage && !this.util.isNullOrEmpty(this.appSourcePath)) {
@@ -544,7 +544,7 @@ export class azurecontainerapps {
             if (!this.util.isNullOrEmpty(this.yamlConfigPath)) {
                 // Create the Container App from the YAML configuration file
                 await this.appHelper.createContainerAppFromYaml(this.containerAppName, this.resourceGroup, this.yamlConfigPath);
-            } else if ((!this.util.isNullOrEmpty(this.appSourcePath) && this.useCliToBuildAndPushImage)) {
+            } else if ((!this.util.isNullOrEmpty(this.appSourcePath) && this.useInternalRegistry)) {
                 await this.appHelper.createContainerAppWithUp(this.containerAppName, this.resourceGroup, this.containerAppEnvironment, this.commandLineArgs);
             } else {
                 // Create the Container App from command line arguments

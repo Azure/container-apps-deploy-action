@@ -56,7 +56,7 @@ var azurecontainerapps = /** @class */ (function () {
     }
     azurecontainerapps.runMain = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var useAzureContainerRegistry, useInternalRegistry, err_1;
+            var useAzureContainerRegistry, err_1;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -91,9 +91,9 @@ var azurecontainerapps = /** @class */ (function () {
                         // Set up the Container App Image properties if it's not provided by the user.
                         this.setupContainerAppImageProperties();
                         useAzureContainerRegistry = !this.util.isNullOrEmpty(this.registryUrl) && this.registryUrl.endsWith('.azurecr.io');
-                        useInternalRegistry = this.util.isNullOrEmpty(this.registryUrl) && this.imageToBuild.startsWith(this.defaultRegistryServer);
+                        this.useInternalRegistry = this.util.isNullOrEmpty(this.registryUrl) && this.imageToBuild.startsWith(this.defaultRegistryServer);
                         // Determine if the image should be built and pushed using the CLI
-                        this.useCliToBuildAndPushImage = (useAzureContainerRegistry || useInternalRegistry);
+                        this.useCliToBuildAndPushImage = (useAzureContainerRegistry || this.useInternalRegistry);
                         if (!(!this.useCliToBuildAndPushImage && !this.util.isNullOrEmpty(this.appSourcePath))) return [3 /*break*/, 9];
                         return [4 /*yield*/, this.buildAndPushImageAsync()];
                     case 8:
@@ -638,7 +638,7 @@ var azurecontainerapps = /** @class */ (function () {
                         _a.sent();
                         return [3 /*break*/, 6];
                     case 2:
-                        if (!(!this.util.isNullOrEmpty(this.appSourcePath) && this.useCliToBuildAndPushImage)) return [3 /*break*/, 4];
+                        if (!(!this.util.isNullOrEmpty(this.appSourcePath) && this.useInternalRegistry)) return [3 /*break*/, 4];
                         return [4 /*yield*/, this.appHelper.createContainerAppWithUp(this.containerAppName, this.resourceGroup, this.containerAppEnvironment, this.commandLineArgs)];
                     case 3:
                         _a.sent();
