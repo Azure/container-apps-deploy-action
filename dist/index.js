@@ -4763,7 +4763,7 @@ var ContainerAppHelper = /** @class */ (function () {
     * @param optionalCmdArgs - a set of optional command line arguments
     * @param environment - the Container App Environment that will be associated with the Container App
     */
-    ContainerAppHelper.prototype.createOrUpdateContainerAppWithUp = function (containerAppName, resourceGroup, optionalCmdArgs, environment) {
+    ContainerAppHelper.prototype.createOrUpdateContainerAppWithUp = function (containerAppName, resourceGroup, optionalCmdArgs) {
         return __awaiter(this, void 0, void 0, function () {
             var command_2, err_2;
             return __generator(this, function (_a) {
@@ -4777,9 +4777,6 @@ var ContainerAppHelper = /** @class */ (function () {
                         optionalCmdArgs.forEach(function (val) {
                             command_2 += " ".concat(val);
                         });
-                        if (!util.isNullOrEmpty(environment)) {
-                            command_2 += " --environment ".concat(environment);
-                        }
                         return [4 /*yield*/, util.execute(command_2)];
                     case 2:
                         _a.sent();
