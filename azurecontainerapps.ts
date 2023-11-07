@@ -557,7 +557,7 @@ export class azurecontainerapps {
                 // Create the Container App from the YAML configuration file
                 await this.appHelper.createContainerAppFromYaml(this.containerAppName, this.resourceGroup, this.yamlConfigPath);
             } else if (createOrUpdateContainerAppWithUp) {
-                await this.appHelper.createOrUpdateContainerAppWithUp(this.containerAppName, this.resourceGroup, this.containerAppEnvironment, this.location, this.commandLineArgs);
+                await this.appHelper.createOrUpdateContainerAppWithUp(this.containerAppName, this.resourceGroup, this.commandLineArgs);
             } else {
                 // Create the Container App from command line arguments
                 await this.appHelper.createContainerApp(this.containerAppName, this.resourceGroup, this.containerAppEnvironment, this.commandLineArgs);
@@ -582,7 +582,7 @@ export class azurecontainerapps {
             // Update the Container App using the 'update' command
             await this.appHelper.updateContainerApp(this.containerAppName, this.resourceGroup, this.commandLineArgs);
         } else if (createOrUpdateContainerAppWithUp) {
-            await this.appHelper.createOrUpdateContainerAppWithUp(this.containerAppName, this.resourceGroup, this.containerAppEnvironment, this.location, this.commandLineArgs);
+            await this.appHelper.createOrUpdateContainerAppWithUp(this.containerAppName, this.resourceGroup, this.commandLineArgs);
         } else {
             // Update the Container App using the 'up' command
             await this.appHelper.updateContainerAppWithUp(this.containerAppName, this.resourceGroup, this.commandLineArgs, this.ingress, this.targetPort);
