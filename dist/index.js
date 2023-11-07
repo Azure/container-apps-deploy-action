@@ -4761,7 +4761,6 @@ var ContainerAppHelper = /** @class */ (function () {
     * @param containerAppName - the name of the Container App
     * @param resourceGroup - the resource group that the Container App is found in
     * @param optionalCmdArgs - a set of optional command line arguments
-    * @param environment - the Container App Environment that will be associated with the Container App
     */
     ContainerAppHelper.prototype.createOrUpdateContainerAppWithUp = function (containerAppName, resourceGroup, optionalCmdArgs) {
         return __awaiter(this, void 0, void 0, function () {

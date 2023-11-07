@@ -50,7 +50,6 @@ export class ContainerAppHelper {
      * @param containerAppName - the name of the Container App
      * @param resourceGroup - the resource group that the Container App is found in
      * @param optionalCmdArgs - a set of optional command line arguments
-     * @param environment - the Container App Environment that will be associated with the Container App
      */
      public async createOrUpdateContainerAppWithUp(
         containerAppName: string,
