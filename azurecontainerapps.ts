@@ -564,10 +564,6 @@ export class azurecontainerapps {
                 await this.appHelper.updateContainerAppRegistryDetails(this.containerAppName, this.resourceGroup, this.registryUrl, this.registryUsername, this.registryPassword);
             }
 
-            if(!this.util.isNullOrEmpty(this.appSourcePath) && this.useCliToBuildAndPushImage) {
-                this.commandLineArgs.push(`--source ${this.appSourcePath}`);
-            }
-
             // Update the Container App using the 'update' command
             await this.appHelper.updateContainerApp(this.containerAppName, this.resourceGroup, this.commandLineArgs);
         } else {
