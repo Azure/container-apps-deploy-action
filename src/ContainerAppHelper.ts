@@ -19,7 +19,7 @@ export class ContainerAppHelper {
     }
 
     /**
-     * Creates an Azure Container App based from an image that was previously built.
+     * Creates an Azure Container App.
      * @param containerAppName - the name of the Container App
      * @param resourceGroup - the resource group that the Container App is found in
      * @param environment - the Container App Environment that will be associated with the Container App
@@ -33,6 +33,31 @@ export class ContainerAppHelper {
         toolHelper.writeDebug(`Attempting to create Container App with name "${containerAppName}" in resource group "${resourceGroup}"`);
         try {
             let command = `az containerapp create -n ${containerAppName} -g ${resourceGroup} --environment ${environment} --output none --debug`;
+            optionalCmdArgs.forEach(function (val: string) {
+                command += ` ${val}`;
+            });
+            await util.execute(command);
+        } catch (err) {
+            toolHelper.writeError(err.message);
+            throw err;
+        }
+    }
+
+     /**
+     * Creates an Azure Container App.
+     * @param containerAppName - the name of the Container App
+     * @param resourceGroup - the resource group that the Container App is found in
+     * @param environment - the Container App Environment that will be associated with the Container App
+     * @param optionalCmdArgs - a set of optional command line arguments
+     */
+     public async createContainerAppWithUp(
+        containerAppName: string,
+        resourceGroup: string,
+        environment: string,
+        optionalCmdArgs: string[]) {
+        toolHelper.writeDebug(`Attempting to create Container App with name "${containerAppName}" in resource group "${resourceGroup}"`);
+        try {
+            let command = `az containerapp up -n ${containerAppName} -g ${resourceGroup} --environment ${environment} --output none`;
             optionalCmdArgs.forEach(function (val: string) {
                 command += ` ${val}`;
             });
