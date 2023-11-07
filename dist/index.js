@@ -4762,7 +4762,7 @@ var ContainerAppHelper = /** @class */ (function () {
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
-                        command_2 = "az containerapp up -n " + containerAppName + " -g " + resourceGroup + " --environment " + environment;
+                        command_2 = "az containerapp up -n " + containerAppName + " -g " + resourceGroup + " --environment " + environment + " --location northcentralusstage";
                         optionalCmdArgs.forEach(function (val) {
                             command_2 += " " + val;
                         });
