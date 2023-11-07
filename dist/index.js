@@ -4835,7 +4835,7 @@ var ContainerAppHelper = /** @class */ (function () {
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
-                        command_3 = "az containerapp update -n ".concat(containerAppName, " -g ").concat(resourceGroup, " --output none --debug");
+                        command_3 = "az containerapp update -n ".concat(containerAppName, " -g ").concat(resourceGroup, " --output none");
                         optionalCmdArgs.forEach(function (val) {
                             command_3 += " ".concat(val);
                         });
