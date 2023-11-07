@@ -104,7 +104,6 @@ export class azurecontainerapps {
 
     // Miscellaneous properties
     private static imageToBuild: string;
-    private static runtimeStack: string;
     private static ingress: string;
     private static targetPort: string;
     private static shouldUseUpdateCommand: boolean;
@@ -395,7 +394,7 @@ export class azurecontainerapps {
 
         if (!this.util.isNullOrEmpty(dockerfilePath)) {
             // Build the image from the provided/discovered Dockerfile
-            await this.builderImageFromDockerfile(this.appSourcePath, dockerfilePath, this.imageToBuild);
+            await this.buildImageFromDockerfile(this.appSourcePath, dockerfilePath, this.imageToBuild);
         }
 
         // Push the image to the Container Registry
@@ -410,13 +409,31 @@ export class azurecontainerapps {
     private static async buildImageFromBuilderAsync(appSourcePath: string, imageToBuild: string) {
         // Install the pack CLI
         await this.appHelper.installPackCliAsync();
-        this.toolHelper.writeInfo(`Successfully installed the pack CLI.`)
+        this.toolHelper.writeInfo(`Successfully installed the pack CLI.`);
 
-        // Get the runtime stack if provided, or determine it using Oryx
-        this.runtimeStack = this.toolHelper.getInput('runtimeStack', false);
-        if (this.util.isNullOrEmpty(this.runtimeStack)) {
-            this.runtimeStack = await this.appHelper.determineRuntimeStackAsync(appSourcePath);
-            this.toolHelper.writeInfo(`Runtime stack determined to be: ${this.runtimeStack}`);
+        // Enable experimental features for the pack CLI
+        await this.appHelper.enablePackCliExperimentalFeaturesAsync();
+        this.toolHelper.writeInfo(`Successfully enabled experimental features for the pack CLI.`);
+
+        // Define the environment variables that should be propagated to the builder
+        let environmentVariables: string[] = []
+
+        // Parse the given runtime stack input and export the platform and version to environment variables
+        const runtimeStack = this.toolHelper.getInput('runtimeStack', false);
+        if (!this.util.isNullOrEmpty(runtimeStack)) {
+            const runtimeStackSplit = runtimeStack.split(':');
+            const platformName = runtimeStackSplit[0] == "dotnetcore" ? "dotnet" : runtimeStackSplit[0];
+            const platformVersion = runtimeStackSplit[1];
+            environmentVariables.push(`ORYX_PLATFORM_NAME=${platformName}`);
+            environmentVariables.push(`ORYX_PLATFORM_VERSION=${platformVersion}`);
+        }
+
+        // Check if the user provided a builder stack to use
+        const builderStack = this.toolHelper.getInput('builderStack', false);
+
+        // Set the target port on the image produced by the builder
+        if (!this.util.isNullOrEmpty(this.targetPort)) {
+            environmentVariables.push(`ORYX_RUNTIME_PORT=${this.targetPort}`);
         }
 
         this.toolHelper.writeInfo(`Building image "${imageToBuild}" using the Oryx++ Builder`);
@@ -425,7 +442,7 @@ export class azurecontainerapps {
         await this.appHelper.setDefaultBuilder();
 
         // Create a runnable application image
-        await this.appHelper.createRunnableAppImage(imageToBuild, appSourcePath, this.runtimeStack);
+        await this.appHelper.createRunnableAppImage(imageToBuild, appSourcePath, environmentVariables, builderStack);
 
         // If telemetry is enabled, log that the builder scenario was targeted for this task
         this.telemetryHelper.setBuilderScenario();
@@ -437,7 +454,10 @@ export class azurecontainerapps {
      * @param dockerfilePath - The path to the Dockerfile to build.
      * @param imageToBuild - The name of the image to build.
      */
-    private static async builderImageFromDockerfile(appSourcePath: string, dockerfilePath: string, imageToBuild: string) {
+    private static async buildImageFromDockerfile(
+        appSourcePath: string,
+        dockerfilePath: string,
+        imageToBuild: string) {
         this.toolHelper.writeInfo(`Building image "${imageToBuild}" using the provided Dockerfile`);
         await this.appHelper.createRunnableAppImageFromDockerfile(imageToBuild, appSourcePath, dockerfilePath);
 
@@ -489,19 +509,10 @@ export class azurecontainerapps {
 
             // Handle setup for ingress values when enabled
             if (this.ingressEnabled) {
-                // Get the target port if provided, or determine it based on the application type
+                // Get the target port if provided, or set it to the default value
                 this.targetPort = this.toolHelper.getInput('targetPort', false);
-                if (this.util.isNullOrEmpty(this.targetPort)) {
-                    if (!this.util.isNullOrEmpty(this.runtimeStack) && this.runtimeStack.startsWith('python:')) {
-                        this.targetPort = '80';
-                    } else {
-                        this.targetPort = '8080';
-                    }
 
-                    this.toolHelper.writeInfo(`Default target port: ${this.targetPort}`);
-                }
-
-                // Set the target port to 80 if it was not provided or determined
+                // Set the target port to 80 if it was not provided
                 if (this.util.isNullOrEmpty(this.targetPort)) {
                     this.targetPort = '80';
                     this.toolHelper.writeInfo(`Default target port: ${this.targetPort}`);

@@ -4,8 +4,10 @@ import { Utility } from './Utility';
 import { GitHubActionsToolHelper } from './GitHubActionsToolHelper'
 import fs = require('fs');
 
-const ORYX_CLI_IMAGE: string = 'mcr.microsoft.com/oryx/cli:builder-debian-buster-20230208.1';
-const ORYX_BUILDER_IMAGE: string = 'mcr.microsoft.com/oryx/builder:20230208.1';
+const ORYX_CLI_IMAGE: string = 'mcr.microsoft.com/oryx/cli:builder-debian-bullseye-20230926.1';
+const ORYX_BULLSEYE_BUILDER_IMAGE: string = 'mcr.microsoft.com/oryx/builder:debian-bullseye-20231025.1'
+const ORYX_BOOKWORM_BUILDER_IMAGE: string = 'mcr.microsoft.com/oryx/builder:debian-bookworm-20231025.1'
+const ORYX_BUILDER_IMAGES: string[] = [ ORYX_BULLSEYE_BUILDER_IMAGE, ORYX_BOOKWORM_BUILDER_IMAGE ];
 const IS_WINDOWS_AGENT: boolean = os.platform() == 'win32';
 const PACK_CMD: string = IS_WINDOWS_AGENT ? path.join(os.tmpdir(), 'pack') : 'pack';
 const toolHelper = new GitHubActionsToolHelper();
@@ -332,23 +334,48 @@ export class ContainerAppHelper {
      * Using the Oryx++ Builder, creates a runnable application image from the provided application source.
      * @param imageToDeploy - the name of the runnable application image that is created and can be later deployed
      * @param appSourcePath - the path to the application source on the machine
-     * @param runtimeStack - the runtime stack to use in the image layer that runs the application
+     * @param environmentVariables - an array of environment variables that should be provided to the builder via the `--env` flag
+     * @param builderStack - the stack to use when building the provided application source
      */
     public async createRunnableAppImage(
         imageToDeploy: string,
         appSourcePath: string,
-        runtimeStack: string) {
-        toolHelper.writeDebug(`Attempting to create a runnable application image using the Oryx++ Builder with image name "${imageToDeploy}"`);
-        try {
-            let telemetryArg = toolHelper.getTelemetryArg();
-            if (this.disableTelemetry) {
-                telemetryArg = `ORYX_DISABLE_TELEMETRY=true`;
+        environmentVariables: string[],
+        builderStack?: string) {
+
+        let telemetryArg = toolHelper.getTelemetryArg();
+        if (this.disableTelemetry) {
+            telemetryArg = `ORYX_DISABLE_TELEMETRY=true`;
+        }
+
+        let couldBuildImage = false;
+
+        for (const builderImage of ORYX_BUILDER_IMAGES) {
+            if (!util.isNullOrEmpty(builderStack) && !builderImage.includes(builderStack)) {
+                continue;
             }
-            let command = `build ${imageToDeploy} --path ${appSourcePath} --builder ${ORYX_BUILDER_IMAGE} --run-image mcr.microsoft.com/oryx/${runtimeStack} --env ${telemetryArg}`;
-            await util.execute(`${PACK_CMD} ${command}`);
-        } catch (err) {
-            toolHelper.writeError(err.message);
-            throw err;
+
+            toolHelper.writeDebug(`Attempting to create a runnable application image with name "${imageToDeploy}" using the Oryx++ Builder "${builderImage}"`);
+
+            try {
+                let command = `build ${imageToDeploy} --path ${appSourcePath} --builder ${builderImage} --env ${telemetryArg}`;
+                environmentVariables.forEach(function (envVar: string) {
+                    command += ` --env ${envVar}`;
+                });
+
+                await util.execute(`${PACK_CMD} ${command}`);
+                couldBuildImage = true;
+                break;
+            } catch (err) {
+                toolHelper.writeWarning(`Unable to run 'pack build' command to produce runnable application image: ${err.message}`);
+            }
+        };
+
+        // If none of the builder images were able to build the provided application source, throw an error.
+        if (!couldBuildImage) {
+            const errorMessage = `No builder was able to build the provided application source. Please visit the following page for more information on supported platform versions: https://aka.ms/SourceToCloudSupportedVersions`;
+            toolHelper.writeError(errorMessage);
+            throw new Error(errorMessage);
         }
     }
 
@@ -418,7 +445,7 @@ export class ContainerAppHelper {
     public async setDefaultBuilder() {
         toolHelper.writeInfo('Setting the Oryx++ Builder as the default builder via the pack CLI');
         try {
-            let command = `config default-builder ${ORYX_BUILDER_IMAGE}`
+            let command = `config default-builder ${ORYX_BUILDER_IMAGES[0]}`
             await util.execute(`${PACK_CMD} ${command}`);
         }
         catch (err) {
@@ -437,19 +464,33 @@ export class ContainerAppHelper {
             let command: string = '';
             let commandLine = '';
             if (IS_WINDOWS_AGENT) {
-                let packZipDownloadUri: string = 'https://github.com/buildpacks/pack/releases/download/v0.27.0/pack-v0.27.0-windows.zip';
+                let packZipDownloadUri: string = 'https://github.com/buildpacks/pack/releases/download/v0.31.0/pack-v0.31.0-windows.zip';
                 let packZipDownloadFilePath: string = path.join(PACK_CMD, 'pack-windows.zip');
                 command = `New-Item -ItemType Directory -Path ${PACK_CMD} -Force | Out-Null; Invoke-WebRequest -Uri ${packZipDownloadUri} -OutFile ${packZipDownloadFilePath}; Expand-Archive -LiteralPath ${packZipDownloadFilePath} -DestinationPath ${PACK_CMD}; Remove-Item -Path ${packZipDownloadFilePath}`;
                 commandLine = 'pwsh';
             } else {
                 let tgzSuffix = os.platform() == 'darwin' ? 'macos' : 'linux';
-                command = `(curl -sSL "https://github.com/buildpacks/pack/releases/download/v0.27.0/pack-v0.27.0-${tgzSuffix}.tgz" | ` +
+                command = `(curl -sSL "https://github.com/buildpacks/pack/releases/download/v0.31.0/pack-v0.31.0-${tgzSuffix}.tgz" | ` +
                     'tar -C /usr/local/bin/ --no-same-owner -xzv pack)';
                 commandLine = 'bash';
             }
             await util.execute(`${commandLine} -c "${command}"`);
         } catch (err) {
             toolHelper.writeError(`Unable to install the pack CLI. Error: ${err.message}`);
+            throw err;
+        }
+    }
+
+    /**
+     * Enables experimental features for the pack CLI, such as extension support.
+     */
+    public async enablePackCliExperimentalFeaturesAsync() {
+        toolHelper.writeDebug('Attempting to enable experimental features for the pack CLI');
+        try {
+            let command = `${PACK_CMD} config experimental true`;
+            await util.execute(command);
+        } catch (err) {
+            toolHelper.writeError(`Unable to enable experimental features for the pack CLI: ${err.message}`);
             throw err;
         }
     }
