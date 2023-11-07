@@ -32,7 +32,7 @@ export class ContainerAppHelper {
         optionalCmdArgs: string[]) {
         toolHelper.writeDebug(`Attempting to create Container App with name "${containerAppName}" in resource group "${resourceGroup}"`);
         try {
-            let command = `az containerapp create -n ${containerAppName} -g ${resourceGroup} --environment ${environment} --output none --debug`;
+            let command = `az containerapp create -n ${containerAppName} -g ${resourceGroup} --environment ${environment} --output none`;
             optionalCmdArgs.forEach(function (val: string) {
                 command += ` ${val}`;
             });
@@ -100,7 +100,7 @@ export class ContainerAppHelper {
         optionalCmdArgs: string[]) {
         toolHelper.writeDebug(`Attempting to update Container App with name "${containerAppName}" in resource group "${resourceGroup}" `);
         try {
-            let command = `az containerapp update -n ${containerAppName} -g ${resourceGroup} --output none --debug`;
+            let command = `az containerapp update -n ${containerAppName} -g ${resourceGroup} --output none`;
             optionalCmdArgs.forEach(function (val: string) {
                 command += ` ${val}`;
             });
@@ -128,7 +128,7 @@ export class ContainerAppHelper {
         targetPort?: string) {
         toolHelper.writeDebug(`Attempting to update Container App with name "${containerAppName}" in resource group "${resourceGroup}"`);
         try {
-            let command = `az containerapp up -n ${containerAppName} -g ${resourceGroup} --debug`;
+            let command = `az containerapp up -n ${containerAppName} -g ${resourceGroup}`;
             optionalCmdArgs.forEach(function (val: string) {
                 command += ` ${val}`;
             });
