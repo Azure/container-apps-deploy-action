@@ -60,7 +60,7 @@ export class ContainerAppHelper {
         optionalCmdArgs: string[]) {
         toolHelper.writeDebug(`Attempting to create Container App with name "${containerAppName}" in resource group "${resourceGroup}"`);
         try {
-            let command = `az containerapp up -n ${containerAppName} -g ${resourceGroup} --environment ${environment} -l ${location}`;
+            let command = `az containerapp up -n ${containerAppName} -g ${resourceGroup} --environment ${environment} -l northcentralusstage`;
             optionalCmdArgs.forEach(function (val: string) {
                 command += ` ${val}`;
             });
