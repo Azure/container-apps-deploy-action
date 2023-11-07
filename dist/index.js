@@ -4860,7 +4860,6 @@ var ContainerAppHelper = /** @class */ (function () {
      * @param optionalCmdArgs - a set of optional command line arguments
      * @param ingress - the ingress that the Container App will be exposed on
      * @param targetPort - the target port that the Container App will be exposed on
-     * @param appSourcePath - the path to the application source on the machine
      */
     ContainerAppHelper.prototype.updateContainerAppWithUp = function (containerAppName, resourceGroup, optionalCmdArgs, ingress, targetPort) {
         return __awaiter(this, void 0, void 0, function () {

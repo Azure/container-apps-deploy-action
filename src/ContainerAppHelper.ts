@@ -121,7 +121,6 @@ export class ContainerAppHelper {
      * @param optionalCmdArgs - a set of optional command line arguments
      * @param ingress - the ingress that the Container App will be exposed on
      * @param targetPort - the target port that the Container App will be exposed on
-     * @param appSourcePath - the path to the application source on the machine
      */
     public async updateContainerAppWithUp(
         containerAppName: string,
