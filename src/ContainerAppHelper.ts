@@ -21,22 +21,46 @@ export class ContainerAppHelper {
     }
 
     /**
-     * Creates an Azure Container App based from an image that was previously built.
+     * Creates an Azure Container App.
      * @param containerAppName - the name of the Container App
      * @param resourceGroup - the resource group that the Container App is found in
      * @param environment - the Container App Environment that will be associated with the Container App
-     * @param imageToDeploy - the name of the runnable application image that the Container App will be based from
      * @param optionalCmdArgs - a set of optional command line arguments
      */
     public async createContainerApp(
         containerAppName: string,
         resourceGroup: string,
         environment: string,
-        imageToDeploy: string,
         optionalCmdArgs: string[]) {
-        toolHelper.writeDebug(`Attempting to create Container App with name "${containerAppName}" in resource group "${resourceGroup}" based from image "${imageToDeploy}"`);
+        toolHelper.writeDebug(`Attempting to create Container App with name "${containerAppName}" in resource group "${resourceGroup}"`);
         try {
-            let command = `az containerapp create -n ${containerAppName} -g ${resourceGroup} -i ${imageToDeploy} --environment ${environment} --output none`;
+            let command = `az containerapp create -n ${containerAppName} -g ${resourceGroup} --environment ${environment} --output none`;
+            optionalCmdArgs.forEach(function (val: string) {
+                command += ` ${val}`;
+            });
+            await util.execute(command);
+        } catch (err) {
+            toolHelper.writeError(err.message);
+            throw err;
+        }
+    }
+
+     /**
+     * Creates an Azure Container App.
+     * @param containerAppName - the name of the Container App
+     * @param resourceGroup - the resource group that the Container App is found in
+     * @param environment - the Container App Environment that will be associated with the Container App
+     * @param optionalCmdArgs - a set of optional command line arguments
+     */
+     public async createOrUpdateContainerAppWithUp(
+        containerAppName: string,
+        resourceGroup: string,
+        environment: string,
+        location: string,
+        optionalCmdArgs: string[]) {
+        toolHelper.writeDebug(`Attempting to create Container App with name "${containerAppName}" in resource group "${resourceGroup}"`);
+        try {
+            let command = `az containerapp up -n ${containerAppName} -g ${resourceGroup} --environment ${environment} -l northcentralusstage`;
             optionalCmdArgs.forEach(function (val: string) {
                 command += ` ${val}`;
             });
@@ -71,17 +95,15 @@ export class ContainerAppHelper {
      * Updates an existing Azure Container App based from an image that was previously built.
      * @param containerAppName - the name of the existing Container App
      * @param resourceGroup - the resource group that the existing Container App is found in
-     * @param imageToDeploy - the name of the runnable application image that the Container App will be based from
      * @param optionalCmdArgs - a set of optional command line arguments
      */
     public async updateContainerApp(
         containerAppName: string,
         resourceGroup: string,
-        imageToDeploy: string,
         optionalCmdArgs: string[]) {
-        toolHelper.writeDebug(`Attempting to update Container App with name "${containerAppName}" in resource group "${resourceGroup}" based from image "${imageToDeploy}"`);
+        toolHelper.writeDebug(`Attempting to update Container App with name "${containerAppName}" in resource group "${resourceGroup}" `);
         try {
-            let command = `az containerapp update -n ${containerAppName} -g ${resourceGroup} -i ${imageToDeploy} --output none`;
+            let command = `az containerapp update -n ${containerAppName} -g ${resourceGroup} --output none`;
             optionalCmdArgs.forEach(function (val: string) {
                 command += ` ${val}`;
             });
@@ -96,7 +118,6 @@ export class ContainerAppHelper {
      * Updates an existing Azure Container App using the 'az containerapp up' command.
      * @param containerAppName - the name of the existing Container App
      * @param resourceGroup - the resource group that the existing Container App is found in
-     * @param imageToDeploy - the name of the runnable application image that the Container App will be based from
      * @param optionalCmdArgs - a set of optional command line arguments
      * @param ingress - the ingress that the Container App will be exposed on
      * @param targetPort - the target port that the Container App will be exposed on
@@ -104,13 +125,12 @@ export class ContainerAppHelper {
     public async updateContainerAppWithUp(
         containerAppName: string,
         resourceGroup: string,
-        imageToDeploy: string,
         optionalCmdArgs: string[],
         ingress?: string,
         targetPort?: string) {
-        toolHelper.writeDebug(`Attempting to update Container App with name "${containerAppName}" in resource group "${resourceGroup}" based from image "${imageToDeploy}"`);
+        toolHelper.writeDebug(`Attempting to update Container App with name "${containerAppName}" in resource group "${resourceGroup}"`);
         try {
-            let command = `az containerapp up -n ${containerAppName} -g ${resourceGroup} -i ${imageToDeploy}`;
+            let command = `az containerapp up -n ${containerAppName} -g ${resourceGroup}`;
             optionalCmdArgs.forEach(function (val: string) {
                 command += ` ${val}`;
             });
@@ -122,6 +142,7 @@ export class ContainerAppHelper {
             if (!util.isNullOrEmpty(targetPort)) {
                 command += ` --target-port ${targetPort}`;
             }
+
             await util.execute(command);
         } catch (err) {
             toolHelper.writeError(err.message);
@@ -367,19 +388,10 @@ export class ContainerAppHelper {
     public async createRunnableAppImageFromDockerfile(
         imageToDeploy: string,
         appSourcePath: string,
-        dockerfilePath: string,
-        buildArguments: string[]) {
+        dockerfilePath: string) {
         toolHelper.writeDebug(`Attempting to create a runnable application image from the provided/found Dockerfile "${dockerfilePath}" with image name "${imageToDeploy}"`);
         try {
             let command = `docker build --file ${dockerfilePath} ${appSourcePath} --tag ${imageToDeploy}`;
-
-            // If build arguments were provided, append them to the command
-            if (buildArguments.length > 0) {
-                buildArguments.forEach(function (buildArg: string) {
-                    command += ` --build-arg ${buildArg}`;
-                });
-            }
-
             await util.execute(command);
             toolHelper.writeDebug(`Successfully created runnable application image from the provided/found Dockerfile "${dockerfilePath}" with image name "${imageToDeploy}"`);
         } catch (err) {

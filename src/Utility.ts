@@ -15,11 +15,10 @@ export class Utility {
   }
 
   /**
-   * Sets the Azure CLI to dynamically install extensions that are missing. In this case, we care about the
-   * Azure Container Apps module being dynamically installed while it's still in preview.
+   * Sets the Azure CLI to dynamically install extensions that are missing.
    */
   public async setAzureCliDynamicInstall() {
-    await this.execute(`az config set extension.use_dynamic_install=yes_without_prompt`);
+    await this.execute(`az extension add --name containerapp --upgrade`);
   }
 
   /**

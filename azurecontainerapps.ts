@@ -21,7 +21,7 @@ export class azurecontainerapps {
             // Set up the resources required to deploy a Container App
             await this.setupResources();
 
-             // If a Container Registry URL was provided, try to authenticate against it
+            // If a Container Registry URL was provided, try to authenticate against it
             if (!this.util.isNullOrEmpty(this.registryUrl)) {
                 await this.authenticateContainerRegistryAsync();
             }
@@ -31,8 +31,17 @@ export class azurecontainerapps {
                 await this.authenticateAzureContainerRegistryAsync();
             }
 
+            // Set up the Container App Image properties if it's not provided by the user.
+            this.setupContainerAppImageProperties();
+
+            const useAzureContainerRegistry = !this.util.isNullOrEmpty(this.registryUrl) && this.registryUrl.endsWith('.azurecr.io');
+            this.useInternalRegistry = this.util.isNullOrEmpty(this.registryUrl) && this.imageToBuild.startsWith(this.defaultRegistryServer);
+
+            // Determine if the image should be built and pushed using the CLI
+            this.useCliToBuildAndPushImage = (useAzureContainerRegistry || this.useInternalRegistry);
+
             // If the application source was provided, build a runnable application image from it
-            if (!this.util.isNullOrEmpty(this.appSourcePath)) {
+            if (!this.useCliToBuildAndPushImage && !this.util.isNullOrEmpty(this.appSourcePath)) {
                 await this.buildAndPushImageAsync();
             }
 
@@ -98,6 +107,9 @@ export class azurecontainerapps {
     private static ingress: string;
     private static targetPort: string;
     private static shouldUseUpdateCommand: boolean;
+    private static useCliToBuildAndPushImage: boolean;
+    private static defaultRegistryServer: string = 'default/';
+    private static useInternalRegistry: boolean;
 
     /**
      * Initializes the helpers used by this task.
@@ -149,12 +161,8 @@ export class azurecontainerapps {
         // Get the YAML configuration file, if provided
         this.yamlConfigPath = this.toolHelper.getInput('yamlConfigPath', false) as string;
 
-        // Ensure that acrName or registryUrl is also provided if appSourcePath is provided
-        if (!this.util.isNullOrEmpty(this.appSourcePath) && this.util.isNullOrEmpty(this.acrName) && this.util.isNullOrEmpty(this.registryUrl)) {
-            let missingRegistryUrlMessage = `The 'acrName' or 'registryUrl' argument must be provided when the 'appSourcePath' argument is provided.`;
-            this.toolHelper.writeError(missingRegistryUrlMessage);
-            throw Error(missingRegistryUrlMessage);
-        }
+        // Get the name of the image to build if it was provided, or generate it from build variables
+        this.imageToBuild = this.toolHelper.getInput('imageToBuild', false);
 
         // Ensure that one of appSourcePath, imageToDeploy, or yamlConfigPath is provided
         if (this.util.isNullOrEmpty(this.appSourcePath) && this.util.isNullOrEmpty(this.imageToDeploy) && this.util.isNullOrEmpty(this.yamlConfigPath)) {
@@ -342,16 +350,18 @@ export class azurecontainerapps {
         // If telemetry is enabled, log that the previously built image scenario was targeted for this task
         this.telemetryHelper.setImageScenario();
     }
-
     /**
-     * Builds a runnable application image using a Dockerfile or the builder and pushes it to the Container Registry.
-     */
-    private static async buildAndPushImageAsync() {
+        * Sets up the Container App Image properties if it's not provided by the user.
+    */
+    private static setupContainerAppImageProperties() {
         // Get the name of the image to build if it was provided, or generate it from build variables
         this.imageToBuild = this.toolHelper.getInput('imageToBuild', false);
+
         if (this.util.isNullOrEmpty(this.imageToBuild)) {
             const imageRepository = this.toolHelper.getDefaultImageRepository()
-            this.imageToBuild = `${this.registryUrl}/${imageRepository}:${this.buildId}.${this.buildNumber}`;
+            // Constructs the image to build based on the provided registry URL, image repository,  build ID, and build number.
+            // If the registry URL is not provided or is empty, the default registry server is used; otherwise, the provided registry URL is used.
+            this.imageToBuild = this.util.isNullOrEmpty(this.registryUrl) ? `${this.defaultRegistryServer}${imageRepository}:${this.buildId}.${this.buildNumber}` : `${this.registryUrl}/${imageRepository}:${this.buildId}.${this.buildNumber}`;
             this.toolHelper.writeInfo(`Default image to build: ${this.imageToBuild}`);
         }
 
@@ -360,14 +370,12 @@ export class azurecontainerapps {
             this.imageToDeploy = this.imageToBuild;
             this.toolHelper.writeInfo(`Default image to deploy: ${this.imageToDeploy}`);
         }
+    }
 
-        // Set up the build arguments to pass to the Dockerfile or builder
-        let buildArguments: string[] = [];
-        const buildArgumentsValue = this.toolHelper.getInput('buildArguments', false);
-        if (!this.util.isNullOrEmpty(buildArgumentsValue)) {
-            buildArguments = buildArgumentsValue.split(',');
-        }
-
+    /**
+     * Builds a runnable application image using a Dockerfile or the builder and pushes it to the Container Registry.
+     */
+    private static async buildAndPushImageAsync() {
         // Get Dockerfile to build, if provided, or check if one exists at the root of the provided application
         let dockerfilePath: string = this.toolHelper.getInput('dockerfilePath', false);
         if (this.util.isNullOrEmpty(dockerfilePath)) {
@@ -378,7 +386,7 @@ export class azurecontainerapps {
                 dockerfilePath = rootDockerfilePath;
             } else {
                 // No Dockerfile found or provided, build the image using the builder
-                await this.buildImageFromBuilderAsync(this.appSourcePath, this.imageToBuild, buildArguments);
+                await this.buildImageFromBuilderAsync(this.appSourcePath, this.imageToBuild);
             }
         } else {
             dockerfilePath = path.join(this.appSourcePath, dockerfilePath);
@@ -386,7 +394,7 @@ export class azurecontainerapps {
 
         if (!this.util.isNullOrEmpty(dockerfilePath)) {
             // Build the image from the provided/discovered Dockerfile
-            await this.buildImageFromDockerfile(this.appSourcePath, dockerfilePath, this.imageToBuild, buildArguments);
+            await this.buildImageFromDockerfile(this.appSourcePath, dockerfilePath, this.imageToBuild);
         }
 
         // Push the image to the Container Registry
@@ -397,9 +405,8 @@ export class azurecontainerapps {
      * Builds a runnable application image using the builder.
      * @param appSourcePath - The path to the application source code.
      * @param imageToBuild - The name of the image to build.
-     * @param buildArguments - The build arguments to pass to the builder.
      */
-    private static async buildImageFromBuilderAsync(appSourcePath: string, imageToBuild: string, buildArguments: string[]) {
+    private static async buildImageFromBuilderAsync(appSourcePath: string, imageToBuild: string) {
         // Install the pack CLI
         await this.appHelper.installPackCliAsync();
         this.toolHelper.writeInfo(`Successfully installed the pack CLI.`);
@@ -429,11 +436,6 @@ export class azurecontainerapps {
             environmentVariables.push(`ORYX_RUNTIME_PORT=${this.targetPort}`);
         }
 
-        // Provide any additional build arguments to the builder
-        if (buildArguments.length > 0) {
-            environmentVariables = environmentVariables.concat(buildArguments);
-        }
-
         this.toolHelper.writeInfo(`Building image "${imageToBuild}" using the Oryx++ Builder`);
 
         // Set the Oryx++ Builder as the default builder locally
@@ -451,15 +453,13 @@ export class azurecontainerapps {
      * @param appSourcePath - The path to the application source code.
      * @param dockerfilePath - The path to the Dockerfile to build.
      * @param imageToBuild - The name of the image to build.
-     * @param buildArguments - The build arguments to pass to the Dockerfile.
      */
     private static async buildImageFromDockerfile(
         appSourcePath: string,
         dockerfilePath: string,
-        imageToBuild: string,
-        buildArguments: string[]) {
+        imageToBuild: string) {
         this.toolHelper.writeInfo(`Building image "${imageToBuild}" using the provided Dockerfile`);
-        await this.appHelper.createRunnableAppImageFromDockerfile(imageToBuild, appSourcePath, dockerfilePath, buildArguments);
+        await this.appHelper.createRunnableAppImageFromDockerfile(imageToBuild, appSourcePath, dockerfilePath);
 
         // If telemetry is enabled, log that the Dockerfile scenario was targeted for this task
         this.telemetryHelper.setDockerfileScenario();
@@ -537,19 +537,30 @@ export class azurecontainerapps {
                 this.commandLineArgs.push(`--env-vars ${environmentVariables}`);
             }
         }
+
+        if (!this.imageToDeploy.startsWith(this.defaultRegistryServer)) {
+            this.commandLineArgs.push(`-i ${this.imageToDeploy}`);
+        }
+
+        if (!this.util.isNullOrEmpty(this.appSourcePath) && this.useCliToBuildAndPushImage) {
+            this.commandLineArgs.push(`--source ${this.appSourcePath}`);
+        }
     }
 
     /**
      * Creates or updates the Container App.
      */
     private static async createOrUpdateContainerApp() {
+        var createOrUpdateContainerAppWithUp = !this.util.isNullOrEmpty(this.appSourcePath) && this.useInternalRegistry
         if (!this.containerAppExists) {
             if (!this.util.isNullOrEmpty(this.yamlConfigPath)) {
                 // Create the Container App from the YAML configuration file
                 await this.appHelper.createContainerAppFromYaml(this.containerAppName, this.resourceGroup, this.yamlConfigPath);
+            } else if (createOrUpdateContainerAppWithUp) {
+                await this.appHelper.createOrUpdateContainerAppWithUp(this.containerAppName, this.resourceGroup, this.containerAppEnvironment, this.location, this.commandLineArgs);
             } else {
                 // Create the Container App from command line arguments
-                await this.appHelper.createContainerApp(this.containerAppName, this.resourceGroup, this.containerAppEnvironment, this.imageToDeploy, this.commandLineArgs);
+                await this.appHelper.createContainerApp(this.containerAppName, this.resourceGroup, this.containerAppEnvironment, this.commandLineArgs);
             }
 
             return;
@@ -562,17 +573,19 @@ export class azurecontainerapps {
             return;
         }
 
-        if (this.shouldUseUpdateCommand) {
+        if (this.shouldUseUpdateCommand && !createOrUpdateContainerAppWithUp) {
             // Update the Container Registry details on the existing Container App, if provided as an input
             if (!this.util.isNullOrEmpty(this.registryUrl) && !this.util.isNullOrEmpty(this.registryUsername) && !this.util.isNullOrEmpty(this.registryPassword)) {
                 await this.appHelper.updateContainerAppRegistryDetails(this.containerAppName, this.resourceGroup, this.registryUrl, this.registryUsername, this.registryPassword);
             }
 
             // Update the Container App using the 'update' command
-            await this.appHelper.updateContainerApp(this.containerAppName, this.resourceGroup, this.imageToDeploy, this.commandLineArgs);
+            await this.appHelper.updateContainerApp(this.containerAppName, this.resourceGroup, this.commandLineArgs);
+        } else if (createOrUpdateContainerAppWithUp) {
+            await this.appHelper.createOrUpdateContainerAppWithUp(this.containerAppName, this.resourceGroup, this.containerAppEnvironment, this.location, this.commandLineArgs);
         } else {
             // Update the Container App using the 'up' command
-            await this.appHelper.updateContainerAppWithUp(this.containerAppName, this.resourceGroup, this.imageToDeploy, this.commandLineArgs, this.ingress, this.targetPort);
+            await this.appHelper.updateContainerAppWithUp(this.containerAppName, this.resourceGroup, this.commandLineArgs, this.ingress, this.targetPort);
         }
 
         // Disable ingress on the existing Container App, if provided as an input
