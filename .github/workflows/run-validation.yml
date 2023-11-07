@@ -216,7 +216,6 @@ jobs:
         run: az containerapp delete -n ${{ env.TEST_CONTAINER_APP_NAME }} -g ${{ vars.TEST_RESOURCE_GROUP_NAME }} -y
 
   create-using-image-windows:
-
     name: 'Create app using image on Windows runner'
     runs-on: windows-latest
     timeout-minutes: 10
@@ -248,7 +247,6 @@ jobs:
         run: az containerapp delete -n ${{ env.TEST_CONTAINER_APP_NAME }} -g ${{ vars.TEST_RESOURCE_GROUP_NAME }} -y
 
   create-using-image-new-env:
-
     name: 'Create app using image with new environment'
     runs-on: ubuntu-latest
     timeout-minutes: 15
