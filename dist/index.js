@@ -638,7 +638,7 @@ var azurecontainerapps = /** @class */ (function () {
                         _a.sent();
                         return [3 /*break*/, 6];
                     case 2:
-                        if (!(!this.util.isNullOrEmpty(this.appSourcePath) && this.useInternalRegistry)) return [3 /*break*/, 4];
+                        if (!(!this.util.isNullOrEmpty(this.appSourcePath) && this.useCliToBuildAndPushImage)) return [3 /*break*/, 4];
                         return [4 /*yield*/, this.appHelper.createContainerAppWithUp(this.containerAppName, this.resourceGroup, this.containerAppEnvironment, this.commandLineArgs)];
                     case 3:
                         _a.sent();
