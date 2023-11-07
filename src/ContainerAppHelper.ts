@@ -50,14 +50,15 @@ export class ContainerAppHelper {
      * @param environment - the Container App Environment that will be associated with the Container App
      * @param optionalCmdArgs - a set of optional command line arguments
      */
-     public async createContainerAppWithUp(
+     public async createOrUpdateContainerAppWithUp(
         containerAppName: string,
         resourceGroup: string,
         environment: string,
+        location: string,
         optionalCmdArgs: string[]) {
         toolHelper.writeDebug(`Attempting to create Container App with name "${containerAppName}" in resource group "${resourceGroup}"`);
         try {
-            let command = `az containerapp up -n ${containerAppName} -g ${resourceGroup} --environment ${environment} --location northcentralusstage`;
+            let command = `az containerapp up -n ${containerAppName} -g ${resourceGroup} --environment ${environment} -l ${location}`;
             optionalCmdArgs.forEach(function (val: string) {
                 command += ` ${val}`;
             });

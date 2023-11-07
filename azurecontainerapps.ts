@@ -540,12 +540,13 @@ export class azurecontainerapps {
      * Creates or updates the Container App.
      */
     private static async createOrUpdateContainerApp() {
+        var createOrUpdateContainerAppWithUp = !this.util.isNullOrEmpty(this.appSourcePath) && this.useInternalRegistry
         if (!this.containerAppExists) {
             if (!this.util.isNullOrEmpty(this.yamlConfigPath)) {
                 // Create the Container App from the YAML configuration file
                 await this.appHelper.createContainerAppFromYaml(this.containerAppName, this.resourceGroup, this.yamlConfigPath);
-            } else if ((!this.util.isNullOrEmpty(this.appSourcePath) && this.useInternalRegistry)) {
-                await this.appHelper.createContainerAppWithUp(this.containerAppName, this.resourceGroup, this.containerAppEnvironment, this.commandLineArgs);
+            } else if (createOrUpdateContainerAppWithUp) {
+                await this.appHelper.createOrUpdateContainerAppWithUp(this.containerAppName, this.resourceGroup, this.containerAppEnvironment, this.location, this.commandLineArgs);
             } else {
                 // Create the Container App from command line arguments
                 await this.appHelper.createContainerApp(this.containerAppName, this.resourceGroup, this.containerAppEnvironment, this.commandLineArgs);
@@ -561,7 +562,7 @@ export class azurecontainerapps {
             return;
         }
 
-        if (this.shouldUseUpdateCommand) {
+        if (this.shouldUseUpdateCommand && !createOrUpdateContainerAppWithUp) {
             // Update the Container Registry details on the existing Container App, if provided as an input
             if (!this.util.isNullOrEmpty(this.registryUrl) && !this.util.isNullOrEmpty(this.registryUsername) && !this.util.isNullOrEmpty(this.registryPassword)) {
                 await this.appHelper.updateContainerAppRegistryDetails(this.containerAppName, this.resourceGroup, this.registryUrl, this.registryUsername, this.registryPassword);
@@ -569,6 +570,8 @@ export class azurecontainerapps {
 
             // Update the Container App using the 'update' command
             await this.appHelper.updateContainerApp(this.containerAppName, this.resourceGroup, this.commandLineArgs);
+        } else if (createOrUpdateContainerAppWithUp) {
+            await this.appHelper.createOrUpdateContainerAppWithUp(this.containerAppName, this.resourceGroup, this.containerAppEnvironment, this.location, this.commandLineArgs);
         } else {
             // Update the Container App using the 'up' command
             await this.appHelper.updateContainerAppWithUp(this.containerAppName, this.resourceGroup, this.commandLineArgs, this.ingress, this.targetPort);

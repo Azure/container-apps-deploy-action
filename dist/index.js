@@ -626,9 +626,11 @@ var azurecontainerapps = /** @class */ (function () {
      */
     azurecontainerapps.createOrUpdateContainerApp = function () {
         return __awaiter(this, void 0, void 0, function () {
+            var createOrUpdateContainerAppWithUp;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
+                        createOrUpdateContainerAppWithUp = !this.util.isNullOrEmpty(this.appSourcePath) && this.useInternalRegistry;
                         if (!!this.containerAppExists) return [3 /*break*/, 7];
                         if (!!this.util.isNullOrEmpty(this.yamlConfigPath)) return [3 /*break*/, 2];
                         // Create the Container App from the YAML configuration file
@@ -638,8 +640,8 @@ var azurecontainerapps = /** @class */ (function () {
                         _a.sent();
                         return [3 /*break*/, 6];
                     case 2:
-                        if (!(!this.util.isNullOrEmpty(this.appSourcePath) && this.useInternalRegistry)) return [3 /*break*/, 4];
-                        return [4 /*yield*/, this.appHelper.createContainerAppWithUp(this.containerAppName, this.resourceGroup, this.containerAppEnvironment, this.commandLineArgs)];
+                        if (!createOrUpdateContainerAppWithUp) return [3 /*break*/, 4];
+                        return [4 /*yield*/, this.appHelper.createOrUpdateContainerAppWithUp(this.containerAppName, this.resourceGroup, this.containerAppEnvironment, this.location, this.commandLineArgs)];
                     case 3:
                         _a.sent();
                         return [3 /*break*/, 6];
@@ -660,7 +662,7 @@ var azurecontainerapps = /** @class */ (function () {
                         _a.sent();
                         return [2 /*return*/];
                     case 9:
-                        if (!this.shouldUseUpdateCommand) return [3 /*break*/, 13];
+                        if (!(this.shouldUseUpdateCommand && !createOrUpdateContainerAppWithUp)) return [3 /*break*/, 13];
                         if (!(!this.util.isNullOrEmpty(this.registryUrl) && !this.util.isNullOrEmpty(this.registryUsername) && !this.util.isNullOrEmpty(this.registryPassword))) return [3 /*break*/, 11];
                         return [4 /*yield*/, this.appHelper.updateContainerAppRegistryDetails(this.containerAppName, this.resourceGroup, this.registryUrl, this.registryUsername, this.registryPassword)];
                     case 10:
@@ -672,21 +674,27 @@ var azurecontainerapps = /** @class */ (function () {
                     case 12:
                         // Update the Container App using the 'update' command
                         _a.sent();
-                        return [3 /*break*/, 15];
-                    case 13: 
+                        return [3 /*break*/, 17];
+                    case 13:
+                        if (!createOrUpdateContainerAppWithUp) return [3 /*break*/, 15];
+                        return [4 /*yield*/, this.appHelper.createOrUpdateContainerAppWithUp(this.containerAppName, this.resourceGroup, this.containerAppEnvironment, this.location, this.commandLineArgs)];
+                    case 14:
+                        _a.sent();
+                        return [3 /*break*/, 17];
+                    case 15: 
                     // Update the Container App using the 'up' command
                     return [4 /*yield*/, this.appHelper.updateContainerAppWithUp(this.containerAppName, this.resourceGroup, this.commandLineArgs, this.ingress, this.targetPort)];
-                    case 14:
+                    case 16:
                         // Update the Container App using the 'up' command
                         _a.sent();
-                        _a.label = 15;
-                    case 15:
-                        if (!(this.ingress == 'disabled')) return [3 /*break*/, 17];
-                        return [4 /*yield*/, this.appHelper.disableContainerAppIngress(this.containerAppName, this.resourceGroup)];
-                    case 16:
-                        _a.sent();
                         _a.label = 17;
-                    case 17: return [2 /*return*/];
+                    case 17:
+                        if (!(this.ingress == 'disabled')) return [3 /*break*/, 19];
+                        return [4 /*yield*/, this.appHelper.disableContainerAppIngress(this.containerAppName, this.resourceGroup)];
+                    case 18:
+                        _a.sent();
+                        _a.label = 19;
+                    case 19: return [2 /*return*/];
                 }
             });
         });
@@ -4752,7 +4760,7 @@ var ContainerAppHelper = /** @class */ (function () {
     * @param environment - the Container App Environment that will be associated with the Container App
     * @param optionalCmdArgs - a set of optional command line arguments
     */
-    ContainerAppHelper.prototype.createContainerAppWithUp = function (containerAppName, resourceGroup, environment, optionalCmdArgs) {
+    ContainerAppHelper.prototype.createOrUpdateContainerAppWithUp = function (containerAppName, resourceGroup, environment, location, optionalCmdArgs) {
         return __awaiter(this, void 0, void 0, function () {
             var command_2, err_2;
             return __generator(this, function (_a) {
@@ -4762,7 +4770,7 @@ var ContainerAppHelper = /** @class */ (function () {
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
-                        command_2 = "az containerapp up -n " + containerAppName + " -g " + resourceGroup + " --environment " + environment + " --location northcentralusstage";
+                        command_2 = "az containerapp up -n " + containerAppName + " -g " + resourceGroup + " --environment " + environment + " -l " + location;
                         optionalCmdArgs.forEach(function (val) {
                             command_2 += " " + val;
                         });

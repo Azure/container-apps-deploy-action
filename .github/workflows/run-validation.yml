@@ -463,7 +463,7 @@ jobs:
         uses: ./
         with:
           appSourcePath: '${{ github.workspace }}/oryx/tests/SampleApps/DotNetCore/NetCore6PreviewWebApp'
-          containerAppName: ${{ env.TEST_CONTAINER_APP_NAME }}
+          containerAppName: ${{ env.TEST_EXISTING_CONTAINER_APP }}
           containerAppEnvironment: ${{ vars.TEST_EXISTING_CONTAINER_APP_ENV }}
           resourceGroup: ${{ vars.TEST_RESOURCE_GROUP_NO_ACR_NAME }}
           disableTelemetry: ${{ vars.TEST_DISABLE_TELEMETRY }}
