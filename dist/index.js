@@ -642,7 +642,7 @@ var azurecontainerapps = /** @class */ (function () {
                         return [3 /*break*/, 6];
                     case 2:
                         if (!createOrUpdateContainerAppWithUp) return [3 /*break*/, 4];
-                        return [4 /*yield*/, this.appHelper.createOrUpdateContainerAppWithUp(this.containerAppName, this.resourceGroup, this.containerAppEnvironment, this.location, this.commandLineArgs)];
+                        return [4 /*yield*/, this.appHelper.createOrUpdateContainerAppWithUp(this.containerAppName, this.resourceGroup, this.commandLineArgs)];
                     case 3:
                         _a.sent();
                         return [3 /*break*/, 6];
@@ -678,7 +678,7 @@ var azurecontainerapps = /** @class */ (function () {
                         return [3 /*break*/, 17];
                     case 13:
                         if (!createOrUpdateContainerAppWithUp) return [3 /*break*/, 15];
-                        return [4 /*yield*/, this.appHelper.createOrUpdateContainerAppWithUp(this.containerAppName, this.resourceGroup, this.containerAppEnvironment, this.location, this.commandLineArgs)];
+                        return [4 /*yield*/, this.appHelper.createOrUpdateContainerAppWithUp(this.containerAppName, this.resourceGroup, this.commandLineArgs)];
                     case 14:
                         _a.sent();
                         return [3 /*break*/, 17];
@@ -4760,10 +4760,9 @@ var ContainerAppHelper = /** @class */ (function () {
     * Creates an Azure Container App.
     * @param containerAppName - the name of the Container App
     * @param resourceGroup - the resource group that the Container App is found in
-    * @param environment - the Container App Environment that will be associated with the Container App
     * @param optionalCmdArgs - a set of optional command line arguments
     */
-    ContainerAppHelper.prototype.createOrUpdateContainerAppWithUp = function (containerAppName, resourceGroup, environment, location, optionalCmdArgs) {
+    ContainerAppHelper.prototype.createOrUpdateContainerAppWithUp = function (containerAppName, resourceGroup, optionalCmdArgs) {
         return __awaiter(this, void 0, void 0, function () {
             var command_2, err_2;
             return __generator(this, function (_a) {
@@ -4773,7 +4772,7 @@ var ContainerAppHelper = /** @class */ (function () {
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
-                        command_2 = "az containerapp up -n ".concat(containerAppName, " -g ").concat(resourceGroup, " --environment ").concat(environment, " -l northcentralusstage");
+                        command_2 = "az containerapp up -n ".concat(containerAppName, " -g ").concat(resourceGroup, " -l northcentralusstage");
                         optionalCmdArgs.forEach(function (val) {
                             command_2 += " ".concat(val);
                         });
