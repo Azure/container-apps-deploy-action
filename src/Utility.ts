@@ -18,7 +18,7 @@ export class Utility {
    * Sets the Azure CLI to dynamically install extensions that are missing.
    */
   public async setAzureCliDynamicInstall() {
-    await this.execute(`az extension add --name containerapp --upgrade`);
+    await this.execute(`az extension add --name containerapp --version 0.3.43`);
   }
 
   /**

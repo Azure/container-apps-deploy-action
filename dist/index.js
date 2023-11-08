@@ -21,7 +21,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     function verb(n) { return function (v) { return step([n, v]); }; }
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
-        while (g && (g = 0, op[0] && (_ = 0)), _) try {
+        while (_) try {
             if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
             if (y = 0, t) op = [op[0] & 2, t.value];
             switch (op[0]) {
@@ -42,7 +42,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.__esModule = true;
 exports.azurecontainerapps = void 0;
 var fs = __nccwpck_require__(7147);
 var path = __nccwpck_require__(1017);
@@ -297,8 +297,8 @@ var azurecontainerapps = /** @class */ (function () {
                     case 0:
                         resourceGroup = this.toolHelper.getInput('resourceGroup', false);
                         if (!this.util.isNullOrEmpty(resourceGroup)) return [3 /*break*/, 3];
-                        resourceGroup = "".concat(containerAppName, "-rg");
-                        this.toolHelper.writeInfo("Default resource group name: ".concat(resourceGroup));
+                        resourceGroup = containerAppName + "-rg";
+                        this.toolHelper.writeInfo("Default resource group name: " + resourceGroup);
                         return [4 /*yield*/, this.appHelper.doesResourceGroupExist(resourceGroup)];
                     case 1:
                         resourceGroupExists = _a.sent();
@@ -334,15 +334,15 @@ var azurecontainerapps = /** @class */ (function () {
                     case 1:
                         existingContainerAppEnvironment = _a.sent();
                         if (!this.util.isNullOrEmpty(existingContainerAppEnvironment)) {
-                            this.toolHelper.writeInfo("Existing Container App environment found in resource group: ".concat(existingContainerAppEnvironment));
+                            this.toolHelper.writeInfo("Existing Container App environment found in resource group: " + existingContainerAppEnvironment);
                             return [2 /*return*/, existingContainerAppEnvironment];
                         }
                         _a.label = 2;
                     case 2:
                         // Generate the Container App environment name if it was not provided
                         if (this.util.isNullOrEmpty(containerAppEnvironment)) {
-                            containerAppEnvironment = "".concat(containerAppName, "-env");
-                            this.toolHelper.writeInfo("Default Container App environment name: ".concat(containerAppEnvironment));
+                            containerAppEnvironment = containerAppName + "-env";
+                            this.toolHelper.writeInfo("Default Container App environment name: " + containerAppEnvironment);
                         }
                         return [4 /*yield*/, this.appHelper.doesContainerAppEnvironmentExist(containerAppEnvironment, resourceGroup)];
                     case 3:
@@ -367,15 +367,15 @@ var azurecontainerapps = /** @class */ (function () {
                     case 0:
                         this.registryUsername = this.toolHelper.getInput('acrUsername', false);
                         this.registryPassword = this.toolHelper.getInput('acrPassword', false);
-                        this.registryUrl = "".concat(this.acrName, ".azurecr.io");
+                        this.registryUrl = this.acrName + ".azurecr.io";
                         if (!(!this.util.isNullOrEmpty(this.registryUsername) && !this.util.isNullOrEmpty(this.registryPassword))) return [3 /*break*/, 2];
-                        this.toolHelper.writeInfo("Logging in to ACR instance \"".concat(this.acrName, "\" with username and password credentials"));
+                        this.toolHelper.writeInfo("Logging in to ACR instance \"" + this.acrName + "\" with username and password credentials");
                         return [4 /*yield*/, this.registryHelper.loginContainerRegistryWithUsernamePassword(this.registryUrl, this.registryUsername, this.registryPassword)];
                     case 1:
                         _a.sent();
                         return [3 /*break*/, 4];
                     case 2:
-                        this.toolHelper.writeInfo("No ACR credentials provided; attempting to log in to ACR instance \"".concat(this.acrName, "\" with access token"));
+                        this.toolHelper.writeInfo("No ACR credentials provided; attempting to log in to ACR instance \"" + this.acrName + "\" with access token");
                         return [4 /*yield*/, this.registryHelper.loginAcrWithAccessTokenAsync(this.acrName)];
                     case 3:
                         _a.sent();
@@ -396,7 +396,7 @@ var azurecontainerapps = /** @class */ (function () {
                         this.registryUsername = this.toolHelper.getInput('registryUsername', false);
                         this.registryPassword = this.toolHelper.getInput('registryPassword', false);
                         if (!(!this.util.isNullOrEmpty(this.registryUsername) && !this.util.isNullOrEmpty(this.registryPassword))) return [3 /*break*/, 2];
-                        this.toolHelper.writeInfo("Logging in to Container Registry \"".concat(this.registryUrl, "\" with username and password credentials"));
+                        this.toolHelper.writeInfo("Logging in to Container Registry \"" + this.registryUrl + "\" with username and password credentials");
                         return [4 /*yield*/, this.registryHelper.loginContainerRegistryWithUsernamePassword(this.registryUrl, this.registryUsername, this.registryPassword)];
                     case 1:
                         _a.sent();
@@ -423,13 +423,13 @@ var azurecontainerapps = /** @class */ (function () {
             var imageRepository = this.toolHelper.getDefaultImageRepository();
             // Constructs the image to build based on the provided registry URL, image repository,  build ID, and build number.
             // If the registry URL is not provided or is empty, the default registry server is used; otherwise, the provided registry URL is used.
-            this.imageToBuild = this.util.isNullOrEmpty(this.registryUrl) ? "".concat(this.defaultRegistryServer).concat(imageRepository, ":").concat(this.buildId, ".").concat(this.buildNumber) : "".concat(this.registryUrl, "/").concat(imageRepository, ":").concat(this.buildId, ".").concat(this.buildNumber);
-            this.toolHelper.writeInfo("Default image to build: ".concat(this.imageToBuild));
+            this.imageToBuild = this.util.isNullOrEmpty(this.registryUrl) ? "" + this.defaultRegistryServer + imageRepository + ":" + this.buildId + "." + this.buildNumber : this.registryUrl + "/" + imageRepository + ":" + this.buildId + "." + this.buildNumber;
+            this.toolHelper.writeInfo("Default image to build: " + this.imageToBuild);
         }
         // Get the name of the image to deploy if it was provided, or set it to the value of 'imageToBuild'
         if (this.util.isNullOrEmpty(this.imageToDeploy)) {
             this.imageToDeploy = this.imageToBuild;
-            this.toolHelper.writeInfo("Default image to deploy: ".concat(this.imageToDeploy));
+            this.toolHelper.writeInfo("Default image to deploy: " + this.imageToDeploy);
         }
     };
     /**
@@ -508,15 +508,15 @@ var azurecontainerapps = /** @class */ (function () {
                             runtimeStackSplit = runtimeStack.split(':');
                             platformName = runtimeStackSplit[0] == "dotnetcore" ? "dotnet" : runtimeStackSplit[0];
                             platformVersion = runtimeStackSplit[1];
-                            environmentVariables.push("ORYX_PLATFORM_NAME=".concat(platformName));
-                            environmentVariables.push("ORYX_PLATFORM_VERSION=".concat(platformVersion));
+                            environmentVariables.push("ORYX_PLATFORM_NAME=" + platformName);
+                            environmentVariables.push("ORYX_PLATFORM_VERSION=" + platformVersion);
                         }
                         builderStack = this.toolHelper.getInput('builderStack', false);
                         // Set the target port on the image produced by the builder
                         if (!this.util.isNullOrEmpty(this.targetPort)) {
-                            environmentVariables.push("ORYX_RUNTIME_PORT=".concat(this.targetPort));
+                            environmentVariables.push("ORYX_RUNTIME_PORT=" + this.targetPort);
                         }
-                        this.toolHelper.writeInfo("Building image \"".concat(imageToBuild, "\" using the Oryx++ Builder"));
+                        this.toolHelper.writeInfo("Building image \"" + imageToBuild + "\" using the Oryx++ Builder");
                         // Set the Oryx++ Builder as the default builder locally
                         return [4 /*yield*/, this.appHelper.setDefaultBuilder()];
                     case 3:
@@ -545,7 +545,7 @@ var azurecontainerapps = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        this.toolHelper.writeInfo("Building image \"".concat(imageToBuild, "\" using the provided Dockerfile"));
+                        this.toolHelper.writeInfo("Building image \"" + imageToBuild + "\" using the provided Dockerfile");
                         return [4 /*yield*/, this.appHelper.createRunnableAppImageFromDockerfile(imageToBuild, appSourcePath, dockerfilePath)];
                     case 1:
                         _a.sent();
@@ -573,7 +573,7 @@ var azurecontainerapps = /** @class */ (function () {
         // Pass the Container Registry credentials when creating a Container App or updating a Container App via the 'up' command
         if (!this.util.isNullOrEmpty(this.registryUrl) && !this.util.isNullOrEmpty(this.registryUsername) && !this.util.isNullOrEmpty(this.registryPassword) &&
             (!this.containerAppExists || (this.containerAppExists && !this.shouldUseUpdateCommand))) {
-            this.commandLineArgs.push("--registry-server ".concat(this.registryUrl), "--registry-username ".concat(this.registryUsername), "--registry-password ".concat(this.registryPassword));
+            this.commandLineArgs.push("--registry-server " + this.registryUrl, "--registry-username " + this.registryUsername, "--registry-password " + this.registryPassword);
         }
         // Determine default values only for the 'create' scenario to avoid overriding existing values for the 'update' scenario
         if (!this.containerAppExists) {
@@ -581,7 +581,7 @@ var azurecontainerapps = /** @class */ (function () {
             // Set the ingress value to 'external' if it was not provided
             if (this.util.isNullOrEmpty(this.ingress)) {
                 this.ingress = 'external';
-                this.toolHelper.writeInfo("Default ingress value: ".concat(this.ingress));
+                this.toolHelper.writeInfo("Default ingress value: " + this.ingress);
             }
             // Set the value of ingressEnabled to 'false' if ingress was provided as 'disabled'
             if (this.ingress == 'disabled') {
@@ -595,12 +595,12 @@ var azurecontainerapps = /** @class */ (function () {
                 // Set the target port to 80 if it was not provided
                 if (this.util.isNullOrEmpty(this.targetPort)) {
                     this.targetPort = '80';
-                    this.toolHelper.writeInfo("Default target port: ".concat(this.targetPort));
+                    this.toolHelper.writeInfo("Default target port: " + this.targetPort);
                 }
                 // Add the ingress value and target port to the optional arguments array
                 // Note: this step should be skipped if we're updating an existing Container App (ingress is enabled via a separate command)
-                this.commandLineArgs.push("--ingress ".concat(this.ingress));
-                this.commandLineArgs.push("--target-port ".concat(this.targetPort));
+                this.commandLineArgs.push("--ingress " + this.ingress);
+                this.commandLineArgs.push("--target-port " + this.targetPort);
             }
         }
         var environmentVariables = this.toolHelper.getInput('environmentVariables', false);
@@ -609,17 +609,17 @@ var azurecontainerapps = /** @class */ (function () {
             // The --replace-env-vars flag is only used for the 'update' command,
             // otherwise --env-vars is used for 'create' and 'up'
             if (this.shouldUseUpdateCommand) {
-                this.commandLineArgs.push("--replace-env-vars ".concat(environmentVariables));
+                this.commandLineArgs.push("--replace-env-vars " + environmentVariables);
             }
             else {
-                this.commandLineArgs.push("--env-vars ".concat(environmentVariables));
+                this.commandLineArgs.push("--env-vars " + environmentVariables);
             }
         }
         if (!this.imageToDeploy.startsWith(this.defaultRegistryServer)) {
-            this.commandLineArgs.push("-i ".concat(this.imageToDeploy));
+            this.commandLineArgs.push("-i " + this.imageToDeploy);
         }
         if (!this.util.isNullOrEmpty(this.appSourcePath) && this.useCliToBuildAndPushImage) {
-            this.commandLineArgs.push("--source ".concat(this.appSourcePath));
+            this.commandLineArgs.push("--source " + this.appSourcePath);
         }
     };
     /**
@@ -4681,7 +4681,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     function verb(n) { return function (v) { return step([n, v]); }; }
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
-        while (g && (g = 0, op[0] && (_ = 0)), _) try {
+        while (_) try {
             if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
             if (y = 0, t) op = [op[0] & 2, t.value];
             switch (op[0]) {
@@ -4702,7 +4702,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.__esModule = true;
 exports.ContainerAppHelper = void 0;
 var path = __nccwpck_require__(1017);
 var os = __nccwpck_require__(2037);
@@ -4735,13 +4735,13 @@ var ContainerAppHelper = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        toolHelper.writeDebug("Attempting to create Container App with name \"".concat(containerAppName, "\" in resource group \"").concat(resourceGroup, "\""));
+                        toolHelper.writeDebug("Attempting to create Container App with name \"" + containerAppName + "\" in resource group \"" + resourceGroup + "\"");
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
-                        command_1 = "az containerapp create -n ".concat(containerAppName, " -g ").concat(resourceGroup, " --environment ").concat(environment, " --output none");
+                        command_1 = "az containerapp create -n " + containerAppName + " -g " + resourceGroup + " --environment " + environment + " --output none";
                         optionalCmdArgs.forEach(function (val) {
-                            command_1 += " ".concat(val);
+                            command_1 += " " + val;
                         });
                         return [4 /*yield*/, util.execute(command_1)];
                     case 2:
@@ -4768,13 +4768,13 @@ var ContainerAppHelper = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        toolHelper.writeDebug("Attempting to create Container App with name \"".concat(containerAppName, "\" in resource group \"").concat(resourceGroup, "\""));
+                        toolHelper.writeDebug("Attempting to create Container App with name \"" + containerAppName + "\" in resource group \"" + resourceGroup + "\"");
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
-                        command_2 = "az containerapp up -n ".concat(containerAppName, " -g ").concat(resourceGroup, " -l northcentralusstage");
+                        command_2 = "az containerapp up -n " + containerAppName + " -g " + resourceGroup + " -l northcentralusstage";
                         optionalCmdArgs.forEach(function (val) {
-                            command_2 += " ".concat(val);
+                            command_2 += " " + val;
                         });
                         return [4 /*yield*/, util.execute(command_2)];
                     case 2:
@@ -4801,11 +4801,11 @@ var ContainerAppHelper = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        toolHelper.writeDebug("Attempting to create Container App with name \"".concat(containerAppName, "\" in resource group \"").concat(resourceGroup, "\" from provided YAML \"").concat(yamlConfigPath, "\""));
+                        toolHelper.writeDebug("Attempting to create Container App with name \"" + containerAppName + "\" in resource group \"" + resourceGroup + "\" from provided YAML \"" + yamlConfigPath + "\"");
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
-                        command = "az containerapp create -n ".concat(containerAppName, " -g ").concat(resourceGroup, " --yaml ").concat(yamlConfigPath, " --output none");
+                        command = "az containerapp create -n " + containerAppName + " -g " + resourceGroup + " --yaml " + yamlConfigPath + " --output none";
                         return [4 /*yield*/, util.execute(command)];
                     case 2:
                         _a.sent();
@@ -4831,13 +4831,13 @@ var ContainerAppHelper = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        toolHelper.writeDebug("Attempting to update Container App with name \"".concat(containerAppName, "\" in resource group \"").concat(resourceGroup, "\" "));
+                        toolHelper.writeDebug("Attempting to update Container App with name \"" + containerAppName + "\" in resource group \"" + resourceGroup + "\" ");
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
-                        command_3 = "az containerapp update -n ".concat(containerAppName, " -g ").concat(resourceGroup, " --output none");
+                        command_3 = "az containerapp update -n " + containerAppName + " -g " + resourceGroup + " --output none";
                         optionalCmdArgs.forEach(function (val) {
-                            command_3 += " ".concat(val);
+                            command_3 += " " + val;
                         });
                         return [4 /*yield*/, util.execute(command_3)];
                     case 2:
@@ -4866,19 +4866,19 @@ var ContainerAppHelper = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        toolHelper.writeDebug("Attempting to update Container App with name \"".concat(containerAppName, "\" in resource group \"").concat(resourceGroup, "\""));
+                        toolHelper.writeDebug("Attempting to update Container App with name \"" + containerAppName + "\" in resource group \"" + resourceGroup + "\"");
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
-                        command_4 = "az containerapp up -n ".concat(containerAppName, " -g ").concat(resourceGroup);
+                        command_4 = "az containerapp up -n " + containerAppName + " -g " + resourceGroup;
                         optionalCmdArgs.forEach(function (val) {
-                            command_4 += " ".concat(val);
+                            command_4 += " " + val;
                         });
                         if (!util.isNullOrEmpty(ingress)) {
-                            command_4 += " --ingress ".concat(ingress);
+                            command_4 += " --ingress " + ingress;
                         }
                         if (!util.isNullOrEmpty(targetPort)) {
-                            command_4 += " --target-port ".concat(targetPort);
+                            command_4 += " --target-port " + targetPort;
                         }
                         return [4 /*yield*/, util.execute(command_4)];
                     case 2:
@@ -4905,11 +4905,11 @@ var ContainerAppHelper = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        toolHelper.writeDebug("Attempting to update Container App with name \"".concat(containerAppName, "\" in resource group \"").concat(resourceGroup, "\" from provided YAML \"").concat(yamlConfigPath, "\""));
+                        toolHelper.writeDebug("Attempting to update Container App with name \"" + containerAppName + "\" in resource group \"" + resourceGroup + "\" from provided YAML \"" + yamlConfigPath + "\"");
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
-                        command = "az containerapp update -n ".concat(containerAppName, " -g ").concat(resourceGroup, " --yaml ").concat(yamlConfigPath, " --output none");
+                        command = "az containerapp update -n " + containerAppName + " -g " + resourceGroup + " --yaml " + yamlConfigPath + " --output none";
                         return [4 /*yield*/, util.execute(command)];
                     case 2:
                         _a.sent();
@@ -4935,11 +4935,11 @@ var ContainerAppHelper = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        toolHelper.writeDebug("Attempting to determine if Container App with name \"".concat(containerAppName, "\" exists in resource group \"").concat(resourceGroup, "\""));
+                        toolHelper.writeDebug("Attempting to determine if Container App with name \"" + containerAppName + "\" exists in resource group \"" + resourceGroup + "\"");
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
-                        command = "az containerapp show -n ".concat(containerAppName, " -g ").concat(resourceGroup, " -o none");
+                        command = "az containerapp show -n " + containerAppName + " -g " + resourceGroup + " -o none";
                         return [4 /*yield*/, util.execute(command)];
                     case 2:
                         executionResult = _a.sent();
@@ -4965,11 +4965,11 @@ var ContainerAppHelper = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        toolHelper.writeDebug("Attempting to determine if Container App Environment with name \"".concat(containerAppEnvironment, "\" exists in resource group \"").concat(resourceGroup, "\""));
+                        toolHelper.writeDebug("Attempting to determine if Container App Environment with name \"" + containerAppEnvironment + "\" exists in resource group \"" + resourceGroup + "\"");
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
-                        command = "az containerapp env show -n ".concat(containerAppEnvironment, " -g ").concat(resourceGroup, " -o none");
+                        command = "az containerapp env show -n " + containerAppEnvironment + " -g " + resourceGroup + " -o none";
                         return [4 /*yield*/, util.execute(command)];
                     case 2:
                         executionResult = _a.sent();
@@ -4994,11 +4994,11 @@ var ContainerAppHelper = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        toolHelper.writeDebug("Attempting to determine if resource group \"".concat(resourceGroup, "\" exists"));
+                        toolHelper.writeDebug("Attempting to determine if resource group \"" + resourceGroup + "\" exists");
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
-                        command = "az group show -n ".concat(resourceGroup, " -o none");
+                        command = "az group show -n " + resourceGroup + " -o none";
                         return [4 /*yield*/, util.execute(command)];
                     case 2:
                         executionResult = _a.sent();
@@ -5052,11 +5052,11 @@ var ContainerAppHelper = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        toolHelper.writeDebug("Attempting to create resource group \"".concat(name, "\" in location \"").concat(location, "\""));
+                        toolHelper.writeDebug("Attempting to create resource group \"" + name + "\" in location \"" + location + "\"");
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
-                        command = "az group create -n ".concat(name, " -l ").concat(location);
+                        command = "az group create -n " + name + " -l " + location;
                         return [4 /*yield*/, util.execute(command)];
                     case 2:
                         _a.sent();
@@ -5081,11 +5081,11 @@ var ContainerAppHelper = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        toolHelper.writeDebug("Attempting to get the existing Container App Environment in resource group \"".concat(resourceGroup, "\""));
+                        toolHelper.writeDebug("Attempting to get the existing Container App Environment in resource group \"" + resourceGroup + "\"");
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
-                        command = "az containerapp env list -g ".concat(resourceGroup, " --query \"[0].name\"");
+                        command = "az containerapp env list -g " + resourceGroup + " --query \"[0].name\"";
                         return [4 /*yield*/, util.execute(command)];
                     case 2:
                         executionResult = _a.sent();
@@ -5112,13 +5112,13 @@ var ContainerAppHelper = /** @class */ (function () {
                 switch (_a.label) {
                     case 0:
                         util = new Utility_1.Utility();
-                        toolHelper.writeDebug("Attempting to create Container App Environment with name \"".concat(name, "\" in resource group \"").concat(resourceGroup, "\""));
+                        toolHelper.writeDebug("Attempting to create Container App Environment with name \"" + name + "\" in resource group \"" + resourceGroup + "\"");
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
-                        command = "az containerapp env create -n ".concat(name, " -g ").concat(resourceGroup);
+                        command = "az containerapp env create -n " + name + " -g " + resourceGroup;
                         if (!util.isNullOrEmpty(location)) {
-                            command += " -l ".concat(location);
+                            command += " -l " + location;
                         }
                         return [4 /*yield*/, util.execute(command)];
                     case 2:
@@ -5144,11 +5144,11 @@ var ContainerAppHelper = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        toolHelper.writeDebug("Attempting to disable ingress for Container App with name \"".concat(name, "\" in resource group \"").concat(resourceGroup, "\""));
+                        toolHelper.writeDebug("Attempting to disable ingress for Container App with name \"" + name + "\" in resource group \"" + resourceGroup + "\"");
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
-                        command = "az containerapp ingress disable -n ".concat(name, " -g ").concat(resourceGroup);
+                        command = "az containerapp ingress disable -n " + name + " -g " + resourceGroup;
                         return [4 /*yield*/, util.execute(command)];
                     case 2:
                         _a.sent();
@@ -5176,11 +5176,11 @@ var ContainerAppHelper = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        toolHelper.writeDebug("Attempting to set the Container Registry details for Container App with name \"".concat(name, "\" in resource group \"").concat(resourceGroup, "\""));
+                        toolHelper.writeDebug("Attempting to set the Container Registry details for Container App with name \"" + name + "\" in resource group \"" + resourceGroup + "\"");
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
-                        command = "az containerapp registry set -n ".concat(name, " -g ").concat(resourceGroup, " --server ").concat(registryUrl, " --username ").concat(registryUsername, " --password ").concat(registryPassword);
+                        command = "az containerapp registry set -n " + name + " -g " + resourceGroup + " --server " + registryUrl + " --username " + registryUsername + " --password " + registryPassword;
                         return [4 /*yield*/, util.execute(command)];
                     case 2:
                         _a.sent();
@@ -5214,28 +5214,28 @@ var ContainerAppHelper = /** @class */ (function () {
                         couldBuildImage = false;
                         _loop_1 = function (builderImage) {
                             var command_5, err_16;
-                            return __generator(this, function (_b) {
-                                switch (_b.label) {
+                            return __generator(this, function (_a) {
+                                switch (_a.label) {
                                     case 0:
                                         if (!util.isNullOrEmpty(builderStack) && !builderImage.includes(builderStack)) {
                                             return [2 /*return*/, "continue"];
                                         }
-                                        toolHelper.writeDebug("Attempting to create a runnable application image with name \"".concat(imageToDeploy, "\" using the Oryx++ Builder \"").concat(builderImage, "\""));
-                                        _b.label = 1;
+                                        toolHelper.writeDebug("Attempting to create a runnable application image with name \"" + imageToDeploy + "\" using the Oryx++ Builder \"" + builderImage + "\"");
+                                        _a.label = 1;
                                     case 1:
-                                        _b.trys.push([1, 3, , 4]);
-                                        command_5 = "build ".concat(imageToDeploy, " --path ").concat(appSourcePath, " --builder ").concat(builderImage, " --env ").concat(telemetryArg);
+                                        _a.trys.push([1, 3, , 4]);
+                                        command_5 = "build " + imageToDeploy + " --path " + appSourcePath + " --builder " + builderImage + " --env " + telemetryArg;
                                         environmentVariables.forEach(function (envVar) {
-                                            command_5 += " --env ".concat(envVar);
+                                            command_5 += " --env " + envVar;
                                         });
-                                        return [4 /*yield*/, util.execute("".concat(PACK_CMD, " ").concat(command_5))];
+                                        return [4 /*yield*/, util.execute(PACK_CMD + " " + command_5)];
                                     case 2:
-                                        _b.sent();
+                                        _a.sent();
                                         couldBuildImage = true;
                                         return [2 /*return*/, "break"];
                                     case 3:
-                                        err_16 = _b.sent();
-                                        toolHelper.writeWarning("Unable to run 'pack build' command to produce runnable application image: ".concat(err_16.message));
+                                        err_16 = _a.sent();
+                                        toolHelper.writeWarning("Unable to run 'pack build' command to produce runnable application image: " + err_16.message);
                                         return [3 /*break*/, 4];
                                     case 4: return [2 /*return*/];
                                 }
@@ -5281,15 +5281,15 @@ var ContainerAppHelper = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        toolHelper.writeDebug("Attempting to create a runnable application image from the provided/found Dockerfile \"".concat(dockerfilePath, "\" with image name \"").concat(imageToDeploy, "\""));
+                        toolHelper.writeDebug("Attempting to create a runnable application image from the provided/found Dockerfile \"" + dockerfilePath + "\" with image name \"" + imageToDeploy + "\"");
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
-                        command = "docker build --file ".concat(dockerfilePath, " ").concat(appSourcePath, " --tag ").concat(imageToDeploy);
+                        command = "docker build --file " + dockerfilePath + " " + appSourcePath + " --tag " + imageToDeploy;
                         return [4 /*yield*/, util.execute(command)];
                     case 2:
                         _a.sent();
-                        toolHelper.writeDebug("Successfully created runnable application image from the provided/found Dockerfile \"".concat(dockerfilePath, "\" with image name \"").concat(imageToDeploy, "\""));
+                        toolHelper.writeDebug("Successfully created runnable application image from the provided/found Dockerfile \"" + dockerfilePath + "\" with image name \"" + imageToDeploy + "\"");
                         return [3 /*break*/, 4];
                     case 3:
                         err_17 = _a.sent();
@@ -5315,7 +5315,7 @@ var ContainerAppHelper = /** @class */ (function () {
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
-                        command = "docker run --rm -v ".concat(appSourcePath, ":/app ").concat(ORYX_CLI_IMAGE, " /bin/bash -c \"oryx dockerfile /app | head -n 1 | sed 's/ARG RUNTIME=//' >> /app/oryx-runtime.txt\"");
+                        command = "docker run --rm -v " + appSourcePath + ":/app " + ORYX_CLI_IMAGE + " /bin/bash -c \"oryx dockerfile /app | head -n 1 | sed 's/ARG RUNTIME=//' >> /app/oryx-runtime.txt\"";
                         return [4 /*yield*/, util.execute(command)
                             // Read the temp file to get the runtime stack into a variable
                         ];
@@ -5325,14 +5325,14 @@ var ContainerAppHelper = /** @class */ (function () {
                         runtimeStack = fs.promises.readFile(oryxRuntimeTxtPath_1, 'utf8').then(function (data) {
                             var lines = data.split('\n');
                             return lines[0];
-                        }).catch(function (err) {
+                        })["catch"](function (err) {
                             toolHelper.writeError(err.message);
                             throw err;
                         });
                         // Delete the temp file
                         fs.unlink(oryxRuntimeTxtPath_1, function (err) {
                             if (err) {
-                                toolHelper.writeWarning("Unable to delete the temporary file \"".concat(oryxRuntimeTxtPath_1, "\". Error: ").concat(err.message));
+                                toolHelper.writeWarning("Unable to delete the temporary file \"" + oryxRuntimeTxtPath_1 + "\". Error: " + err.message);
                             }
                         });
                         return [2 /*return*/, runtimeStack];
@@ -5359,8 +5359,8 @@ var ContainerAppHelper = /** @class */ (function () {
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
-                        command = "config default-builder ".concat(ORYX_BUILDER_IMAGES[0]);
-                        return [4 /*yield*/, util.execute("".concat(PACK_CMD, " ").concat(command))];
+                        command = "config default-builder " + ORYX_BUILDER_IMAGES[0];
+                        return [4 /*yield*/, util.execute(PACK_CMD + " " + command)];
                     case 2:
                         _a.sent();
                         return [3 /*break*/, 4];
@@ -5392,22 +5392,22 @@ var ContainerAppHelper = /** @class */ (function () {
                         if (IS_WINDOWS_AGENT) {
                             packZipDownloadUri = 'https://github.com/buildpacks/pack/releases/download/v0.31.0/pack-v0.31.0-windows.zip';
                             packZipDownloadFilePath = path.join(PACK_CMD, 'pack-windows.zip');
-                            command = "New-Item -ItemType Directory -Path ".concat(PACK_CMD, " -Force | Out-Null; Invoke-WebRequest -Uri ").concat(packZipDownloadUri, " -OutFile ").concat(packZipDownloadFilePath, "; Expand-Archive -LiteralPath ").concat(packZipDownloadFilePath, " -DestinationPath ").concat(PACK_CMD, "; Remove-Item -Path ").concat(packZipDownloadFilePath);
+                            command = "New-Item -ItemType Directory -Path " + PACK_CMD + " -Force | Out-Null; Invoke-WebRequest -Uri " + packZipDownloadUri + " -OutFile " + packZipDownloadFilePath + "; Expand-Archive -LiteralPath " + packZipDownloadFilePath + " -DestinationPath " + PACK_CMD + "; Remove-Item -Path " + packZipDownloadFilePath;
                             commandLine = 'pwsh';
                         }
                         else {
                             tgzSuffix = os.platform() == 'darwin' ? 'macos' : 'linux';
-                            command = "(curl -sSL \"https://github.com/buildpacks/pack/releases/download/v0.31.0/pack-v0.31.0-".concat(tgzSuffix, ".tgz\" | ") +
+                            command = "(curl -sSL \"https://github.com/buildpacks/pack/releases/download/v0.31.0/pack-v0.31.0-" + tgzSuffix + ".tgz\" | " +
                                 'tar -C /usr/local/bin/ --no-same-owner -xzv pack)';
                             commandLine = 'bash';
                         }
-                        return [4 /*yield*/, util.execute("".concat(commandLine, " -c \"").concat(command, "\""))];
+                        return [4 /*yield*/, util.execute(commandLine + " -c \"" + command + "\"")];
                     case 2:
                         _a.sent();
                         return [3 /*break*/, 4];
                     case 3:
                         err_20 = _a.sent();
-                        toolHelper.writeError("Unable to install the pack CLI. Error: ".concat(err_20.message));
+                        toolHelper.writeError("Unable to install the pack CLI. Error: " + err_20.message);
                         throw err_20;
                     case 4: return [2 /*return*/];
                 }
@@ -5427,14 +5427,14 @@ var ContainerAppHelper = /** @class */ (function () {
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
-                        command = "".concat(PACK_CMD, " config experimental true");
+                        command = PACK_CMD + " config experimental true";
                         return [4 /*yield*/, util.execute(command)];
                     case 2:
                         _a.sent();
                         return [3 /*break*/, 4];
                     case 3:
                         err_21 = _a.sent();
-                        toolHelper.writeError("Unable to enable experimental features for the pack CLI: ".concat(err_21.message));
+                        toolHelper.writeError("Unable to enable experimental features for the pack CLI: " + err_21.message);
                         throw err_21;
                     case 4: return [2 /*return*/];
                 }
@@ -5468,7 +5468,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     function verb(n) { return function (v) { return step([n, v]); }; }
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
-        while (g && (g = 0, op[0] && (_ = 0)), _) try {
+        while (_) try {
             if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
             if (y = 0, t) op = [op[0] & 2, t.value];
             switch (op[0]) {
@@ -5489,7 +5489,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.__esModule = true;
 exports.ContainerRegistryHelper = void 0;
 var os = __nccwpck_require__(2037);
 var Utility_1 = __nccwpck_require__(2135);
@@ -5511,17 +5511,17 @@ var ContainerRegistryHelper = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        toolHelper.writeDebug("Attempting to log in to Container Registry instance\"".concat(registryUrl, "\" with username and password credentials"));
+                        toolHelper.writeDebug("Attempting to log in to Container Registry instance\"" + registryUrl + "\" with username and password credentials");
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
-                        return [4 /*yield*/, util.execute("docker login --password-stdin --username ".concat(registryUsername, " ").concat(registryUrl), [], Buffer.from(registryPassword))];
+                        return [4 /*yield*/, util.execute("docker login --password-stdin --username " + registryUsername + " " + registryUrl, [], Buffer.from(registryPassword))];
                     case 2:
                         _a.sent();
                         return [3 /*break*/, 4];
                     case 3:
                         err_1 = _a.sent();
-                        toolHelper.writeError("Failed to log in to Container Registry instance \"".concat(registryUrl, "\" with username and password credentials"));
+                        toolHelper.writeError("Failed to log in to Container Registry instance \"" + registryUrl + "\" with username and password credentials");
                         throw err_1;
                     case 4: return [2 /*return*/];
                 }
@@ -5539,18 +5539,18 @@ var ContainerRegistryHelper = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        toolHelper.writeDebug("Attempting to log in to ACR instance \"".concat(acrName, "\" with access token"));
+                        toolHelper.writeDebug("Attempting to log in to ACR instance \"" + acrName + "\" with access token");
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
                         commandLine = os.platform() === 'win32' ? 'pwsh' : 'bash';
-                        return [4 /*yield*/, util.execute("".concat(commandLine, " -c \"CA_ADO_TASK_ACR_ACCESS_TOKEN=$(az acr login --name ").concat(acrName, " --output json --expose-token --only-show-errors | jq -r '.accessToken'); docker login ").concat(acrName, ".azurecr.io -u 00000000-0000-0000-0000-000000000000 -p $CA_ADO_TASK_ACR_ACCESS_TOKEN > /dev/null 2>&1\""))];
+                        return [4 /*yield*/, util.execute(commandLine + " -c \"CA_ADO_TASK_ACR_ACCESS_TOKEN=$(az acr login --name " + acrName + " --output json --expose-token --only-show-errors | jq -r '.accessToken'); docker login " + acrName + ".azurecr.io -u 00000000-0000-0000-0000-000000000000 -p $CA_ADO_TASK_ACR_ACCESS_TOKEN > /dev/null 2>&1\"")];
                     case 2:
                         _a.sent();
                         return [3 /*break*/, 4];
                     case 3:
                         err_2 = _a.sent();
-                        toolHelper.writeError("Failed to log in to ACR instance \"".concat(acrName, "\" with access token"));
+                        toolHelper.writeError("Failed to log in to ACR instance \"" + acrName + "\" with access token");
                         throw err_2;
                     case 4: return [2 /*return*/];
                 }
@@ -5567,17 +5567,17 @@ var ContainerRegistryHelper = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        toolHelper.writeDebug("Attempting to push image \"".concat(imageToPush, "\" to Container Registry"));
+                        toolHelper.writeDebug("Attempting to push image \"" + imageToPush + "\" to Container Registry");
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
-                        return [4 /*yield*/, util.execute("docker push ".concat(imageToPush))];
+                        return [4 /*yield*/, util.execute("docker push " + imageToPush)];
                     case 2:
                         _a.sent();
                         return [3 /*break*/, 4];
                     case 3:
                         err_3 = _a.sent();
-                        toolHelper.writeError("Failed to push image \"".concat(imageToPush, "\" to Container Registry. Error: ").concat(err_3.message));
+                        toolHelper.writeError("Failed to push image \"" + imageToPush + "\" to Container Registry. Error: " + err_3.message);
                         throw err_3;
                     case 4: return [2 /*return*/];
                 }
@@ -5611,7 +5611,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     function verb(n) { return function (v) { return step([n, v]); }; }
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
-        while (g && (g = 0, op[0] && (_ = 0)), _) try {
+        while (_) try {
             if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
             if (y = 0, t) op = [op[0] & 2, t.value];
             switch (op[0]) {
@@ -5632,7 +5632,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.__esModule = true;
 exports.GitHubActionsToolHelper = void 0;
 var core = __nccwpck_require__(3195);
 var io = __nccwpck_require__(9529);
@@ -5674,7 +5674,7 @@ var GitHubActionsToolHelper = /** @class */ (function () {
                                 },
                                 stderr: function (data) {
                                     stderr_1 += data.toString();
-                                },
+                                }
                             },
                             input: inputOptions
                         };
@@ -5710,10 +5710,10 @@ var GitHubActionsToolHelper = /** @class */ (function () {
         return io.which(tool, check);
     };
     GitHubActionsToolHelper.prototype.getDefaultContainerAppName = function (containerAppName) {
-        containerAppName = "gh-action-app-".concat(this.getBuildId(), "-").concat(this.getBuildNumber());
+        containerAppName = "gh-action-app-" + this.getBuildId() + "-" + this.getBuildNumber();
         // Replace all '.' characters with '-' characters in the Container App name
         containerAppName = containerAppName.replace(/\./gi, "-");
-        this.writeInfo("Default Container App name: ".concat(containerAppName));
+        this.writeInfo("Default Container App name: " + containerAppName);
         return containerAppName;
     };
     GitHubActionsToolHelper.prototype.getTelemetryArg = function () {
@@ -5752,7 +5752,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     function verb(n) { return function (v) { return step([n, v]); }; }
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
-        while (g && (g = 0, op[0] && (_ = 0)), _) try {
+        while (_) try {
             if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
             if (y = 0, t) op = [op[0] & 2, t.value];
             switch (op[0]) {
@@ -5773,7 +5773,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.__esModule = true;
 exports.TelemetryHelper = void 0;
 var Utility_1 = __nccwpck_require__(2135);
 var GitHubActionsToolHelper_1 = __nccwpck_require__(3185);
@@ -5838,24 +5838,24 @@ var TelemetryHelper = /** @class */ (function () {
                         _a.trys.push([1, 3, , 4]);
                         resultArg = '';
                         if (!util.isNullOrEmpty(this.result)) {
-                            resultArg = "--property result=".concat(this.result);
+                            resultArg = "--property result=" + this.result;
                         }
                         scenarioArg = '';
                         if (!util.isNullOrEmpty(this.scenario)) {
-                            scenarioArg = "--property scenario=".concat(this.scenario);
+                            scenarioArg = "--property scenario=" + this.scenario;
                         }
                         errorMessageArg = '';
                         if (!util.isNullOrEmpty(this.errorMessage)) {
-                            errorMessageArg = "--property errorMessage=".concat(this.errorMessage);
+                            errorMessageArg = "--property errorMessage=" + this.errorMessage;
                         }
                         eventName = toolHelper.getEventName();
-                        return [4 /*yield*/, util.execute("docker run --rm ".concat(ORYX_CLI_IMAGE, " /bin/bash -c \"oryx telemetry --event-name ").concat(eventName, " --processing-time ").concat(taskLengthMilliseconds, " ").concat(resultArg, " ").concat(scenarioArg, " ").concat(errorMessageArg, "\""))];
+                        return [4 /*yield*/, util.execute("docker run --rm " + ORYX_CLI_IMAGE + " /bin/bash -c \"oryx telemetry --event-name " + eventName + " --processing-time " + taskLengthMilliseconds + " " + resultArg + " " + scenarioArg + " " + errorMessageArg + "\"")];
                     case 2:
                         _a.sent();
                         return [3 /*break*/, 4];
                     case 3:
                         err_1 = _a.sent();
-                        toolHelper.writeWarning("Skipping telemetry logging due to the following exception: ".concat(err_1.message));
+                        toolHelper.writeWarning("Skipping telemetry logging due to the following exception: " + err_1.message);
                         return [3 /*break*/, 4];
                     case 4: return [2 /*return*/];
                 }
@@ -5889,7 +5889,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     function verb(n) { return function (v) { return step([n, v]); }; }
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
-        while (g && (g = 0, op[0] && (_ = 0)), _) try {
+        while (_) try {
             if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
             if (y = 0, t) op = [op[0] & 2, t.value];
             switch (op[0]) {
@@ -5910,7 +5910,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.__esModule = true;
 exports.Utility = void 0;
 // Note: This file is used to define utility functions that can be used across the project.
 var GitHubActionsToolHelper_1 = __nccwpck_require__(3185);
@@ -5940,7 +5940,7 @@ var Utility = /** @class */ (function () {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.execute("az extension add --name containerapp --upgrade")];
+                    case 0: return [4 /*yield*/, this.execute("az extension add --name containerapp --version 0.3.43")];
                     case 1:
                         _a.sent();
                         return [2 /*return*/];
