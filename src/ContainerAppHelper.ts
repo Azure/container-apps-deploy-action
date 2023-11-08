@@ -100,10 +100,11 @@ export class ContainerAppHelper {
         optionalCmdArgs: string[]) {
         toolHelper.writeDebug(`Attempting to update Container App with name "${containerAppName}" in resource group "${resourceGroup}" `);
         try {
-            let command = `az containerapp update -n ${containerAppName} -g ${resourceGroup} --output none`;
+            let command = `az containerapp update -n ${containerAppName} -g ${resourceGroup}`;
             optionalCmdArgs.forEach(function (val: string) {
                 command += ` ${val}`;
             });
+            command += ` --output none`;
             await util.execute(command);
         } catch (err) {
             toolHelper.writeError(err.message);

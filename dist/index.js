@@ -4835,10 +4835,11 @@ var ContainerAppHelper = /** @class */ (function () {
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
-                        command_3 = "az containerapp update -n " + containerAppName + " -g " + resourceGroup + " --output none";
+                        command_3 = "az containerapp update -n " + containerAppName + " -g " + resourceGroup;
                         optionalCmdArgs.forEach(function (val) {
                             command_3 += " " + val;
                         });
+                        command_3 += " --output none";
                         return [4 /*yield*/, util.execute(command_3)];
                     case 2:
                         _a.sent();
