@@ -542,9 +542,9 @@ export class azurecontainerapps {
         //     this.commandLineArgs.push(`-i ${this.imageToDeploy}`);
         // }
 
-        if (!this.util.isNullOrEmpty(this.appSourcePath) && this.useCliToBuildAndPushImage) {
-            this.commandLineArgs.push(`--source ${this.appSourcePath}`);
-        }
+        // if (!this.util.isNullOrEmpty(this.appSourcePath) && this.useCliToBuildAndPushImage) {
+        //     this.commandLineArgs.push(`--source ${this.appSourcePath}`);
+        // }
     }
 
     /**
@@ -580,7 +580,7 @@ export class azurecontainerapps {
             }
 
             // Update the Container App using the 'update' command
-            await this.appHelper.updateContainerApp(this.containerAppName, this.resourceGroup, this.commandLineArgs);
+            await this.appHelper.updateContainerApp(this.containerAppName, this.resourceGroup, this.imageToDeploy, this.commandLineArgs);
         } else if (createOrUpdateContainerAppWithUp) {
             await this.appHelper.createOrUpdateContainerAppWithUp(this.containerAppName, this.resourceGroup, this.commandLineArgs);
         } else {

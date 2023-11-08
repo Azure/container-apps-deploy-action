@@ -618,9 +618,9 @@ var azurecontainerapps = /** @class */ (function () {
         // if (!this.imageToDeploy.startsWith(this.defaultRegistryServer)) {
         //     this.commandLineArgs.push(`-i ${this.imageToDeploy}`);
         // }
-        if (!this.util.isNullOrEmpty(this.appSourcePath) && this.useCliToBuildAndPushImage) {
-            this.commandLineArgs.push("--source " + this.appSourcePath);
-        }
+        // if (!this.util.isNullOrEmpty(this.appSourcePath) && this.useCliToBuildAndPushImage) {
+        //     this.commandLineArgs.push(`--source ${this.appSourcePath}`);
+        // }
     };
     /**
      * Creates or updates the Container App.
@@ -671,7 +671,7 @@ var azurecontainerapps = /** @class */ (function () {
                         _a.label = 11;
                     case 11: 
                     // Update the Container App using the 'update' command
-                    return [4 /*yield*/, this.appHelper.updateContainerApp(this.containerAppName, this.resourceGroup, this.commandLineArgs)];
+                    return [4 /*yield*/, this.appHelper.updateContainerApp(this.containerAppName, this.resourceGroup, this.imageToDeploy, this.commandLineArgs)];
                     case 12:
                         // Update the Container App using the 'update' command
                         _a.sent();
@@ -4825,7 +4825,7 @@ var ContainerAppHelper = /** @class */ (function () {
      * @param resourceGroup - the resource group that the existing Container App is found in
      * @param optionalCmdArgs - a set of optional command line arguments
      */
-    ContainerAppHelper.prototype.updateContainerApp = function (containerAppName, resourceGroup, optionalCmdArgs) {
+    ContainerAppHelper.prototype.updateContainerApp = function (containerAppName, resourceGroup, imageToDeploy, optionalCmdArgs) {
         return __awaiter(this, void 0, void 0, function () {
             var command_3, err_4;
             return __generator(this, function (_a) {
@@ -4835,7 +4835,7 @@ var ContainerAppHelper = /** @class */ (function () {
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
-                        command_3 = "az containerapp update -n " + containerAppName + " -g " + resourceGroup;
+                        command_3 = "az containerapp update -n " + containerAppName + " -g " + resourceGroup + " -i " + imageToDeploy;
                         optionalCmdArgs.forEach(function (val) {
                             command_3 += " " + val;
                         });
