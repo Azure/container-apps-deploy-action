@@ -538,9 +538,9 @@ export class azurecontainerapps {
             }
         }
 
-        if (!this.imageToDeploy.startsWith(this.defaultRegistryServer)) {
-            this.commandLineArgs.push(`-i ${this.imageToDeploy}`);
-        }
+        // if (!this.imageToDeploy.startsWith(this.defaultRegistryServer)) {
+        //     this.commandLineArgs.push(`-i ${this.imageToDeploy}`);
+        // }
 
         if (!this.util.isNullOrEmpty(this.appSourcePath) && this.useCliToBuildAndPushImage) {
             this.commandLineArgs.push(`--source ${this.appSourcePath}`);
