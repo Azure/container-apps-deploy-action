@@ -4839,7 +4839,7 @@ var ContainerAppHelper = /** @class */ (function () {
                         optionalCmdArgs.forEach(function (val) {
                             command_3 += " " + val;
                         });
-                        command_3 += " --output none";
+                        command_3 += " --output none --debug";
                         return [4 /*yield*/, util.execute(command_3)];
                     case 2:
                         _a.sent();

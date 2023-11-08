@@ -104,7 +104,7 @@ export class ContainerAppHelper {
             optionalCmdArgs.forEach(function (val: string) {
                 command += ` ${val}`;
             });
-            command += ` --output none`;
+            command += ` --output none --debug`;
             await util.execute(command);
         } catch (err) {
             toolHelper.writeError(err.message);
