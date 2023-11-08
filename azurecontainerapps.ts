@@ -41,7 +41,7 @@ export class azurecontainerapps {
             this.useCliToBuildAndPushImage = (useAzureContainerRegistry || this.useInternalRegistry);
 
             // If the application source was provided, build a runnable application image from it
-            if (!this.useCliToBuildAndPushImage && !this.util.isNullOrEmpty(this.appSourcePath)) {
+            if (!this.useInternalRegistry && !this.util.isNullOrEmpty(this.appSourcePath)) {
                 await this.buildAndPushImageAsync();
             }
 
@@ -538,9 +538,9 @@ export class azurecontainerapps {
             }
         }
 
-        // if (!this.imageToDeploy.startsWith(this.defaultRegistryServer)) {
-        //     this.commandLineArgs.push(`-i ${this.imageToDeploy}`);
-        // }
+        if (!this.imageToDeploy.startsWith(this.defaultRegistryServer)) {
+            this.commandLineArgs.push(`-i ${this.imageToDeploy}`);
+        }
 
         // if (!this.util.isNullOrEmpty(this.appSourcePath) && this.useCliToBuildAndPushImage) {
         //     this.commandLineArgs.push(`--source ${this.appSourcePath}`);
@@ -580,7 +580,7 @@ export class azurecontainerapps {
             }
 
             // Update the Container App using the 'update' command
-            await this.appHelper.updateContainerApp(this.containerAppName, this.resourceGroup, this.imageToDeploy, this.commandLineArgs);
+            await this.appHelper.updateContainerApp(this.containerAppName, this.resourceGroup, this.commandLineArgs);
         } else if (createOrUpdateContainerAppWithUp) {
             await this.appHelper.createOrUpdateContainerAppWithUp(this.containerAppName, this.resourceGroup, this.commandLineArgs);
         } else {

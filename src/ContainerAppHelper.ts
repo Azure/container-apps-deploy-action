@@ -97,11 +97,10 @@ export class ContainerAppHelper {
     public async updateContainerApp(
         containerAppName: string,
         resourceGroup: string,
-        imageToDeploy: string,
         optionalCmdArgs: string[]) {
         toolHelper.writeDebug(`Attempting to update Container App with name "${containerAppName}" in resource group "${resourceGroup}" `);
         try {
-            let command = `az containerapp update -n ${containerAppName} -g ${resourceGroup} -i ${imageToDeploy}`;
+            let command = `az containerapp update -n ${containerAppName} -g ${resourceGroup}`;
             optionalCmdArgs.forEach(function (val: string) {
                 command += ` ${val}`;
             });

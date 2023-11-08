@@ -94,7 +94,7 @@ var azurecontainerapps = /** @class */ (function () {
                         this.useInternalRegistry = this.util.isNullOrEmpty(this.registryUrl) && this.imageToBuild.startsWith(this.defaultRegistryServer);
                         // Determine if the image should be built and pushed using the CLI
                         this.useCliToBuildAndPushImage = (useAzureContainerRegistry || this.useInternalRegistry);
-                        if (!(!this.useCliToBuildAndPushImage && !this.util.isNullOrEmpty(this.appSourcePath))) return [3 /*break*/, 9];
+                        if (!(!this.useInternalRegistry && !this.util.isNullOrEmpty(this.appSourcePath))) return [3 /*break*/, 9];
                         return [4 /*yield*/, this.buildAndPushImageAsync()];
                     case 8:
                         _a.sent();
@@ -615,9 +615,9 @@ var azurecontainerapps = /** @class */ (function () {
                 this.commandLineArgs.push("--env-vars " + environmentVariables);
             }
         }
-        // if (!this.imageToDeploy.startsWith(this.defaultRegistryServer)) {
-        //     this.commandLineArgs.push(`-i ${this.imageToDeploy}`);
-        // }
+        if (!this.imageToDeploy.startsWith(this.defaultRegistryServer)) {
+            this.commandLineArgs.push("-i " + this.imageToDeploy);
+        }
         // if (!this.util.isNullOrEmpty(this.appSourcePath) && this.useCliToBuildAndPushImage) {
         //     this.commandLineArgs.push(`--source ${this.appSourcePath}`);
         // }
@@ -671,7 +671,7 @@ var azurecontainerapps = /** @class */ (function () {
                         _a.label = 11;
                     case 11: 
                     // Update the Container App using the 'update' command
-                    return [4 /*yield*/, this.appHelper.updateContainerApp(this.containerAppName, this.resourceGroup, this.imageToDeploy, this.commandLineArgs)];
+                    return [4 /*yield*/, this.appHelper.updateContainerApp(this.containerAppName, this.resourceGroup, this.commandLineArgs)];
                     case 12:
                         // Update the Container App using the 'update' command
                         _a.sent();
@@ -4825,7 +4825,7 @@ var ContainerAppHelper = /** @class */ (function () {
      * @param resourceGroup - the resource group that the existing Container App is found in
      * @param optionalCmdArgs - a set of optional command line arguments
      */
-    ContainerAppHelper.prototype.updateContainerApp = function (containerAppName, resourceGroup, imageToDeploy, optionalCmdArgs) {
+    ContainerAppHelper.prototype.updateContainerApp = function (containerAppName, resourceGroup, optionalCmdArgs) {
         return __awaiter(this, void 0, void 0, function () {
             var command_3, err_4;
             return __generator(this, function (_a) {
@@ -4835,7 +4835,7 @@ var ContainerAppHelper = /** @class */ (function () {
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
-                        command_3 = "az containerapp update -n " + containerAppName + " -g " + resourceGroup + " -i " + imageToDeploy;
+                        command_3 = "az containerapp update -n " + containerAppName + " -g " + resourceGroup;
                         optionalCmdArgs.forEach(function (val) {
                             command_3 += " " + val;
                         });
