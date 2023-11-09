@@ -529,15 +529,13 @@ export class azurecontainerapps {
             }
         }
 
-        // 'imageToDeploy' argument is set only for non cloud build scenarios
+        // Ensure '-i' argument and '--source' argument are not both provided
         if (!this.util.isNullOrEmpty(this.imageToDeploy)) {
             this.commandLineArgs.push(`-i ${this.imageToDeploy}`);
-        }
-
-        // 'source' argument is set only for cloud build scenarios
-        if (this.createOrUpdateContainerAppWithUp) {
+        } else if (this.createOrUpdateContainerApp) {
             this.commandLineArgs.push(`--source ${this.appSourcePath}`);
         }
+
     }
 
     /**
