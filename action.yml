@@ -83,7 +83,7 @@ inputs:
   builderStack:
     description: |
       'The stack (OS) that should be used to build the provided application source and produce the runnable application
-      image. You can provide a specific image tag for the stack, such as "debian-bullseye-20231004.1", or you can
+      image. You can provide a specific image tag for the stack, such as "debian-bullseye-20231107.2", or you can
       provide a supported stack name, such as "debian-bookworm" or "debian-bullseye", and the latest supported image tag
       for that stack will be used. If no stack is provided, this action will attempt to build the provided application
       source with each supported stack until there's a successful build.'
@@ -474,7 +474,7 @@ runs:
     - name: Set Oryx++ Builder as default builder
       if: ${{ inputs.appSourcePath != '' && env.CA_GH_ACTION_DOCKERFILE_PATH == '' }}
       shell: bash
-      run: pack config default-builder mcr.microsoft.com/oryx/builder:debian-bullseye-20231004.1
+      run: pack config default-builder mcr.microsoft.com/oryx/builder:debian-bullseye-20231107.2
 
     - name: Enable experimental features for Oryx++ Builder
       if: ${{ inputs.appSourcePath != '' && env.CA_GH_ACTION_DOCKERFILE_PATH == '' }}
@@ -527,7 +527,7 @@ runs:
         pack build \
           ${{ env.CA_GH_ACTION_IMAGE_TO_DEPLOY }} \
           --path ${{ inputs.appSourcePath }} \
-          --builder mcr.microsoft.com/oryx/builder:debian-bullseye-20231004.1 \
+          --builder mcr.microsoft.com/oryx/builder:debian-bullseye-20231107.2 \
           ${{ env.CA_GH_ACTION_ORYX_BUILDER_ENV_ARG }} \
           ${{ env.CA_GH_ACTION_ORYX_BUILDER_TELEMETRY_ARG }} &&
         echo "CA_GH_ACTION_BUILDER_FAILED=false" >> $GITHUB_ENV || \
@@ -541,7 +541,7 @@ runs:
         pack build \
           ${{ env.CA_GH_ACTION_IMAGE_TO_DEPLOY }} \
           --path ${{ inputs.appSourcePath }} \
-          --builder mcr.microsoft.com/oryx/builder:debian-bookworm-20231004.1 \
+          --builder mcr.microsoft.com/oryx/builder:debian-bookworm-20231107.2 \
           ${{ env.CA_GH_ACTION_ORYX_BUILDER_ENV_ARG }} \
           ${{ env.CA_GH_ACTION_ORYX_BUILDER_TELEMETRY_ARG }} && \
         echo "CA_GH_ACTION_BUILDER_FAILED=false" >> $GITHUB_ENV || \
