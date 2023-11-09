@@ -56,7 +56,7 @@ var azurecontainerapps = /** @class */ (function () {
     }
     azurecontainerapps.runMain = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var useAzureContainerRegistry, err_1;
+            var err_1;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -88,12 +88,10 @@ var azurecontainerapps = /** @class */ (function () {
                         _a.sent();
                         _a.label = 7;
                     case 7:
-                        // Set up the Container App Image properties if it's not provided by the user.
-                        this.setupContainerAppImageProperties();
-                        useAzureContainerRegistry = !this.util.isNullOrEmpty(this.registryUrl) && this.registryUrl.endsWith('.azurecr.io');
-                        this.useInternalRegistry = this.util.isNullOrEmpty(this.registryUrl) && this.imageToBuild.startsWith(this.defaultRegistryServer);
-                        // Determine if the image should be built and pushed using the CLI
-                        this.useCliToBuildAndPushImage = (useAzureContainerRegistry || this.useInternalRegistry);
+                        // Set up property to determine if the internal registry should be used
+                        this.useInternalRegistry = this.util.isNullOrEmpty(this.registryUrl);
+                        // Set up property to trigger cloud build with 'up' command
+                        this.createOrUpdateContainerAppWithUp = !this.util.isNullOrEmpty(this.appSourcePath) && this.useInternalRegistry;
                         if (!(!this.useInternalRegistry && !this.util.isNullOrEmpty(this.appSourcePath))) return [3 /*break*/, 9];
                         return [4 /*yield*/, this.buildAndPushImageAsync()];
                     case 8:
@@ -186,17 +184,17 @@ var azurecontainerapps = /** @class */ (function () {
     };
     /**
      * Sets up the Azure CLI to be used for this task by logging in to Azure with the provided service connection and
-     * setting the Azure CLI to dynamically install missing extensions.
+     * setting the Azure CLI to install missing extensions.
      */
     azurecontainerapps.setupAzureCli = function () {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0: 
-                    // Set the Azure CLI to dynamically install missing extensions
-                    return [4 /*yield*/, this.util.setAzureCliDynamicInstall()];
+                    // Set the Azure CLI to install missing extensions
+                    return [4 /*yield*/, this.util.installAzureCliExtension()];
                     case 1:
-                        // Set the Azure CLI to dynamically install missing extensions
+                        // Set the Azure CLI to install missing extensions
                         _a.sent();
                         return [2 /*return*/];
                 }
@@ -414,33 +412,27 @@ var azurecontainerapps = /** @class */ (function () {
         this.telemetryHelper.setImageScenario();
     };
     /**
-        * Sets up the Container App Image properties if it's not provided by the user.
-    */
-    azurecontainerapps.setupContainerAppImageProperties = function () {
-        // Get the name of the image to build if it was provided, or generate it from build variables
-        this.imageToBuild = this.toolHelper.getInput('imageToBuild', false);
-        if (this.util.isNullOrEmpty(this.imageToBuild)) {
-            var imageRepository = this.toolHelper.getDefaultImageRepository();
-            // Constructs the image to build based on the provided registry URL, image repository,  build ID, and build number.
-            // If the registry URL is not provided or is empty, the default registry server is used; otherwise, the provided registry URL is used.
-            this.imageToBuild = this.util.isNullOrEmpty(this.registryUrl) ? "" + this.defaultRegistryServer + imageRepository + ":" + this.buildId + "." + this.buildNumber : this.registryUrl + "/" + imageRepository + ":" + this.buildId + "." + this.buildNumber;
-            this.toolHelper.writeInfo("Default image to build: " + this.imageToBuild);
-        }
-        // Get the name of the image to deploy if it was provided, or set it to the value of 'imageToBuild'
-        if (this.util.isNullOrEmpty(this.imageToDeploy)) {
-            this.imageToDeploy = this.imageToBuild;
-            this.toolHelper.writeInfo("Default image to deploy: " + this.imageToDeploy);
-        }
-    };
-    /**
      * Builds a runnable application image using a Dockerfile or the builder and pushes it to the Container Registry.
      */
     azurecontainerapps.buildAndPushImageAsync = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var dockerfilePath, rootDockerfilePath;
+            var imageRepository, dockerfilePath, rootDockerfilePath;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
+                        // Get the name of the image to build if it was provided, or generate it from build variables
+                        this.imageToBuild = this.toolHelper.getInput('imageToBuild', false);
+                        if (this.util.isNullOrEmpty(this.imageToBuild)) {
+                            imageRepository = this.toolHelper.getDefaultImageRepository();
+                            // Constructs the image to build based on the provided registry URL, image repository,  build ID, and build number.
+                            this.imageToBuild = this.registryUrl + "/" + imageRepository + ":" + this.buildId + "." + this.buildNumber;
+                            this.toolHelper.writeInfo("Default image to build: " + this.imageToBuild);
+                        }
+                        // Get the name of the image to deploy if it was provided, or set it to the value of 'imageToBuild'
+                        if (this.util.isNullOrEmpty(this.imageToDeploy)) {
+                            this.imageToDeploy = this.imageToBuild;
+                            this.toolHelper.writeInfo("Default image to deploy: " + this.imageToDeploy);
+                        }
                         dockerfilePath = this.toolHelper.getInput('dockerfilePath', false);
                         if (!this.util.isNullOrEmpty(dockerfilePath)) return [3 /*break*/, 4];
                         this.toolHelper.writeInfo("No Dockerfile path provided; checking for Dockerfile at root of application source.");
@@ -615,23 +607,23 @@ var azurecontainerapps = /** @class */ (function () {
                 this.commandLineArgs.push("--env-vars " + environmentVariables);
             }
         }
-        if (!this.imageToDeploy.startsWith(this.defaultRegistryServer)) {
+        // 'imageToDeploy' argument is set only for non cloud build scenarios
+        if (!this.util.isNullOrEmpty(this.imageToDeploy)) {
             this.commandLineArgs.push("-i " + this.imageToDeploy);
         }
-        // if (!this.util.isNullOrEmpty(this.appSourcePath) && this.useCliToBuildAndPushImage) {
-        //     this.commandLineArgs.push(`--source ${this.appSourcePath}`);
-        // }
+        // 'source' argument is set only for cloud build scenarios
+        if (this.createOrUpdateContainerAppWithUp) {
+            this.commandLineArgs.push("--source " + this.appSourcePath);
+        }
     };
     /**
      * Creates or updates the Container App.
      */
     azurecontainerapps.createOrUpdateContainerApp = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var createOrUpdateContainerAppWithUp;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        createOrUpdateContainerAppWithUp = !this.util.isNullOrEmpty(this.appSourcePath) && this.useInternalRegistry;
                         if (!!this.containerAppExists) return [3 /*break*/, 7];
                         if (!!this.util.isNullOrEmpty(this.yamlConfigPath)) return [3 /*break*/, 2];
                         // Create the Container App from the YAML configuration file
@@ -641,7 +633,7 @@ var azurecontainerapps = /** @class */ (function () {
                         _a.sent();
                         return [3 /*break*/, 6];
                     case 2:
-                        if (!createOrUpdateContainerAppWithUp) return [3 /*break*/, 4];
+                        if (!this.createOrUpdateContainerAppWithUp) return [3 /*break*/, 4];
                         return [4 /*yield*/, this.appHelper.createOrUpdateContainerAppWithUp(this.containerAppName, this.resourceGroup, this.commandLineArgs)];
                     case 3:
                         _a.sent();
@@ -663,7 +655,7 @@ var azurecontainerapps = /** @class */ (function () {
                         _a.sent();
                         return [2 /*return*/];
                     case 9:
-                        if (!(this.shouldUseUpdateCommand && !createOrUpdateContainerAppWithUp)) return [3 /*break*/, 13];
+                        if (!(this.shouldUseUpdateCommand && !this.createOrUpdateContainerAppWithUp)) return [3 /*break*/, 13];
                         if (!(!this.util.isNullOrEmpty(this.registryUrl) && !this.util.isNullOrEmpty(this.registryUsername) && !this.util.isNullOrEmpty(this.registryPassword))) return [3 /*break*/, 11];
                         return [4 /*yield*/, this.appHelper.updateContainerAppRegistryDetails(this.containerAppName, this.resourceGroup, this.registryUrl, this.registryUsername, this.registryPassword)];
                     case 10:
@@ -677,7 +669,7 @@ var azurecontainerapps = /** @class */ (function () {
                         _a.sent();
                         return [3 /*break*/, 17];
                     case 13:
-                        if (!createOrUpdateContainerAppWithUp) return [3 /*break*/, 15];
+                        if (!this.createOrUpdateContainerAppWithUp) return [3 /*break*/, 15];
                         return [4 /*yield*/, this.appHelper.createOrUpdateContainerAppWithUp(this.containerAppName, this.resourceGroup, this.commandLineArgs)];
                     case 14:
                         _a.sent();
@@ -700,7 +692,6 @@ var azurecontainerapps = /** @class */ (function () {
             });
         });
     };
-    azurecontainerapps.defaultRegistryServer = 'default/';
     return azurecontainerapps;
 }());
 exports.azurecontainerapps = azurecontainerapps;
@@ -4835,11 +4826,10 @@ var ContainerAppHelper = /** @class */ (function () {
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
-                        command_3 = "az containerapp update -n " + containerAppName + " -g " + resourceGroup;
+                        command_3 = "az containerapp update -n " + containerAppName + " -g " + resourceGroup + " --output none";
                         optionalCmdArgs.forEach(function (val) {
                             command_3 += " " + val;
                         });
-                        command_3 += " --output none --debug";
                         return [4 /*yield*/, util.execute(command_3)];
                     case 2:
                         _a.sent();
@@ -5935,13 +5925,13 @@ var Utility = /** @class */ (function () {
         });
     };
     /**
-     * Sets the Azure CLI to dynamically install extensions that are missing.
+     * Sets the Azure CLI to install the containerapp extension.
      */
-    Utility.prototype.setAzureCliDynamicInstall = function () {
+    Utility.prototype.installAzureCliExtension = function () {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.execute("az extension add --name containerapp --version 0.3.43")];
+                    case 0: return [4 /*yield*/, this.execute("az extension add --name containerapp --upgrade")];
                     case 1:
                         _a.sent();
                         return [2 /*return*/];
