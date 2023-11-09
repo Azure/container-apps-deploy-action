@@ -611,7 +611,6 @@ jobs:
           disableTelemetry: ${{ vars.TEST_DISABLE_TELEMETRY }}
 
   update-using-found-dockerfile:
-
     name: 'Update app using found Dockerfile'
     runs-on: ubuntu-latest
     timeout-minutes: 10

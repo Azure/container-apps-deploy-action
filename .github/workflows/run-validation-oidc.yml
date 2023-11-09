@@ -516,7 +516,6 @@ jobs:
         run: az containerapp delete -n ${{ env.TEST_CONTAINER_APP_NAME }} -g ${{ vars.TEST_RESOURCE_GROUP_NAME }} -y
 
   update-using-builder:
-
     name: 'Update existing app using builder'
     runs-on: ubuntu-latest
     permissions:
