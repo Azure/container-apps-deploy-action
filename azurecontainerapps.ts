@@ -531,7 +531,9 @@ export class azurecontainerapps {
         // Ensure '-i' argument and '--source' argument are not both provided
         if (!this.util.isNullOrEmpty(this.imageToDeploy)) {
             this.commandLineArgs.push(`-i ${this.imageToDeploy}`);
-        } else if (this.createOrUpdateContainerApp) {
+        }
+
+        if (this.createOrUpdateContainerApp) {
             this.commandLineArgs.push(`--source ${this.appSourcePath}`);
         }
 
@@ -541,7 +543,6 @@ export class azurecontainerapps {
      * Creates or updates the Container App.
      */
     private static async createOrUpdateContainerApp() {
-        var createOrUpdateContainerAppWithUp = !this.util.isNullOrEmpty(this.appSourcePath) && this.useInternalRegistry
         if (!this.containerAppExists) {
             if (!this.util.isNullOrEmpty(this.yamlConfigPath)) {
                 // Create the Container App from the YAML configuration file
