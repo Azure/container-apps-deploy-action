@@ -91,7 +91,7 @@ var azurecontainerapps = /** @class */ (function () {
                         // Set up property to determine if the internal registry should be used
                         this.useInternalRegistry = this.util.isNullOrEmpty(this.registryUrl);
                         // Set up property to trigger cloud build with 'up' command
-                        this.createOrUpdateContainerAppWithUp = !this.util.isNullOrEmpty(this.appSourcePath) && this.useInternalRegistry;
+                        this.shouldCreateOrUpdateContainerAppWithUp = !this.util.isNullOrEmpty(this.appSourcePath) && this.useInternalRegistry;
                         if (!(!this.useInternalRegistry && !this.util.isNullOrEmpty(this.appSourcePath))) return [3 /*break*/, 9];
                         return [4 /*yield*/, this.buildAndPushImageAsync()];
                     case 8:
@@ -191,10 +191,10 @@ var azurecontainerapps = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0: 
-                    // Set the Azure CLI to install missing extensions
+                    // Set the Azure CLI to install missing extension
                     return [4 /*yield*/, this.util.installAzureCliExtension()];
                     case 1:
-                        // Set the Azure CLI to install missing extensions
+                        // Set the Azure CLI to install missing extension
                         _a.sent();
                         return [2 /*return*/];
                 }
@@ -611,7 +611,7 @@ var azurecontainerapps = /** @class */ (function () {
         if (!this.util.isNullOrEmpty(this.imageToDeploy)) {
             this.commandLineArgs.push("-i " + this.imageToDeploy);
         }
-        if (this.createOrUpdateContainerApp) {
+        else if (this.shouldCreateOrUpdateContainerAppWithUp) {
             this.commandLineArgs.push("--source " + this.appSourcePath);
         }
     };
@@ -632,7 +632,7 @@ var azurecontainerapps = /** @class */ (function () {
                         _a.sent();
                         return [3 /*break*/, 6];
                     case 2:
-                        if (!this.createOrUpdateContainerAppWithUp) return [3 /*break*/, 4];
+                        if (!this.shouldCreateOrUpdateContainerAppWithUp) return [3 /*break*/, 4];
                         return [4 /*yield*/, this.appHelper.createOrUpdateContainerAppWithUp(this.containerAppName, this.resourceGroup, this.commandLineArgs)];
                     case 3:
                         _a.sent();
@@ -654,7 +654,7 @@ var azurecontainerapps = /** @class */ (function () {
                         _a.sent();
                         return [2 /*return*/];
                     case 9:
-                        if (!(this.shouldUseUpdateCommand && !this.createOrUpdateContainerAppWithUp)) return [3 /*break*/, 13];
+                        if (!(this.shouldUseUpdateCommand && !this.shouldCreateOrUpdateContainerAppWithUp)) return [3 /*break*/, 13];
                         if (!(!this.util.isNullOrEmpty(this.registryUrl) && !this.util.isNullOrEmpty(this.registryUsername) && !this.util.isNullOrEmpty(this.registryPassword))) return [3 /*break*/, 11];
                         return [4 /*yield*/, this.appHelper.updateContainerAppRegistryDetails(this.containerAppName, this.resourceGroup, this.registryUrl, this.registryUsername, this.registryPassword)];
                     case 10:
@@ -668,7 +668,7 @@ var azurecontainerapps = /** @class */ (function () {
                         _a.sent();
                         return [3 /*break*/, 17];
                     case 13:
-                        if (!this.createOrUpdateContainerAppWithUp) return [3 /*break*/, 15];
+                        if (!this.shouldCreateOrUpdateContainerAppWithUp) return [3 /*break*/, 15];
                         return [4 /*yield*/, this.appHelper.createOrUpdateContainerAppWithUp(this.containerAppName, this.resourceGroup, this.commandLineArgs)];
                     case 14:
                         _a.sent();
