@@ -563,7 +563,7 @@ export class azurecontainerapps {
             return;
         }
 
-        if (this.shouldUseUpdateCommand && !this.shouldCreateOrUpdateContainerAppWithUp) {
+        if (this.shouldUseUpdateCommand) {
             // Update the Container Registry details on the existing Container App, if provided as an input
             if (!this.util.isNullOrEmpty(this.registryUrl) && !this.util.isNullOrEmpty(this.registryUsername) && !this.util.isNullOrEmpty(this.registryPassword)) {
                 await this.appHelper.updateContainerAppRegistryDetails(this.containerAppName, this.resourceGroup, this.registryUrl, this.registryUsername, this.registryPassword);
