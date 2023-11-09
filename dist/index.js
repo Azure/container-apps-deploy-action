@@ -607,7 +607,7 @@ var azurecontainerapps = /** @class */ (function () {
                 this.commandLineArgs.push("--env-vars " + environmentVariables);
             }
         }
-        // Ensure '-i' argument and '--source' argument are not both provided
+        // Ensure 'imageToDeploy' argument and '--source' argument are not both provided
         if (!this.util.isNullOrEmpty(this.imageToDeploy)) {
             this.commandLineArgs.push("-i " + this.imageToDeploy);
         }
