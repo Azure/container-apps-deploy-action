@@ -103,10 +103,7 @@ jobs:
         shell: bash
         run: az acr repository delete -n ${{ vars.TEST_ACR_NAME }} -t ${{ env.TEST_IMAGE_REPOSITORY }}:${{ env.TEST_IMAGE_TAG }} -y
 
-
-
   create-using-builder-and-internal-registry:
-
     name: 'Create app using builder and push to internal registry'
     runs-on: ubuntu-latest
     timeout-minutes: 10
