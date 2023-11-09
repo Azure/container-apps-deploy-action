@@ -529,7 +529,7 @@ export class azurecontainerapps {
             }
         }
 
-        // Ensure 'imageToDeploy' argument and '--source' argument are not both provided
+        // Ensure '-i' argument and '--source' argument are not both provided
         if (!this.util.isNullOrEmpty(this.imageToDeploy)) {
             this.commandLineArgs.push(`-i ${this.imageToDeploy}`);
         } else if (this.createOrUpdateContainerApp) {
