@@ -189,15 +189,7 @@ var azurecontainerapps = /** @class */ (function () {
     azurecontainerapps.setupAzureCli = function () {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: 
-                    // Set the Azure CLI to install missing extensions
-                    return [4 /*yield*/, this.util.installAzureCliExtension()];
-                    case 1:
-                        // Set the Azure CLI to install missing extensions
-                        _a.sent();
-                        return [2 /*return*/];
-                }
+                return [2 /*return*/];
             });
         });
     };
