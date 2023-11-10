@@ -196,7 +196,7 @@ export class azurecontainerapps {
         this.containerAppName = this.getContainerAppName();
 
         // Get the location to deploy resources to, if provided, or use the default location
-        this.location = await this.getLocation();
+        this.location = 'eastus';
 
         // Get the resource group to deploy to if it was provided, or generate it from the Container App name
         this.resourceGroup = await this.getOrCreateResourceGroup(this.containerAppName, this.location);

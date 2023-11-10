@@ -202,37 +202,33 @@ var azurecontainerapps = /** @class */ (function () {
      */
     azurecontainerapps.setupResources = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var _a, _b, _c, _d;
-            return __generator(this, function (_e) {
-                switch (_e.label) {
+            var _a, _b, _c;
+            return __generator(this, function (_d) {
+                switch (_d.label) {
                     case 0:
                         // Get the Container App name if it was provided, or generate it from build variables
                         this.containerAppName = this.getContainerAppName();
                         // Get the location to deploy resources to, if provided, or use the default location
+                        this.location = 'eastus';
+                        // Get the resource group to deploy to if it was provided, or generate it from the Container App name
                         _a = this;
-                        return [4 /*yield*/, this.getLocation()];
-                    case 1:
-                        // Get the location to deploy resources to, if provided, or use the default location
-                        _a.location = _e.sent();
-                        // Get the resource group to deploy to if it was provided, or generate it from the Container App name
-                        _b = this;
                         return [4 /*yield*/, this.getOrCreateResourceGroup(this.containerAppName, this.location)];
-                    case 2:
+                    case 1:
                         // Get the resource group to deploy to if it was provided, or generate it from the Container App name
-                        _b.resourceGroup = _e.sent();
+                        _a.resourceGroup = _d.sent();
                         // Determine if the Container App currently exists
-                        _c = this;
+                        _b = this;
                         return [4 /*yield*/, this.appHelper.doesContainerAppExist(this.containerAppName, this.resourceGroup)];
-                    case 3:
+                    case 2:
                         // Determine if the Container App currently exists
-                        _c.containerAppExists = _e.sent();
-                        if (!!this.containerAppExists) return [3 /*break*/, 5];
-                        _d = this;
+                        _b.containerAppExists = _d.sent();
+                        if (!!this.containerAppExists) return [3 /*break*/, 4];
+                        _c = this;
                         return [4 /*yield*/, this.getOrCreateContainerAppEnvironment(this.containerAppName, this.resourceGroup, this.location)];
-                    case 4:
-                        _d.containerAppEnvironment = _e.sent();
-                        _e.label = 5;
-                    case 5: return [2 /*return*/];
+                    case 3:
+                        _c.containerAppEnvironment = _d.sent();
+                        _d.label = 4;
+                    case 4: return [2 /*return*/];
                 }
             });
         });
