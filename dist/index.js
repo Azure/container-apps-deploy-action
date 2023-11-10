@@ -646,7 +646,7 @@ var azurecontainerapps = /** @class */ (function () {
                         _a.sent();
                         return [2 /*return*/];
                     case 9:
-                        if (!this.shouldUseUpdateCommand) return [3 /*break*/, 13];
+                        if (!(this.shouldUseUpdateCommand && !this.shouldCreateOrUpdateContainerAppWithUp)) return [3 /*break*/, 13];
                         if (!(!this.util.isNullOrEmpty(this.registryUrl) && !this.util.isNullOrEmpty(this.registryUsername) && !this.util.isNullOrEmpty(this.registryPassword))) return [3 /*break*/, 11];
                         return [4 /*yield*/, this.appHelper.updateContainerAppRegistryDetails(this.containerAppName, this.resourceGroup, this.registryUrl, this.registryUsername, this.registryPassword)];
                     case 10:
