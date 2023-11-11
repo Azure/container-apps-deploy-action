@@ -263,15 +263,15 @@ var azurecontainerapps = /** @class */ (function () {
                         location = this.toolHelper.getInput('location', false);
                         resourceGroup = this.toolHelper.getInput('resourceGroup', false);
                         if (!!this.util.isNullOrEmpty(resourceGroup)) return [3 /*break*/, 4];
-                        return [4 /*yield*/, this.appHelper.doesContainerAppExist(this.containerAppName, this.resourceGroup)];
+                        return [4 /*yield*/, this.appHelper.doesContainerAppExist(this.containerAppName, resourceGroup)];
                     case 1:
                         doesContainerAppExist = _a.sent();
                         if (!doesContainerAppExist) return [3 /*break*/, 4];
-                        return [4 /*yield*/, this.appHelper.getExistingContainerAppEnvironmentId(this.containerAppName, this.resourceGroup)];
+                        return [4 /*yield*/, this.appHelper.getExistingContainerAppEnvironmentId(this.containerAppName, resourceGroup)];
                     case 2:
                         environmentId = _a.sent();
                         environmentName = environmentId.split("/").pop();
-                        return [4 /*yield*/, this.appHelper.getExistingContainerAppEnvironmentLocation(environmentName, this.resourceGroup)];
+                        return [4 /*yield*/, this.appHelper.getExistingContainerAppEnvironmentLocation(environmentName, resourceGroup)];
                     case 3:
                         location = _a.sent();
                         _a.label = 4;
