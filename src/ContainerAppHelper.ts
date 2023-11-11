@@ -276,9 +276,9 @@ export class ContainerAppHelper {
     */
     public async getExistingContainerAppEnvironmentLocation(environmentName: string, resourceGroup: string) {
         try {
-            let command = `az containerapp env show -n ${environmentName} -g ${resourceGroup} --query "[0].location"`
+            let command = `az containerapp env show -n ${environmentName} -g ${resourceGroup} --query location`
             let executionResult = await util.execute(command);
-            return executionResult.exitCode === 0 ? executionResult.stdout : null;
+            return executionResult.exitCode === 0 ? executionResult.stdout.toLowerCase().replace(/["() ]/g, "").trim() : null;
         } catch (err) {
             toolHelper.writeInfo(err.message);
             return null;
@@ -288,11 +288,11 @@ export class ContainerAppHelper {
     /**
      * Gets the environment Id of an existing Container App
     */
-    public async getExistingContainerAppEnvironmentId(containerAppName: string, resourceGroup: string) {
+    public async getExistingContainerAppEnvironmentName(containerAppName: string, resourceGroup: string) {
         try {
-            let command = `az containerapp env show -n ${containerAppName} -g ${resourceGroup} --query "[0].properties.environmentId"`
+            let command = `az containerapp show -n ${containerAppName} -g ${resourceGroup} --query properties.environmentId`
             let executionResult = await util.execute(command);
-            return executionResult.exitCode === 0 ? executionResult.stdout : null;
+            return executionResult.exitCode === 0 ? executionResult.stdout.split("/").pop() : null;
         } catch (err) {
             toolHelper.writeInfo(err.message);
             return null;
