@@ -276,7 +276,7 @@ export class ContainerAppHelper {
     */
     public async getExistingContainerAppEnvironmentLocation(environmentName: string, resourceGroup: string) {
         try {
-            let command = `az containerapp env show -n ${environmentName} -g ${resourceGroup} --query location`
+            let command = `az containerapp env show -n ${environmentName} -g ${resourceGroup} --query location`;
             let executionResult = await util.execute(command);
             return executionResult.exitCode === 0 ? executionResult.stdout.toLowerCase().replace(/["() ]/g, "").trim() : null;
         } catch (err) {
@@ -290,7 +290,7 @@ export class ContainerAppHelper {
     */
     public async getExistingContainerAppEnvironmentName(containerAppName: string, resourceGroup: string) {
         try {
-            let command = `az containerapp show -n ${containerAppName} -g ${resourceGroup} --query properties.environmentId`
+            let command = `az containerapp show -n ${containerAppName} -g ${resourceGroup} --query properties.environmentId`;
             let executionResult = await util.execute(command);
             return executionResult.exitCode === 0 ? executionResult.stdout.split("/").pop() : null;
         } catch (err) {
