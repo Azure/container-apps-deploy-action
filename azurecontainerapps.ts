@@ -263,13 +263,13 @@ export class azurecontainerapps {
             }
         }
 
-        if (!this.util.isNullOrEmpty(resourceGroup)) {
-            let doesContainerAppExist = await this.appHelper.doesContainerAppExist(this.containerAppName, resourceGroup);
-            if (doesContainerAppExist) {
-                var environmentName = await this.appHelper.getExistingContainerAppEnvironmentName(this.containerAppName, resourceGroup);
-                this.location = await this.appHelper.getExistingContainerAppEnvironmentLocation(environmentName, resourceGroup);
-            }
-        }
+        // if (!this.util.isNullOrEmpty(resourceGroup)) {
+        //     let doesContainerAppExist = await this.appHelper.doesContainerAppExist(this.containerAppName, resourceGroup);
+        //     if (doesContainerAppExist) {
+        //         var environmentName = await this.appHelper.getExistingContainerAppEnvironmentName(this.containerAppName, resourceGroup);
+        //         this.location = await this.appHelper.getExistingContainerAppEnvironmentLocation(environmentName, resourceGroup);
+        //     }
+        // }
 
         return resourceGroup;
     }
@@ -313,7 +313,7 @@ export class azurecontainerapps {
         }
 
         // Set default location to the location of the Container App environment
-        this.location = await this.appHelper.getExistingContainerAppEnvironmentLocation(containerAppEnvironment, this.resourceGroup);
+     //   this.location = await this.appHelper.getExistingContainerAppEnvironmentLocation(containerAppEnvironment, this.resourceGroup);
 
         return containerAppEnvironment;
     }
