@@ -262,6 +262,7 @@ var azurecontainerapps = /** @class */ (function () {
                     case 0:
                         location = this.toolHelper.getInput('location', false);
                         resourceGroup = this.toolHelper.getInput('resourceGroup', false);
+                        if (!this.util.isNullOrEmpty(location)) return [3 /*break*/, 4];
                         if (!!this.util.isNullOrEmpty(resourceGroup)) return [3 /*break*/, 4];
                         return [4 /*yield*/, this.appHelper.doesContainerAppExist(this.containerAppName, resourceGroup)];
                     case 1:
@@ -274,13 +275,7 @@ var azurecontainerapps = /** @class */ (function () {
                     case 3:
                         location = _a.sent();
                         _a.label = 4;
-                    case 4:
-                        if (!this.util.isNullOrEmpty(location)) return [3 /*break*/, 6];
-                        return [4 /*yield*/, this.appHelper.getDefaultContainerAppLocation()];
-                    case 5:
-                        location = _a.sent();
-                        _a.label = 6;
-                    case 6: return [2 /*return*/, location];
+                    case 4: return [2 /*return*/, location];
                 }
             });
         });

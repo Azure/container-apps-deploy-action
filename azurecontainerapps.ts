@@ -234,17 +234,16 @@ export class azurecontainerapps {
         let location: string = this.toolHelper.getInput('location', false);
         let resourceGroup: string = this.toolHelper.getInput('resourceGroup', false);
 
-        if (!this.util.isNullOrEmpty(resourceGroup)) {
-            let doesContainerAppExist = await this.appHelper.doesContainerAppExist(this.containerAppName, resourceGroup);
-            if (doesContainerAppExist) {
-                var environmentName = await this.appHelper.getExistingContainerAppEnvironmentName(this.containerAppName, resourceGroup);
-                location = await this.appHelper.getExistingContainerAppEnvironmentLocation(environmentName, resourceGroup);
-            }
-        }
-
          // If no location was provided, use the default location for the Container App service
          if (this.util.isNullOrEmpty(location)) {
-            location = await this.appHelper.getDefaultContainerAppLocation();
+            if (!this.util.isNullOrEmpty(resourceGroup)) {
+                let doesContainerAppExist = await this.appHelper.doesContainerAppExist(this.containerAppName, resourceGroup);
+                if (doesContainerAppExist) {
+                    var environmentName = await this.appHelper.getExistingContainerAppEnvironmentName(this.containerAppName, resourceGroup);
+                    location = await this.appHelper.getExistingContainerAppEnvironmentLocation(environmentName, resourceGroup);
+                }
+            }
+           // location = await this.appHelper.getDefaultContainerAppLocation();
         }
 
         return location;
