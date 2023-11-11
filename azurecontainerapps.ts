@@ -235,14 +235,14 @@ export class azurecontainerapps {
 
         let doesContainerAppExist = await this.appHelper.doesContainerAppExist(this.containerAppName, this.resourceGroup);
         if (doesContainerAppExist) {
-            var environmentId = await this.appHelper.getExistingContainerAppEnvironmentId(this.containerAppName);
+            var environmentId = await this.appHelper.getExistingContainerAppEnvironmentId(this.containerAppName, this.resourceGroup);
             var environmentName = environmentId.split("/").pop();
-            location = await this.appHelper.getExistingContainerAppEnvironmentLocation(environmentName);
+            location = await this.appHelper.getExistingContainerAppEnvironmentLocation(environmentName, this.resourceGroup);
         }
         // If no location was provided, use the default location for the Container App service
-        if (this.util.isNullOrEmpty(location)) {
-            location = await this.appHelper.getDefaultContainerAppLocation();
-        }
+         if (this.util.isNullOrEmpty(location)) {
+             location = await this.appHelper.getDefaultContainerAppLocation();
+         }
 
         return location;
     }
@@ -311,7 +311,7 @@ export class azurecontainerapps {
         }
 
         // Set default location to the location of the Container App environment
-        this.location = await this.appHelper.getExistingContainerAppEnvironmentLocation(containerAppEnvironment);
+        this.location = await this.appHelper.getExistingContainerAppEnvironmentLocation(containerAppEnvironment, this.resourceGroup);
 
         return containerAppEnvironment;
     }
@@ -581,7 +581,7 @@ export class azurecontainerapps {
             // Update the Container App using the 'update' command
             await this.appHelper.updateContainerApp(this.containerAppName, this.resourceGroup, this.commandLineArgs);
         } else if (this.shouldCreateOrUpdateContainerAppWithUp) {
-            await this.appHelper.createOrUpdateContainerAppWithUp(this.containerAppName, this.resourceGroup, this.commandLineArgs);
+            await this.appHelper.createOrUpdateContainerAppWithUp(this.containerAppName, this.resourceGroup, this.commandLineArgs, this.location);
         } else {
             // Update the Container App using the 'up' command
             await this.appHelper.updateContainerAppWithUp(this.containerAppName, this.resourceGroup, this.commandLineArgs, this.ingress, this.targetPort);

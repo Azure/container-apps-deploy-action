@@ -265,11 +265,11 @@ var azurecontainerapps = /** @class */ (function () {
                     case 1:
                         doesContainerAppExist = _a.sent();
                         if (!doesContainerAppExist) return [3 /*break*/, 4];
-                        return [4 /*yield*/, this.appHelper.getExistingContainerAppEnvironmentId(this.containerAppName)];
+                        return [4 /*yield*/, this.appHelper.getExistingContainerAppEnvironmentId(this.containerAppName, this.resourceGroup)];
                     case 2:
                         environmentId = _a.sent();
                         environmentName = environmentId.split("/").pop();
-                        return [4 /*yield*/, this.appHelper.getExistingContainerAppEnvironmentLocation(environmentName)];
+                        return [4 /*yield*/, this.appHelper.getExistingContainerAppEnvironmentLocation(environmentName, this.resourceGroup)];
                     case 3:
                         location = _a.sent();
                         _a.label = 4;
@@ -358,7 +358,7 @@ var azurecontainerapps = /** @class */ (function () {
                     case 5:
                         // Set default location to the location of the Container App environment
                         _a = this;
-                        return [4 /*yield*/, this.appHelper.getExistingContainerAppEnvironmentLocation(containerAppEnvironment)];
+                        return [4 /*yield*/, this.appHelper.getExistingContainerAppEnvironmentLocation(containerAppEnvironment, this.resourceGroup)];
                     case 6:
                         // Set default location to the location of the Container App environment
                         _a.location = _b.sent();
@@ -681,7 +681,7 @@ var azurecontainerapps = /** @class */ (function () {
                         return [3 /*break*/, 17];
                     case 13:
                         if (!this.shouldCreateOrUpdateContainerAppWithUp) return [3 /*break*/, 15];
-                        return [4 /*yield*/, this.appHelper.createOrUpdateContainerAppWithUp(this.containerAppName, this.resourceGroup, this.commandLineArgs)];
+                        return [4 /*yield*/, this.appHelper.createOrUpdateContainerAppWithUp(this.containerAppName, this.resourceGroup, this.commandLineArgs, this.location)];
                     case 14:
                         _a.sent();
                         return [3 /*break*/, 17];
@@ -5104,14 +5104,14 @@ var ContainerAppHelper = /** @class */ (function () {
     /**
      * Gets the location of an existing Container App Environment
     */
-    ContainerAppHelper.prototype.getExistingContainerAppEnvironmentLocation = function (environmentName) {
+    ContainerAppHelper.prototype.getExistingContainerAppEnvironmentLocation = function (environmentName, resourceGroup) {
         return __awaiter(this, void 0, void 0, function () {
             var command, executionResult, err_13;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         _a.trys.push([0, 2, , 3]);
-                        command = "az containerapp env show -n " + environmentName + " --query \"[0].location\"";
+                        command = "az containerapp env show -n " + environmentName + " -g " + resourceGroup + " --query \"[0].location\"";
                         return [4 /*yield*/, util.execute(command)];
                     case 1:
                         executionResult = _a.sent();
@@ -5128,14 +5128,14 @@ var ContainerAppHelper = /** @class */ (function () {
     /**
      * Gets the environment Id of an existing Container App
     */
-    ContainerAppHelper.prototype.getExistingContainerAppEnvironmentId = function (containerAppName) {
+    ContainerAppHelper.prototype.getExistingContainerAppEnvironmentId = function (containerAppName, resourceGroup) {
         return __awaiter(this, void 0, void 0, function () {
             var command, executionResult, err_14;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         _a.trys.push([0, 2, , 3]);
-                        command = "az containerapp show -n " + containerAppName + " --query \"[0].properties.environmentId\"";
+                        command = "az containerapp show -n " + containerAppName + " -g " + resourceGroup + " --query \"[0].properties.environmentId\"";
                         return [4 /*yield*/, util.execute(command)];
                     case 1:
                         executionResult = _a.sent();
