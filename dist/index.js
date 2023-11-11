@@ -281,9 +281,9 @@ var azurecontainerapps = /** @class */ (function () {
      */
     azurecontainerapps.getOrCreateResourceGroup = function (containerAppName, location) {
         return __awaiter(this, void 0, void 0, function () {
-            var resourceGroup, resourceGroupExists;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
+            var resourceGroup, resourceGroupExists, doesContainerAppExist, environmentName, _a;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
                     case 0:
                         resourceGroup = this.toolHelper.getInput('resourceGroup', false);
                         if (!this.util.isNullOrEmpty(resourceGroup)) return [3 /*break*/, 3];
@@ -291,21 +291,27 @@ var azurecontainerapps = /** @class */ (function () {
                         this.toolHelper.writeInfo("Default resource group name: " + resourceGroup);
                         return [4 /*yield*/, this.appHelper.doesResourceGroupExist(resourceGroup)];
                     case 1:
-                        resourceGroupExists = _a.sent();
+                        resourceGroupExists = _b.sent();
                         if (!!resourceGroupExists) return [3 /*break*/, 3];
                         return [4 /*yield*/, this.appHelper.createResourceGroup(resourceGroup, location)];
                     case 2:
-                        _a.sent();
-                        _a.label = 3;
-                    case 3: 
-                    // if (!this.util.isNullOrEmpty(resourceGroup)) {
-                    //     let doesContainerAppExist = await this.appHelper.doesContainerAppExist(this.containerAppName, resourceGroup);
-                    //     if (doesContainerAppExist) {
-                    //         var environmentName = await this.appHelper.getExistingContainerAppEnvironmentName(this.containerAppName, resourceGroup);
-                    //         this.location = await this.appHelper.getExistingContainerAppEnvironmentLocation(environmentName, resourceGroup);
-                    //     }
-                    // }
-                    return [2 /*return*/, resourceGroup];
+                        _b.sent();
+                        _b.label = 3;
+                    case 3:
+                        if (!!this.util.isNullOrEmpty(resourceGroup)) return [3 /*break*/, 7];
+                        return [4 /*yield*/, this.appHelper.doesContainerAppExist(this.containerAppName, resourceGroup)];
+                    case 4:
+                        doesContainerAppExist = _b.sent();
+                        if (!doesContainerAppExist) return [3 /*break*/, 7];
+                        return [4 /*yield*/, this.appHelper.getExistingContainerAppEnvironmentName(this.containerAppName, resourceGroup)];
+                    case 5:
+                        environmentName = _b.sent();
+                        _a = this;
+                        return [4 /*yield*/, this.appHelper.getExistingContainerAppEnvironmentLocation(environmentName, resourceGroup)];
+                    case 6:
+                        _a.locationNameForInternalRegistry = _b.sent();
+                        _b.label = 7;
+                    case 7: return [2 /*return*/, resourceGroup];
                 }
             });
         });
@@ -322,20 +328,20 @@ var azurecontainerapps = /** @class */ (function () {
      */
     azurecontainerapps.getOrCreateContainerAppEnvironment = function (containerAppName, resourceGroup, location) {
         return __awaiter(this, void 0, void 0, function () {
-            var containerAppEnvironment, existingContainerAppEnvironment, containerAppEnvironmentExists;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
+            var containerAppEnvironment, existingContainerAppEnvironment, containerAppEnvironmentExists, _a;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
                     case 0:
                         containerAppEnvironment = this.toolHelper.getInput('containerAppEnvironment', false);
                         if (!this.util.isNullOrEmpty(containerAppEnvironment)) return [3 /*break*/, 2];
                         return [4 /*yield*/, this.appHelper.getExistingContainerAppEnvironment(resourceGroup)];
                     case 1:
-                        existingContainerAppEnvironment = _a.sent();
+                        existingContainerAppEnvironment = _b.sent();
                         if (!this.util.isNullOrEmpty(existingContainerAppEnvironment)) {
                             this.toolHelper.writeInfo("Existing Container App environment found in resource group: " + existingContainerAppEnvironment);
                             return [2 /*return*/, existingContainerAppEnvironment];
                         }
-                        _a.label = 2;
+                        _b.label = 2;
                     case 2:
                         // Generate the Container App environment name if it was not provided
                         if (this.util.isNullOrEmpty(containerAppEnvironment)) {
@@ -344,16 +350,20 @@ var azurecontainerapps = /** @class */ (function () {
                         }
                         return [4 /*yield*/, this.appHelper.doesContainerAppEnvironmentExist(containerAppEnvironment, resourceGroup)];
                     case 3:
-                        containerAppEnvironmentExists = _a.sent();
+                        containerAppEnvironmentExists = _b.sent();
                         if (!!containerAppEnvironmentExists) return [3 /*break*/, 5];
                         return [4 /*yield*/, this.appHelper.createContainerAppEnvironment(containerAppEnvironment, resourceGroup, location)];
                     case 4:
-                        _a.sent();
-                        _a.label = 5;
-                    case 5: 
-                    // Set default location to the location of the Container App environment
-                    //   this.location = await this.appHelper.getExistingContainerAppEnvironmentLocation(containerAppEnvironment, this.resourceGroup);
-                    return [2 /*return*/, containerAppEnvironment];
+                        _b.sent();
+                        _b.label = 5;
+                    case 5:
+                        // Set default location to the location of the Container App environment
+                        _a = this;
+                        return [4 /*yield*/, this.appHelper.getExistingContainerAppEnvironmentLocation(containerAppEnvironment, this.resourceGroup)];
+                    case 6:
+                        // Set default location to the location of the Container App environment
+                        _a.locationNameForInternalRegistry = _b.sent();
+                        return [2 /*return*/, containerAppEnvironment];
                 }
             });
         });
@@ -636,7 +646,7 @@ var azurecontainerapps = /** @class */ (function () {
                         return [3 /*break*/, 6];
                     case 2:
                         if (!this.shouldCreateOrUpdateContainerAppWithUp) return [3 /*break*/, 4];
-                        return [4 /*yield*/, this.appHelper.createOrUpdateContainerAppWithUp(this.containerAppName, this.resourceGroup, this.commandLineArgs, this.location)];
+                        return [4 /*yield*/, this.appHelper.createOrUpdateContainerAppWithUp(this.containerAppName, this.resourceGroup, this.commandLineArgs, this.locationNameForInternalRegistry)];
                     case 3:
                         _a.sent();
                         return [3 /*break*/, 6];
@@ -4765,7 +4775,7 @@ var ContainerAppHelper = /** @class */ (function () {
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
-                        command_2 = "az containerapp up -n " + containerAppName + " -l westus -g " + resourceGroup + " --debug";
+                        command_2 = "az containerapp up -n " + containerAppName + " -l " + location + " -g " + resourceGroup + " --debug";
                         optionalCmdArgs.forEach(function (val) {
                             command_2 += " " + val;
                         });

@@ -106,6 +106,7 @@ export class azurecontainerapps {
     private static shouldUseUpdateCommand: boolean;
     private static useInternalRegistry: boolean;
     private static shouldCreateOrUpdateContainerAppWithUp: boolean;
+    private static locationNameForInternalRegistry: string;
 
     /**
      * Initializes the helpers used by this task.
@@ -263,13 +264,13 @@ export class azurecontainerapps {
             }
         }
 
-        // if (!this.util.isNullOrEmpty(resourceGroup)) {
-        //     let doesContainerAppExist = await this.appHelper.doesContainerAppExist(this.containerAppName, resourceGroup);
-        //     if (doesContainerAppExist) {
-        //         var environmentName = await this.appHelper.getExistingContainerAppEnvironmentName(this.containerAppName, resourceGroup);
-        //         this.location = await this.appHelper.getExistingContainerAppEnvironmentLocation(environmentName, resourceGroup);
-        //     }
-        // }
+        if (!this.util.isNullOrEmpty(resourceGroup)) {
+            let doesContainerAppExist = await this.appHelper.doesContainerAppExist(this.containerAppName, resourceGroup);
+            if (doesContainerAppExist) {
+                var environmentName = await this.appHelper.getExistingContainerAppEnvironmentName(this.containerAppName, resourceGroup);
+                this.locationNameForInternalRegistry = await this.appHelper.getExistingContainerAppEnvironmentLocation(environmentName, resourceGroup);
+            }
+        }
 
         return resourceGroup;
     }
@@ -313,7 +314,7 @@ export class azurecontainerapps {
         }
 
         // Set default location to the location of the Container App environment
-     //   this.location = await this.appHelper.getExistingContainerAppEnvironmentLocation(containerAppEnvironment, this.resourceGroup);
+        this.locationNameForInternalRegistry = await this.appHelper.getExistingContainerAppEnvironmentLocation(containerAppEnvironment, this.resourceGroup);
 
         return containerAppEnvironment;
     }
@@ -558,7 +559,7 @@ export class azurecontainerapps {
                 // Create the Container App from the YAML configuration file
                 await this.appHelper.createContainerAppFromYaml(this.containerAppName, this.resourceGroup, this.yamlConfigPath);
             } else if (this.shouldCreateOrUpdateContainerAppWithUp) {
-                await this.appHelper.createOrUpdateContainerAppWithUp(this.containerAppName, this.resourceGroup, this.commandLineArgs, this.location);
+                await this.appHelper.createOrUpdateContainerAppWithUp(this.containerAppName, this.resourceGroup, this.commandLineArgs, this.locationNameForInternalRegistry);
             } else {
                 // Create the Container App from command line arguments
                 await this.appHelper.createContainerApp(this.containerAppName, this.resourceGroup, this.containerAppEnvironment, this.commandLineArgs);
