@@ -281,9 +281,9 @@ var azurecontainerapps = /** @class */ (function () {
      */
     azurecontainerapps.getOrCreateResourceGroup = function (containerAppName, location) {
         return __awaiter(this, void 0, void 0, function () {
-            var resourceGroup, resourceGroupExists, doesContainerAppExist, environmentName;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
+            var resourceGroup, resourceGroupExists, doesContainerAppExist, environmentName, _a;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
                     case 0:
                         resourceGroup = this.toolHelper.getInput('resourceGroup', false);
                         if (!this.util.isNullOrEmpty(resourceGroup)) return [3 /*break*/, 3];
@@ -291,25 +291,26 @@ var azurecontainerapps = /** @class */ (function () {
                         this.toolHelper.writeInfo("Default resource group name: " + resourceGroup);
                         return [4 /*yield*/, this.appHelper.doesResourceGroupExist(resourceGroup)];
                     case 1:
-                        resourceGroupExists = _a.sent();
+                        resourceGroupExists = _b.sent();
                         if (!!resourceGroupExists) return [3 /*break*/, 3];
                         return [4 /*yield*/, this.appHelper.createResourceGroup(resourceGroup, location)];
                     case 2:
-                        _a.sent();
-                        _a.label = 3;
+                        _b.sent();
+                        _b.label = 3;
                     case 3:
                         if (!!this.util.isNullOrEmpty(resourceGroup)) return [3 /*break*/, 7];
                         return [4 /*yield*/, this.appHelper.doesContainerAppExist(this.containerAppName, resourceGroup)];
                     case 4:
-                        doesContainerAppExist = _a.sent();
+                        doesContainerAppExist = _b.sent();
                         if (!doesContainerAppExist) return [3 /*break*/, 7];
                         return [4 /*yield*/, this.appHelper.getExistingContainerAppEnvironmentName(this.containerAppName, resourceGroup)];
                     case 5:
-                        environmentName = _a.sent();
+                        environmentName = _b.sent();
+                        _a = this;
                         return [4 /*yield*/, this.appHelper.getExistingContainerAppEnvironmentLocation(environmentName, resourceGroup)];
                     case 6:
-                        location = _a.sent();
-                        _a.label = 7;
+                        _a.location = _b.sent();
+                        _b.label = 7;
                     case 7: return [2 /*return*/, resourceGroup];
                 }
             });

@@ -267,7 +267,7 @@ export class azurecontainerapps {
             let doesContainerAppExist = await this.appHelper.doesContainerAppExist(this.containerAppName, resourceGroup);
             if (doesContainerAppExist) {
                 var environmentName = await this.appHelper.getExistingContainerAppEnvironmentName(this.containerAppName, resourceGroup);
-                location = await this.appHelper.getExistingContainerAppEnvironmentLocation(environmentName, resourceGroup);
+                this.location = await this.appHelper.getExistingContainerAppEnvironmentLocation(environmentName, resourceGroup);
             }
         }
 
