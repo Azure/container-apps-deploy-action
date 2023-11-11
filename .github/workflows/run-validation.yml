@@ -19,6 +19,7 @@ env:
 jobs:
   create-using-builder:
 
+
     name: 'Create app using builder'
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -59,6 +60,12 @@ jobs:
         if: ${{ always() }}
         shell: bash
         run: az containerapp delete -n ${{ env.TEST_CONTAINER_APP_NAME }} -g ${{ vars.TEST_RESOURCE_GROUP_NAME }} -y
+
+      - name: Delete pushed image
+        if: ${{ always() }}
+        shell: bash
+        run: az acr repository delete -n ${{ vars.TEST_ACR_NAME }} -t ${{ env.TEST_IMAGE_REPOSITORY }}:${{ env.TEST_IMAGE_TAG }} -y
+
 
   create-using-builder-and-internal-registry:
 
@@ -141,6 +148,11 @@ jobs:
         shell: bash
         run: az containerapp delete -n ${{ env.TEST_CONTAINER_APP_NAME }} -g ${{ vars.TEST_RESOURCE_GROUP_NAME }} -y
 
+      - name: Delete pushed image
+        if: ${{ always() }}
+        shell: bash
+        run: az acr repository delete -n ${{ vars.TEST_ACR_NAME }} -t ${{ env.TEST_IMAGE_REPOSITORY }}:${{ env.TEST_IMAGE_TAG }} -y
+
   create-using-provided-dockerfile:
 
     name: 'Create app using provided Dockerfile'
@@ -189,6 +201,7 @@ jobs:
         if: ${{ always() }}
         shell: bash
         run: az acr repository delete -n ${{ vars.TEST_ACR_NAME }} -t ${{ env.TEST_IMAGE_REPOSITORY }}:${{ env.TEST_IMAGE_TAG }} -y
+
 
   create-using-image-linux:
 
