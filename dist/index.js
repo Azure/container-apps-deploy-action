@@ -256,31 +256,17 @@ var azurecontainerapps = /** @class */ (function () {
      */
     azurecontainerapps.getLocation = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var location, resourceGroup, doesContainerAppExist, environmentName;
+            var location;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         location = this.toolHelper.getInput('location', false);
-                        resourceGroup = this.toolHelper.getInput('resourceGroup', false);
-                        if (!!this.util.isNullOrEmpty(resourceGroup)) return [3 /*break*/, 4];
-                        return [4 /*yield*/, this.appHelper.doesContainerAppExist(this.containerAppName, resourceGroup)];
-                    case 1:
-                        doesContainerAppExist = _a.sent();
-                        if (!doesContainerAppExist) return [3 /*break*/, 4];
-                        return [4 /*yield*/, this.appHelper.getExistingContainerAppEnvironmentName(this.containerAppName, resourceGroup)];
-                    case 2:
-                        environmentName = _a.sent();
-                        return [4 /*yield*/, this.appHelper.getExistingContainerAppEnvironmentLocation(environmentName, resourceGroup)];
-                    case 3:
-                        location = _a.sent();
-                        _a.label = 4;
-                    case 4:
-                        if (!this.util.isNullOrEmpty(location)) return [3 /*break*/, 6];
+                        if (!this.util.isNullOrEmpty(location)) return [3 /*break*/, 2];
                         return [4 /*yield*/, this.appHelper.getDefaultContainerAppLocation()];
-                    case 5:
+                    case 1:
                         location = _a.sent();
-                        _a.label = 6;
-                    case 6: return [2 /*return*/, location];
+                        _a.label = 2;
+                    case 2: return [2 /*return*/, location];
                 }
             });
         });
@@ -295,7 +281,7 @@ var azurecontainerapps = /** @class */ (function () {
      */
     azurecontainerapps.getOrCreateResourceGroup = function (containerAppName, location) {
         return __awaiter(this, void 0, void 0, function () {
-            var resourceGroup, resourceGroupExists;
+            var resourceGroup, resourceGroupExists, doesContainerAppExist, environmentName;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -311,7 +297,20 @@ var azurecontainerapps = /** @class */ (function () {
                     case 2:
                         _a.sent();
                         _a.label = 3;
-                    case 3: return [2 /*return*/, resourceGroup];
+                    case 3:
+                        if (!!this.util.isNullOrEmpty(resourceGroup)) return [3 /*break*/, 7];
+                        return [4 /*yield*/, this.appHelper.doesContainerAppExist(this.containerAppName, resourceGroup)];
+                    case 4:
+                        doesContainerAppExist = _a.sent();
+                        if (!doesContainerAppExist) return [3 /*break*/, 7];
+                        return [4 /*yield*/, this.appHelper.getExistingContainerAppEnvironmentName(this.containerAppName, resourceGroup)];
+                    case 5:
+                        environmentName = _a.sent();
+                        return [4 /*yield*/, this.appHelper.getExistingContainerAppEnvironmentLocation(environmentName, resourceGroup)];
+                    case 6:
+                        location = _a.sent();
+                        _a.label = 7;
+                    case 7: return [2 /*return*/, resourceGroup];
                 }
             });
         });
