@@ -5137,7 +5137,7 @@ var ContainerAppHelper = /** @class */ (function () {
                 switch (_a.label) {
                     case 0:
                         _a.trys.push([0, 2, , 3]);
-                        command = "az containerapp show -n " + containerAppName + " -g " + resourceGroup + " --query \"[0].properties.environmentId\"";
+                        command = "az containerapp env show -n " + containerAppName + " -g " + resourceGroup + " --query \"[0].properties.environmentId\"";
                         return [4 /*yield*/, util.execute(command)];
                     case 1:
                         executionResult = _a.sent();

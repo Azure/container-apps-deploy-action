@@ -290,7 +290,7 @@ export class ContainerAppHelper {
     */
     public async getExistingContainerAppEnvironmentId(containerAppName: string, resourceGroup: string) {
         try {
-            let command = `az containerapp show -n ${containerAppName} -g ${resourceGroup} --query "[0].properties.environmentId"`
+            let command = `az containerapp env show -n ${containerAppName} -g ${resourceGroup} --query "[0].properties.environmentId"`
             let executionResult = await util.execute(command);
             return executionResult.exitCode === 0 ? executionResult.stdout : null;
         } catch (err) {
