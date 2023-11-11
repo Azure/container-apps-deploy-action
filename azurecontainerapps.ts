@@ -106,7 +106,6 @@ export class azurecontainerapps {
     private static shouldUseUpdateCommand: boolean;
     private static useInternalRegistry: boolean;
     private static shouldCreateOrUpdateContainerAppWithUp: boolean;
-    private static locationNameForInternalRegistry: string;
 
     /**
      * Initializes the helpers used by this task.
@@ -233,9 +232,18 @@ export class azurecontainerapps {
     private static async getLocation(): Promise<string> {
         // Set deployment location, if provided
         let location: string = this.toolHelper.getInput('location', false);
+        let resourceGroup: string = this.toolHelper.getInput('resourceGroup', false);
 
-        // If no location was provided, use the default location for the Container App service
-        if (this.util.isNullOrEmpty(location)) {
+        if (!this.util.isNullOrEmpty(resourceGroup)) {
+            let doesContainerAppExist = await this.appHelper.doesContainerAppExist(this.containerAppName, resourceGroup);
+            if (doesContainerAppExist) {
+                var environmentName = await this.appHelper.getExistingContainerAppEnvironmentName(this.containerAppName, resourceGroup);
+                location = await this.appHelper.getExistingContainerAppEnvironmentLocation(environmentName, resourceGroup);
+            }
+        }
+
+         // If no location was provided, use the default location for the Container App service
+         if (this.util.isNullOrEmpty(location)) {
             location = await this.appHelper.getDefaultContainerAppLocation();
         }
 
@@ -261,14 +269,6 @@ export class azurecontainerapps {
             const resourceGroupExists = await this.appHelper.doesResourceGroupExist(resourceGroup);
             if (!resourceGroupExists) {
                 await this.appHelper.createResourceGroup(resourceGroup, location);
-            }
-        }
-
-        if (!this.util.isNullOrEmpty(resourceGroup)) {
-            let doesContainerAppExist = await this.appHelper.doesContainerAppExist(this.containerAppName, resourceGroup);
-            if (doesContainerAppExist) {
-                var environmentName = await this.appHelper.getExistingContainerAppEnvironmentName(this.containerAppName, resourceGroup);
-                this.locationNameForInternalRegistry = await this.appHelper.getExistingContainerAppEnvironmentLocation(environmentName, resourceGroup);
             }
         }
 
@@ -314,7 +314,7 @@ export class azurecontainerapps {
         }
 
         // Set default location to the location of the Container App environment
-        this.locationNameForInternalRegistry = await this.appHelper.getExistingContainerAppEnvironmentLocation(containerAppEnvironment, this.resourceGroup);
+        this.location = await this.appHelper.getExistingContainerAppEnvironmentLocation(containerAppEnvironment, this.resourceGroup);
 
         return containerAppEnvironment;
     }
@@ -546,6 +546,7 @@ export class azurecontainerapps {
             this.commandLineArgs.push(`-i ${this.imageToDeploy}`);
         } else if (this.shouldCreateOrUpdateContainerAppWithUp) {
             this.commandLineArgs.push(`--source ${this.appSourcePath}`);
+            this.commandLineArgs.push(`-l ${this.location}`);
         }
 
     }
@@ -559,7 +560,7 @@ export class azurecontainerapps {
                 // Create the Container App from the YAML configuration file
                 await this.appHelper.createContainerAppFromYaml(this.containerAppName, this.resourceGroup, this.yamlConfigPath);
             } else if (this.shouldCreateOrUpdateContainerAppWithUp) {
-                await this.appHelper.createOrUpdateContainerAppWithUp(this.containerAppName, this.resourceGroup, this.commandLineArgs, this.locationNameForInternalRegistry);
+                await this.appHelper.createOrUpdateContainerAppWithUp(this.containerAppName, this.resourceGroup, this.commandLineArgs);
             } else {
                 // Create the Container App from command line arguments
                 await this.appHelper.createContainerApp(this.containerAppName, this.resourceGroup, this.containerAppEnvironment, this.commandLineArgs);

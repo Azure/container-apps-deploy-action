@@ -55,11 +55,10 @@ export class ContainerAppHelper {
      public async createOrUpdateContainerAppWithUp(
         containerAppName: string,
         resourceGroup: string,
-        optionalCmdArgs: string[],
-        location: string) {
+        optionalCmdArgs: string[]) {
         toolHelper.writeDebug(`Attempting to create Container App with name "${containerAppName}" in resource group "${resourceGroup}"`);
         try {
-            let command = `az containerapp up -n ${containerAppName} -l ${location} -g ${resourceGroup} --debug`;
+            let command = `az containerapp up -n ${containerAppName} -g ${resourceGroup} --debug`;
             optionalCmdArgs.forEach(function (val: string) {
                 command += ` ${val}`;
             });
