@@ -240,9 +240,9 @@ export class azurecontainerapps {
             location = await this.appHelper.getExistingContainerAppEnvironmentLocation(environmentName, this.resourceGroup);
         }
         // If no location was provided, use the default location for the Container App service
-         if (this.util.isNullOrEmpty(location)) {
-             location = await this.appHelper.getDefaultContainerAppLocation();
-         }
+      //   if (this.util.isNullOrEmpty(location)) {
+      //       location = await this.appHelper.getDefaultContainerAppLocation();
+      //   }
 
         return location;
     }
