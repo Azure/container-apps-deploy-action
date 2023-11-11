@@ -5112,7 +5112,7 @@ var ContainerAppHelper = /** @class */ (function () {
                 switch (_a.label) {
                     case 0:
                         _a.trys.push([0, 2, , 3]);
-                        command = "az containerapp env show -n " + environmentName + " -g " + resourceGroup + " --query location";
+                        command = "az containerapp env show -g " + resourceGroup + " -n " + environmentName + " --query location";
                         return [4 /*yield*/, util.execute(command)];
                     case 1:
                         executionResult = _a.sent();
