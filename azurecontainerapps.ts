@@ -196,7 +196,7 @@ export class azurecontainerapps {
         this.containerAppName = this.getContainerAppName();
 
         // Get the location to deploy resources to, if provided, or use the default location
-        this.location = 'eastus';
+        this.location = await this.getLocation();
 
         // Get the resource group to deploy to if it was provided, or generate it from the Container App name
         this.resourceGroup = await this.getOrCreateResourceGroup(this.containerAppName, this.location);
@@ -233,6 +233,12 @@ export class azurecontainerapps {
         // Set deployment location, if provided
         let location: string = this.toolHelper.getInput('location', false);
 
+        let doesContainerAppExist = await this.appHelper.doesContainerAppExist(this.containerAppName, this.resourceGroup);
+        if (doesContainerAppExist) {
+            var environmentId = await this.appHelper.getExistingContainerAppEnvironmentId(this.containerAppName);
+            var environmentName = environmentId.split("/").pop();
+            location = await this.appHelper.getExistingContainerAppEnvironmentLocation(environmentName);
+        }
         // If no location was provided, use the default location for the Container App service
         if (this.util.isNullOrEmpty(location)) {
             location = await this.appHelper.getDefaultContainerAppLocation();
@@ -303,6 +309,9 @@ export class azurecontainerapps {
         if (!containerAppEnvironmentExists) {
             await this.appHelper.createContainerAppEnvironment(containerAppEnvironment, resourceGroup, location);
         }
+
+        // Set default location to the location of the Container App environment
+        this.location = await this.appHelper.getExistingContainerAppEnvironmentLocation(containerAppEnvironment);
 
         return containerAppEnvironment;
     }
@@ -547,7 +556,7 @@ export class azurecontainerapps {
                 // Create the Container App from the YAML configuration file
                 await this.appHelper.createContainerAppFromYaml(this.containerAppName, this.resourceGroup, this.yamlConfigPath);
             } else if (this.shouldCreateOrUpdateContainerAppWithUp) {
-                await this.appHelper.createOrUpdateContainerAppWithUp(this.containerAppName, this.resourceGroup, this.commandLineArgs);
+                await this.appHelper.createOrUpdateContainerAppWithUp(this.containerAppName, this.resourceGroup, this.commandLineArgs, this.location);
             } else {
                 // Create the Container App from command line arguments
                 await this.appHelper.createContainerApp(this.containerAppName, this.resourceGroup, this.containerAppEnvironment, this.commandLineArgs);

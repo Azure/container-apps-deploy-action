@@ -54,10 +54,11 @@ export class ContainerAppHelper {
      public async createOrUpdateContainerAppWithUp(
         containerAppName: string,
         resourceGroup: string,
-        optionalCmdArgs: string[]) {
+        optionalCmdArgs: string[],
+        location: string) {
         toolHelper.writeDebug(`Attempting to create Container App with name "${containerAppName}" in resource group "${resourceGroup}"`);
         try {
-            let command = `az containerapp up -n ${containerAppName} -g ${resourceGroup} -l westus2 --debug`;
+            let command = `az containerapp up -n ${containerAppName} -g ${resourceGroup} -l ${location} --debug`;
             optionalCmdArgs.forEach(function (val: string) {
                 command += ` ${val}`;
             });
@@ -262,6 +263,34 @@ export class ContainerAppHelper {
         toolHelper.writeDebug(`Attempting to get the existing Container App Environment in resource group "${resourceGroup}"`);
         try {
             let command = `az containerapp env list -g ${resourceGroup} --query "[0].name"`
+            let executionResult = await util.execute(command);
+            return executionResult.exitCode === 0 ? executionResult.stdout : null;
+        } catch (err) {
+            toolHelper.writeInfo(err.message);
+            return null;
+        }
+    }
+
+    /**
+     * Gets the location of an existing Container App Environment
+    */
+    public async getExistingContainerAppEnvironmentLocation(environmentName: string) {
+        try {
+            let command = `az containerapp env show -n ${environmentName} --query "[0].location"`
+            let executionResult = await util.execute(command);
+            return executionResult.exitCode === 0 ? executionResult.stdout : null;
+        } catch (err) {
+            toolHelper.writeInfo(err.message);
+            return null;
+        }
+    }
+
+    /**
+     * Gets the environment Id of an existing Container App
+    */
+    public async getExistingContainerAppEnvironmentId(containerAppName: string) {
+        try {
+            let command = `az containerapp show -n ${containerAppName} --query "[0].properties.environmentId"`
             let executionResult = await util.execute(command);
             return executionResult.exitCode === 0 ? executionResult.stdout : null;
         } catch (err) {
