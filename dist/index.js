@@ -189,15 +189,7 @@ var azurecontainerapps = /** @class */ (function () {
     azurecontainerapps.setupAzureCli = function () {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: 
-                    // Set the Azure CLI to install missing extensions
-                    return [4 /*yield*/, this.util.installAzureCliExtension()];
-                    case 1:
-                        // Set the Azure CLI to install missing extensions
-                        _a.sent();
-                        return [2 /*return*/];
-                }
+                return [2 /*return*/];
             });
         });
     };
@@ -5002,7 +4994,7 @@ var ContainerAppHelper = /** @class */ (function () {
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
-                        command = "az containerapp env show -n " + containerAppEnvironment + " -g " + resourceGroup + " -o none";
+                        command = "az containerapp env show -g " + resourceGroup + " -n " + containerAppEnvironment + " -o none";
                         return [4 /*yield*/, util.execute(command)];
                     case 2:
                         executionResult = _a.sent();
