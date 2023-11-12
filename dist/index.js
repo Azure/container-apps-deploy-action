@@ -303,6 +303,7 @@ var azurecontainerapps = /** @class */ (function () {
                         if (!doesContainerAppEnvironmentExistInResourceGroup) return [3 /*break*/, 10];
                         return [4 /*yield*/, this.appHelper.getExistingContainerAppEnvironmentLocation(environmentName, resourceGroup)];
                     case 9:
+                        // Get the location of the Container App Environment linked to the Container App
                         location = _c.sent();
                         return [2 /*return*/, location];
                     case 10:
@@ -313,6 +314,7 @@ var azurecontainerapps = /** @class */ (function () {
                         return [2 /*return*/, location];
                     case 12: return [4 /*yield*/, this.appHelper.getDefaultContainerAppLocation()];
                     case 13:
+                        // Get the default location for if the Container App or Container App Environment was not found in the resource group provided.
                         location = _c.sent();
                         _c.label = 14;
                     case 14: return [2 /*return*/, location];
@@ -5134,6 +5136,8 @@ var ContainerAppHelper = /** @class */ (function () {
     };
     /**
      * Gets the location of an existing Container App Environment
+     * @param environmentName - the name of the Container App Environment
+     * @param resourceGroup - the resource group that the Container App Environment is found in
     */
     ContainerAppHelper.prototype.getExistingContainerAppEnvironmentLocation = function (environmentName, resourceGroup) {
         return __awaiter(this, void 0, void 0, function () {
@@ -5158,6 +5162,8 @@ var ContainerAppHelper = /** @class */ (function () {
     };
     /**
      * Gets the environment Id of an existing Container App
+     * @param containerAppName - the name of the Container App
+     * @param resourceGroup - the resource group that the Container App is found in
     */
     ContainerAppHelper.prototype.getExistingContainerAppEnvironmentName = function (containerAppName, resourceGroup) {
         return __awaiter(this, void 0, void 0, function () {
