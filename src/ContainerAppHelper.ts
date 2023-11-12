@@ -195,7 +195,7 @@ export class ContainerAppHelper {
     public async doesContainerAppEnvironmentExist(containerAppEnvironment: string, resourceGroup: string): Promise<boolean> {
         toolHelper.writeDebug(`Attempting to determine if Container App Environment with name "${containerAppEnvironment}" exists in resource group "${resourceGroup}"`);
         try {
-            let command = `az containerapp env show -g ${resourceGroup} -n ${containerAppEnvironment} -o none`;
+            let command = `az containerapp env show -g ${resourceGroup} -o none -n ${containerAppEnvironment}`;
             let executionResult = await util.execute(command);
             return executionResult.exitCode === 0;
         } catch (err) {
