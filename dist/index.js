@@ -713,7 +713,7 @@ var azurecontainerapps = /** @class */ (function () {
                         return [3 /*break*/, 17];
                     case 13:
                         if (!this.shouldCreateOrUpdateContainerAppWithUp) return [3 /*break*/, 15];
-                        return [4 /*yield*/, this.appHelper.createOrUpdateContainerAppWithUp(this.containerAppName, this.resourceGroup, this.commandLineArgs, this.location)];
+                        return [4 /*yield*/, this.appHelper.createOrUpdateContainerAppWithUp(this.containerAppName, this.resourceGroup, this.commandLineArgs)];
                     case 14:
                         _a.sent();
                         return [3 /*break*/, 17];
