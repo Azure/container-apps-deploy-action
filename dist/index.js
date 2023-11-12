@@ -5003,7 +5003,7 @@ var ContainerAppHelper = /** @class */ (function () {
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
-                        command = "az containerapp env show -n " + containerAppEnvironment + " -g " + resourceGroup + " -o none";
+                        command = "az containerapp env show -o none -g " + resourceGroup + " -n " + containerAppEnvironment;
                         return [4 /*yield*/, util.execute(command)];
                     case 2:
                         executionResult = _a.sent();
