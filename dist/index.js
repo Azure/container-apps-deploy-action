@@ -189,7 +189,15 @@ var azurecontainerapps = /** @class */ (function () {
     azurecontainerapps.setupAzureCli = function () {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
-                return [2 /*return*/];
+                switch (_a.label) {
+                    case 0: 
+                    // Set the Azure CLI to install missing extensions
+                    return [4 /*yield*/, this.util.installAzureCliExtension()];
+                    case 1:
+                        // Set the Azure CLI to install missing extensions
+                        _a.sent();
+                        return [2 /*return*/];
+                }
             });
         });
     };
@@ -256,9 +264,9 @@ var azurecontainerapps = /** @class */ (function () {
      */
     azurecontainerapps.getLocation = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var location, resourceGroup, containerAppEnvironment, doesContainerAppExist, doesContainerAppEnvironmentExist, _a, environmentName;
-            return __generator(this, function (_b) {
-                switch (_b.label) {
+            var location, resourceGroup, containerAppEnvironment, doesContainerAppExist, doesContainerAppEnvironmentExist, _a, environmentName, doesContainerAppEnvironmentExistInResourceGroup, _b;
+            return __generator(this, function (_c) {
+                switch (_c.label) {
                     case 0:
                         location = this.toolHelper.getInput('location', false);
                         resourceGroup = this.toolHelper.getInput('resourceGroup', false);
@@ -267,40 +275,46 @@ var azurecontainerapps = /** @class */ (function () {
                         if (!!this.util.isNullOrEmpty(resourceGroup)) return [3 /*break*/, 12];
                         return [4 /*yield*/, this.appHelper.doesContainerAppExist(this.containerAppName, resourceGroup)];
                     case 1:
-                        doesContainerAppExist = _b.sent();
+                        doesContainerAppExist = _c.sent();
                         if (!!this.util.isNullOrEmpty(containerAppEnvironment)) return [3 /*break*/, 3];
                         return [4 /*yield*/, this.appHelper.doesContainerAppEnvironmentExist(containerAppEnvironment, resourceGroup)];
                     case 2:
-                        _a = _b.sent();
+                        _a = _c.sent();
                         return [3 /*break*/, 4];
                     case 3:
                         _a = null;
-                        _b.label = 4;
+                        _c.label = 4;
                     case 4:
                         doesContainerAppEnvironmentExist = _a;
-                        if (!doesContainerAppExist) return [3 /*break*/, 7];
+                        if (!doesContainerAppExist) return [3 /*break*/, 10];
                         return [4 /*yield*/, this.appHelper.getExistingContainerAppEnvironmentName(this.containerAppName, resourceGroup)];
                     case 5:
-                        environmentName = _b.sent();
-                        return [4 /*yield*/, this.appHelper.getExistingContainerAppEnvironmentLocation(environmentName, resourceGroup)];
+                        environmentName = _c.sent();
+                        if (!!this.util.isNullOrEmpty(environmentName)) return [3 /*break*/, 7];
+                        return [4 /*yield*/, this.appHelper.doesContainerAppEnvironmentExist(environmentName, resourceGroup)];
                     case 6:
-                        location = _b.sent();
-                        return [3 /*break*/, 11];
+                        _b = _c.sent();
+                        return [3 /*break*/, 8];
                     case 7:
-                        if (!doesContainerAppEnvironmentExist) return [3 /*break*/, 9];
-                        return [4 /*yield*/, this.appHelper.getExistingContainerAppEnvironmentLocation(containerAppEnvironment, resourceGroup)];
+                        _b = null;
+                        _c.label = 8;
                     case 8:
-                        location = _b.sent();
-                        return [3 /*break*/, 11];
-                    case 9: return [4 /*yield*/, this.appHelper.getDefaultContainerAppLocation()];
+                        doesContainerAppEnvironmentExistInResourceGroup = _b;
+                        if (!doesContainerAppEnvironmentExistInResourceGroup) return [3 /*break*/, 10];
+                        return [4 /*yield*/, this.appHelper.getExistingContainerAppEnvironmentLocation(environmentName, resourceGroup)];
+                    case 9:
+                        location = _c.sent();
+                        return [2 /*return*/, location];
                     case 10:
-                        location = _b.sent();
-                        _b.label = 11;
-                    case 11: return [3 /*break*/, 14];
+                        if (!doesContainerAppEnvironmentExist) return [3 /*break*/, 12];
+                        return [4 /*yield*/, this.appHelper.getExistingContainerAppEnvironmentLocation(containerAppEnvironment, resourceGroup)];
+                    case 11:
+                        location = _c.sent();
+                        return [2 /*return*/, location];
                     case 12: return [4 /*yield*/, this.appHelper.getDefaultContainerAppLocation()];
                     case 13:
-                        location = _b.sent();
-                        _b.label = 14;
+                        location = _c.sent();
+                        _c.label = 14;
                     case 14: return [2 /*return*/, location];
                 }
             });

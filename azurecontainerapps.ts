@@ -181,7 +181,7 @@ export class azurecontainerapps {
      */
     private static async setupAzureCli() {
         // Set the Azure CLI to install missing extensions
-        //  await this.util.installAzureCliExtension();
+        await this.util.installAzureCliExtension();
     }
 
     /**
@@ -243,15 +243,20 @@ export class azurecontainerapps {
                 let doesContainerAppEnvironmentExist = !this.util.isNullOrEmpty(containerAppEnvironment) ? await this.appHelper.doesContainerAppEnvironmentExist(containerAppEnvironment, resourceGroup) : null;
                 if (doesContainerAppExist) {
                     var environmentName = await this.appHelper.getExistingContainerAppEnvironmentName(this.containerAppName, resourceGroup);
-                    location = await this.appHelper.getExistingContainerAppEnvironmentLocation(environmentName, resourceGroup);
-                } else if (doesContainerAppEnvironmentExist) {
-                    location = await this.appHelper.getExistingContainerAppEnvironmentLocation(containerAppEnvironment, resourceGroup);
-                } else {
-                    location = await this.appHelper.getDefaultContainerAppLocation();
+                    // Check if environment exists in the resource group provided and get the location
+                    var doesContainerAppEnvironmentExistInResourceGroup = !this.util.isNullOrEmpty(environmentName) ? await this.appHelper.doesContainerAppEnvironmentExist(environmentName, resourceGroup) : null;
+                    if (doesContainerAppEnvironmentExistInResourceGroup){
+                        location = await this.appHelper.getExistingContainerAppEnvironmentLocation(environmentName, resourceGroup);
+                        return location;
+                    }
                 }
-            } else {
-                location = await this.appHelper.getDefaultContainerAppLocation();
+                if (doesContainerAppEnvironmentExist) {
+                    location = await this.appHelper.getExistingContainerAppEnvironmentLocation(containerAppEnvironment, resourceGroup);
+                    return location;
+                }
             }
+
+            location = await this.appHelper.getDefaultContainerAppLocation();
         }
 
         return location;
