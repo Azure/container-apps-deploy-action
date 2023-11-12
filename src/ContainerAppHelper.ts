@@ -50,7 +50,6 @@ export class ContainerAppHelper {
      * @param containerAppName - the name of the Container App
      * @param resourceGroup - the resource group that the Container App is found in
      * @param optionalCmdArgs - a set of optional command line arguments
-     * @param location - the location that the Container App will be created in
      */
      public async createOrUpdateContainerAppWithUp(
         containerAppName: string,
@@ -273,6 +272,8 @@ export class ContainerAppHelper {
 
     /**
      * Gets the location of an existing Container App Environment
+     * @param environmentName - the name of the Container App Environment
+     * @param resourceGroup - the resource group that the Container App Environment is found in
     */
     public async getExistingContainerAppEnvironmentLocation(environmentName: string, resourceGroup: string) {
         try {
@@ -287,6 +288,8 @@ export class ContainerAppHelper {
 
     /**
      * Gets the environment Id of an existing Container App
+     * @param containerAppName - the name of the Container App
+     * @param resourceGroup - the resource group that the Container App is found in
     */
     public async getExistingContainerAppEnvironmentName(containerAppName: string, resourceGroup: string) {
         try {

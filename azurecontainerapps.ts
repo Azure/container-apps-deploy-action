@@ -239,9 +239,12 @@ export class azurecontainerapps {
          // or Container App Environment in the resource group or use the default location.
          if (this.util.isNullOrEmpty(location)) {
             if (!this.util.isNullOrEmpty(resourceGroup)) {
+                // Check if Container App exists in the resource group provided and get the location from the Container App Environment linked to it
                 let doesContainerAppExist = await this.appHelper.doesContainerAppExist(this.containerAppName, resourceGroup);
+                // Check if Container App Environment is provided and exits in the resource group provided
                 let doesContainerAppEnvironmentExist = !this.util.isNullOrEmpty(containerAppEnvironment) ? await this.appHelper.doesContainerAppEnvironmentExist(containerAppEnvironment, resourceGroup) : null;
                 if (doesContainerAppExist) {
+                    // Get the name of the Container App Environment linked to the Container App
                     var environmentName = await this.appHelper.getExistingContainerAppEnvironmentName(this.containerAppName, resourceGroup);
                     // Check if environment exists in the resource group provided and get the location
                     var doesContainerAppEnvironmentExistInResourceGroup = !this.util.isNullOrEmpty(environmentName) ? await this.appHelper.doesContainerAppEnvironmentExist(environmentName, resourceGroup) : null;
@@ -250,12 +253,15 @@ export class azurecontainerapps {
                         return location;
                     }
                 }
+
+                // Check if Container App Environment exists in the resource group provided and get the location
                 if (doesContainerAppEnvironmentExist) {
                     location = await this.appHelper.getExistingContainerAppEnvironmentLocation(containerAppEnvironment, resourceGroup);
                     return location;
                 }
             }
 
+            // Get the default location for if the Container App or Container App Environment was not found in the resource group provided.
             location = await this.appHelper.getDefaultContainerAppLocation();
         }
 
@@ -594,7 +600,7 @@ export class azurecontainerapps {
             // Update the Container App using the 'update' command
             await this.appHelper.updateContainerApp(this.containerAppName, this.resourceGroup, this.commandLineArgs);
         } else if (this.shouldCreateOrUpdateContainerAppWithUp) {
-            await this.appHelper.createOrUpdateContainerAppWithUp(this.containerAppName, this.resourceGroup, this.commandLineArgs, this.location);
+            await this.appHelper.createOrUpdateContainerAppWithUp(this.containerAppName, this.resourceGroup, this.commandLineArgs);
         } else {
             // Update the Container App using the 'up' command
             await this.appHelper.updateContainerAppWithUp(this.containerAppName, this.resourceGroup, this.commandLineArgs, this.ingress, this.targetPort);
