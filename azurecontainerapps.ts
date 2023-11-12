@@ -181,7 +181,7 @@ export class azurecontainerapps {
      */
     private static async setupAzureCli() {
         // Set the Azure CLI to install missing extensions
-        await this.util.installAzureCliExtension();
+          await this.util.installAzureCliExtension();
     }
 
     /**
@@ -232,10 +232,26 @@ export class azurecontainerapps {
     private static async getLocation(): Promise<string> {
         // Set deployment location, if provided
         let location: string = this.toolHelper.getInput('location', false);
+        let resourceGroup: string = this.toolHelper.getInput('resourceGroup', false);
+        let containerAppEnvironment: string = this.toolHelper.getInput('containerAppEnvironment', false);
 
-        // If no location was provided, use the default location for the Container App service
-        if (this.util.isNullOrEmpty(location)) {
-            location = await this.appHelper.getDefaultContainerAppLocation();
+         // If no location was provided, attempt to discover the location of the existing Container App
+         // or Container App Environment in the resource group or use the default location.
+         if (this.util.isNullOrEmpty(location)) {
+            if (!this.util.isNullOrEmpty(resourceGroup)) {
+                let doesContainerAppExist = await this.appHelper.doesContainerAppExist(this.containerAppName, resourceGroup);
+                let doesContainerAppEnvironmentExist = await this.appHelper.doesContainerAppEnvironmentExist(containerAppEnvironment, resourceGroup);
+                if (doesContainerAppExist) {
+                    var environmentName = await this.appHelper.getExistingContainerAppEnvironmentName(this.containerAppName, resourceGroup);
+                    location = await this.appHelper.getExistingContainerAppEnvironmentLocation(environmentName, resourceGroup);
+                } else if (doesContainerAppEnvironmentExist) {
+                    location = await this.appHelper.getExistingContainerAppEnvironmentLocation(containerAppEnvironment, resourceGroup);
+                } else {
+                    location = await this.appHelper.getDefaultContainerAppLocation();
+                }
+            } else {
+                location = await this.appHelper.getDefaultContainerAppLocation();
+            }
         }
 
         return location;
@@ -351,21 +367,21 @@ export class azurecontainerapps {
      * Builds a runnable application image using a Dockerfile or the builder and pushes it to the Container Registry.
      */
     private static async buildAndPushImageAsync() {
-         // Get the name of the image to build if it was provided, or generate it from build variables
-         this.imageToBuild = this.toolHelper.getInput('imageToBuild', false);
+        // Get the name of the image to build if it was provided, or generate it from build variables
+        this.imageToBuild = this.toolHelper.getInput('imageToBuild', false);
 
-         if (this.util.isNullOrEmpty(this.imageToBuild)) {
-             const imageRepository = this.toolHelper.getDefaultImageRepository()
-             // Constructs the image to build based on the provided registry URL, image repository,  build ID, and build number.
-             this.imageToBuild = `${this.registryUrl}/${imageRepository}:${this.buildId}.${this.buildNumber}`;
-             this.toolHelper.writeInfo(`Default image to build: ${this.imageToBuild}`);
-         }
+        if (this.util.isNullOrEmpty(this.imageToBuild)) {
+            const imageRepository = this.toolHelper.getDefaultImageRepository()
+            // Constructs the image to build based on the provided registry URL, image repository,  build ID, and build number.
+            this.imageToBuild = `${this.registryUrl}/${imageRepository}:${this.buildId}.${this.buildNumber}`;
+            this.toolHelper.writeInfo(`Default image to build: ${this.imageToBuild}`);
+        }
 
-         // Get the name of the image to deploy if it was provided, or set it to the value of 'imageToBuild'
-         if (this.util.isNullOrEmpty(this.imageToDeploy)) {
-             this.imageToDeploy = this.imageToBuild;
-             this.toolHelper.writeInfo(`Default image to deploy: ${this.imageToDeploy}`);
-         }
+        // Get the name of the image to deploy if it was provided, or set it to the value of 'imageToBuild'
+        if (this.util.isNullOrEmpty(this.imageToDeploy)) {
+            this.imageToDeploy = this.imageToBuild;
+            this.toolHelper.writeInfo(`Default image to deploy: ${this.imageToDeploy}`);
+        }
 
         // Get Dockerfile to build, if provided, or check if one exists at the root of the provided application
         let dockerfilePath: string = this.toolHelper.getInput('dockerfilePath', false);
@@ -534,6 +550,7 @@ export class azurecontainerapps {
             this.commandLineArgs.push(`-i ${this.imageToDeploy}`);
         } else if (this.shouldCreateOrUpdateContainerAppWithUp) {
             this.commandLineArgs.push(`--source ${this.appSourcePath}`);
+            this.commandLineArgs.push(`-l ${this.location}`);
         }
 
     }
@@ -572,7 +589,7 @@ export class azurecontainerapps {
             // Update the Container App using the 'update' command
             await this.appHelper.updateContainerApp(this.containerAppName, this.resourceGroup, this.commandLineArgs);
         } else if (this.shouldCreateOrUpdateContainerAppWithUp) {
-            await this.appHelper.createOrUpdateContainerAppWithUp(this.containerAppName, this.resourceGroup, this.commandLineArgs);
+            await this.appHelper.createOrUpdateContainerAppWithUp(this.containerAppName, this.resourceGroup, this.commandLineArgs, this.location);
         } else {
             // Update the Container App using the 'up' command
             await this.appHelper.updateContainerAppWithUp(this.containerAppName, this.resourceGroup, this.commandLineArgs, this.ingress, this.targetPort);

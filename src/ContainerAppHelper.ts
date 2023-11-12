@@ -50,6 +50,7 @@ export class ContainerAppHelper {
      * @param containerAppName - the name of the Container App
      * @param resourceGroup - the resource group that the Container App is found in
      * @param optionalCmdArgs - a set of optional command line arguments
+     * @param location - the location that the Container App will be created in
      */
      public async createOrUpdateContainerAppWithUp(
         containerAppName: string,
@@ -264,6 +265,34 @@ export class ContainerAppHelper {
             let command = `az containerapp env list -g ${resourceGroup} --query "[0].name"`
             let executionResult = await util.execute(command);
             return executionResult.exitCode === 0 ? executionResult.stdout : null;
+        } catch (err) {
+            toolHelper.writeInfo(err.message);
+            return null;
+        }
+    }
+
+    /**
+     * Gets the location of an existing Container App Environment
+    */
+    public async getExistingContainerAppEnvironmentLocation(environmentName: string, resourceGroup: string) {
+        try {
+            let command = `az containerapp env show -g ${resourceGroup} --query location -n ${environmentName}`;
+            let executionResult = await util.execute(command);
+            return executionResult.exitCode === 0 ? executionResult.stdout.toLowerCase().replace(/["() ]/g, "").trim() : null;
+        } catch (err) {
+            toolHelper.writeInfo(err.message);
+            return null;
+        }
+    }
+
+    /**
+     * Gets the environment Id of an existing Container App
+    */
+    public async getExistingContainerAppEnvironmentName(containerAppName: string, resourceGroup: string) {
+        try {
+            let command = `az containerapp show -n ${containerAppName} -g ${resourceGroup} --query properties.environmentId`;
+            let executionResult = await util.execute(command);
+            return executionResult.exitCode === 0 ? executionResult.stdout.split("/").pop() : null;
         } catch (err) {
             toolHelper.writeInfo(err.message);
             return null;
