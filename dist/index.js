@@ -264,7 +264,7 @@ var azurecontainerapps = /** @class */ (function () {
      */
     azurecontainerapps.getLocation = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var location, resourceGroup, containerAppEnvironment, doesContainerAppExist, doesContainerAppEnvironmentExist, _a, environmentName, doesContainerAppEnvironmentExistInResourceGroup, _b;
+            var location, resourceGroup, containerAppEnvironment, doesContainerAppExist, environmentName, doesContainerAppEnvironmentExistInResourceGroup, _a, doesContainerAppEnvironmentExist, _b;
             return __generator(this, function (_c) {
                 switch (_c.label) {
                     case 0:
@@ -276,37 +276,37 @@ var azurecontainerapps = /** @class */ (function () {
                         return [4 /*yield*/, this.appHelper.doesContainerAppExist(this.containerAppName, resourceGroup)];
                     case 1:
                         doesContainerAppExist = _c.sent();
-                        if (!!this.util.isNullOrEmpty(containerAppEnvironment)) return [3 /*break*/, 3];
-                        return [4 /*yield*/, this.appHelper.doesContainerAppEnvironmentExist(containerAppEnvironment, resourceGroup)];
-                    case 2:
-                        _a = _c.sent();
-                        return [3 /*break*/, 4];
-                    case 3:
-                        _a = null;
-                        _c.label = 4;
-                    case 4:
-                        doesContainerAppEnvironmentExist = _a;
-                        if (!doesContainerAppExist) return [3 /*break*/, 10];
+                        if (!doesContainerAppExist) return [3 /*break*/, 7];
                         return [4 /*yield*/, this.appHelper.getExistingContainerAppEnvironmentName(this.containerAppName, resourceGroup)];
-                    case 5:
+                    case 2:
                         environmentName = _c.sent();
-                        if (!!this.util.isNullOrEmpty(environmentName)) return [3 /*break*/, 7];
+                        if (!!this.util.isNullOrEmpty(environmentName)) return [3 /*break*/, 4];
                         return [4 /*yield*/, this.appHelper.doesContainerAppEnvironmentExist(environmentName, resourceGroup)];
-                    case 6:
-                        _b = _c.sent();
-                        return [3 /*break*/, 8];
-                    case 7:
-                        _b = null;
-                        _c.label = 8;
-                    case 8:
-                        doesContainerAppEnvironmentExistInResourceGroup = _b;
-                        if (!doesContainerAppEnvironmentExistInResourceGroup) return [3 /*break*/, 10];
+                    case 3:
+                        _a = _c.sent();
+                        return [3 /*break*/, 5];
+                    case 4:
+                        _a = null;
+                        _c.label = 5;
+                    case 5:
+                        doesContainerAppEnvironmentExistInResourceGroup = _a;
+                        if (!doesContainerAppEnvironmentExistInResourceGroup) return [3 /*break*/, 7];
                         return [4 /*yield*/, this.appHelper.getExistingContainerAppEnvironmentLocation(environmentName, resourceGroup)];
-                    case 9:
+                    case 6:
                         // Get the location of the Container App Environment linked to the Container App
                         location = _c.sent();
                         return [2 /*return*/, location];
+                    case 7:
+                        if (!!this.util.isNullOrEmpty(containerAppEnvironment)) return [3 /*break*/, 9];
+                        return [4 /*yield*/, this.appHelper.doesContainerAppEnvironmentExist(containerAppEnvironment, resourceGroup)];
+                    case 8:
+                        _b = _c.sent();
+                        return [3 /*break*/, 10];
+                    case 9:
+                        _b = null;
+                        _c.label = 10;
                     case 10:
+                        doesContainerAppEnvironmentExist = _b;
                         if (!doesContainerAppEnvironmentExist) return [3 /*break*/, 12];
                         return [4 /*yield*/, this.appHelper.getExistingContainerAppEnvironmentLocation(containerAppEnvironment, resourceGroup)];
                     case 11:

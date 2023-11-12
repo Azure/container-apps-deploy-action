@@ -235,27 +235,26 @@ export class azurecontainerapps {
         let resourceGroup: string = this.toolHelper.getInput('resourceGroup', false);
         let containerAppEnvironment: string = this.toolHelper.getInput('containerAppEnvironment', false);
 
-         // If no location was provided, attempt to discover the location of the existing Container App
-         // or Container App Environment in the resource group or use the default location.
-         if (this.util.isNullOrEmpty(location)) {
+        // If no location was provided, attempt to discover the location of the existing Container App Environment linked to the Container App
+        // or Container App Environment provided in the resource group or use the default location.
+        if (this.util.isNullOrEmpty(location)) {
             if (!this.util.isNullOrEmpty(resourceGroup)) {
                 // Check if Container App exists in the resource group provided and get the location from the Container App Environment linked to it
                 let doesContainerAppExist = await this.appHelper.doesContainerAppExist(this.containerAppName, resourceGroup);
-                // Check if Container App Environment is provided and exits in the resource group provided
-                let doesContainerAppEnvironmentExist = !this.util.isNullOrEmpty(containerAppEnvironment) ? await this.appHelper.doesContainerAppEnvironmentExist(containerAppEnvironment, resourceGroup) : null;
                 if (doesContainerAppExist) {
                     // Get the name of the Container App Environment linked to the Container App
                     var environmentName = await this.appHelper.getExistingContainerAppEnvironmentName(this.containerAppName, resourceGroup);
                     // Check if environment exists in the resource group provided and get the location
                     var doesContainerAppEnvironmentExistInResourceGroup = !this.util.isNullOrEmpty(environmentName) ? await this.appHelper.doesContainerAppEnvironmentExist(environmentName, resourceGroup) : null;
-                    if (doesContainerAppEnvironmentExistInResourceGroup){
+                    if (doesContainerAppEnvironmentExistInResourceGroup) {
                         // Get the location of the Container App Environment linked to the Container App
                         location = await this.appHelper.getExistingContainerAppEnvironmentLocation(environmentName, resourceGroup);
                         return location;
                     }
                 }
 
-                // Check if Container App Environment exists in the resource group provided and get the location
+                // Check if Container App Environment is provided and exits in the resource group provided and get the location
+                let doesContainerAppEnvironmentExist = !this.util.isNullOrEmpty(containerAppEnvironment) ? await this.appHelper.doesContainerAppEnvironmentExist(containerAppEnvironment, resourceGroup) : null;
                 if (doesContainerAppEnvironmentExist) {
                     location = await this.appHelper.getExistingContainerAppEnvironmentLocation(containerAppEnvironment, resourceGroup);
                     return location;
