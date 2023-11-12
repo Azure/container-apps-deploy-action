@@ -249,6 +249,8 @@ export class azurecontainerapps {
                 } else {
                     location = await this.appHelper.getDefaultContainerAppLocation();
                 }
+            } else {
+                location = await this.appHelper.getDefaultContainerAppLocation();
             }
         }
 
@@ -317,9 +319,6 @@ export class azurecontainerapps {
         if (!containerAppEnvironmentExists) {
             await this.appHelper.createContainerAppEnvironment(containerAppEnvironment, resourceGroup, location);
         }
-
-        // Set default location to the location of the Container App environment
-        this.location = await this.appHelper.getExistingContainerAppEnvironmentLocation(containerAppEnvironment, this.resourceGroup);
 
         return containerAppEnvironment;
     }
