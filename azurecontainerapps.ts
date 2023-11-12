@@ -244,8 +244,8 @@ export class azurecontainerapps {
                 if (doesContainerAppExist) {
                     var environmentName = await this.appHelper.getExistingContainerAppEnvironmentName(this.containerAppName, resourceGroup);
                     // Check if environment exists in the resource group provided and get the location
-                    doesContainerAppEnvironmentExist = !this.util.isNullOrEmpty(environmentName) ? await this.appHelper.doesContainerAppEnvironmentExist(environmentName, resourceGroup) : null;
-                    if (doesContainerAppEnvironmentExist){
+                    var doesContainerAppEnvironmentExistInResourceGroup = !this.util.isNullOrEmpty(environmentName) ? await this.appHelper.doesContainerAppEnvironmentExist(environmentName, resourceGroup) : null;
+                    if (doesContainerAppEnvironmentExistInResourceGroup){
                         location = await this.appHelper.getExistingContainerAppEnvironmentLocation(environmentName, resourceGroup);
                         return location;
                     }

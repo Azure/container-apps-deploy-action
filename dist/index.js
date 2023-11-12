@@ -264,7 +264,7 @@ var azurecontainerapps = /** @class */ (function () {
      */
     azurecontainerapps.getLocation = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var location, resourceGroup, containerAppEnvironment, doesContainerAppExist, doesContainerAppEnvironmentExist, _a, environmentName, _b;
+            var location, resourceGroup, containerAppEnvironment, doesContainerAppExist, doesContainerAppEnvironmentExist, _a, environmentName, doesContainerAppEnvironmentExistInResourceGroup, _b;
             return __generator(this, function (_c) {
                 switch (_c.label) {
                     case 0:
@@ -299,9 +299,8 @@ var azurecontainerapps = /** @class */ (function () {
                         _b = null;
                         _c.label = 8;
                     case 8:
-                        // Check if environment exists in the resource group provided and get the location
-                        doesContainerAppEnvironmentExist = _b;
-                        if (!doesContainerAppEnvironmentExist) return [3 /*break*/, 10];
+                        doesContainerAppEnvironmentExistInResourceGroup = _b;
+                        if (!doesContainerAppEnvironmentExistInResourceGroup) return [3 /*break*/, 10];
                         return [4 /*yield*/, this.appHelper.getExistingContainerAppEnvironmentLocation(environmentName, resourceGroup)];
                     case 9:
                         location = _c.sent();
