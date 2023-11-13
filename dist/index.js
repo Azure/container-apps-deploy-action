@@ -316,7 +316,7 @@ var azurecontainerapps = /** @class */ (function () {
                         return [2 /*return*/, location];
                     case 12: return [4 /*yield*/, this.appHelper.getDefaultContainerAppLocation()];
                     case 13:
-                        // Get the default location for if the Container App or Container App Environment was not found in the resource group provided.
+                        // Get the default location if the Container App or Container App Environment was not found in the resource group provided.
                         location = _c.sent();
                         return [2 /*return*/, location];
                 }

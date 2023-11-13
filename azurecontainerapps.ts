@@ -265,7 +265,7 @@ export class azurecontainerapps {
             }
         }
 
-        // Get the default location for if the Container App or Container App Environment was not found in the resource group provided.
+        // Get the default location if the Container App or Container App Environment was not found in the resource group provided.
         location = await this.appHelper.getDefaultContainerAppLocation();
         return location;
 
