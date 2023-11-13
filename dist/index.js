@@ -271,7 +271,9 @@ var azurecontainerapps = /** @class */ (function () {
                         location = this.toolHelper.getInput('location', false);
                         resourceGroup = this.toolHelper.getInput('resourceGroup', false);
                         containerAppEnvironment = this.toolHelper.getInput('containerAppEnvironment', false);
-                        if (!this.util.isNullOrEmpty(location)) return [3 /*break*/, 14];
+                        if (!this.util.isNullOrEmpty(location)) {
+                            return [2 /*return*/, location];
+                        }
                         if (!!this.util.isNullOrEmpty(resourceGroup)) return [3 /*break*/, 12];
                         return [4 /*yield*/, this.appHelper.doesContainerAppExist(this.containerAppName, resourceGroup)];
                     case 1:
@@ -286,7 +288,7 @@ var azurecontainerapps = /** @class */ (function () {
                         _a = _c.sent();
                         return [3 /*break*/, 5];
                     case 4:
-                        _a = null;
+                        _a = false;
                         _c.label = 5;
                     case 5:
                         doesContainerAppEnvironmentExistInResourceGroup = _a;
@@ -303,7 +305,7 @@ var azurecontainerapps = /** @class */ (function () {
                         _b = _c.sent();
                         return [3 /*break*/, 10];
                     case 9:
-                        _b = null;
+                        _b = false;
                         _c.label = 10;
                     case 10:
                         doesContainerAppEnvironmentExist = _b;
@@ -316,8 +318,7 @@ var azurecontainerapps = /** @class */ (function () {
                     case 13:
                         // Get the default location for if the Container App or Container App Environment was not found in the resource group provided.
                         location = _c.sent();
-                        _c.label = 14;
-                    case 14: return [2 /*return*/, location];
+                        return [2 /*return*/, location];
                 }
             });
         });
