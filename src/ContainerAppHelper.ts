@@ -298,9 +298,11 @@ export class ContainerAppHelper {
             let containerappEnvironmentId = executionResult.stdout.trim();
 
             //Remove trailing slash if it exists
-            containerappEnvironmentId = containerappEnvironmentId.endsWith("/") ? containerappEnvironmentId.slice(0, -1) : containerappEnvironmentId;
+            if (!util.isNullOrEmpty(containerappEnvironmentId)) {
+                containerappEnvironmentId = containerappEnvironmentId.endsWith("/") ? containerappEnvironmentId.slice(0, -1) : containerappEnvironmentId;
+            }
 
-            return executionResult.exitCode === 0 ? containerappEnvironmentId.split("/").pop() : null;
+            return executionResult.exitCode === 0 ? containerappEnvironmentId.split("/").pop().trim() : null;
         } catch (err) {
             toolHelper.writeInfo(err.message);
             return null;
