@@ -267,8 +267,9 @@ var azurecontainerapps = /** @class */ (function () {
                             return [2 /*return*/, location];
                         }
                         resourceGroup = this.toolHelper.getInput('resourceGroup', false);
-                        // Get the resource group if it was provided, or generate it from the Container App name
-                        !this.util.isNullOrEmpty(resourceGroup) ? resourceGroup : this.containerAppName + "-rg";
+                        if (this.util.isNullOrEmpty(resourceGroup)) {
+                            resourceGroup = this.containerAppName + "-rg";
+                        }
                         // Check if Container App exists in the resource group provided and get the location from the Container App Environment linked to it
                         _a = this;
                         return [4 /*yield*/, this.appHelper.doesContainerAppExist(this.containerAppName, resourceGroup)];

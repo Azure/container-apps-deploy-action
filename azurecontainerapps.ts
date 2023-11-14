@@ -236,10 +236,11 @@ export class azurecontainerapps {
 
         // If no location was provided, attempt to discover the location of the existing Container App Environment linked to the Container App
         // or Container App Environment provided in the resource group or use the default location.
-        let resourceGroup: string = this.toolHelper.getInput('resourceGroup', false);
-
         // Get the resource group if it was provided, or generate it from the Container App name
-        !this.util.isNullOrEmpty(resourceGroup) ? resourceGroup : `${this.containerAppName}-rg`;
+        let resourceGroup: string = this.toolHelper.getInput('resourceGroup', false);
+        if (this.util.isNullOrEmpty(resourceGroup)){
+            resourceGroup = `${this.containerAppName}-rg`;
+        }
 
         // Check if Container App exists in the resource group provided and get the location from the Container App Environment linked to it
         this.containerAppExists = await this.appHelper.doesContainerAppExist(this.containerAppName, resourceGroup);
@@ -264,7 +265,6 @@ export class azurecontainerapps {
             location = await this.appHelper.getExistingContainerAppEnvironmentLocation(containerAppEnvironment, resourceGroup);
             return location;
         }
-
 
         // Get the default location if the Container App or Container App Environment was not found in the resource group provided.
         location = await this.appHelper.getDefaultContainerAppLocation();
