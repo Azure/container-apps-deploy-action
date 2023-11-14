@@ -119,7 +119,7 @@ var azurecontainerapps = /** @class */ (function () {
                         this.toolHelper.setFailed(err_1.message);
                         this.telemetryHelper.setFailedResult(err_1.message);
                         return [3 /*break*/, 14];
-                    case 12:
+                    case 12: 
                     // If telemetry is enabled, will log metadata for this task run
                     return [4 /*yield*/, this.telemetryHelper.sendLogs()];
                     case 13:
@@ -189,7 +189,15 @@ var azurecontainerapps = /** @class */ (function () {
     azurecontainerapps.setupAzureCli = function () {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
-                return [2 /*return*/];
+                switch (_a.label) {
+                    case 0: 
+                    // Set the Azure CLI to install missing extensions
+                    return [4 /*yield*/, this.util.installAzureCliExtension()];
+                    case 1:
+                        // Set the Azure CLI to install missing extensions
+                        _a.sent();
+                        return [2 /*return*/];
+                }
             });
         });
     };
@@ -477,7 +485,7 @@ var azurecontainerapps = /** @class */ (function () {
                         this.toolHelper.writeInfo("Dockerfile found at root of application source.");
                         dockerfilePath = rootDockerfilePath;
                         return [3 /*break*/, 3];
-                    case 1:
+                    case 1: 
                     // No Dockerfile found or provided, build the image using the builder
                     return [4 /*yield*/, this.buildImageFromBuilderAsync(this.appSourcePath, this.imageToBuild)];
                     case 2:
@@ -496,7 +504,7 @@ var azurecontainerapps = /** @class */ (function () {
                         // Build the image from the provided/discovered Dockerfile
                         _a.sent();
                         _a.label = 7;
-                    case 7:
+                    case 7: 
                     // Push the image to the Container Registry
                     return [4 /*yield*/, this.registryHelper.pushImageToContainerRegistry(this.imageToBuild)];
                     case 8:
@@ -517,7 +525,7 @@ var azurecontainerapps = /** @class */ (function () {
             var environmentVariables, runtimeStack, runtimeStackSplit, platformName, platformVersion, builderStack;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0:
+                    case 0: 
                     // Install the pack CLI
                     return [4 /*yield*/, this.appHelper.installPackCliAsync()];
                     case 1:
@@ -674,7 +682,7 @@ var azurecontainerapps = /** @class */ (function () {
                     case 3:
                         _a.sent();
                         return [3 /*break*/, 6];
-                    case 4:
+                    case 4: 
                     // Create the Container App from command line arguments
                     return [4 /*yield*/, this.appHelper.createContainerApp(this.containerAppName, this.resourceGroup, this.containerAppEnvironment, this.commandLineArgs)];
                     case 5:
@@ -697,7 +705,7 @@ var azurecontainerapps = /** @class */ (function () {
                     case 10:
                         _a.sent();
                         _a.label = 11;
-                    case 11:
+                    case 11: 
                     // Update the Container App using the 'update' command
                     return [4 /*yield*/, this.appHelper.updateContainerApp(this.containerAppName, this.resourceGroup, this.commandLineArgs)];
                     case 12:
@@ -710,7 +718,7 @@ var azurecontainerapps = /** @class */ (function () {
                     case 14:
                         _a.sent();
                         return [3 /*break*/, 17];
-                    case 15:
+                    case 15: 
                     // Update the Container App using the 'up' command
                     return [4 /*yield*/, this.appHelper.updateContainerAppWithUp(this.containerAppName, this.resourceGroup, this.commandLineArgs, this.ingress, this.targetPort)];
                     case 16:
@@ -1291,8 +1299,8 @@ class OidcClient {
             const res = yield httpclient
                 .getJson(id_token_url)
                 .catch(error => {
-                throw new Error(`Failed to get ID Token. \n
-        Error Code : ${error.statusCode}\n
+                throw new Error(`Failed to get ID Token. \n 
+        Error Code : ${error.statusCode}\n 
         Error Message: ${error.message}`);
             });
             const id_token = (_a = res.result) === null || _a === void 0 ? void 0 : _a.value;
@@ -6163,7 +6171,7 @@ module.exports = require("util");
 /************************************************************************/
 /******/ 	// The module cache
 /******/ 	var __webpack_module_cache__ = {};
-/******/
+/******/ 	
 /******/ 	// The require function
 /******/ 	function __nccwpck_require__(moduleId) {
 /******/ 		// Check if module is in cache
@@ -6177,7 +6185,7 @@ module.exports = require("util");
 /******/ 			// no module.loaded needed
 /******/ 			exports: {}
 /******/ 		};
-/******/
+/******/ 	
 /******/ 		// Execute the module function
 /******/ 		var threw = true;
 /******/ 		try {
@@ -6186,23 +6194,23 @@ module.exports = require("util");
 /******/ 		} finally {
 /******/ 			if(threw) delete __webpack_module_cache__[moduleId];
 /******/ 		}
-/******/
+/******/ 	
 /******/ 		// Return the exports of the module
 /******/ 		return module.exports;
 /******/ 	}
-/******/
+/******/ 	
 /************************************************************************/
 /******/ 	/* webpack/runtime/compat */
-/******/
+/******/ 	
 /******/ 	if (typeof __nccwpck_require__ !== 'undefined') __nccwpck_require__.ab = __dirname + "/";
-/******/
+/******/ 	
 /************************************************************************/
-/******/
+/******/ 	
 /******/ 	// startup
 /******/ 	// Load entry module and return exports
 /******/ 	// This entry module is referenced by other modules so it can't be inlined
 /******/ 	var __webpack_exports__ = __nccwpck_require__(3238);
 /******/ 	module.exports = __webpack_exports__;
-/******/
+/******/ 	
 /******/ })()
 ;

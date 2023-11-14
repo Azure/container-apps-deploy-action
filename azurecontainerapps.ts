@@ -181,7 +181,7 @@ export class azurecontainerapps {
      */
     private static async setupAzureCli() {
         // Set the Azure CLI to install missing extensions
-     //   await this.util.installAzureCliExtension();
+        await this.util.installAzureCliExtension();
     }
 
     /**
