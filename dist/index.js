@@ -264,7 +264,7 @@ var azurecontainerapps = /** @class */ (function () {
      */
     azurecontainerapps.getLocation = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var location, resourceGroup, doesContainerAppExist, environmentName, doesContainerAppEnvironmentExistInResourceGroup, _a, containerAppEnvironment, doesContainerAppEnvironmentExist, _b;
+            var location, resourceGroup, containerAppExists, environmentName, containerAppEnvironmentExistsInResourceGroup, _a, containerAppEnvironment, containerAppEnvironmentExists, _b;
             return __generator(this, function (_c) {
                 switch (_c.label) {
                     case 0:
@@ -276,8 +276,8 @@ var azurecontainerapps = /** @class */ (function () {
                         if (!!this.util.isNullOrEmpty(resourceGroup)) return [3 /*break*/, 12];
                         return [4 /*yield*/, this.appHelper.doesContainerAppExist(this.containerAppName, resourceGroup)];
                     case 1:
-                        doesContainerAppExist = _c.sent();
-                        if (!doesContainerAppExist) return [3 /*break*/, 7];
+                        containerAppExists = _c.sent();
+                        if (!containerAppExists) return [3 /*break*/, 7];
                         return [4 /*yield*/, this.appHelper.getExistingContainerAppEnvironmentName(this.containerAppName, resourceGroup)];
                     case 2:
                         environmentName = _c.sent();
@@ -290,8 +290,8 @@ var azurecontainerapps = /** @class */ (function () {
                         _a = false;
                         _c.label = 5;
                     case 5:
-                        doesContainerAppEnvironmentExistInResourceGroup = _a;
-                        if (!doesContainerAppEnvironmentExistInResourceGroup) return [3 /*break*/, 7];
+                        containerAppEnvironmentExistsInResourceGroup = _a;
+                        if (!containerAppEnvironmentExistsInResourceGroup) return [3 /*break*/, 7];
                         return [4 /*yield*/, this.appHelper.getExistingContainerAppEnvironmentLocation(environmentName, resourceGroup)];
                     case 6:
                         // Get the location of the Container App Environment linked to the Container App
@@ -308,8 +308,8 @@ var azurecontainerapps = /** @class */ (function () {
                         _b = false;
                         _c.label = 10;
                     case 10:
-                        doesContainerAppEnvironmentExist = _b;
-                        if (!doesContainerAppEnvironmentExist) return [3 /*break*/, 12];
+                        containerAppEnvironmentExists = _b;
+                        if (!containerAppEnvironmentExists) return [3 /*break*/, 12];
                         return [4 /*yield*/, this.appHelper.getExistingContainerAppEnvironmentLocation(containerAppEnvironment, resourceGroup)];
                     case 11:
                         location = _c.sent();
