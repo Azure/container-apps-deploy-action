@@ -1,4 +1,4 @@
-name: Run validation on action
+name: Run validation on action using OIDC
 
 on:
   push:
