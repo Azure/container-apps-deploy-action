@@ -257,6 +257,7 @@ export class azurecontainerapps {
                 }
             }
 
+            // Get the Container App Environment name if it was provided
             let containerAppEnvironment: string = this.toolHelper.getInput('containerAppEnvironment', false);
 
             // Check if Container App Environment is provided and exits in the resource group provided and get the location
