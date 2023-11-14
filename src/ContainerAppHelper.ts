@@ -7,7 +7,7 @@ import fs = require('fs');
 const ORYX_CLI_IMAGE: string = 'mcr.microsoft.com/oryx/cli:builder-debian-bullseye-20230926.1';
 const ORYX_BULLSEYE_BUILDER_IMAGE: string = 'mcr.microsoft.com/oryx/builder:debian-bullseye-20231107.2'
 const ORYX_BOOKWORM_BUILDER_IMAGE: string = 'mcr.microsoft.com/oryx/builder:debian-bookworm-20231107.2'
-const ORYX_BUILDER_IMAGES: string[] = [ ORYX_BULLSEYE_BUILDER_IMAGE, ORYX_BOOKWORM_BUILDER_IMAGE ];
+const ORYX_BUILDER_IMAGES: string[] = [ORYX_BULLSEYE_BUILDER_IMAGE, ORYX_BOOKWORM_BUILDER_IMAGE];
 const IS_WINDOWS_AGENT: boolean = os.platform() == 'win32';
 const PACK_CMD: string = IS_WINDOWS_AGENT ? path.join(os.tmpdir(), 'pack') : 'pack';
 const toolHelper = new GitHubActionsToolHelper();
@@ -45,19 +45,19 @@ export class ContainerAppHelper {
         }
     }
 
-     /**
-     * Creates an Azure Container App.
-     * @param containerAppName - the name of the Container App
-     * @param resourceGroup - the resource group that the Container App is found in
-     * @param optionalCmdArgs - a set of optional command line arguments
-     */
-     public async createOrUpdateContainerAppWithUp(
+    /**
+    * Creates an Azure Container App.
+    * @param containerAppName - the name of the Container App
+    * @param resourceGroup - the resource group that the Container App is found in
+    * @param optionalCmdArgs - a set of optional command line arguments
+    */
+    public async createOrUpdateContainerAppWithUp(
         containerAppName: string,
         resourceGroup: string,
         optionalCmdArgs: string[]) {
         toolHelper.writeDebug(`Attempting to create Container App with name "${containerAppName}" in resource group "${resourceGroup}"`);
         try {
-            let command = `az containerapp up -n ${containerAppName} -g ${resourceGroup} -l northcentralusstage`;
+            let command = `az containerapp up -n ${containerAppName} -g ${resourceGroup}`;
             optionalCmdArgs.forEach(function (val: string) {
                 command += ` ${val}`;
             });
@@ -194,7 +194,7 @@ export class ContainerAppHelper {
     public async doesContainerAppEnvironmentExist(containerAppEnvironment: string, resourceGroup: string): Promise<boolean> {
         toolHelper.writeDebug(`Attempting to determine if Container App Environment with name "${containerAppEnvironment}" exists in resource group "${resourceGroup}"`);
         try {
-            let command = `az containerapp env show -n ${containerAppEnvironment} -g ${resourceGroup} -o none`;
+            let command = `az containerapp env show -o none -g ${resourceGroup} -n ${containerAppEnvironment}`;
             let executionResult = await util.execute(command);
             return executionResult.exitCode === 0;
         } catch (err) {
@@ -264,6 +264,45 @@ export class ContainerAppHelper {
             let command = `az containerapp env list -g ${resourceGroup} --query "[0].name"`
             let executionResult = await util.execute(command);
             return executionResult.exitCode === 0 ? executionResult.stdout : null;
+        } catch (err) {
+            toolHelper.writeInfo(err.message);
+            return null;
+        }
+    }
+
+    /**
+     * Gets the location of an existing Container App Environment
+     * @param environmentName - the name of the Container App Environment
+     * @param resourceGroup - the resource group that the Container App Environment is found in
+    */
+    public async getExistingContainerAppEnvironmentLocation(environmentName: string, resourceGroup: string) {
+        try {
+            let command = `az containerapp env show -g ${resourceGroup} --query location -n ${environmentName}`;
+            let executionResult = await util.execute(command);
+            return executionResult.exitCode === 0 ? executionResult.stdout.toLowerCase().replace(/["() ]/g, "").trim() : null;
+        } catch (err) {
+            toolHelper.writeInfo(err.message);
+            return null;
+        }
+    }
+
+    /**
+     * Gets the environment name of an existing Container App
+     * @param containerAppName - the name of the Container App
+     * @param resourceGroup - the resource group that the Container App is found in
+    */
+    public async getExistingContainerAppEnvironmentName(containerAppName: string, resourceGroup: string) {
+        try {
+            let command = `az containerapp show -n ${containerAppName} -g ${resourceGroup} --query properties.environmentId`;
+            let executionResult = await util.execute(command);
+            let containerappEnvironmentId = executionResult.stdout.trim();
+
+            //Remove trailing slash if it exists
+            if (!util.isNullOrEmpty(containerappEnvironmentId)) {
+                containerappEnvironmentId = containerappEnvironmentId.endsWith("/") ? containerappEnvironmentId.slice(0, -1) : containerappEnvironmentId;
+            }
+
+            return executionResult.exitCode === 0 ? containerappEnvironmentId.split("/").pop().trim() : null;
         } catch (err) {
             toolHelper.writeInfo(err.message);
             return null;
