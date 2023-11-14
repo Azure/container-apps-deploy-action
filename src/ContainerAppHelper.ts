@@ -7,7 +7,7 @@ import fs = require('fs');
 const ORYX_CLI_IMAGE: string = 'mcr.microsoft.com/oryx/cli:builder-debian-bullseye-20230926.1';
 const ORYX_BULLSEYE_BUILDER_IMAGE: string = 'mcr.microsoft.com/oryx/builder:debian-bullseye-20231107.2'
 const ORYX_BOOKWORM_BUILDER_IMAGE: string = 'mcr.microsoft.com/oryx/builder:debian-bookworm-20231107.2'
-const ORYX_BUILDER_IMAGES: string[] = [ ORYX_BULLSEYE_BUILDER_IMAGE, ORYX_BOOKWORM_BUILDER_IMAGE ];
+const ORYX_BUILDER_IMAGES: string[] = [ORYX_BULLSEYE_BUILDER_IMAGE, ORYX_BOOKWORM_BUILDER_IMAGE];
 const IS_WINDOWS_AGENT: boolean = os.platform() == 'win32';
 const PACK_CMD: string = IS_WINDOWS_AGENT ? path.join(os.tmpdir(), 'pack') : 'pack';
 const toolHelper = new GitHubActionsToolHelper();
@@ -45,13 +45,13 @@ export class ContainerAppHelper {
         }
     }
 
-     /**
-     * Creates an Azure Container App.
-     * @param containerAppName - the name of the Container App
-     * @param resourceGroup - the resource group that the Container App is found in
-     * @param optionalCmdArgs - a set of optional command line arguments
-     */
-     public async createOrUpdateContainerAppWithUp(
+    /**
+    * Creates an Azure Container App.
+    * @param containerAppName - the name of the Container App
+    * @param resourceGroup - the resource group that the Container App is found in
+    * @param optionalCmdArgs - a set of optional command line arguments
+    */
+    public async createOrUpdateContainerAppWithUp(
         containerAppName: string,
         resourceGroup: string,
         optionalCmdArgs: string[]) {
@@ -287,7 +287,7 @@ export class ContainerAppHelper {
     }
 
     /**
-     * Gets the environment Id of an existing Container App
+     * Gets the environment name of an existing Container App
      * @param containerAppName - the name of the Container App
      * @param resourceGroup - the resource group that the Container App is found in
     */
@@ -295,7 +295,12 @@ export class ContainerAppHelper {
         try {
             let command = `az containerapp show -n ${containerAppName} -g ${resourceGroup} --query properties.environmentId`;
             let executionResult = await util.execute(command);
-            return executionResult.exitCode === 0 ? executionResult.stdout.split("/").pop() : null;
+            let containerappEnvironmentId = executionResult.stdout.trim();
+
+            //Remove trailing slash if it exists
+            containerappEnvironmentId = containerappEnvironmentId.endsWith("/") ? containerappEnvironmentId.slice(0, -1) : containerappEnvironmentId;
+
+            return executionResult.exitCode === 0 ? containerappEnvironmentId.split("/").pop() : null;
         } catch (err) {
             toolHelper.writeInfo(err.message);
             return null;
