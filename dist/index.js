@@ -220,11 +220,11 @@ var azurecontainerapps = /** @class */ (function () {
                     case 2:
                         // Get the resource group to deploy to if it was provided, or generate it from the Container App name
                         _b.resourceGroup = _e.sent();
-                        // Determine if the Container App currently exists
+                        // Determine if the Container Appp currently exists
                         _c = this;
                         return [4 /*yield*/, this.appHelper.doesContainerAppExist(this.containerAppName, this.resourceGroup)];
                     case 3:
-                        // Determine if the Container App currently exists
+                        // Determine if the Container Appp currently exists
                         _c.containerAppExists = _e.sent();
                         if (!!this.containerAppExists) return [3 /*break*/, 5];
                         _d = this;
@@ -256,21 +256,20 @@ var azurecontainerapps = /** @class */ (function () {
      */
     azurecontainerapps.getLocation = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var location, resourceGroup, containerAppEnvironment, doesContainerAppExist, environmentName, doesContainerAppEnvironmentExistInResourceGroup, _a, doesContainerAppEnvironmentExist, _b;
+            var location, resourceGroup, containerAppExists, environmentName, containerAppEnvironmentExistsInResourceGroup, _a, containerAppEnvironment, containerAppEnvironmentExists, _b;
             return __generator(this, function (_c) {
                 switch (_c.label) {
                     case 0:
                         location = this.toolHelper.getInput('location', false);
-                        resourceGroup = this.toolHelper.getInput('resourceGroup', false);
-                        containerAppEnvironment = this.toolHelper.getInput('containerAppEnvironment', false);
                         if (!this.util.isNullOrEmpty(location)) {
                             return [2 /*return*/, location];
                         }
+                        resourceGroup = this.toolHelper.getInput('resourceGroup', false);
                         if (!!this.util.isNullOrEmpty(resourceGroup)) return [3 /*break*/, 12];
                         return [4 /*yield*/, this.appHelper.doesContainerAppExist(this.containerAppName, resourceGroup)];
                     case 1:
-                        doesContainerAppExist = _c.sent();
-                        if (!doesContainerAppExist) return [3 /*break*/, 7];
+                        containerAppExists = _c.sent();
+                        if (!containerAppExists) return [3 /*break*/, 7];
                         return [4 /*yield*/, this.appHelper.getExistingContainerAppEnvironmentName(this.containerAppName, resourceGroup)];
                     case 2:
                         environmentName = _c.sent();
@@ -283,14 +282,15 @@ var azurecontainerapps = /** @class */ (function () {
                         _a = false;
                         _c.label = 5;
                     case 5:
-                        doesContainerAppEnvironmentExistInResourceGroup = _a;
-                        if (!doesContainerAppEnvironmentExistInResourceGroup) return [3 /*break*/, 7];
+                        containerAppEnvironmentExistsInResourceGroup = _a;
+                        if (!containerAppEnvironmentExistsInResourceGroup) return [3 /*break*/, 7];
                         return [4 /*yield*/, this.appHelper.getExistingContainerAppEnvironmentLocation(environmentName, resourceGroup)];
                     case 6:
                         // Get the location of the Container App Environment linked to the Container App
                         location = _c.sent();
                         return [2 /*return*/, location];
                     case 7:
+                        containerAppEnvironment = this.toolHelper.getInput('containerAppEnvironment', false);
                         if (!!this.util.isNullOrEmpty(containerAppEnvironment)) return [3 /*break*/, 9];
                         return [4 /*yield*/, this.appHelper.doesContainerAppEnvironmentExist(containerAppEnvironment, resourceGroup)];
                     case 8:
@@ -300,15 +300,15 @@ var azurecontainerapps = /** @class */ (function () {
                         _b = false;
                         _c.label = 10;
                     case 10:
-                        doesContainerAppEnvironmentExist = _b;
-                        if (!doesContainerAppEnvironmentExist) return [3 /*break*/, 12];
+                        containerAppEnvironmentExists = _b;
+                        if (!containerAppEnvironmentExists) return [3 /*break*/, 12];
                         return [4 /*yield*/, this.appHelper.getExistingContainerAppEnvironmentLocation(containerAppEnvironment, resourceGroup)];
                     case 11:
                         location = _c.sent();
                         return [2 /*return*/, location];
                     case 12: return [4 /*yield*/, this.appHelper.getDefaultContainerAppLocation()];
                     case 13:
-                        // Get the default location for if the Container App or Container App Environment was not found in the resource group provided.
+                        // Get the default location if the Container App or Container App Environment was not found in the resource group provided.
                         location = _c.sent();
                         return [2 /*return*/, location];
                 }
@@ -5153,13 +5153,13 @@ var ContainerAppHelper = /** @class */ (function () {
         });
     };
     /**
-     * Gets the environment Id of an existing Container App
+     * Gets the environment name of an existing Container App
      * @param containerAppName - the name of the Container App
      * @param resourceGroup - the resource group that the Container App is found in
     */
     ContainerAppHelper.prototype.getExistingContainerAppEnvironmentName = function (containerAppName, resourceGroup) {
         return __awaiter(this, void 0, void 0, function () {
-            var command, executionResult, err_14;
+            var command, executionResult, containerappEnvironmentId, err_14;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -5168,7 +5168,12 @@ var ContainerAppHelper = /** @class */ (function () {
                         return [4 /*yield*/, util.execute(command)];
                     case 1:
                         executionResult = _a.sent();
-                        return [2 /*return*/, executionResult.exitCode === 0 ? executionResult.stdout.split("/").pop() : null];
+                        containerappEnvironmentId = executionResult.stdout.trim();
+                        //Remove trailing slash if it exists
+                        if (!util.isNullOrEmpty(containerappEnvironmentId)) {
+                            containerappEnvironmentId = containerappEnvironmentId.endsWith("/") ? containerappEnvironmentId.slice(0, -1) : containerappEnvironmentId;
+                        }
+                        return [2 /*return*/, executionResult.exitCode === 0 ? containerappEnvironmentId.split("/").pop().trim() : null];
                     case 2:
                         err_14 = _a.sent();
                         toolHelper.writeInfo(err_14.message);
