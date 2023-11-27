@@ -1,6 +1,6 @@
 import * as os from 'os';
 import { Utility } from './Utility';
-import { GitHubActionsToolHelper } from './GitHubActionsToolHelper';
+import { GitHubActionsToolHelper } from './GithubActionsToolHelper';
 
 const toolHelper = new GitHubActionsToolHelper();
 const util = new Utility();
