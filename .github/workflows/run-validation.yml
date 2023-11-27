@@ -53,6 +53,7 @@ jobs:
           resourceGroup: ${{ vars.TEST_RESOURCE_GROUP_NAME }}
           imageToBuild: ${{ env.TEST_FULL_ACR_NAME }}/${{ env.TEST_IMAGE_REPOSITORY }}:${{ env.TEST_IMAGE_TAG }}
           disableTelemetry: ${{ vars.TEST_DISABLE_TELEMETRY }}
+          containerName: ${{ vars.CONTAINER_NAME }}
 
       - name: Delete created Azure Container App
         if: ${{ always() }}
@@ -100,6 +101,7 @@ jobs:
           resourceGroup: ${{ vars.TEST_RESOURCE_GROUP_NAME }}
           imageToBuild: ${{ env.TEST_FULL_ACR_NAME }}/${{ env.TEST_IMAGE_REPOSITORY }}:${{ env.TEST_IMAGE_TAG }}
           disableTelemetry: ${{ vars.TEST_DISABLE_TELEMETRY }}
+          containerName: ${{ vars.CONTAINER_NAME }}
 
       - name: Delete created Azure Container App
         if: ${{ always() }}
@@ -148,6 +150,7 @@ jobs:
           resourceGroup: ${{ vars.TEST_RESOURCE_GROUP_NAME }}
           imageToBuild: ${{ env.TEST_FULL_ACR_NAME }}/${{ env.TEST_IMAGE_REPOSITORY }}:${{ env.TEST_IMAGE_TAG }}
           disableTelemetry: ${{ vars.TEST_DISABLE_TELEMETRY }}
+          containerName: ${{ vars.CONTAINER_NAME }}
 
       - name: Delete created Azure Container App
         if: ${{ always() }}
@@ -185,6 +188,7 @@ jobs:
           containerAppEnvironment: ${{ vars.TEST_EXISTING_CONTAINER_APP_ENV }}
           resourceGroup: ${{ vars.TEST_RESOURCE_GROUP_NAME }}
           disableTelemetry: ${{ vars.TEST_DISABLE_TELEMETRY }}
+          containerName: ${{ vars.CONTAINER_NAME }}
 
       - name: Delete created Azure Container App
         if: ${{ always() }}
@@ -217,6 +221,7 @@ jobs:
           containerAppEnvironment: ${{ vars.TEST_EXISTING_CONTAINER_APP_ENV }}
           resourceGroup: ${{ vars.TEST_RESOURCE_GROUP_NAME }}
           disableTelemetry: ${{ vars.TEST_DISABLE_TELEMETRY }}
+          containerName: ${{ vars.CONTAINER_NAME }}
 
       - name: Delete created Azure Container App
         if: ${{ always() }}
@@ -250,6 +255,7 @@ jobs:
           containerAppEnvironment: ${{ env.TEST_NEW_CONTAINER_APP_ENV }}
           resourceGroup: ${{ vars.TEST_RESOURCE_GROUP_NAME }}
           disableTelemetry: ${{ vars.TEST_DISABLE_TELEMETRY }}
+          containerName: ${{ vars.CONTAINER_NAME }}
 
       - name: Delete created Azure Container App
         if: ${{ always() }}
@@ -329,6 +335,7 @@ jobs:
           resourceGroup: ${{ vars.TEST_RESOURCE_GROUP_NAME }}
           imageToBuild: ${{ env.TEST_FULL_ACR_NAME }}/${{ env.TEST_IMAGE_REPOSITORY }}:${{ env.TEST_IMAGE_TAG }}
           disableTelemetry: ${{ vars.TEST_DISABLE_TELEMETRY }}
+          containerName: ${{ vars.CONTAINER_NAME }}
 
       - name: Delete created Azure Container App
         if: ${{ always() }}
@@ -378,6 +385,7 @@ jobs:
           containerAppName: ${{ env.TEST_CONTAINER_APP_NAME }}
           resourceGroup: ${{ vars.TEST_RESOURCE_GROUP_NAME }}
           disableTelemetry: ${{ vars.TEST_DISABLE_TELEMETRY }}
+          containerName: ${{ vars.CONTAINER_NAME }}
 
       - name: Delete created Azure Container App
         if: ${{ always() }}
@@ -422,6 +430,7 @@ jobs:
           containerAppName: ${{ env.TEST_CONTAINER_APP_NAME }}
           resourceGroup: ${{ vars.TEST_RESOURCE_GROUP_NAME }}
           disableTelemetry: ${{ vars.TEST_DISABLE_TELEMETRY }}
+          containerName: ${{ vars.CONTAINER_NAME }}
 
       - name: Delete created Azure Container App
         if: ${{ always() }}
@@ -464,6 +473,7 @@ jobs:
           resourceGroup: ${{ vars.TEST_RESOURCE_GROUP_NAME }}
           imageToBuild: ${{ env.TEST_FULL_ACR_NAME }}/${{ env.TEST_IMAGE_REPOSITORY }}:${{ env.TEST_IMAGE_TAG }}
           disableTelemetry: ${{ vars.TEST_DISABLE_TELEMETRY }}
+          containerName: ${{ vars.CONTAINER_NAME }}
 
       - name: Delete pushed image
         if: ${{ always() }}
@@ -501,6 +511,7 @@ jobs:
           containerAppEnvironment: ${{ vars.TEST_EXISTING_CONTAINER_APP_ENV }}
           resourceGroup: ${{ vars.TEST_RESOURCE_GROUP_NAME }}
           disableTelemetry: ${{ vars.TEST_DISABLE_TELEMETRY }}
+          containerName: ${{ vars.CONTAINER_NAME }}
 
   update-using-image-yaml:
 
@@ -535,3 +546,4 @@ jobs:
           containerAppName: ${{ env.TEST_CONTAINER_APP_NAME }}
           resourceGroup: ${{ vars.TEST_RESOURCE_GROUP_NAME }}
           disableTelemetry: ${{ vars.TEST_DISABLE_TELEMETRY }}
+          containerName: ${{ vars.CONTAINER_NAME }}

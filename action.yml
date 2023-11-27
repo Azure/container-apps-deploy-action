@@ -132,7 +132,10 @@ inputs:
       this GitHub Action.'
     required: false
     default: false
-
+  containerName: 
+    descritpion: |
+      'Container name to deploy.'
+    required: false
 runs:
   using: "composite"
   steps:
@@ -614,6 +617,7 @@ runs:
           -g ${{ env.CA_GH_ACTION_RESOURCE_GROUP }} \
           -n ${{ inputs.containerAppName }} \
           --yaml ${{ inputs.yamlConfigPath }} \
+          --container-name ${{ inputs.containerName }} \
           --output none
 
     - name: Determine whether or not 'update' or 'up' should be used
@@ -643,6 +647,7 @@ runs:
           -n ${{ inputs.containerAppName }} \
           -i ${{ env.CA_GH_ACTION_IMAGE_TO_DEPLOY }} \
           ${{ env.CA_GH_ACTION_CONTAINER_APP_ENVIRONMENT_VARIABLES_ARG }} \
+          --container-name ${{ inputs.containerName }} \
           --output none
 
     - name: Reset the ingress argument environment variable if it wasn't provided (use default ingress value)
