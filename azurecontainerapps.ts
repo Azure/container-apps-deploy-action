@@ -103,6 +103,7 @@ export class azurecontainerapps {
     private static imageToBuild: string;
     private static ingress: string;
     private static targetPort: string;
+    private static buildEnvironmentVariables: string;
     private static shouldUseUpdateCommand: boolean;
     private static useInternalRegistry: boolean;
     private static shouldCreateOrUpdateContainerAppWithUp: boolean;
@@ -160,6 +161,9 @@ export class azurecontainerapps {
         // Get the name of the image to build if it was provided, or generate it from build variables
         this.imageToBuild = this.toolHelper.getInput('imageToBuild', false);
 
+        // Get the user defined build environment variables, if provided
+        this.buildEnvironmentVariables = this.toolHelper.getInput('buildEnvironmentVariables', false);
+
         // Ensure that one of appSourcePath, imageToDeploy, or yamlConfigPath is provided
         if (this.util.isNullOrEmpty(this.appSourcePath) && this.util.isNullOrEmpty(this.imageToDeploy) && this.util.isNullOrEmpty(this.yamlConfigPath)) {
             let requiredArgumentMessage = `One of the following arguments must be provided: 'appSourcePath', 'imageToDeploy', or 'yamlConfigPath'.`;
@@ -172,6 +176,18 @@ export class azurecontainerapps {
             let conflictingArgumentsMessage = `The 'acrName' and 'registryUrl' arguments cannot both be provided.`;
             this.toolHelper.writeError(conflictingArgumentsMessage);
             throw Error(conflictingArgumentsMessage);
+        }
+
+        // Set the user defined environment variables that should be propagated to the builder
+        if (!this.util.isNullOrEmpty(this.buildEnvironmentVariables)) {
+            // Ensure that the build environment variables are in the format 'key1=value1 key2=value2'
+            const environmentVariables = this.buildEnvironmentVariables.split(' ');
+            const invalidEnvironmentVariables = environmentVariables.some(variable => variable.indexOf('=') === -1);
+            if (invalidEnvironmentVariables) {
+                let invalidEnvironmentVariablesMessage = `The 'buildEnvironmentVariables' argument must be in the format 'key1=value1 key2=value2'.`;
+                this.toolHelper.writeError(invalidEnvironmentVariablesMessage);
+                throw Error(invalidEnvironmentVariablesMessage);
+            }
         }
     }
 
@@ -458,6 +474,13 @@ export class azurecontainerapps {
         // Set the target port on the image produced by the builder
         if (!this.util.isNullOrEmpty(this.targetPort)) {
             environmentVariables.push(`ORYX_RUNTIME_PORT=${this.targetPort}`);
+        }
+
+        // Set the user defined environment variables that should be propagated to the builder
+        if (!this.util.isNullOrEmpty(this.buildEnvironmentVariables)) {
+            this.buildEnvironmentVariables.split(' ').forEach((envVar) => {
+                environmentVariables.push(envVar);
+            });
         }
 
         this.toolHelper.writeInfo(`Building image "${imageToBuild}" using the Oryx++ Builder`);

@@ -88,6 +88,11 @@ inputs:
       for that stack will be used. If no stack is provided, this action will attempt to build the provided application
       source with each supported stack until there's a successful build.'
     required: false
+  buildEnvironmentVariables:
+    description: |
+      'A list of environment variable(s) used to configure the Buildpacks for image build. Space-separated values in 
+      'key=value' format. Empty string to clear existing values.'
+    required: false
   targetPort:
     description: |
       'The designated port for the application to run on. If no value is provided and the builder is used to build the
