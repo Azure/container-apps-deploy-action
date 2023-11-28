@@ -1,5 +1,5 @@
 // Note: This file is used to define utility functions that can be used across the project.
-import { GitHubActionsToolHelper } from './GithubActionsToolHelper';
+import { GitHubActionsToolHelper } from './GitHubActionsToolHelper';
 
 const toolHelper = new GitHubActionsToolHelper();
 
