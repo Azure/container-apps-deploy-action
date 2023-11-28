@@ -4,7 +4,7 @@ import { ContainerAppHelper } from './src/ContainerAppHelper';
 import { ContainerRegistryHelper } from './src/ContainerRegistryHelper';
 import { TelemetryHelper } from './src/TelemetryHelper';
 import { Utility } from './src/Utility';
-import { GitHubActionsToolHelper } from './src/GitHubActionsToolHelper';
+import { GitHubActionsToolHelper } from './src/GithubActionsToolHelper';
 
 export class azurecontainerapps {
 
@@ -182,7 +182,15 @@ export class azurecontainerapps {
         if (!this.util.isNullOrEmpty(this.buildEnvironmentVariables)) {
             // Ensure that the build environment variables are in the format 'key1=value1 key2=value2'
             const environmentVariables = this.buildEnvironmentVariables.split(' ');
-            const invalidEnvironmentVariables = environmentVariables.some(variable => variable.indexOf('=') === -1);
+            const invalidEnvironmentVariables = environmentVariables.some(variable => {
+                variable = variable.trim();
+                if (!this.util.isNullOrEmpty(variable)) {
+                    return variable.indexOf('=') === -1
+                }
+                else {
+                    return true;
+                }
+            });
             if (invalidEnvironmentVariables) {
                 let invalidEnvironmentVariablesMessage = `The 'buildEnvironmentVariables' argument must be in the format 'key1=value1 key2=value2'.`;
                 this.toolHelper.writeError(invalidEnvironmentVariablesMessage);

@@ -157,6 +157,7 @@ var azurecontainerapps = /** @class */ (function () {
      * @throws Error if a valid combination of the support scenario arguments is not provided.
      */
     azurecontainerapps.validateSupportedScenarioArguments = function () {
+        var _this = this;
         // Get the path to the application source to build and run, if provided
         this.appSourcePath = this.toolHelper.getInput('appSourcePath', false);
         // Get the name of the ACR instance to push images to, if provided
@@ -187,7 +188,15 @@ var azurecontainerapps = /** @class */ (function () {
         if (!this.util.isNullOrEmpty(this.buildEnvironmentVariables)) {
             // Ensure that the build environment variables are in the format 'key1=value1 key2=value2'
             var environmentVariables = this.buildEnvironmentVariables.split(' ');
-            var invalidEnvironmentVariables = environmentVariables.some(function (variable) { return variable.indexOf('=') === -1; });
+            var invalidEnvironmentVariables = environmentVariables.some(function (variable) {
+                variable = variable.trim();
+                if (!_this.util.isNullOrEmpty(variable)) {
+                    return variable.indexOf('=') === -1;
+                }
+                else {
+                    return true;
+                }
+            });
             if (invalidEnvironmentVariables) {
                 var invalidEnvironmentVariablesMessage = "The 'buildEnvironmentVariables' argument must be in the format 'key1=value1 key2=value2'.";
                 this.toolHelper.writeError(invalidEnvironmentVariablesMessage);
