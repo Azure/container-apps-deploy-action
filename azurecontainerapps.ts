@@ -608,8 +608,8 @@ export class azurecontainerapps {
         } else if (this.shouldCreateOrUpdateContainerAppWithUp) {
             await this.appHelper.createOrUpdateContainerAppWithUp(this.containerAppName, this.resourceGroup, this.commandLineArgs);
         } else {
-            // Update the Container App using the 'up' command
-            await this.appHelper.updateContainerAppWithUp(this.containerAppName, this.resourceGroup, this.commandLineArgs, this.ingress, this.targetPort);
+            // Update the Container App using the 'containerapp update' and 'ingress update' commands
+            await this.appHelper.updateContainerAppWithUpdateAndIngress(this.containerAppName, this.resourceGroup, this.commandLineArgs, this.ingress, this.targetPort);
         }
 
         // Disable ingress on the existing Container App, if provided as an input
