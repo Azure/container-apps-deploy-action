@@ -181,7 +181,7 @@ export class azurecontainerapps {
         // Set the user defined environment variables that should be propagated to the builder
         if (!this.util.isNullOrEmpty(this.buildEnvironmentVariables)) {
             // Ensure that the build environment variables are in the format 'key1=value1 key2=value2'
-            const environmentVariables = this.buildEnvironmentVariables.split(' ');
+            const environmentVariables = this.buildEnvironmentVariables.match(/"[^"]*"|\S+/g);
             const invalidEnvironmentVariables = environmentVariables.some(variable => {
                 variable = variable.trim();
                 if (!this.util.isNullOrEmpty(variable)) {
@@ -486,7 +486,7 @@ export class azurecontainerapps {
 
         // Set the user defined environment variables that should be propagated to the builder
         if (!this.util.isNullOrEmpty(this.buildEnvironmentVariables)) {
-            this.buildEnvironmentVariables.split(' ').forEach((envVar) => {
+            this.buildEnvironmentVariables.match(/"[^"]*"|\S+/g).forEach((envVar) => {
                 environmentVariables.push(envVar);
             });
         }
