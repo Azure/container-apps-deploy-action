@@ -183,12 +183,11 @@ export class azurecontainerapps {
             // Ensure that the build environment variables are in the format 'key1=value1 key2=value2'
             const environmentVariables = this.buildEnvironmentVariables.match(/"[^"]*"|\S+/g);
             const invalidEnvironmentVariables = environmentVariables.some(variable => {
-                variable = variable.trim();
                 if (!this.util.isNullOrEmpty(variable)) {
                     return variable.indexOf('=') === -1
                 }
                 else {
-                    return true;
+                    return false;
                 }
             });
             if (invalidEnvironmentVariables) {
