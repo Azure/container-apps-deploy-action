@@ -4,7 +4,7 @@ import { ContainerAppHelper } from './src/ContainerAppHelper';
 import { ContainerRegistryHelper } from './src/ContainerRegistryHelper';
 import { TelemetryHelper } from './src/TelemetryHelper';
 import { Utility } from './src/Utility';
-import { GitHubActionsToolHelper } from './src/GithubActionsToolHelper';
+import { GitHubActionsToolHelper } from './src/GitHubActionsToolHelper';
 
 export class azurecontainerapps {
 

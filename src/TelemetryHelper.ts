@@ -1,5 +1,5 @@
 import { Utility } from './Utility';
-import { GitHubActionsToolHelper } from './GithubActionsToolHelper';
+import { GitHubActionsToolHelper } from './GitHubActionsToolHelper';
 
 const ORYX_CLI_IMAGE: string = "mcr.microsoft.com/oryx/cli:debian-buster-20230207.2";
 

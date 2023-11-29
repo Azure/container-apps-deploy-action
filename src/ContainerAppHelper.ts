@@ -1,7 +1,7 @@
 import * as path from 'path';
 import * as os from 'os';
 import { Utility } from './Utility';
-import { GitHubActionsToolHelper } from './GithubActionsToolHelper'
+import { GitHubActionsToolHelper } from './GitHubActionsToolHelper'
 import fs = require('fs');
 
 const ORYX_CLI_IMAGE: string = 'mcr.microsoft.com/oryx/cli:builder-debian-bullseye-20230926.1';
