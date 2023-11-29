@@ -50,7 +50,7 @@ var ContainerAppHelper_1 = __nccwpck_require__(232);
 var ContainerRegistryHelper_1 = __nccwpck_require__(8053);
 var TelemetryHelper_1 = __nccwpck_require__(2036);
 var Utility_1 = __nccwpck_require__(1420);
-var GithubActionsToolHelper_1 = __nccwpck_require__(2145);
+var GitHubActionsToolHelper_1 = __nccwpck_require__(9106);
 var azurecontainerapps = /** @class */ (function () {
     function azurecontainerapps() {
     }
@@ -139,7 +139,7 @@ var azurecontainerapps = /** @class */ (function () {
         // Set up Utility for managing miscellaneous calls
         this.util = new Utility_1.Utility();
         // Set up toolHelper for managing calls to the GitHub Actions toolkit
-        this.toolHelper = new GithubActionsToolHelper_1.GitHubActionsToolHelper();
+        this.toolHelper = new GitHubActionsToolHelper_1.GitHubActionsToolHelper();
         var disableTelemetry = this.toolHelper.getInput('disableTelemetry').toLowerCase() === 'true';
         // Get buildId
         this.buildId = this.toolHelper.getBuildId();
@@ -4769,7 +4769,7 @@ exports.ContainerAppHelper = void 0;
 var path = __nccwpck_require__(1017);
 var os = __nccwpck_require__(2037);
 var Utility_1 = __nccwpck_require__(1420);
-var GithubActionsToolHelper_1 = __nccwpck_require__(2145);
+var GitHubActionsToolHelper_1 = __nccwpck_require__(9106);
 var fs = __nccwpck_require__(7147);
 var ORYX_CLI_IMAGE = 'mcr.microsoft.com/oryx/cli:builder-debian-bullseye-20230926.1';
 var ORYX_BULLSEYE_BUILDER_IMAGE = 'mcr.microsoft.com/oryx/builder:debian-bullseye-20231107.2';
@@ -4777,7 +4777,7 @@ var ORYX_BOOKWORM_BUILDER_IMAGE = 'mcr.microsoft.com/oryx/builder:debian-bookwor
 var ORYX_BUILDER_IMAGES = [ORYX_BULLSEYE_BUILDER_IMAGE, ORYX_BOOKWORM_BUILDER_IMAGE];
 var IS_WINDOWS_AGENT = os.platform() == 'win32';
 var PACK_CMD = IS_WINDOWS_AGENT ? path.join(os.tmpdir(), 'pack') : 'pack';
-var toolHelper = new GithubActionsToolHelper_1.GitHubActionsToolHelper();
+var toolHelper = new GitHubActionsToolHelper_1.GitHubActionsToolHelper();
 var util = new Utility_1.Utility();
 var ContainerAppHelper = /** @class */ (function () {
     function ContainerAppHelper(disableTelemetry) {
@@ -5612,8 +5612,8 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ContainerRegistryHelper = void 0;
 var os = __nccwpck_require__(2037);
 var Utility_1 = __nccwpck_require__(1420);
-var GithubActionsToolHelper_1 = __nccwpck_require__(2145);
-var toolHelper = new GithubActionsToolHelper_1.GitHubActionsToolHelper();
+var GitHubActionsToolHelper_1 = __nccwpck_require__(9106);
+var toolHelper = new GitHubActionsToolHelper_1.GitHubActionsToolHelper();
 var util = new Utility_1.Utility();
 var ContainerRegistryHelper = /** @class */ (function () {
     function ContainerRegistryHelper() {
@@ -5710,7 +5710,7 @@ exports.ContainerRegistryHelper = ContainerRegistryHelper;
 
 /***/ }),
 
-/***/ 2145:
+/***/ 9106:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -5895,7 +5895,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.TelemetryHelper = void 0;
 var Utility_1 = __nccwpck_require__(1420);
-var GithubActionsToolHelper_1 = __nccwpck_require__(2145);
+var GitHubActionsToolHelper_1 = __nccwpck_require__(9106);
 var ORYX_CLI_IMAGE = "mcr.microsoft.com/oryx/cli:debian-buster-20230207.2";
 var SUCCESSFUL_RESULT = "succeeded";
 var FAILED_RESULT = "failed";
@@ -5903,7 +5903,7 @@ var BUILDER_SCENARIO = "used-builder";
 var DOCKERFILE_SCENARIO = "used-dockerfile";
 var IMAGE_SCENARIO = "used-image";
 var util = new Utility_1.Utility();
-var toolHelper = new GithubActionsToolHelper_1.GitHubActionsToolHelper();
+var toolHelper = new GitHubActionsToolHelper_1.GitHubActionsToolHelper();
 var TelemetryHelper = /** @class */ (function () {
     function TelemetryHelper(disableTelemetry) {
         this.disableTelemetry = disableTelemetry;
@@ -6032,8 +6032,8 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Utility = void 0;
 // Note: This file is used to define utility functions that can be used across the project.
-var GithubActionsToolHelper_1 = __nccwpck_require__(2145);
-var toolHelper = new GithubActionsToolHelper_1.GitHubActionsToolHelper();
+var GitHubActionsToolHelper_1 = __nccwpck_require__(9106);
+var toolHelper = new GitHubActionsToolHelper_1.GitHubActionsToolHelper();
 var Utility = /** @class */ (function () {
     function Utility() {
     }
