@@ -187,14 +187,13 @@ var azurecontainerapps = /** @class */ (function () {
         // Set the user defined environment variables that should be propagated to the builder
         if (!this.util.isNullOrEmpty(this.buildEnvironmentVariables)) {
             // Ensure that the build environment variables are in the format 'key1=value1 key2=value2'
-            var environmentVariables = this.buildEnvironmentVariables.split(' ');
+            var environmentVariables = this.buildEnvironmentVariables.match(/"[^"]*"|\S+/g);
             var invalidEnvironmentVariables = environmentVariables.some(function (variable) {
-                variable = variable.trim();
                 if (!_this.util.isNullOrEmpty(variable)) {
                     return variable.indexOf('=') === -1;
                 }
                 else {
-                    return true;
+                    return false;
                 }
             });
             if (invalidEnvironmentVariables) {
@@ -576,7 +575,7 @@ var azurecontainerapps = /** @class */ (function () {
                         }
                         // Set the user defined environment variables that should be propagated to the builder
                         if (!this.util.isNullOrEmpty(this.buildEnvironmentVariables)) {
-                            this.buildEnvironmentVariables.split(' ').forEach(function (envVar) {
+                            this.buildEnvironmentVariables.match(/"[^"]*"|\S+/g).forEach(function (envVar) {
                                 environmentVariables.push(envVar);
                             });
                         }
