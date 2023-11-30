@@ -51,6 +51,7 @@ var ContainerRegistryHelper_1 = __nccwpck_require__(8053);
 var TelemetryHelper_1 = __nccwpck_require__(2036);
 var Utility_1 = __nccwpck_require__(1420);
 var GitHubActionsToolHelper_1 = __nccwpck_require__(9106);
+var buildEnvironmentVariableRegex = /"[^"]*"|\S+/g;
 var azurecontainerapps = /** @class */ (function () {
     function azurecontainerapps() {
     }
@@ -187,7 +188,7 @@ var azurecontainerapps = /** @class */ (function () {
         // Set the user defined environment variables that should be propagated to the builder
         if (!this.util.isNullOrEmpty(this.buildEnvironmentVariables)) {
             // Ensure that the build environment variables are in the format 'key1=value1 key2=value2'
-            var environmentVariables = this.buildEnvironmentVariables.match(/"[^"]*"|\S+/g);
+            var environmentVariables = this.buildEnvironmentVariables.match(buildEnvironmentVariableRegex);
             var invalidEnvironmentVariables = environmentVariables.some(function (variable) {
                 if (!_this.util.isNullOrEmpty(variable)) {
                     return variable.indexOf('=') === -1;
@@ -575,7 +576,7 @@ var azurecontainerapps = /** @class */ (function () {
                         }
                         // Set the user defined environment variables that should be propagated to the builder
                         if (!this.util.isNullOrEmpty(this.buildEnvironmentVariables)) {
-                            this.buildEnvironmentVariables.match(/"[^"]*"|\S+/g).forEach(function (envVar) {
+                            this.buildEnvironmentVariables.match(buildEnvironmentVariableRegex).forEach(function (envVar) {
                                 environmentVariables.push(envVar);
                             });
                         }
