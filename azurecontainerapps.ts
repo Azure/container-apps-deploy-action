@@ -6,6 +6,7 @@ import { TelemetryHelper } from './src/TelemetryHelper';
 import { Utility } from './src/Utility';
 import { GitHubActionsToolHelper } from './src/GitHubActionsToolHelper';
 
+const buildEnvironmentVariableRegex = /"[^"]*"|\S+/g;
 export class azurecontainerapps {
 
     public static async runMain(): Promise<void> {
@@ -181,7 +182,7 @@ export class azurecontainerapps {
         // Set the user defined environment variables that should be propagated to the builder
         if (!this.util.isNullOrEmpty(this.buildEnvironmentVariables)) {
             // Ensure that the build environment variables are in the format 'key1=value1 key2=value2'
-            const environmentVariables = this.buildEnvironmentVariables.match(/"[^"]*"|\S+/g);
+            const environmentVariables = this.buildEnvironmentVariables.match(buildEnvironmentVariableRegex);
             const invalidEnvironmentVariables = environmentVariables.some(variable => {
                 if (!this.util.isNullOrEmpty(variable)) {
                     return variable.indexOf('=') === -1
@@ -485,7 +486,7 @@ export class azurecontainerapps {
 
         // Set the user defined environment variables that should be propagated to the builder
         if (!this.util.isNullOrEmpty(this.buildEnvironmentVariables)) {
-            this.buildEnvironmentVariables.match(/"[^"]*"|\S+/g).forEach((envVar) => {
+            this.buildEnvironmentVariables.match(buildEnvironmentVariableRegex).forEach((envVar) => {
                 environmentVariables.push(envVar);
             });
         }
