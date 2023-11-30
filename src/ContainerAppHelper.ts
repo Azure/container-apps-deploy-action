@@ -155,24 +155,12 @@ export class ContainerAppHelper {
      * @param ingress - the ingress that the Container App will be exposed on
      * @param targetPort - the target port that the Container App will be exposed on
      */
-    public async updateContainerAppWithUpdateAndIngress(
+    public async updateContainerAppIngress(
         containerAppName: string,
         resourceGroup: string,
-        optionalCmdArgs: string[],
         ingress?: string,
         targetPort?: string) {
-        toolHelper.writeDebug(`Attempting to update Container App with name "${containerAppName}" in resource group "${resourceGroup}"`);
-        try {
-            let command = `az containerapp update -n ${containerAppName} -g ${resourceGroup}`;
-            optionalCmdArgs.forEach(function (val: string) {
-                command += ` ${val}`;
-            });
-            await util.execute(command);
-        } catch (err) {
-            toolHelper.writeError(err.message);
-            throw err;
-        }
-
+        toolHelper.writeDebug(`Attempting to update Container App ingress with name "${containerAppName}" in resource group "${resourceGroup}"`);
         try {
             let command = `az containerapp ingress update -n ${containerAppName} -g ${resourceGroup}`;
             if (!util.isNullOrEmpty(ingress)) {
