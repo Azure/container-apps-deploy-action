@@ -151,7 +151,6 @@ export class ContainerAppHelper {
      * Update container app with update and ingress update to avoid failure of acr authentication.
      * @param containerAppName - the name of the existing Container App
      * @param resourceGroup - the resource group that the existing Container App is found in
-     * @param optionalCmdArgs - a set of optional command line arguments
      * @param ingress - the ingress that the Container App will be exposed on
      * @param targetPort - the target port that the Container App will be exposed on
      */

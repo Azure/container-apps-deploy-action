@@ -603,12 +603,13 @@ var azurecontainerapps = /** @class */ (function () {
         this.targetPort = this.toolHelper.getInput('targetPort', false);
         // If both ingress and target port were not provided for an existing Container App, or if ingress is to be disabled,
         // use the 'update' command, otherwise we should use the 'up' command that performs a PATCH operation on the ingress properties.
-        this.shouldUseUpdateCommand = this.containerAppExists &&
+        this.noIngressUpdate = this.containerAppExists &&
             this.util.isNullOrEmpty(this.targetPort) &&
             (this.util.isNullOrEmpty(this.ingress) || this.ingress == 'disabled');
         // Pass the Container Registry credentials when creating a Container App or updating a Container App via the 'up' command
         if (!this.util.isNullOrEmpty(this.registryUrl) && !this.util.isNullOrEmpty(this.registryUsername) && !this.util.isNullOrEmpty(this.registryPassword) &&
-            (!this.containerAppExists || (this.containerAppExists && !this.shouldUseUpdateCommand))) {
+            (!this.containerAppExists || (this.containerAppExists && !this.noIngressUpdate))) {
+            this.adminCredentialsProvided = true;
             this.commandLineArgs.push("--registry-server ".concat(this.registryUrl), "--registry-username ".concat(this.registryUsername), "--registry-password ".concat(this.registryPassword));
         }
         // Determine default values only for the 'create' scenario to avoid overriding existing values for the 'update' scenario
@@ -644,7 +645,7 @@ var azurecontainerapps = /** @class */ (function () {
         if (!this.util.isNullOrEmpty(environmentVariables)) {
             // The --replace-env-vars flag is only used for the 'update' command,
             // otherwise --env-vars is used for 'create' and 'up'
-            if (this.shouldUseUpdateCommand) {
+            if (this.noIngressUpdate) {
                 this.commandLineArgs.push("--replace-env-vars ".concat(environmentVariables));
             }
             else {
@@ -699,7 +700,7 @@ var azurecontainerapps = /** @class */ (function () {
                         _a.sent();
                         return [2 /*return*/];
                     case 9:
-                        if (!(this.shouldUseUpdateCommand && !this.shouldCreateOrUpdateContainerAppWithUp)) return [3 /*break*/, 13];
+                        if (!(this.noIngressUpdate && !this.shouldCreateOrUpdateContainerAppWithUp)) return [3 /*break*/, 13];
                         if (!(!this.util.isNullOrEmpty(this.registryUrl) && !this.util.isNullOrEmpty(this.registryUsername) && !this.util.isNullOrEmpty(this.registryPassword))) return [3 /*break*/, 11];
                         return [4 /*yield*/, this.appHelper.updateContainerAppRegistryDetails(this.containerAppName, this.resourceGroup, this.registryUrl, this.registryUsername, this.registryPassword)];
                     case 10:
@@ -711,30 +712,38 @@ var azurecontainerapps = /** @class */ (function () {
                     case 12:
                         // Update the Container App using the 'update' command
                         _a.sent();
-                        return [3 /*break*/, 18];
+                        return [3 /*break*/, 20];
                     case 13:
                         if (!this.shouldCreateOrUpdateContainerAppWithUp) return [3 /*break*/, 15];
                         return [4 /*yield*/, this.appHelper.createOrUpdateContainerAppWithUp(this.containerAppName, this.resourceGroup, this.commandLineArgs)];
                     case 14:
                         _a.sent();
-                        return [3 /*break*/, 18];
-                    case 15: 
+                        return [3 /*break*/, 20];
+                    case 15:
+                        if (!(this.adminCredentialsProvided && !this.noIngressUpdate)) return [3 /*break*/, 17];
+                        // Update the Container App with `up` command when admin credentials are provided and ingress is manually provided.
+                        return [4 /*yield*/, this.appHelper.updateContainerAppWithUp(this.containerAppName, this.resourceGroup, this.commandLineArgs, this.ingress, this.targetPort)];
+                    case 16:
+                        // Update the Container App with `up` command when admin credentials are provided and ingress is manually provided.
+                        _a.sent();
+                        return [3 /*break*/, 20];
+                    case 17: 
                     // Update the Container App using the 'containerapp update' and 'ingress update' commands
                     return [4 /*yield*/, this.appHelper.updateContainerApp(this.containerAppName, this.resourceGroup, this.commandLineArgs)];
-                    case 16:
+                    case 18:
                         // Update the Container App using the 'containerapp update' and 'ingress update' commands
                         _a.sent();
                         return [4 /*yield*/, this.appHelper.updateContainerAppIngress(this.containerAppName, this.resourceGroup, this.ingress, this.targetPort)];
-                    case 17:
-                        _a.sent();
-                        _a.label = 18;
-                    case 18:
-                        if (!(this.ingress == 'disabled')) return [3 /*break*/, 20];
-                        return [4 /*yield*/, this.appHelper.disableContainerAppIngress(this.containerAppName, this.resourceGroup)];
                     case 19:
                         _a.sent();
                         _a.label = 20;
-                    case 20: return [2 /*return*/];
+                    case 20:
+                        if (!(this.ingress == 'disabled')) return [3 /*break*/, 22];
+                        return [4 /*yield*/, this.appHelper.disableContainerAppIngress(this.containerAppName, this.resourceGroup)];
+                    case 21:
+                        _a.sent();
+                        _a.label = 22;
+                    case 22: return [2 /*return*/];
                 }
             });
         });
@@ -4935,7 +4944,6 @@ var ContainerAppHelper = /** @class */ (function () {
      * Update container app with update and ingress update to avoid failure of acr authentication.
      * @param containerAppName - the name of the existing Container App
      * @param resourceGroup - the resource group that the existing Container App is found in
-     * @param optionalCmdArgs - a set of optional command line arguments
      * @param ingress - the ingress that the Container App will be exposed on
      * @param targetPort - the target port that the Container App will be exposed on
      */
