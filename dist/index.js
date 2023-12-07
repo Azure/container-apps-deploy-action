@@ -51,7 +51,7 @@ var ContainerRegistryHelper_1 = __nccwpck_require__(8053);
 var TelemetryHelper_1 = __nccwpck_require__(2036);
 var Utility_1 = __nccwpck_require__(1420);
 var GitHubActionsToolHelper_1 = __nccwpck_require__(9106);
-var buildEnvironmentVariableRegex = /"[^"]*"|\S+/g;
+var buildArgumentRegex = /"[^"]*"|\S+/g;
 var azurecontainerapps = /** @class */ (function () {
     function azurecontainerapps() {
     }
@@ -171,8 +171,8 @@ var azurecontainerapps = /** @class */ (function () {
         this.yamlConfigPath = this.toolHelper.getInput('yamlConfigPath', false);
         // Get the name of the image to build if it was provided, or generate it from build variables
         this.imageToBuild = this.toolHelper.getInput('imageToBuild', false);
-        // Get the user defined build environment variables, if provided
-        this.buildEnvironmentVariables = this.toolHelper.getInput('buildEnvironmentVariables', false);
+        // Get the user defined build arguments, if provided
+        this.buildArguments = this.toolHelper.getInput('buildArguments', false);
         // Ensure that one of appSourcePath, imageToDeploy, or yamlConfigPath is provided
         if (this.util.isNullOrEmpty(this.appSourcePath) && this.util.isNullOrEmpty(this.imageToDeploy) && this.util.isNullOrEmpty(this.yamlConfigPath)) {
             var requiredArgumentMessage = "One of the following arguments must be provided: 'appSourcePath', 'imageToDeploy', or 'yamlConfigPath'.";
@@ -185,11 +185,11 @@ var azurecontainerapps = /** @class */ (function () {
             this.toolHelper.writeError(conflictingArgumentsMessage);
             throw Error(conflictingArgumentsMessage);
         }
-        // Set the user defined environment variables that should be propagated to the builder
-        if (!this.util.isNullOrEmpty(this.buildEnvironmentVariables)) {
-            // Ensure that the build environment variables are in the format 'key1=value1 key2=value2'
-            var environmentVariables = this.buildEnvironmentVariables.match(buildEnvironmentVariableRegex);
-            var invalidEnvironmentVariables = environmentVariables.some(function (variable) {
+        // Set up the build arguments to pass to the Dockerfile or builder
+        if (!this.util.isNullOrEmpty(this.buildArguments)) {
+            // Ensure that the build arguments are in the format 'key1=value1 key2=value2'
+            var buildArguments = this.buildArguments.match(buildArgumentRegex);
+            var invalidBuildArguments = buildArguments.some(function (variable) {
                 if (!_this.util.isNullOrEmpty(variable)) {
                     return variable.indexOf('=') === -1;
                 }
@@ -197,10 +197,10 @@ var azurecontainerapps = /** @class */ (function () {
                     return false;
                 }
             });
-            if (invalidEnvironmentVariables) {
-                var invalidEnvironmentVariablesMessage = "The 'buildEnvironmentVariables' argument must be in the format 'key1=value1 key2=value2'.";
-                this.toolHelper.writeError(invalidEnvironmentVariablesMessage);
-                throw Error(invalidEnvironmentVariablesMessage);
+            if (invalidBuildArguments) {
+                var invalidBuildArgumentsMessage = "The 'buildArguments' argument must be in the format 'key1=value1 key2=value2'.";
+                this.toolHelper.writeError(invalidBuildArgumentsMessage);
+                throw Error(invalidBuildArgumentsMessage);
             }
         }
     };
@@ -482,7 +482,7 @@ var azurecontainerapps = /** @class */ (function () {
      */
     azurecontainerapps.buildAndPushImageAsync = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var imageRepository, dockerfilePath, rootDockerfilePath;
+            var imageRepository, buildArguments, dockerfilePath, rootDockerfilePath;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -499,6 +499,12 @@ var azurecontainerapps = /** @class */ (function () {
                             this.imageToDeploy = this.imageToBuild;
                             this.toolHelper.writeInfo("Default image to deploy: ".concat(this.imageToDeploy));
                         }
+                        buildArguments = [];
+                        if (!this.util.isNullOrEmpty(this.buildArguments)) {
+                            this.buildArguments.match(buildArgumentRegex).forEach(function (buildArg) {
+                                buildArguments.push(buildArg);
+                            });
+                        }
                         dockerfilePath = this.toolHelper.getInput('dockerfilePath', false);
                         if (!this.util.isNullOrEmpty(dockerfilePath)) return [3 /*break*/, 4];
                         this.toolHelper.writeInfo("No Dockerfile path provided; checking for Dockerfile at root of application source.");
@@ -509,7 +515,7 @@ var azurecontainerapps = /** @class */ (function () {
                         return [3 /*break*/, 3];
                     case 1: 
                     // No Dockerfile found or provided, build the image using the builder
-                    return [4 /*yield*/, this.buildImageFromBuilderAsync(this.appSourcePath, this.imageToBuild)];
+                    return [4 /*yield*/, this.buildImageFromBuilderAsync(this.appSourcePath, this.imageToBuild, buildArguments)];
                     case 2:
                         // No Dockerfile found or provided, build the image using the builder
                         _a.sent();
@@ -521,7 +527,7 @@ var azurecontainerapps = /** @class */ (function () {
                     case 5:
                         if (!!this.util.isNullOrEmpty(dockerfilePath)) return [3 /*break*/, 7];
                         // Build the image from the provided/discovered Dockerfile
-                        return [4 /*yield*/, this.buildImageFromDockerfile(this.appSourcePath, dockerfilePath, this.imageToBuild)];
+                        return [4 /*yield*/, this.buildImageFromDockerfile(this.appSourcePath, dockerfilePath, this.imageToBuild, buildArguments)];
                     case 6:
                         // Build the image from the provided/discovered Dockerfile
                         _a.sent();
@@ -541,8 +547,9 @@ var azurecontainerapps = /** @class */ (function () {
      * Builds a runnable application image using the builder.
      * @param appSourcePath - The path to the application source code.
      * @param imageToBuild - The name of the image to build.
+     * @param buildArguments - The build arguments to pass to the pack command via environment variables.
      */
-    azurecontainerapps.buildImageFromBuilderAsync = function (appSourcePath, imageToBuild) {
+    azurecontainerapps.buildImageFromBuilderAsync = function (appSourcePath, imageToBuild, buildArguments) {
         return __awaiter(this, void 0, void 0, function () {
             var environmentVariables, runtimeStack, runtimeStackSplit, platformName, platformVersion, builderStack;
             return __generator(this, function (_a) {
@@ -574,10 +581,10 @@ var azurecontainerapps = /** @class */ (function () {
                         if (!this.util.isNullOrEmpty(this.targetPort)) {
                             environmentVariables.push("ORYX_RUNTIME_PORT=".concat(this.targetPort));
                         }
-                        // Set the user defined environment variables that should be propagated to the builder
-                        if (!this.util.isNullOrEmpty(this.buildEnvironmentVariables)) {
-                            this.buildEnvironmentVariables.match(buildEnvironmentVariableRegex).forEach(function (envVar) {
-                                environmentVariables.push(envVar);
+                        // Add user-specified build environment variables
+                        if (buildArguments.length > 0) {
+                            buildArguments.forEach(function (buildArg) {
+                                environmentVariables.push(buildArg);
                             });
                         }
                         this.toolHelper.writeInfo("Building image \"".concat(imageToBuild, "\" using the Oryx++ Builder"));
@@ -603,14 +610,15 @@ var azurecontainerapps = /** @class */ (function () {
      * @param appSourcePath - The path to the application source code.
      * @param dockerfilePath - The path to the Dockerfile to build.
      * @param imageToBuild - The name of the image to build.
+     * @param buildArguments - The build arguments to pass to the docker build command.
      */
-    azurecontainerapps.buildImageFromDockerfile = function (appSourcePath, dockerfilePath, imageToBuild) {
+    azurecontainerapps.buildImageFromDockerfile = function (appSourcePath, dockerfilePath, imageToBuild, buildArguments) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         this.toolHelper.writeInfo("Building image \"".concat(imageToBuild, "\" using the provided Dockerfile"));
-                        return [4 /*yield*/, this.appHelper.createRunnableAppImageFromDockerfile(imageToBuild, appSourcePath, dockerfilePath)];
+                        return [4 /*yield*/, this.appHelper.createRunnableAppImageFromDockerfile(imageToBuild, appSourcePath, dockerfilePath, buildArguments)];
                     case 1:
                         _a.sent();
                         // If telemetry is enabled, log that the Dockerfile scenario was targeted for this task
@@ -5394,10 +5402,11 @@ var ContainerAppHelper = /** @class */ (function () {
      * @param imageToDeploy - the name of the runnable application image that is created and can be later deployed
      * @param appSourcePath - the path to the application source on the machine
      * @param dockerfilePath - the path to the Dockerfile to build and tag with the provided image name
+     * @param buildArguments - an array of build arguments that should be provided to the docker build command via the `--build-arg` flag
      */
-    ContainerAppHelper.prototype.createRunnableAppImageFromDockerfile = function (imageToDeploy, appSourcePath, dockerfilePath) {
+    ContainerAppHelper.prototype.createRunnableAppImageFromDockerfile = function (imageToDeploy, appSourcePath, dockerfilePath, buildArguments) {
         return __awaiter(this, void 0, void 0, function () {
-            var command, err_19;
+            var command_6, err_19;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -5405,8 +5414,14 @@ var ContainerAppHelper = /** @class */ (function () {
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
-                        command = "docker build --file ".concat(dockerfilePath, " ").concat(appSourcePath, " --tag ").concat(imageToDeploy);
-                        return [4 /*yield*/, util.execute(command)];
+                        command_6 = "docker build --file ".concat(dockerfilePath, " ").concat(appSourcePath, " --tag ").concat(imageToDeploy);
+                        // If build arguments were provided, append them to the command
+                        if (buildArguments.length > 0) {
+                            buildArguments.forEach(function (buildArg) {
+                                command_6 += " --build-arg ".concat(buildArg);
+                            });
+                        }
+                        return [4 /*yield*/, util.execute(command_6)];
                     case 2:
                         _a.sent();
                         toolHelper.writeDebug("Successfully created runnable application image from the provided/found Dockerfile \"".concat(dockerfilePath, "\" with image name \"").concat(imageToDeploy, "\""));

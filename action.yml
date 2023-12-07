@@ -88,10 +88,12 @@ inputs:
       for that stack will be used. If no stack is provided, this action will attempt to build the provided application
       source with each supported stack until there's a successful build.'
     required: false
-  buildEnvironmentVariables:
+  buildArguments:
     description: |
-      'A list of environment variable(s) used to configure the Buildpacks for image build. Space-separated values in 
-      'key=value' format. Empty string to clear existing values.'
+      'A list of build arguments provided as KEY=VALUE pairings and are space-separated. If a Dockerfile has been
+      provided or is discovered in the application source, each build argument will be passed to the "docker build"
+      command via the --build-arg flag. If the Oryx++ builder is used to create a runnable application image, each
+      build argument will be passed to the "pack build" command via the --env flag.'
     required: false
   targetPort:
     description: |

@@ -420,14 +420,22 @@ export class ContainerAppHelper {
      * @param imageToDeploy - the name of the runnable application image that is created and can be later deployed
      * @param appSourcePath - the path to the application source on the machine
      * @param dockerfilePath - the path to the Dockerfile to build and tag with the provided image name
+     * @param buildArguments - an array of build arguments that should be provided to the docker build command via the `--build-arg` flag
      */
     public async createRunnableAppImageFromDockerfile(
         imageToDeploy: string,
         appSourcePath: string,
-        dockerfilePath: string) {
+        dockerfilePath: string,
+        buildArguments: string[]) {
         toolHelper.writeDebug(`Attempting to create a runnable application image from the provided/found Dockerfile "${dockerfilePath}" with image name "${imageToDeploy}"`);
         try {
-            let command = `docker build --file ${dockerfilePath} ${appSourcePath} --tag ${imageToDeploy}`;
+            let command = `docker build --file ${dockerfilePath} ${appSourcePath} --tag ${imageToDeploy}`; 
+            // If build arguments were provided, append them to the command
+            if (buildArguments.length > 0) {
+                buildArguments.forEach(function (buildArg: string) {
+                    command += ` --build-arg ${buildArg}`;
+                });
+            }
             await util.execute(command);
             toolHelper.writeDebug(`Successfully created runnable application image from the provided/found Dockerfile "${dockerfilePath}" with image name "${imageToDeploy}"`);
         } catch (err) {
