@@ -52,7 +52,7 @@ var TelemetryHelper_1 = __nccwpck_require__(2036);
 var Utility_1 = __nccwpck_require__(1420);
 var GitHubActionsToolHelper_1 = __nccwpck_require__(9106);
 var buildArgumentRegex = /"[^"]*"|\S+/g;
-var buildpackEnvironmentNameRegex = "^(BP|ORYX)_[-._a-zA-Z0-9]+$";
+var buildpackEnvironmentNameRegex = /^"?(BP|ORYX)_[-._a-zA-Z0-9]+"?$/;
 var azurecontainerapps = /** @class */ (function () {
     function azurecontainerapps() {
     }

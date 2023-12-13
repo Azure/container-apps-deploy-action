@@ -7,7 +7,7 @@ import { Utility } from './src/Utility';
 import { GitHubActionsToolHelper } from './src/GitHubActionsToolHelper';
 
 const buildArgumentRegex = /"[^"]*"|\S+/g;
-const buildpackEnvironmentNameRegex = "^(BP|ORYX)_[-._a-zA-Z0-9]+$"
+const buildpackEnvironmentNameRegex = /^"?(BP|ORYX)_[-._a-zA-Z0-9]+"?$/
 export class azurecontainerapps {
 
     public static async runMain(): Promise<void> {
