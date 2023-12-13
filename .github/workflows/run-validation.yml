@@ -271,7 +271,7 @@ jobs:
 
     name: 'Create app using image with new environment'
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 25
 
     env:
       TEST_CONTAINER_APP_NAME: 'gh-ca-is-ne-${{ github.run_id }}'

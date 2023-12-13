@@ -297,7 +297,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       id-token: write # This is required for requesting the OIDC JWT Token
-    timeout-minutes: 15
+    timeout-minutes: 25
 
     env:
       TEST_CONTAINER_APP_NAME: 'gh-ca-is-ne-${{ github.run_id }}'
@@ -607,7 +607,7 @@ jobs:
       - name: Update Container App with existing image
         if: ${{ always() }}
         shell: bash
-        run: az containerapp update -n ${{ env.TEST_CONTAINER_APP_NAME }} -g ${{ vars.TEST_RESOURCE_GROUP_NAME }} -i mcr.microsoft.com/azuredocs/containerapps-helloworld:latest
+        run: az containerapp update -n ${{ env.TEST_EXISTING_CONTAINER_APP }} -g ${{ vars.TEST_RESOURCE_GROUP_NAME }} -i mcr.microsoft.com/azuredocs/containerapps-helloworld:latest
 
   update-using-image:
 
