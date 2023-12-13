@@ -52,6 +52,7 @@ var TelemetryHelper_1 = __nccwpck_require__(2036);
 var Utility_1 = __nccwpck_require__(1420);
 var GitHubActionsToolHelper_1 = __nccwpck_require__(9106);
 var buildArgumentRegex = /"[^"]*"|\S+/g;
+var buildpackEnvironmentNameRegex = "^(BP|ORYX)_[-._a-zA-Z0-9]+$";
 var azurecontainerapps = /** @class */ (function () {
     function azurecontainerapps() {
     }
@@ -189,18 +190,33 @@ var azurecontainerapps = /** @class */ (function () {
         if (!this.util.isNullOrEmpty(this.buildArguments)) {
             // Ensure that the build arguments are in the format 'key1=value1 key2=value2'
             var buildArguments = this.buildArguments.match(buildArgumentRegex);
+            var dockerfilePath = this.toolHelper.getInput('dockerfilePath', false);
+            var isBuildPackBuild_1 = this.util.isNullOrEmpty(dockerfilePath);
+            var invalidBuildArgumentsMessage_1 = "The 'buildArguments' argument must be in the format 'key1=value1 key2=value2'.";
             var invalidBuildArguments = buildArguments.some(function (variable) {
                 if (!_this.util.isNullOrEmpty(variable)) {
-                    return variable.indexOf('=') === -1;
+                    var envVar = variable.split('=');
+                    if (envVar.length === 1) {
+                        return true;
+                    }
+                    if (isBuildPackBuild_1) {
+                        var isNameValid = envVar[0].match(buildpackEnvironmentNameRegex);
+                        if (!isNameValid) {
+                            invalidBuildArgumentsMessage_1 = "Build environment variable name must consist of alphanumeric characters, numbers, '_', '.' or '-', start with 'BP_' or 'ORYX_'.";
+                        }
+                        return !isNameValid;
+                    }
+                    else {
+                        return false;
+                    }
                 }
                 else {
                     return false;
                 }
             });
             if (invalidBuildArguments) {
-                var invalidBuildArgumentsMessage = "The 'buildArguments' argument must be in the format 'key1=value1 key2=value2'.";
-                this.toolHelper.writeError(invalidBuildArgumentsMessage);
-                throw Error(invalidBuildArgumentsMessage);
+                this.toolHelper.writeError(invalidBuildArgumentsMessage_1);
+                throw Error(invalidBuildArgumentsMessage_1);
             }
         }
     };

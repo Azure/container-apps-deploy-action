@@ -7,6 +7,7 @@ import { Utility } from './src/Utility';
 import { GitHubActionsToolHelper } from './src/GitHubActionsToolHelper';
 
 const buildArgumentRegex = /"[^"]*"|\S+/g;
+const buildpackEnvironmentNameRegex = "^(BP|ORYX)_[-._a-zA-Z0-9]+$"
 export class azurecontainerapps {
 
     public static async runMain(): Promise<void> {
@@ -183,16 +184,32 @@ export class azurecontainerapps {
         if (!this.util.isNullOrEmpty(this.buildArguments)) {
             // Ensure that the build arguments are in the format 'key1=value1 key2=value2'
             const buildArguments = this.buildArguments.match(buildArgumentRegex);
+            const dockerfilePath = this.toolHelper.getInput('dockerfilePath', false);
+            const isBuildPackBuild = this.util.isNullOrEmpty(dockerfilePath);
+            let invalidBuildArgumentsMessage = `The 'buildArguments' argument must be in the format 'key1=value1 key2=value2'.`;
             const invalidBuildArguments = buildArguments.some(variable => {
                 if (!this.util.isNullOrEmpty(variable)) {
-                    return variable.indexOf('=') === -1
+                    const envVar = variable.split('=');
+                    if (envVar.length === 1) {
+                        return true;
+                    }
+
+                    if (isBuildPackBuild) {
+                        const isNameValid = envVar[0].match(buildpackEnvironmentNameRegex);
+                        if (!isNameValid) {
+                            invalidBuildArgumentsMessage = `Build environment variable name must consist of alphanumeric characters, numbers, '_', '.' or '-', start with 'BP_' or 'ORYX_'.`;
+                        }
+                        return !isNameValid;
+                    }
+                    else {
+                        return false;
+                    }
                 }
                 else {
                     return false;
                 }
             });
             if (invalidBuildArguments) {
-                let invalidBuildArgumentsMessage = `The 'buildArguments' argument must be in the format 'key1=value1 key2=value2'.`;
                 this.toolHelper.writeError(invalidBuildArgumentsMessage);
                 throw Error(invalidBuildArgumentsMessage);
             }
