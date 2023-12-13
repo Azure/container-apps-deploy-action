@@ -95,9 +95,9 @@ jobs:
       - name: Azure Login
         uses: azure/login@v1
         with:
-          client-id: ${{ secrets.TEST_CLIENT_ID }}
-          tenant-id: ${{ secrets.TEST_TENANT_ID }}
-          subscription-id: ${{ secrets.TEST_SUBSCRIPTION_ID }}
+          client-id: ${{ secrets.OIDC_TEST_CLIENT_ID }}
+          tenant-id: ${{ secrets.OIDC_TEST_TENANT_ID }}
+          subscription-id: ${{ secrets.OIDC_TEST_SUBSCRIPTION_ID }}
 
       - name: Execute Azure Container Apps Build and Deploy Action
         uses: ./
@@ -110,7 +110,7 @@ jobs:
       - name: Delete created Azure Container App
         if: ${{ always() }}
         shell: bash
-        run: az containerapp delete -n ${{ env.TEST_CONTAINER_APP_NAME }} -g ${{ vars.TEST_RESOURCE_GROUP_NAME }} -y
+        run: az containerapp delete -n ${{ env.TEST_CONTAINER_APP_NAME }} -g ${{ vars.TEST_RESOURCE_GROUP_NO_ACR_NAME }} -y
 
 
   create-using-found-dockerfile:
@@ -297,7 +297,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       id-token: write # This is required for requesting the OIDC JWT Token
-    timeout-minutes: 15
+    timeout-minutes: 25
 
     env:
       TEST_CONTAINER_APP_NAME: 'gh-ca-is-ne-${{ github.run_id }}'
@@ -592,22 +592,22 @@ jobs:
       - name: Azure Login
         uses: azure/login@v1
         with:
-          client-id: ${{ secrets.TEST_CLIENT_ID }}
-          tenant-id: ${{ secrets.TEST_TENANT_ID }}
-          subscription-id: ${{ secrets.TEST_SUBSCRIPTION_ID }}
+          client-id: ${{ secrets.OIDC_TEST_CLIENT_ID }}
+          tenant-id: ${{ secrets.OIDC_TEST_TENANT_ID }}
+          subscription-id: ${{ secrets.OIDC_TEST_SUBSCRIPTION_ID }}
 
       - name: Execute Azure Container Apps Build and Deploy Action
         uses: ./
         with:
           appSourcePath: '${{ github.workspace }}/oryx/tests/SampleApps/DotNetCore/NetCore6PreviewWebApp'
-          containerAppName: ${{ env.TEST_EXISTING_CONTAINER_APP }}
+          containerAppName: ${{ vars.TEST_EXISTING_CONTAINER_APP }}
           resourceGroup: ${{ vars.TEST_RESOURCE_GROUP_NO_ACR_NAME }}
           disableTelemetry: ${{ vars.TEST_DISABLE_TELEMETRY }}
 
       - name: Update Container App with existing image
         if: ${{ always() }}
         shell: bash
-        run: az containerapp update -n ${{ env.TEST_CONTAINER_APP_NAME }} -g ${{ vars.TEST_RESOURCE_GROUP_NAME }} -i mcr.microsoft.com/azuredocs/containerapps-helloworld:latest
+        run: az containerapp update -n ${{ vars.TEST_EXISTING_CONTAINER_APP }} -g ${{ vars.TEST_RESOURCE_GROUP_NO_ACR_NAME }} -i mcr.microsoft.com/azuredocs/containerapps-helloworld:latest
 
   update-using-image:
 
