@@ -102,7 +102,7 @@ jobs:
       - name: Delete created Azure Container App
         if: ${{ always() }}
         shell: bash
-        run: az containerapp delete -n ${{ env.TEST_CONTAINER_APP_NAME }} -g ${{ vars.TEST_RESOURCE_GROUP_NAME }} -y
+        run: az containerapp delete -n ${{ env.TEST_CONTAINER_APP_NAME }} -g ${{ vars.TEST_RESOURCE_GROUP_NO_ACR_NAME }} -y
 
 
   create-using-found-dockerfile:
@@ -560,7 +560,7 @@ jobs:
       - name: Update Container App with existing image
         if: ${{ always() }}
         shell: bash
-        run: az containerapp update -n ${{ env.TEST_CONTAINER_APP_NAME }} -g ${{ vars.TEST_RESOURCE_GROUP_NAME }} -i mcr.microsoft.com/azuredocs/containerapps-helloworld:latest
+        run: az containerapp update -n ${{ env.TEST_CONTAINER_APP_NAME }} -g ${{ vars.TEST_RESOURCE_GROUP_NO_ACR_NAME }} -i mcr.microsoft.com/azuredocs/containerapps-helloworld:latest
 
   update-using-image:
 
