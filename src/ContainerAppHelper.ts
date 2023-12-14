@@ -148,6 +148,36 @@ export class ContainerAppHelper {
     }
 
     /**
+     * Update container app with update and ingress update to avoid failure of acr authentication.
+     * @param containerAppName - the name of the existing Container App
+     * @param resourceGroup - the resource group that the existing Container App is found in
+     * @param ingress - the ingress that the Container App will be exposed on
+     * @param targetPort - the target port that the Container App will be exposed on
+     */
+    public async updateContainerAppIngress(
+        containerAppName: string,
+        resourceGroup: string,
+        ingress?: string,
+        targetPort?: string) {
+        toolHelper.writeDebug(`Attempting to update Container App ingress with name "${containerAppName}" in resource group "${resourceGroup}"`);
+        try {
+            let command = `az containerapp ingress update -n ${containerAppName} -g ${resourceGroup}`;
+            if (!util.isNullOrEmpty(ingress)) {
+                command += ` --type ${ingress}`;
+            }
+
+            if (!util.isNullOrEmpty(targetPort)) {
+                command += ` --target-port ${targetPort}`;
+            }
+
+            await util.execute(command);
+        } catch (err) {
+            toolHelper.writeError(err.message);
+            throw err;
+        }
+    }
+
+    /**
      * Updates an existing Azure Container App based from a YAML configuration file.
      * @param containerAppName - the name of the existing Container App
      * @param resourceGroup - the resource group that the existing Container App is found in

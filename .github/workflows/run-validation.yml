@@ -102,7 +102,7 @@ jobs:
       - name: Delete created Azure Container App
         if: ${{ always() }}
         shell: bash
-        run: az containerapp delete -n ${{ env.TEST_CONTAINER_APP_NAME }} -g ${{ vars.TEST_RESOURCE_GROUP_NAME }} -y
+        run: az containerapp delete -n ${{ env.TEST_CONTAINER_APP_NAME }} -g ${{ vars.TEST_RESOURCE_GROUP_NO_ACR_NAME }} -y
 
 
   create-using-found-dockerfile:
@@ -271,7 +271,7 @@ jobs:
 
     name: 'Create app using image with new environment'
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 25
 
     env:
       TEST_CONTAINER_APP_NAME: 'gh-ca-is-ne-${{ github.run_id }}'
@@ -553,14 +553,14 @@ jobs:
         uses: ./
         with:
           appSourcePath: '${{ github.workspace }}/oryx/tests/SampleApps/DotNetCore/NetCore6PreviewWebApp'
-          containerAppName: ${{ env.TEST_EXISTING_CONTAINER_APP }}
+          containerAppName: ${{ env.TEST_CONTAINER_APP_NAME }}
           resourceGroup: ${{ vars.TEST_RESOURCE_GROUP_NO_ACR_NAME }}
           disableTelemetry: ${{ vars.TEST_DISABLE_TELEMETRY }}
 
       - name: Update Container App with existing image
         if: ${{ always() }}
         shell: bash
-        run: az containerapp update -n ${{ env.TEST_CONTAINER_APP_NAME }} -g ${{ vars.TEST_RESOURCE_GROUP_NAME }} -i mcr.microsoft.com/azuredocs/containerapps-helloworld:latest
+        run: az containerapp update -n ${{ env.TEST_CONTAINER_APP_NAME }} -g ${{ vars.TEST_RESOURCE_GROUP_NO_ACR_NAME }} -i mcr.microsoft.com/azuredocs/containerapps-helloworld:latest
 
   update-using-image:
 
