@@ -107,7 +107,6 @@ export class azurecontainerapps {
     private static ingress: string;
     private static targetPort: string;
     private static buildArguments: string;
-    private static shouldUseUpdateCommand: boolean;
     private static noIngressUpdate: boolean;
     private static useInternalRegistry: boolean;
     private static shouldCreateOrUpdateContainerAppWithUp: boolean;
