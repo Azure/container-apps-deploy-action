@@ -185,26 +185,10 @@ export class azurecontainerapps {
         if (!this.util.isNullOrEmpty(this.buildArguments)) {
             // Ensure that the build arguments are in the format 'key1=value1 key2=value2'
             const buildArguments = this.buildArguments.match(buildArgumentRegex);
-            const dockerfilePath = this.toolHelper.getInput('dockerfilePath', false);
-            const isBuildPackBuild = this.util.isNullOrEmpty(dockerfilePath);
             let invalidBuildArgumentsMessage = `The 'buildArguments' argument must be in the format 'key1=value1 key2=value2'.`;
             const invalidBuildArguments = buildArguments.some(variable => {
                 if (!this.util.isNullOrEmpty(variable)) {
-                    const envVar = variable.split('=');
-                    if (envVar.length === 1) {
-                        return true;
-                    }
-
-                    if (isBuildPackBuild) {
-                        const isNameValid = envVar[0].match(buildpackEnvironmentNameRegex);
-                        if (!isNameValid) {
-                            invalidBuildArgumentsMessage = `Build environment variable name must consist of alphanumeric characters, numbers, '_', '.' or '-', start with 'BP_' or 'ORYX_'.`;
-                        }
-                        return !isNameValid;
-                    }
-                    else {
-                        return false;
-                    }
+                    return variable.indexOf('=') === -1;
                 }
                 else {
                     return false;
@@ -482,6 +466,17 @@ export class azurecontainerapps {
      * @param buildArguments - The build arguments to pass to the pack command via environment variables.
      */
     private static async buildImageFromBuilderAsync(appSourcePath: string, imageToBuild: string, buildArguments: string[]) {
+        if (buildArguments.length > 0) {
+            buildArguments.forEach((buildArg) => {
+                const nameAndValue = buildArg.split('=');
+                const isNameValid = nameAndValue[0].match(buildpackEnvironmentNameRegex);
+                if (!isNameValid) {
+                    const invalidBuildArgumentsMessage = `Build environment variable name must consist of alphanumeric characters, numbers, '_', '.' or '-', start with 'BP_' or 'ORYX_'.`;
+                    this.toolHelper.writeError(invalidBuildArgumentsMessage);
+                    throw Error(invalidBuildArgumentsMessage);
+                }
+            });
+        }
         // Install the pack CLI
         await this.appHelper.installPackCliAsync();
         this.toolHelper.writeInfo(`Successfully installed the pack CLI.`);

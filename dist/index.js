@@ -190,33 +190,18 @@ var azurecontainerapps = /** @class */ (function () {
         if (!this.util.isNullOrEmpty(this.buildArguments)) {
             // Ensure that the build arguments are in the format 'key1=value1 key2=value2'
             var buildArguments = this.buildArguments.match(buildArgumentRegex);
-            var dockerfilePath = this.toolHelper.getInput('dockerfilePath', false);
-            var isBuildPackBuild_1 = this.util.isNullOrEmpty(dockerfilePath);
-            var invalidBuildArgumentsMessage_1 = "The 'buildArguments' argument must be in the format 'key1=value1 key2=value2'.";
+            var invalidBuildArgumentsMessage = "The 'buildArguments' argument must be in the format 'key1=value1 key2=value2'.";
             var invalidBuildArguments = buildArguments.some(function (variable) {
                 if (!_this.util.isNullOrEmpty(variable)) {
-                    var envVar = variable.split('=');
-                    if (envVar.length === 1) {
-                        return true;
-                    }
-                    if (isBuildPackBuild_1) {
-                        var isNameValid = envVar[0].match(buildpackEnvironmentNameRegex);
-                        if (!isNameValid) {
-                            invalidBuildArgumentsMessage_1 = "Build environment variable name must consist of alphanumeric characters, numbers, '_', '.' or '-', start with 'BP_' or 'ORYX_'.";
-                        }
-                        return !isNameValid;
-                    }
-                    else {
-                        return false;
-                    }
+                    return variable.indexOf('=') === -1;
                 }
                 else {
                     return false;
                 }
             });
             if (invalidBuildArguments) {
-                this.toolHelper.writeError(invalidBuildArgumentsMessage_1);
-                throw Error(invalidBuildArgumentsMessage_1);
+                this.toolHelper.writeError(invalidBuildArgumentsMessage);
+                throw Error(invalidBuildArgumentsMessage);
             }
         }
     };
@@ -568,11 +553,23 @@ var azurecontainerapps = /** @class */ (function () {
     azurecontainerapps.buildImageFromBuilderAsync = function (appSourcePath, imageToBuild, buildArguments) {
         return __awaiter(this, void 0, void 0, function () {
             var environmentVariables, runtimeStack, runtimeStackSplit, platformName, platformVersion, builderStack;
+            var _this = this;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: 
-                    // Install the pack CLI
-                    return [4 /*yield*/, this.appHelper.installPackCliAsync()];
+                    case 0:
+                        if (buildArguments.length > 0) {
+                            buildArguments.forEach(function (buildArg) {
+                                var nameAndValue = buildArg.split('=');
+                                var isNameValid = nameAndValue[0].match(buildpackEnvironmentNameRegex);
+                                if (!isNameValid) {
+                                    var invalidBuildArgumentsMessage = "Build environment variable name must consist of alphanumeric characters, numbers, '_', '.' or '-', start with 'BP_' or 'ORYX_'.";
+                                    _this.toolHelper.writeError(invalidBuildArgumentsMessage);
+                                    throw Error(invalidBuildArgumentsMessage);
+                                }
+                            });
+                        }
+                        // Install the pack CLI
+                        return [4 /*yield*/, this.appHelper.installPackCliAsync()];
                     case 1:
                         // Install the pack CLI
                         _a.sent();

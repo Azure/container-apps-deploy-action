@@ -441,7 +441,7 @@ steps:
 
 This will create a new Container App named `github-action-container-app-<github-run-id>-<github-run-attempt>` in a new
 resource group named `<container-app-name>-rg`. The Container App will be based off of an image that was built from
-the provided `appSourcePath`. Oryx++ builder is used to create a runnable application image, each build argument will be passed to the `pack build` command via the `--env` flag, e.g., `BP_JVM_VERSION=21 BP_MAVEN_VERSION=4` will be passed to the `pack build --env BP_JVM_VERSION=21 --env BP_MAVEN_VERSION=4`.'
+the provided `appSourcePath`. Oryx++ builder is used to create a runnable application image, each build argument will be passed to the `pack build` command via the `--env` flag, e.g., `BP_JVM_VERSION=21 BP_MAVEN_VERSION=4` will be passed to the `pack build` as `--env BP_JVM_VERSION=21 --env BP_MAVEN_VERSION=4`.'
 
 ### Dockerfile provided
 
@@ -465,7 +465,7 @@ steps:
 
 This will create a new Container App named `github-action-container-app-<github-run-id>-<github-run-attempt>` in a new
 resource group named `<container-app-name>-rg` where the runnable application image was created from the `test.Dockerfile`
-file found in the provided application source path directory and build arguments `"arg-1=value-1" "arg-2=value-2"` will be passed to the `docker build --build-arg "arg-1=value-1" --build-arg "arg-2=value-2"`. If there's no build argument in the Dockerfile, no need to provide `buildArguments`.
+file found in the provided application source path directory and build arguments `"arg-1=value-1" "arg-2=value-2"` will be passed to the `docker build` as `--build-arg "arg-1=value-1" --build-arg "arg-2=value-2"`. If there's no build argument in the Dockerfile, no need to provide `buildArguments`.
 
 _Note_: for values provided to `dockerfilePath`, no file prefixes should be included (_e.g._, `./test.Dockerfile` should be
 passed as just `test.Dockerfile`). The provided `appSourcePath` and `dockerfilePath` arguments will be concatenated inside
