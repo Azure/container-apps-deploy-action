@@ -90,10 +90,13 @@ inputs:
     required: false
   buildArguments:
     description: |
-      'A list of build arguments provided as KEY=VALUE pairings and are space-separated. If a Dockerfile has been
-      provided or is discovered in the application source, each build argument will be passed to the "docker build"
-      command via the --build-arg flag. If the Oryx++ builder is used to create a runnable application image, each
-      build argument will be passed to the "pack build" command via the --env flag.'
+      'A list of build arguments provided as KEY=VALUE pairings and are space-separated. If a Dockerfile has been provided
+      or is discovered in the application source, each build argument will be passed to the `docker build` command via the
+      `--build-arg` flag, e.g., `arg-1=value-1 arg-2=value-2` will be passed to the `docker build` as
+      `--build-arg arg-1=value-1 --build-arg arg-2=value-2`. If the Oryx++ builder is used to create a runnable
+      application image, each build argument will be passed to the `pack build` command via the `--env` flag,
+      e.g., `BP_JVM_VERSION=21 BP_MAVEN_VERSION=4` will be passed to the `pack build` as
+      `--env BP_JVM_VERSION=21 --env BP_MAVEN_VERSION=4`.'
     required: false
   targetPort:
     description: |
