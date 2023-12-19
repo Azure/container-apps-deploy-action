@@ -171,6 +171,7 @@ For more information on the structure of the YAML configuration file, please vis
 | `containerAppEnvironment` | No       | The name of the Container App environment to use with the application. If not provided, an existing environment in the resource group of the Container App will be used, otherwise, an environment will be created in the formation `<container-app-name>-env`. |
 | `runtimeStack`            | No       | The platform version stack used in the final runnable application image that is deployed to the Container App. The value should be provided in the formation `<platform>:<version>`. If not provided, this value is determined by Oryx based on the contents of the provided application. Please refer to [this document](https://github.com/microsoft/Oryx/blob/main/doc/supportedRuntimeVersions.md) for more information on supported runtime stacks for Oryx. |
 | `builderStack`            | No       | The stack (OS) that should be used to build the provided application source and produce the runnable application image. You can provide a specific image tag for the stack, such as "debian-bookworm-20231107.2", or you can provide a supported stack name, such as "debian-bookworm" or "debian-bullseye", and the latest supported image tag for that stack will be used. If no stack is provided, this action will attempt to build the provided application source with each supported stack until there's a successful build. |
+| `buildArguments`          | No       | A list of build arguments provided as KEY=VALUE pairings and are space-separated. If a Dockerfile has been provided or is discovered in the application source, each build argument will be passed to the `docker build` command via the `--build-arg` flag. If the Oryx++ builder is used to create a runnable application image, each build argument will be passed to the `pack build` command via the `--env` flag. |
 | `targetPort`              | No       | The designated port for the application to run on. If no value is provided and the builder is used to build the runnable application image, the target port will be set to 80 for Python applications and 8080 for all other platform applications. If no value is provided when creating a Container App, the target port will default to 80. Note: when using this action to update a Container App, the target port may be updated if not provided based on changes to the ingress property. |
 | `location`                | No       | The location that the Container App (and other created resources) will be deployed to. To view locations suitable for creating the Container App in, please run the following: `az provider show -n Microsoft.App --query "resourceTypes[?resourceType=='containerApps'].locations"` |
 | `environmentVariables`    | No       | A list of environment variable(s) for the container. Space-separated values in 'key=value' format. Empty string to clear existing values. Prefix value with 'secretref:' to reference a secret. |
@@ -419,6 +420,29 @@ steps:
 This will create a new Container App named `github-action-container-app-<github-run-id>-<github-run-attempt>` in a new
 resource group named `<container-app-name>-rg` where the runnable application image is using the .NET 7 runtime stack.
 
+### Build Arguments provided
+
+```yml
+steps:
+
+  - name: Log in to Azure
+    uses: azure/login@v1
+    with:
+      creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+  - name: Build and deploy Container App
+    uses: azure/container-apps-deploy-action@v1
+    with:
+      appSourcePath: ${{ github.workspace }}
+      acrName: mytestacr
+      buildArguments: |
+        "BP_JVM_VERSION=21" "BP_MAVEN_BUILD_ARGUMENTS=-Dmaven.test.skip=false --no-transfer-progress package"
+```
+
+This will create a new Container App named `github-action-container-app-<github-run-id>-<github-run-attempt>` in a new
+resource group named `<container-app-name>-rg`. The Container App will be based off of an image that was built from
+the provided `appSourcePath`. Oryx++ builder is used to create a runnable application image, each build argument will be passed to the `pack build` command via the `--env` flag, e.g., `BP_JVM_VERSION=21 BP_MAVEN_VERSION=4` will be passed to the `pack build` as `--env BP_JVM_VERSION=21 --env BP_MAVEN_VERSION=4`.'
+
 ### Dockerfile provided
 
 ```yml
@@ -435,11 +459,13 @@ steps:
       appSourcePath: ${{ github.workspace }}
       acrName: mytestacr
       dockerfilePath: test.Dockerfile
+      buildArguments: |
+        "arg-1=value-1" "arg-2=value-2"
 ```
 
 This will create a new Container App named `github-action-container-app-<github-run-id>-<github-run-attempt>` in a new
 resource group named `<container-app-name>-rg` where the runnable application image was created from the `test.Dockerfile`
-file found in the provided application source path directory.
+file found in the provided application source path directory and build arguments `"arg-1=value-1" "arg-2=value-2"` will be passed to the `docker build` as `--build-arg "arg-1=value-1" --build-arg "arg-2=value-2"`. If there's no build argument in the Dockerfile, no need to provide `buildArguments`.
 
 _Note_: for values provided to `dockerfilePath`, no file prefixes should be included (_e.g._, `./test.Dockerfile` should be
 passed as just `test.Dockerfile`). The provided `appSourcePath` and `dockerfilePath` arguments will be concatenated inside

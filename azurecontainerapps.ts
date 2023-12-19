@@ -6,6 +6,8 @@ import { TelemetryHelper } from './src/TelemetryHelper';
 import { Utility } from './src/Utility';
 import { GitHubActionsToolHelper } from './src/GitHubActionsToolHelper';
 
+const buildArgumentRegex = /"[^"]*"|\S+/g;
+const buildpackEnvironmentNameRegex = /^"?(BP|ORYX)_[-._a-zA-Z0-9]+"?$/
 export class azurecontainerapps {
 
     public static async runMain(): Promise<void> {
@@ -104,6 +106,7 @@ export class azurecontainerapps {
     private static imageToBuild: string;
     private static ingress: string;
     private static targetPort: string;
+    private static buildArguments: string;
     private static noIngressUpdate: boolean;
     private static useInternalRegistry: boolean;
     private static shouldCreateOrUpdateContainerAppWithUp: boolean;
@@ -161,6 +164,9 @@ export class azurecontainerapps {
         // Get the name of the image to build if it was provided, or generate it from build variables
         this.imageToBuild = this.toolHelper.getInput('imageToBuild', false);
 
+        // Get the user defined build arguments, if provided
+        this.buildArguments = this.toolHelper.getInput('buildArguments', false);
+
         // Ensure that one of appSourcePath, imageToDeploy, or yamlConfigPath is provided
         if (this.util.isNullOrEmpty(this.appSourcePath) && this.util.isNullOrEmpty(this.imageToDeploy) && this.util.isNullOrEmpty(this.yamlConfigPath)) {
             let requiredArgumentMessage = `One of the following arguments must be provided: 'appSourcePath', 'imageToDeploy', or 'yamlConfigPath'.`;
@@ -173,6 +179,25 @@ export class azurecontainerapps {
             let conflictingArgumentsMessage = `The 'acrName' and 'registryUrl' arguments cannot both be provided.`;
             this.toolHelper.writeError(conflictingArgumentsMessage);
             throw Error(conflictingArgumentsMessage);
+        }
+
+        // Set up the build arguments to pass to the Dockerfile or builder
+        if (!this.util.isNullOrEmpty(this.buildArguments)) {
+            // Ensure that the build arguments are in the format 'key1=value1 key2=value2'
+            const buildArguments = this.buildArguments.match(buildArgumentRegex);
+            let invalidBuildArgumentsMessage = `The 'buildArguments' argument must be in the format 'key1=value1 key2=value2'.`;
+            const invalidBuildArguments = buildArguments.some(variable => {
+                if (!this.util.isNullOrEmpty(variable)) {
+                    return variable.indexOf('=') === -1;
+                }
+                else {
+                    return false;
+                }
+            });
+            if (invalidBuildArguments) {
+                this.toolHelper.writeError(invalidBuildArgumentsMessage);
+                throw Error(invalidBuildArgumentsMessage);
+            }
         }
     }
 
@@ -401,6 +426,14 @@ export class azurecontainerapps {
             this.toolHelper.writeInfo(`Default image to deploy: ${this.imageToDeploy}`);
         }
 
+        // Get the build arguments to pass to the Dockerfile or builder
+        let buildArguments: string[] = [];
+        if (!this.util.isNullOrEmpty(this.buildArguments)) {
+            this.buildArguments.match(buildArgumentRegex).forEach((buildArg) => {
+                buildArguments.push(buildArg);
+            });
+        }
+
         // Get Dockerfile to build, if provided, or check if one exists at the root of the provided application
         let dockerfilePath: string = this.toolHelper.getInput('dockerfilePath', false);
         if (this.util.isNullOrEmpty(dockerfilePath)) {
@@ -411,7 +444,7 @@ export class azurecontainerapps {
                 dockerfilePath = rootDockerfilePath;
             } else {
                 // No Dockerfile found or provided, build the image using the builder
-                await this.buildImageFromBuilderAsync(this.appSourcePath, this.imageToBuild);
+                await this.buildImageFromBuilderAsync(this.appSourcePath, this.imageToBuild, buildArguments);
             }
         } else {
             dockerfilePath = path.join(this.appSourcePath, dockerfilePath);
@@ -419,7 +452,7 @@ export class azurecontainerapps {
 
         if (!this.util.isNullOrEmpty(dockerfilePath)) {
             // Build the image from the provided/discovered Dockerfile
-            await this.buildImageFromDockerfile(this.appSourcePath, dockerfilePath, this.imageToBuild);
+            await this.buildImageFromDockerfile(this.appSourcePath, dockerfilePath, this.imageToBuild, buildArguments);
         }
 
         // Push the image to the Container Registry
@@ -430,8 +463,20 @@ export class azurecontainerapps {
      * Builds a runnable application image using the builder.
      * @param appSourcePath - The path to the application source code.
      * @param imageToBuild - The name of the image to build.
+     * @param buildArguments - The build arguments to pass to the pack command via environment variables.
      */
-    private static async buildImageFromBuilderAsync(appSourcePath: string, imageToBuild: string) {
+    private static async buildImageFromBuilderAsync(appSourcePath: string, imageToBuild: string, buildArguments: string[]) {
+        if (buildArguments.length > 0) {
+            buildArguments.forEach((buildArg) => {
+                const nameAndValue = buildArg.split('=');
+                const isNameValid = nameAndValue[0].match(buildpackEnvironmentNameRegex);
+                if (!isNameValid) {
+                    const invalidBuildArgumentsMessage = `Build environment variable name must consist of alphanumeric characters, numbers, '_', '.' or '-', start with 'BP_' or 'ORYX_'.`;
+                    this.toolHelper.writeError(invalidBuildArgumentsMessage);
+                    throw Error(invalidBuildArgumentsMessage);
+                }
+            });
+        }
         // Install the pack CLI
         await this.appHelper.installPackCliAsync();
         this.toolHelper.writeInfo(`Successfully installed the pack CLI.`);
@@ -461,6 +506,13 @@ export class azurecontainerapps {
             environmentVariables.push(`ORYX_RUNTIME_PORT=${this.targetPort}`);
         }
 
+        // Add user-specified build environment variables
+        if (buildArguments.length > 0) {
+            buildArguments.forEach((buildArg) => {
+                environmentVariables.push(buildArg);
+            });
+        }
+
         this.toolHelper.writeInfo(`Building image "${imageToBuild}" using the Oryx++ Builder`);
 
         // Set the Oryx++ Builder as the default builder locally
@@ -478,13 +530,15 @@ export class azurecontainerapps {
      * @param appSourcePath - The path to the application source code.
      * @param dockerfilePath - The path to the Dockerfile to build.
      * @param imageToBuild - The name of the image to build.
+     * @param buildArguments - The build arguments to pass to the docker build command.
      */
     private static async buildImageFromDockerfile(
         appSourcePath: string,
         dockerfilePath: string,
-        imageToBuild: string) {
+        imageToBuild: string,
+        buildArguments: string[]) {
         this.toolHelper.writeInfo(`Building image "${imageToBuild}" using the provided Dockerfile`);
-        await this.appHelper.createRunnableAppImageFromDockerfile(imageToBuild, appSourcePath, dockerfilePath);
+        await this.appHelper.createRunnableAppImageFromDockerfile(imageToBuild, appSourcePath, dockerfilePath, buildArguments);
 
         // If telemetry is enabled, log that the Dockerfile scenario was targeted for this task
         this.telemetryHelper.setDockerfileScenario();
