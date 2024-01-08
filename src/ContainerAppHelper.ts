@@ -267,6 +267,24 @@ export class ContainerAppHelper {
         }
     }
 
+
+    /**
+     * Get the current subscription
+     * @returns the default location if found, otherwise 'eastus2'
+     */
+    public async getCurrentSubscription(): Promise<string> {
+        toolHelper.writeDebug(`Attempting to get the default subscription`);
+        try {
+            let command = ` az account show --query id --output tsv `
+            let executionResult = await util.execute(command);
+            // If successful, strip out double quotes, spaces and parentheses from the first location returned
+            return executionResult.exitCode === 0 ? executionResult.stdout.toLowerCase(): ``;
+        } catch (err) {
+            toolHelper.writeInfo(err.message);
+            return ``;
+        }
+    }
+
     /**
      * Creates a new resource group in the provided location.
      * @param name - the name of the resource group to create
@@ -413,6 +431,8 @@ export class ContainerAppHelper {
             telemetryArg = `ORYX_DISABLE_TELEMETRY=true`;
         }
 
+        let subscription = await this.getCurrentSubscription();
+
         let couldBuildImage = false;
 
         for (const builderImage of ORYX_BUILDER_IMAGES) {
@@ -423,7 +443,7 @@ export class ContainerAppHelper {
             toolHelper.writeDebug(`Attempting to create a runnable application image with name "${imageToDeploy}" using the Oryx++ Builder "${builderImage}"`);
 
             try {
-                let command = `build ${imageToDeploy} --path ${appSourcePath} --builder ${builderImage} --env ${telemetryArg}`;
+                let command = `build ${imageToDeploy} --path ${appSourcePath} --builder ${builderImage} --env ${telemetryArg} --env ORYX_SUBSCRIPTION_ID=${subscription}`;
                 environmentVariables.forEach(function (envVar: string) {
                     command += ` --env ${envVar}`;
                 });
