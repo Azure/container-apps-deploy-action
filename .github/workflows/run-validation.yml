@@ -596,6 +596,7 @@ jobs:
     timeout-minutes: 10
 
     env:
+      TEST_IMAGE_TAG: 'fd-${{ github.run_id }}'
       TEST_CONTAINER_APP_NAME: 'update-using-image-app'
 
     steps:
