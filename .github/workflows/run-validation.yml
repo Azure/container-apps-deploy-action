@@ -602,6 +602,12 @@ jobs:
       - name: Checkout action repository
         uses: actions/checkout@v3
 
+      - name: Clone Oryx repository
+        uses: actions/checkout@v3
+        with:
+          repository: microsoft/Oryx
+          path: oryx
+
       - name: Log in to Azure
         uses: azure/login@v1
         with:
