@@ -5446,7 +5446,7 @@ var ContainerAppHelper = /** @class */ (function () {
                                         _b.label = 1;
                                     case 1:
                                         _b.trys.push([1, 3, , 4]);
-                                        command_5 = "build ".concat(imageToDeploy, " --path ").concat(appSourcePath, " --builder ").concat(builderImage, " --env ").concat(telemetryArg, " --env ORYX_SUBSCRIPTION_ID=").concat(subscription);
+                                        command_5 = "build ".concat(imageToDeploy, " --path ").concat(appSourcePath, " --builder ").concat(builderImage, " --env ").concat(telemetryArg, " --env BP_SUBSCRIPTION_ID=").concat(subscription);
                                         environmentVariables.forEach(function (envVar) {
                                             command_5 += " --env ".concat(envVar);
                                         });

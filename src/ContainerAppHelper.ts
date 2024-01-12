@@ -443,7 +443,7 @@ export class ContainerAppHelper {
             toolHelper.writeDebug(`Attempting to create a runnable application image with name "${imageToDeploy}" using the Oryx++ Builder "${builderImage}"`);
 
             try {
-                let command = `build ${imageToDeploy} --path ${appSourcePath} --builder ${builderImage} --env ${telemetryArg} --env ORYX_SUBSCRIPTION_ID=${subscription}`;
+                let command = `build ${imageToDeploy} --path ${appSourcePath} --builder ${builderImage} --env ${telemetryArg} --env BP_SUBSCRIPTION_ID=${subscription}`;
                 environmentVariables.forEach(function (envVar: string) {
                     command += ` --env ${envVar}`;
                 });
