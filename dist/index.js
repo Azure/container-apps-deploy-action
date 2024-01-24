@@ -400,7 +400,6 @@ var azurecontainerapps = /** @class */ (function () {
                         existingContainerAppEnvironment = _a.sent();
                         if (!this.util.isNullOrEmpty(existingContainerAppEnvironment)) {
                             this.toolHelper.writeInfo("Existing Container App environment found in resource group: ".concat(existingContainerAppEnvironment));
-                            existingContainerAppEnvironment = existingContainerAppEnvironment.replace(/(\r\n|\n|\r)/gm, "");
                             return [2 /*return*/, existingContainerAppEnvironment];
                         }
                         _a.label = 2;
@@ -418,9 +417,7 @@ var azurecontainerapps = /** @class */ (function () {
                     case 4:
                         _a.sent();
                         _a.label = 5;
-                    case 5:
-                        containerAppEnvironment = containerAppEnvironment.replace(/(\r\n|\n|\r)/gm, "");
-                        return [2 /*return*/, containerAppEnvironment];
+                    case 5: return [2 /*return*/, containerAppEnvironment];
                 }
             });
         });
@@ -693,12 +690,12 @@ var azurecontainerapps = /** @class */ (function () {
             }
         }
         var environmentVariables = this.toolHelper.getInput('environmentVariables', false);
-        var cappUpdateCommandUsed = this.noIngressUpdate || (!this.noIngressUpdate && !this.adminCredentialsProvided);
+        var isCappUpdateCommandUsed = this.noIngressUpdate || (!this.noIngressUpdate && !this.adminCredentialsProvided);
         // Add user-specified environment variables
         if (!this.util.isNullOrEmpty(environmentVariables)) {
             // The --replace-env-vars flag is only used for the 'update' command,
             // otherwise --env-vars is used for 'create' and 'up'
-            if (cappUpdateCommandUsed) {
+            if (isCappUpdateCommandUsed) {
                 this.commandLineArgs.push("--replace-env-vars ".concat(environmentVariables));
             }
             else {
@@ -5226,7 +5223,7 @@ var ContainerAppHelper = /** @class */ (function () {
                         return [4 /*yield*/, util.execute(command)];
                     case 2:
                         executionResult = _a.sent();
-                        return [2 /*return*/, executionResult.exitCode === 0 ? executionResult.stdout : null];
+                        return [2 /*return*/, executionResult.exitCode === 0 ? executionResult.stdout.replace(/(\r\n|\n|\r)/gm, "") : null];
                     case 3:
                         err_13 = _a.sent();
                         toolHelper.writeInfo(err_13.message);

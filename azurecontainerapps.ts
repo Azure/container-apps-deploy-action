@@ -344,10 +344,9 @@ export class azurecontainerapps {
 
         // See if we can reuse an existing Container App environment found in the resource group
         if (this.util.isNullOrEmpty(containerAppEnvironment)) {
-            let existingContainerAppEnvironment: string = await this.appHelper.getExistingContainerAppEnvironment(resourceGroup);
+            const existingContainerAppEnvironment: string = await this.appHelper.getExistingContainerAppEnvironment(resourceGroup);
             if (!this.util.isNullOrEmpty(existingContainerAppEnvironment)) {
                 this.toolHelper.writeInfo(`Existing Container App environment found in resource group: ${existingContainerAppEnvironment}`);
-                existingContainerAppEnvironment = existingContainerAppEnvironment.replace(/(\r\n|\n|\r)/gm, "");
                 return existingContainerAppEnvironment
             }
         }
@@ -363,7 +362,7 @@ export class azurecontainerapps {
         if (!containerAppEnvironmentExists) {
             await this.appHelper.createContainerAppEnvironment(containerAppEnvironment, resourceGroup, location);
         }
-        containerAppEnvironment = containerAppEnvironment.replace(/(\r\n|\n|\r)/gm, "");
+
         return containerAppEnvironment;
     }
 
@@ -607,12 +606,12 @@ export class azurecontainerapps {
         }
 
         const environmentVariables: string = this.toolHelper.getInput('environmentVariables', false);
-        const cappUpdateCommandUsed: boolean = this.noIngressUpdate || (!this.noIngressUpdate && !this.adminCredentialsProvided)
+        const isCappUpdateCommandUsed: boolean = this.noIngressUpdate || (!this.noIngressUpdate && !this.adminCredentialsProvided)
         // Add user-specified environment variables
         if (!this.util.isNullOrEmpty(environmentVariables)) {
             // The --replace-env-vars flag is only used for the 'update' command,
             // otherwise --env-vars is used for 'create' and 'up'
-            if (cappUpdateCommandUsed) {
+            if (isCappUpdateCommandUsed) {
                 this.commandLineArgs.push(`--replace-env-vars ${environmentVariables}`);
             } else {
                 this.commandLineArgs.push(`--env-vars ${environmentVariables}`);
