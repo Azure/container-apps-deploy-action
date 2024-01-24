@@ -5223,7 +5223,7 @@ var ContainerAppHelper = /** @class */ (function () {
                         return [4 /*yield*/, util.execute(command)];
                     case 2:
                         executionResult = _a.sent();
-                        return [2 /*return*/, executionResult.exitCode === 0 ? executionResult.stdout.replace(/(\r\n|\n|\r)/gm, "") : null];
+                        return [2 /*return*/, executionResult.exitCode === 0 ? executionResult.stdout : null];
                     case 3:
                         err_13 = _a.sent();
                         toolHelper.writeInfo(err_13.message);
@@ -5868,7 +5868,7 @@ var GitHubActionsToolHelper = /** @class */ (function () {
                         options = {
                             listeners: {
                                 stdout: function (data) {
-                                    stdout_1 += data.toString();
+                                    stdout_1 += data.toString().replace(/(\r\n|\n|\r)/gm, "");
                                 },
                                 stderr: function (data) {
                                     stderr_1 += data.toString();

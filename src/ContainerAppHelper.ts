@@ -293,7 +293,7 @@ export class ContainerAppHelper {
         try {
             let command = `az containerapp env list -g ${resourceGroup} --query "[0].name"`
             let executionResult = await util.execute(command);
-            return executionResult.exitCode === 0 ? executionResult.stdout.replace(/(\r\n|\n|\r)/gm, "") : null;
+            return executionResult.exitCode === 0 ? executionResult.stdout : null;
         } catch (err) {
             toolHelper.writeInfo(err.message);
             return null;
