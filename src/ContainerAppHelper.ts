@@ -38,6 +38,7 @@ export class ContainerAppHelper {
             optionalCmdArgs.forEach(function (val: string) {
                 command += ` ${val}`;
             });
+            toolHelper.writeInfo(`Running create command: ${command}`);
             await util.execute(command);
         } catch (err) {
             toolHelper.writeError(err.message);
