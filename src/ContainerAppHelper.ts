@@ -34,11 +34,10 @@ export class ContainerAppHelper {
         optionalCmdArgs: string[]) {
         toolHelper.writeDebug(`Attempting to create Container App with name "${containerAppName}" in resource group "${resourceGroup}"`);
         try {
-            let command = `az containerapp create -n ${containerAppName} -g ${resourceGroup} --environment ${environment} --output none`;
+            let command = `az containerapp create -n ${containerAppName} -g ${resourceGroup} --environment ${environment} --output none --debug`;
             optionalCmdArgs.forEach(function (val: string) {
                 command += ` ${val}`;
             });
-            toolHelper.writeInfo(`Running create command: ${command}`);
             await util.execute(command);
         } catch (err) {
             toolHelper.writeError(err.message);

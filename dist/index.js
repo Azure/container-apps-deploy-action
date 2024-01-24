@@ -4836,11 +4836,10 @@ var ContainerAppHelper = /** @class */ (function () {
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
-                        command_1 = "az containerapp create -n ".concat(containerAppName, " -g ").concat(resourceGroup, " --environment ").concat(environment, " --output none");
+                        command_1 = "az containerapp create -n ".concat(containerAppName, " -g ").concat(resourceGroup, " --environment ").concat(environment, " --output none --debug");
                         optionalCmdArgs.forEach(function (val) {
                             command_1 += " ".concat(val);
                         });
-                        toolHelper.writeInfo("Running create command: ".concat(command_1));
                         return [4 /*yield*/, util.execute(command_1)];
                     case 2:
                         _a.sent();
