@@ -344,9 +344,10 @@ export class azurecontainerapps {
 
         // See if we can reuse an existing Container App environment found in the resource group
         if (this.util.isNullOrEmpty(containerAppEnvironment)) {
-            const existingContainerAppEnvironment: string = await this.appHelper.getExistingContainerAppEnvironment(resourceGroup);
+            let existingContainerAppEnvironment: string = await this.appHelper.getExistingContainerAppEnvironment(resourceGroup);
             if (!this.util.isNullOrEmpty(existingContainerAppEnvironment)) {
                 this.toolHelper.writeInfo(`Existing Container App environment found in resource group: ${existingContainerAppEnvironment}`);
+                existingContainerAppEnvironment = existingContainerAppEnvironment.replace(/(\r\n|\n|\r)/gm, "");
                 return existingContainerAppEnvironment
             }
         }

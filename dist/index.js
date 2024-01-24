@@ -400,6 +400,7 @@ var azurecontainerapps = /** @class */ (function () {
                         existingContainerAppEnvironment = _a.sent();
                         if (!this.util.isNullOrEmpty(existingContainerAppEnvironment)) {
                             this.toolHelper.writeInfo("Existing Container App environment found in resource group: ".concat(existingContainerAppEnvironment));
+                            existingContainerAppEnvironment = existingContainerAppEnvironment.replace(/(\r\n|\n|\r)/gm, "");
                             return [2 /*return*/, existingContainerAppEnvironment];
                         }
                         _a.label = 2;
