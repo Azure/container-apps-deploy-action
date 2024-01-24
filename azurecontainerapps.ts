@@ -362,7 +362,7 @@ export class azurecontainerapps {
         if (!containerAppEnvironmentExists) {
             await this.appHelper.createContainerAppEnvironment(containerAppEnvironment, resourceGroup, location);
         }
-
+        containerAppEnvironment = containerAppEnvironment.replace(/(\r\n|\n|\r)/gm, "");
         return containerAppEnvironment;
     }
 

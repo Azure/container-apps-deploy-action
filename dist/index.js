@@ -417,7 +417,9 @@ var azurecontainerapps = /** @class */ (function () {
                     case 4:
                         _a.sent();
                         _a.label = 5;
-                    case 5: return [2 /*return*/, containerAppEnvironment];
+                    case 5:
+                        containerAppEnvironment = containerAppEnvironment.replace(/(\r\n|\n|\r)/gm, "");
+                        return [2 /*return*/, containerAppEnvironment];
                 }
             });
         });
