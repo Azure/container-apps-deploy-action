@@ -36,7 +36,7 @@ export class GitHubActionsToolHelper {
         const options: exec.ExecOptions = {
             listeners: {
                 stdout: (data: Buffer) => {
-                    stdout += data.toString();
+                    stdout += data.toString().replace(/(\r\n|\n|\r)/gm, "");
                 },
                 stderr: (data: Buffer) => {
                     stderr += data.toString();
