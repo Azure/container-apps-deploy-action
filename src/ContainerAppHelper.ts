@@ -5,7 +5,7 @@ import { GitHubActionsToolHelper } from './GitHubActionsToolHelper'
 import fs = require('fs');
 
 const ORYX_CLI_IMAGE: string = 'mcr.microsoft.com/oryx/cli:builder-debian-bullseye-20230926.1';
-const ORYX_BULLSEYE_BUILDER_IMAGE: string = 'mcr.microsoft.com/oryx/builder:aca-debian-bullseye-20240124.1'
+const ORYX_BULLSEYE_BUILDER_IMAGE: string = 'mcr.microsoft.com/oryx/builder:debian-bullseye-20240124.1'
 const ORYX_BOOKWORM_BUILDER_IMAGE: string = 'mcr.microsoft.com/oryx/builder:debian-bookworm-20240124.1'
 const ORYX_BUILDER_IMAGES: string[] = [ORYX_BULLSEYE_BUILDER_IMAGE, ORYX_BOOKWORM_BUILDER_IMAGE];
 const IS_WINDOWS_AGENT: boolean = os.platform() == 'win32';
