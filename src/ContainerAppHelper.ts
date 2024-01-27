@@ -5,8 +5,8 @@ import { GitHubActionsToolHelper } from './GitHubActionsToolHelper'
 import fs = require('fs');
 
 const ORYX_CLI_IMAGE: string = 'mcr.microsoft.com/oryx/cli:builder-debian-bullseye-20230926.1';
-const ORYX_BULLSEYE_BUILDER_IMAGE: string = 'mcr.microsoft.com/oryx/builder:debian-bullseye-20231107.2'
-const ORYX_BOOKWORM_BUILDER_IMAGE: string = 'mcr.microsoft.com/oryx/builder:debian-bookworm-20231107.2'
+const ORYX_BULLSEYE_BUILDER_IMAGE: string = 'mcr.microsoft.com/oryx/builder:debian-bullseye-20240124.1'
+const ORYX_BOOKWORM_BUILDER_IMAGE: string = 'mcr.microsoft.com/oryx/builder:debian-bookworm-20240124.1'
 const ORYX_BUILDER_IMAGES: string[] = [ORYX_BULLSEYE_BUILDER_IMAGE, ORYX_BOOKWORM_BUILDER_IMAGE];
 const IS_WINDOWS_AGENT: boolean = os.platform() == 'win32';
 const PACK_CMD: string = IS_WINDOWS_AGENT ? path.join(os.tmpdir(), 'pack') : 'pack';
@@ -65,6 +65,23 @@ export class ContainerAppHelper {
         } catch (err) {
             toolHelper.writeError(err.message);
             throw err;
+        }
+    }
+
+    /**
+     * Get the current subscription
+     * @returns the current subscription
+     */
+    public async getCurrentSubscription(): Promise<string> {
+        toolHelper.writeDebug(`Attempting to get the default subscription`);
+        try {
+            let command = ` az account show --query id --output tsv `
+            let executionResult = await util.execute(command);
+            // If successful, strip out double quotes, spaces and parentheses from the first location returned
+            return executionResult.exitCode === 0 ? executionResult.stdout.toLowerCase() : ``;
+        } catch (err) {
+            toolHelper.writeInfo(err.message);
+            return ``;
         }
     }
 
@@ -413,6 +430,8 @@ export class ContainerAppHelper {
             telemetryArg = `ORYX_DISABLE_TELEMETRY=true`;
         }
 
+        let subscription = await this.getCurrentSubscription();
+
         let couldBuildImage = false;
 
         for (const builderImage of ORYX_BUILDER_IMAGES) {
@@ -423,7 +442,7 @@ export class ContainerAppHelper {
             toolHelper.writeDebug(`Attempting to create a runnable application image with name "${imageToDeploy}" using the Oryx++ Builder "${builderImage}"`);
 
             try {
-                let command = `build ${imageToDeploy} --path ${appSourcePath} --builder ${builderImage} --env ${telemetryArg}`;
+                let command = `build ${imageToDeploy} --path ${appSourcePath} --builder ${builderImage} --env ${telemetryArg} --env BP_SUBSCRIPTION_ID=${subscription}`;
                 environmentVariables.forEach(function (envVar: string) {
                     command += ` --env ${envVar}`;
                 });
@@ -459,7 +478,7 @@ export class ContainerAppHelper {
         buildArguments: string[]) {
         toolHelper.writeDebug(`Attempting to create a runnable application image from the provided/found Dockerfile "${dockerfilePath}" with image name "${imageToDeploy}"`);
         try {
-            let command = `docker build --file ${dockerfilePath} ${appSourcePath} --tag ${imageToDeploy}`; 
+            let command = `docker build --file ${dockerfilePath} ${appSourcePath} --tag ${imageToDeploy}`;
             // If build arguments were provided, append them to the command
             if (buildArguments.length > 0) {
                 buildArguments.forEach(function (buildArg: string) {

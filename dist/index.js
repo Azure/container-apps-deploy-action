@@ -1,7 +1,7 @@
 /******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
-/***/ 7272:
+/***/ 8388:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -46,11 +46,11 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.azurecontainerapps = void 0;
 var fs = __nccwpck_require__(7147);
 var path = __nccwpck_require__(1017);
-var ContainerAppHelper_1 = __nccwpck_require__(892);
-var ContainerRegistryHelper_1 = __nccwpck_require__(581);
-var TelemetryHelper_1 = __nccwpck_require__(7169);
-var Utility_1 = __nccwpck_require__(2123);
-var GitHubActionsToolHelper_1 = __nccwpck_require__(9980);
+var ContainerAppHelper_1 = __nccwpck_require__(3425);
+var ContainerRegistryHelper_1 = __nccwpck_require__(3211);
+var TelemetryHelper_1 = __nccwpck_require__(4550);
+var Utility_1 = __nccwpck_require__(1178);
+var GitHubActionsToolHelper_1 = __nccwpck_require__(7698);
 var buildArgumentRegex = /"[^"]*"|\S+/g;
 var buildpackEnvironmentNameRegex = /^"?(BP|ORYX)_[-._a-zA-Z0-9]+"?$/;
 var azurecontainerapps = /** @class */ (function () {
@@ -806,7 +806,7 @@ azurecontainerapps.runMain();
 
 /***/ }),
 
-/***/ 6538:
+/***/ 2024:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -833,7 +833,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.issue = exports.issueCommand = void 0;
 const os = __importStar(__nccwpck_require__(2037));
-const utils_1 = __nccwpck_require__(7709);
+const utils_1 = __nccwpck_require__(6289);
 /**
  * Commands
  *
@@ -905,7 +905,7 @@ function escapeProperty(s) {
 
 /***/ }),
 
-/***/ 1006:
+/***/ 4950:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -940,12 +940,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getIDToken = exports.getState = exports.saveState = exports.group = exports.endGroup = exports.startGroup = exports.info = exports.notice = exports.warning = exports.error = exports.debug = exports.isDebug = exports.setFailed = exports.setCommandEcho = exports.setOutput = exports.getBooleanInput = exports.getMultilineInput = exports.getInput = exports.addPath = exports.setSecret = exports.exportVariable = exports.ExitCode = void 0;
-const command_1 = __nccwpck_require__(6538);
-const file_command_1 = __nccwpck_require__(8549);
-const utils_1 = __nccwpck_require__(7709);
+const command_1 = __nccwpck_require__(2024);
+const file_command_1 = __nccwpck_require__(8231);
+const utils_1 = __nccwpck_require__(6289);
 const os = __importStar(__nccwpck_require__(2037));
 const path = __importStar(__nccwpck_require__(1017));
-const oidc_utils_1 = __nccwpck_require__(7307);
+const oidc_utils_1 = __nccwpck_require__(5895);
 /**
  * The code to exit an action
  */
@@ -1230,17 +1230,17 @@ exports.getIDToken = getIDToken;
 /**
  * Summary exports
  */
-var summary_1 = __nccwpck_require__(5962);
+var summary_1 = __nccwpck_require__(1585);
 Object.defineProperty(exports, "summary", ({ enumerable: true, get: function () { return summary_1.summary; } }));
 /**
  * @deprecated use core.summary
  */
-var summary_2 = __nccwpck_require__(5962);
+var summary_2 = __nccwpck_require__(1585);
 Object.defineProperty(exports, "markdownSummary", ({ enumerable: true, get: function () { return summary_2.markdownSummary; } }));
 /**
  * Path exports
  */
-var path_utils_1 = __nccwpck_require__(7081);
+var path_utils_1 = __nccwpck_require__(7751);
 Object.defineProperty(exports, "toPosixPath", ({ enumerable: true, get: function () { return path_utils_1.toPosixPath; } }));
 Object.defineProperty(exports, "toWin32Path", ({ enumerable: true, get: function () { return path_utils_1.toWin32Path; } }));
 Object.defineProperty(exports, "toPlatformPath", ({ enumerable: true, get: function () { return path_utils_1.toPlatformPath; } }));
@@ -1248,7 +1248,7 @@ Object.defineProperty(exports, "toPlatformPath", ({ enumerable: true, get: funct
 
 /***/ }),
 
-/***/ 8549:
+/***/ 8231:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -1279,8 +1279,8 @@ exports.prepareKeyValueMessage = exports.issueFileCommand = void 0;
 /* eslint-disable @typescript-eslint/no-explicit-any */
 const fs = __importStar(__nccwpck_require__(7147));
 const os = __importStar(__nccwpck_require__(2037));
-const uuid_1 = __nccwpck_require__(3328);
-const utils_1 = __nccwpck_require__(7709);
+const uuid_1 = __nccwpck_require__(494);
+const utils_1 = __nccwpck_require__(6289);
 function issueFileCommand(command, message) {
     const filePath = process.env[`GITHUB_${command}`];
     if (!filePath) {
@@ -1313,7 +1313,7 @@ exports.prepareKeyValueMessage = prepareKeyValueMessage;
 
 /***/ }),
 
-/***/ 7307:
+/***/ 5895:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -1329,9 +1329,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.OidcClient = void 0;
-const http_client_1 = __nccwpck_require__(1525);
-const auth_1 = __nccwpck_require__(988);
-const core_1 = __nccwpck_require__(1006);
+const http_client_1 = __nccwpck_require__(3435);
+const auth_1 = __nccwpck_require__(3746);
+const core_1 = __nccwpck_require__(4950);
 class OidcClient {
     static createHttpClient(allowRetry = true, maxRetry = 10) {
         const requestOptions = {
@@ -1397,7 +1397,7 @@ exports.OidcClient = OidcClient;
 
 /***/ }),
 
-/***/ 7081:
+/***/ 7751:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -1462,7 +1462,7 @@ exports.toPlatformPath = toPlatformPath;
 
 /***/ }),
 
-/***/ 5962:
+/***/ 1585:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -1752,7 +1752,7 @@ exports.summary = _summary;
 
 /***/ }),
 
-/***/ 7709:
+/***/ 6289:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -1799,7 +1799,7 @@ exports.toCommandProperties = toCommandProperties;
 
 /***/ }),
 
-/***/ 2803:
+/***/ 6172:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -1835,7 +1835,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getExecOutput = exports.exec = void 0;
 const string_decoder_1 = __nccwpck_require__(1576);
-const tr = __importStar(__nccwpck_require__(7732));
+const tr = __importStar(__nccwpck_require__(1274));
 /**
  * Exec a command.
  * Output will be streamed to the live console.
@@ -1909,7 +1909,7 @@ exports.getExecOutput = getExecOutput;
 
 /***/ }),
 
-/***/ 7732:
+/***/ 1274:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -1948,8 +1948,8 @@ const os = __importStar(__nccwpck_require__(2037));
 const events = __importStar(__nccwpck_require__(2361));
 const child = __importStar(__nccwpck_require__(2081));
 const path = __importStar(__nccwpck_require__(1017));
-const io = __importStar(__nccwpck_require__(2771));
-const ioUtil = __importStar(__nccwpck_require__(5555));
+const io = __importStar(__nccwpck_require__(3852));
+const ioUtil = __importStar(__nccwpck_require__(6966));
 const timers_1 = __nccwpck_require__(9512);
 /* eslint-disable @typescript-eslint/unbound-method */
 const IS_WINDOWS = process.platform === 'win32';
@@ -2534,7 +2534,7 @@ class ExecState extends events.EventEmitter {
 
 /***/ }),
 
-/***/ 988:
+/***/ 3746:
 /***/ (function(__unused_webpack_module, exports) {
 
 "use strict";
@@ -2622,7 +2622,7 @@ exports.PersonalAccessTokenCredentialHandler = PersonalAccessTokenCredentialHand
 
 /***/ }),
 
-/***/ 1525:
+/***/ 3435:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -2660,8 +2660,8 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.HttpClient = exports.isHttps = exports.HttpClientResponse = exports.HttpClientError = exports.getProxyUrl = exports.MediaTypes = exports.Headers = exports.HttpCodes = void 0;
 const http = __importStar(__nccwpck_require__(3685));
 const https = __importStar(__nccwpck_require__(5687));
-const pm = __importStar(__nccwpck_require__(9251));
-const tunnel = __importStar(__nccwpck_require__(8156));
+const pm = __importStar(__nccwpck_require__(2685));
+const tunnel = __importStar(__nccwpck_require__(2659));
 var HttpCodes;
 (function (HttpCodes) {
     HttpCodes[HttpCodes["OK"] = 200] = "OK";
@@ -3247,7 +3247,7 @@ const lowercaseKeys = (obj) => Object.keys(obj).reduce((c, k) => ((c[k.toLowerCa
 
 /***/ }),
 
-/***/ 9251:
+/***/ 2685:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -3336,7 +3336,7 @@ function isLoopbackAddress(host) {
 
 /***/ }),
 
-/***/ 5555:
+/***/ 6966:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -3526,7 +3526,7 @@ exports.getCmdPath = getCmdPath;
 
 /***/ }),
 
-/***/ 2771:
+/***/ 3852:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -3563,7 +3563,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.findInPath = exports.which = exports.mkdirP = exports.rmRF = exports.mv = exports.cp = void 0;
 const assert_1 = __nccwpck_require__(9491);
 const path = __importStar(__nccwpck_require__(1017));
-const ioUtil = __importStar(__nccwpck_require__(5555));
+const ioUtil = __importStar(__nccwpck_require__(6966));
 /**
  * Copies a file or folder.
  * Based off of shelljs - https://github.com/shelljs/shelljs/blob/9237f66c52e5daa40458f94f9565e18e8132f5a6/src/cp.js
@@ -3832,15 +3832,15 @@ function copyFile(srcFile, destFile, force) {
 
 /***/ }),
 
-/***/ 8156:
+/***/ 2659:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
-module.exports = __nccwpck_require__(1978);
+module.exports = __nccwpck_require__(8555);
 
 
 /***/ }),
 
-/***/ 1978:
+/***/ 8555:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -4112,7 +4112,7 @@ exports.debug = debug; // for test
 
 /***/ }),
 
-/***/ 3328:
+/***/ 494:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -4176,29 +4176,29 @@ Object.defineProperty(exports, "parse", ({
   }
 }));
 
-var _v = _interopRequireDefault(__nccwpck_require__(1042));
+var _v = _interopRequireDefault(__nccwpck_require__(5489));
 
-var _v2 = _interopRequireDefault(__nccwpck_require__(3760));
+var _v2 = _interopRequireDefault(__nccwpck_require__(9751));
 
-var _v3 = _interopRequireDefault(__nccwpck_require__(6277));
+var _v3 = _interopRequireDefault(__nccwpck_require__(2549));
 
-var _v4 = _interopRequireDefault(__nccwpck_require__(8821));
+var _v4 = _interopRequireDefault(__nccwpck_require__(9366));
 
-var _nil = _interopRequireDefault(__nccwpck_require__(8636));
+var _nil = _interopRequireDefault(__nccwpck_require__(6890));
 
-var _version = _interopRequireDefault(__nccwpck_require__(3869));
+var _version = _interopRequireDefault(__nccwpck_require__(9563));
 
-var _validate = _interopRequireDefault(__nccwpck_require__(4593));
+var _validate = _interopRequireDefault(__nccwpck_require__(2903));
 
-var _stringify = _interopRequireDefault(__nccwpck_require__(335));
+var _stringify = _interopRequireDefault(__nccwpck_require__(5596));
 
-var _parse = _interopRequireDefault(__nccwpck_require__(280));
+var _parse = _interopRequireDefault(__nccwpck_require__(2143));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 /***/ }),
 
-/***/ 9892:
+/***/ 6076:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -4228,7 +4228,7 @@ exports["default"] = _default;
 
 /***/ }),
 
-/***/ 8636:
+/***/ 6890:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -4243,7 +4243,7 @@ exports["default"] = _default;
 
 /***/ }),
 
-/***/ 280:
+/***/ 2143:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -4254,7 +4254,7 @@ Object.defineProperty(exports, "__esModule", ({
 }));
 exports["default"] = void 0;
 
-var _validate = _interopRequireDefault(__nccwpck_require__(4593));
+var _validate = _interopRequireDefault(__nccwpck_require__(2903));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -4295,7 +4295,7 @@ exports["default"] = _default;
 
 /***/ }),
 
-/***/ 6919:
+/***/ 3793:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -4310,7 +4310,7 @@ exports["default"] = _default;
 
 /***/ }),
 
-/***/ 6788:
+/***/ 2253:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -4341,7 +4341,7 @@ function rng() {
 
 /***/ }),
 
-/***/ 6870:
+/***/ 2556:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -4371,7 +4371,7 @@ exports["default"] = _default;
 
 /***/ }),
 
-/***/ 335:
+/***/ 5596:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -4382,7 +4382,7 @@ Object.defineProperty(exports, "__esModule", ({
 }));
 exports["default"] = void 0;
 
-var _validate = _interopRequireDefault(__nccwpck_require__(4593));
+var _validate = _interopRequireDefault(__nccwpck_require__(2903));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -4417,7 +4417,7 @@ exports["default"] = _default;
 
 /***/ }),
 
-/***/ 1042:
+/***/ 5489:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -4428,9 +4428,9 @@ Object.defineProperty(exports, "__esModule", ({
 }));
 exports["default"] = void 0;
 
-var _rng = _interopRequireDefault(__nccwpck_require__(6788));
+var _rng = _interopRequireDefault(__nccwpck_require__(2253));
 
-var _stringify = _interopRequireDefault(__nccwpck_require__(335));
+var _stringify = _interopRequireDefault(__nccwpck_require__(5596));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -4531,7 +4531,7 @@ exports["default"] = _default;
 
 /***/ }),
 
-/***/ 3760:
+/***/ 9751:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -4542,9 +4542,9 @@ Object.defineProperty(exports, "__esModule", ({
 }));
 exports["default"] = void 0;
 
-var _v = _interopRequireDefault(__nccwpck_require__(3053));
+var _v = _interopRequireDefault(__nccwpck_require__(8672));
 
-var _md = _interopRequireDefault(__nccwpck_require__(9892));
+var _md = _interopRequireDefault(__nccwpck_require__(6076));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -4554,7 +4554,7 @@ exports["default"] = _default;
 
 /***/ }),
 
-/***/ 3053:
+/***/ 8672:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -4566,9 +4566,9 @@ Object.defineProperty(exports, "__esModule", ({
 exports["default"] = _default;
 exports.URL = exports.DNS = void 0;
 
-var _stringify = _interopRequireDefault(__nccwpck_require__(335));
+var _stringify = _interopRequireDefault(__nccwpck_require__(5596));
 
-var _parse = _interopRequireDefault(__nccwpck_require__(280));
+var _parse = _interopRequireDefault(__nccwpck_require__(2143));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -4639,7 +4639,7 @@ function _default(name, version, hashfunc) {
 
 /***/ }),
 
-/***/ 6277:
+/***/ 2549:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -4650,9 +4650,9 @@ Object.defineProperty(exports, "__esModule", ({
 }));
 exports["default"] = void 0;
 
-var _rng = _interopRequireDefault(__nccwpck_require__(6788));
+var _rng = _interopRequireDefault(__nccwpck_require__(2253));
 
-var _stringify = _interopRequireDefault(__nccwpck_require__(335));
+var _stringify = _interopRequireDefault(__nccwpck_require__(5596));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -4683,7 +4683,7 @@ exports["default"] = _default;
 
 /***/ }),
 
-/***/ 8821:
+/***/ 9366:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -4694,9 +4694,9 @@ Object.defineProperty(exports, "__esModule", ({
 }));
 exports["default"] = void 0;
 
-var _v = _interopRequireDefault(__nccwpck_require__(3053));
+var _v = _interopRequireDefault(__nccwpck_require__(8672));
 
-var _sha = _interopRequireDefault(__nccwpck_require__(6870));
+var _sha = _interopRequireDefault(__nccwpck_require__(2556));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -4706,7 +4706,7 @@ exports["default"] = _default;
 
 /***/ }),
 
-/***/ 4593:
+/***/ 2903:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -4717,7 +4717,7 @@ Object.defineProperty(exports, "__esModule", ({
 }));
 exports["default"] = void 0;
 
-var _regex = _interopRequireDefault(__nccwpck_require__(6919));
+var _regex = _interopRequireDefault(__nccwpck_require__(3793));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -4730,7 +4730,7 @@ exports["default"] = _default;
 
 /***/ }),
 
-/***/ 3869:
+/***/ 9563:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -4741,7 +4741,7 @@ Object.defineProperty(exports, "__esModule", ({
 }));
 exports["default"] = void 0;
 
-var _validate = _interopRequireDefault(__nccwpck_require__(4593));
+var _validate = _interopRequireDefault(__nccwpck_require__(2903));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -4758,7 +4758,7 @@ exports["default"] = _default;
 
 /***/ }),
 
-/***/ 892:
+/***/ 3425:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -4803,12 +4803,12 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ContainerAppHelper = void 0;
 var path = __nccwpck_require__(1017);
 var os = __nccwpck_require__(2037);
-var Utility_1 = __nccwpck_require__(2123);
-var GitHubActionsToolHelper_1 = __nccwpck_require__(9980);
+var Utility_1 = __nccwpck_require__(1178);
+var GitHubActionsToolHelper_1 = __nccwpck_require__(7698);
 var fs = __nccwpck_require__(7147);
 var ORYX_CLI_IMAGE = 'mcr.microsoft.com/oryx/cli:builder-debian-bullseye-20230926.1';
-var ORYX_BULLSEYE_BUILDER_IMAGE = 'mcr.microsoft.com/oryx/builder:debian-bullseye-20231107.2';
-var ORYX_BOOKWORM_BUILDER_IMAGE = 'mcr.microsoft.com/oryx/builder:debian-bookworm-20231107.2';
+var ORYX_BULLSEYE_BUILDER_IMAGE = 'mcr.microsoft.com/oryx/builder:debian-bullseye-20240124.1';
+var ORYX_BOOKWORM_BUILDER_IMAGE = 'mcr.microsoft.com/oryx/builder:debian-bookworm-20240124.1';
 var ORYX_BUILDER_IMAGES = [ORYX_BULLSEYE_BUILDER_IMAGE, ORYX_BOOKWORM_BUILDER_IMAGE];
 var IS_WINDOWS_AGENT = os.platform() == 'win32';
 var PACK_CMD = IS_WINDOWS_AGENT ? path.join(os.tmpdir(), 'pack') : 'pack';
@@ -4887,6 +4887,35 @@ var ContainerAppHelper = /** @class */ (function () {
         });
     };
     /**
+     * Get the current subscription
+     * @returns the current subscription
+     */
+    ContainerAppHelper.prototype.getCurrentSubscription = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var command, executionResult, err_3;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        toolHelper.writeDebug("Attempting to get the default subscription");
+                        _a.label = 1;
+                    case 1:
+                        _a.trys.push([1, 3, , 4]);
+                        command = " az account show --query id --output tsv ";
+                        return [4 /*yield*/, util.execute(command)];
+                    case 2:
+                        executionResult = _a.sent();
+                        // If successful, strip out double quotes, spaces and parentheses from the first location returned
+                        return [2 /*return*/, executionResult.exitCode === 0 ? executionResult.stdout.toLowerCase() : ""];
+                    case 3:
+                        err_3 = _a.sent();
+                        toolHelper.writeInfo(err_3.message);
+                        return [2 /*return*/, ""];
+                    case 4: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    /**
      * Creates an Azure Container App based from a YAML configuration file.
      * @param containerAppName - the name of the Container App
      * @param resourceGroup - the resource group that the Container App is found in
@@ -4894,7 +4923,7 @@ var ContainerAppHelper = /** @class */ (function () {
      */
     ContainerAppHelper.prototype.createContainerAppFromYaml = function (containerAppName, resourceGroup, yamlConfigPath) {
         return __awaiter(this, void 0, void 0, function () {
-            var command, err_3;
+            var command, err_4;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -4908,9 +4937,9 @@ var ContainerAppHelper = /** @class */ (function () {
                         _a.sent();
                         return [3 /*break*/, 4];
                     case 3:
-                        err_3 = _a.sent();
-                        toolHelper.writeError(err_3.message);
-                        throw err_3;
+                        err_4 = _a.sent();
+                        toolHelper.writeError(err_4.message);
+                        throw err_4;
                     case 4: return [2 /*return*/];
                 }
             });
@@ -4924,7 +4953,7 @@ var ContainerAppHelper = /** @class */ (function () {
      */
     ContainerAppHelper.prototype.updateContainerApp = function (containerAppName, resourceGroup, optionalCmdArgs) {
         return __awaiter(this, void 0, void 0, function () {
-            var command_3, err_4;
+            var command_3, err_5;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -4941,9 +4970,9 @@ var ContainerAppHelper = /** @class */ (function () {
                         _a.sent();
                         return [3 /*break*/, 4];
                     case 3:
-                        err_4 = _a.sent();
-                        toolHelper.writeError(err_4.message);
-                        throw err_4;
+                        err_5 = _a.sent();
+                        toolHelper.writeError(err_5.message);
+                        throw err_5;
                     case 4: return [2 /*return*/];
                 }
             });
@@ -4959,7 +4988,7 @@ var ContainerAppHelper = /** @class */ (function () {
      */
     ContainerAppHelper.prototype.updateContainerAppWithUp = function (containerAppName, resourceGroup, optionalCmdArgs, ingress, targetPort) {
         return __awaiter(this, void 0, void 0, function () {
-            var command_4, err_5;
+            var command_4, err_6;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -4982,9 +5011,9 @@ var ContainerAppHelper = /** @class */ (function () {
                         _a.sent();
                         return [3 /*break*/, 4];
                     case 3:
-                        err_5 = _a.sent();
-                        toolHelper.writeError(err_5.message);
-                        throw err_5;
+                        err_6 = _a.sent();
+                        toolHelper.writeError(err_6.message);
+                        throw err_6;
                     case 4: return [2 /*return*/];
                 }
             });
@@ -4999,7 +5028,7 @@ var ContainerAppHelper = /** @class */ (function () {
      */
     ContainerAppHelper.prototype.updateContainerAppIngress = function (containerAppName, resourceGroup, ingress, targetPort) {
         return __awaiter(this, void 0, void 0, function () {
-            var command, err_6;
+            var command, err_7;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -5019,9 +5048,9 @@ var ContainerAppHelper = /** @class */ (function () {
                         _a.sent();
                         return [3 /*break*/, 4];
                     case 3:
-                        err_6 = _a.sent();
-                        toolHelper.writeError(err_6.message);
-                        throw err_6;
+                        err_7 = _a.sent();
+                        toolHelper.writeError(err_7.message);
+                        throw err_7;
                     case 4: return [2 /*return*/];
                 }
             });
@@ -5035,7 +5064,7 @@ var ContainerAppHelper = /** @class */ (function () {
      */
     ContainerAppHelper.prototype.updateContainerAppFromYaml = function (containerAppName, resourceGroup, yamlConfigPath) {
         return __awaiter(this, void 0, void 0, function () {
-            var command, err_7;
+            var command, err_8;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -5049,9 +5078,9 @@ var ContainerAppHelper = /** @class */ (function () {
                         _a.sent();
                         return [3 /*break*/, 4];
                     case 3:
-                        err_7 = _a.sent();
-                        toolHelper.writeError(err_7.message);
-                        throw err_7;
+                        err_8 = _a.sent();
+                        toolHelper.writeError(err_8.message);
+                        throw err_8;
                     case 4: return [2 /*return*/];
                 }
             });
@@ -5065,7 +5094,7 @@ var ContainerAppHelper = /** @class */ (function () {
      */
     ContainerAppHelper.prototype.doesContainerAppExist = function (containerAppName, resourceGroup) {
         return __awaiter(this, void 0, void 0, function () {
-            var command, executionResult, err_8;
+            var command, executionResult, err_9;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -5074,36 +5103,6 @@ var ContainerAppHelper = /** @class */ (function () {
                     case 1:
                         _a.trys.push([1, 3, , 4]);
                         command = "az containerapp show -n ".concat(containerAppName, " -g ").concat(resourceGroup, " -o none");
-                        return [4 /*yield*/, util.execute(command)];
-                    case 2:
-                        executionResult = _a.sent();
-                        return [2 /*return*/, executionResult.exitCode === 0];
-                    case 3:
-                        err_8 = _a.sent();
-                        toolHelper.writeInfo(err_8.message);
-                        return [2 /*return*/, false];
-                    case 4: return [2 /*return*/];
-                }
-            });
-        });
-    };
-    /**
-     * Determines if the provided Container App Environment exists in the provided resource group.
-     * @param containerAppEnvironment - the name of the Container App Environment
-     * @param resourceGroup - the resource group that the Container App Environment is found in
-     * @returns true if the Container App Environment exists, false otherwise
-     */
-    ContainerAppHelper.prototype.doesContainerAppEnvironmentExist = function (containerAppEnvironment, resourceGroup) {
-        return __awaiter(this, void 0, void 0, function () {
-            var command, executionResult, err_9;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        toolHelper.writeDebug("Attempting to determine if Container App Environment with name \"".concat(containerAppEnvironment, "\" exists in resource group \"").concat(resourceGroup, "\""));
-                        _a.label = 1;
-                    case 1:
-                        _a.trys.push([1, 3, , 4]);
-                        command = "az containerapp env show -o none -g ".concat(resourceGroup, " -n ").concat(containerAppEnvironment);
                         return [4 /*yield*/, util.execute(command)];
                     case 2:
                         executionResult = _a.sent();
@@ -5118,21 +5117,22 @@ var ContainerAppHelper = /** @class */ (function () {
         });
     };
     /**
-     * Determines if the provided resource group exists.
-     * @param resourceGroup - the name of the resource group
-     * @returns true if the resource group exists, false otherwise
+     * Determines if the provided Container App Environment exists in the provided resource group.
+     * @param containerAppEnvironment - the name of the Container App Environment
+     * @param resourceGroup - the resource group that the Container App Environment is found in
+     * @returns true if the Container App Environment exists, false otherwise
      */
-    ContainerAppHelper.prototype.doesResourceGroupExist = function (resourceGroup) {
+    ContainerAppHelper.prototype.doesContainerAppEnvironmentExist = function (containerAppEnvironment, resourceGroup) {
         return __awaiter(this, void 0, void 0, function () {
             var command, executionResult, err_10;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        toolHelper.writeDebug("Attempting to determine if resource group \"".concat(resourceGroup, "\" exists"));
+                        toolHelper.writeDebug("Attempting to determine if Container App Environment with name \"".concat(containerAppEnvironment, "\" exists in resource group \"").concat(resourceGroup, "\""));
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
-                        command = "az group show -n ".concat(resourceGroup, " -o none");
+                        command = "az containerapp env show -o none -g ".concat(resourceGroup, " -n ").concat(containerAppEnvironment);
                         return [4 /*yield*/, util.execute(command)];
                     case 2:
                         executionResult = _a.sent();
@@ -5147,12 +5147,41 @@ var ContainerAppHelper = /** @class */ (function () {
         });
     };
     /**
+     * Determines if the provided resource group exists.
+     * @param resourceGroup - the name of the resource group
+     * @returns true if the resource group exists, false otherwise
+     */
+    ContainerAppHelper.prototype.doesResourceGroupExist = function (resourceGroup) {
+        return __awaiter(this, void 0, void 0, function () {
+            var command, executionResult, err_11;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        toolHelper.writeDebug("Attempting to determine if resource group \"".concat(resourceGroup, "\" exists"));
+                        _a.label = 1;
+                    case 1:
+                        _a.trys.push([1, 3, , 4]);
+                        command = "az group show -n ".concat(resourceGroup, " -o none");
+                        return [4 /*yield*/, util.execute(command)];
+                    case 2:
+                        executionResult = _a.sent();
+                        return [2 /*return*/, executionResult.exitCode === 0];
+                    case 3:
+                        err_11 = _a.sent();
+                        toolHelper.writeInfo(err_11.message);
+                        return [2 /*return*/, false];
+                    case 4: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    /**
      * Gets the default location for the Container App provider.
      * @returns the default location if found, otherwise 'eastus2'
      */
     ContainerAppHelper.prototype.getDefaultContainerAppLocation = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var command, executionResult, err_11;
+            var command, executionResult, err_12;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -5167,8 +5196,8 @@ var ContainerAppHelper = /** @class */ (function () {
                         // If successful, strip out double quotes, spaces and parentheses from the first location returned
                         return [2 /*return*/, executionResult.exitCode === 0 ? executionResult.stdout.toLowerCase().replace(/["() ]/g, "").trim() : "eastus2"];
                     case 3:
-                        err_11 = _a.sent();
-                        toolHelper.writeInfo(err_11.message);
+                        err_12 = _a.sent();
+                        toolHelper.writeInfo(err_12.message);
                         return [2 /*return*/, "eastus2"];
                     case 4: return [2 /*return*/];
                 }
@@ -5182,7 +5211,7 @@ var ContainerAppHelper = /** @class */ (function () {
      */
     ContainerAppHelper.prototype.createResourceGroup = function (name, location) {
         return __awaiter(this, void 0, void 0, function () {
-            var command, err_12;
+            var command, err_13;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -5196,9 +5225,9 @@ var ContainerAppHelper = /** @class */ (function () {
                         _a.sent();
                         return [3 /*break*/, 4];
                     case 3:
-                        err_12 = _a.sent();
-                        toolHelper.writeError(err_12.message);
-                        throw err_12;
+                        err_13 = _a.sent();
+                        toolHelper.writeError(err_13.message);
+                        throw err_13;
                     case 4: return [2 /*return*/];
                 }
             });
@@ -5211,7 +5240,7 @@ var ContainerAppHelper = /** @class */ (function () {
      */
     ContainerAppHelper.prototype.getExistingContainerAppEnvironment = function (resourceGroup) {
         return __awaiter(this, void 0, void 0, function () {
-            var command, executionResult, err_13;
+            var command, executionResult, err_14;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -5225,8 +5254,8 @@ var ContainerAppHelper = /** @class */ (function () {
                         executionResult = _a.sent();
                         return [2 /*return*/, executionResult.exitCode === 0 ? executionResult.stdout : null];
                     case 3:
-                        err_13 = _a.sent();
-                        toolHelper.writeInfo(err_13.message);
+                        err_14 = _a.sent();
+                        toolHelper.writeInfo(err_14.message);
                         return [2 /*return*/, null];
                     case 4: return [2 /*return*/];
                 }
@@ -5240,7 +5269,7 @@ var ContainerAppHelper = /** @class */ (function () {
     */
     ContainerAppHelper.prototype.getExistingContainerAppEnvironmentLocation = function (environmentName, resourceGroup) {
         return __awaiter(this, void 0, void 0, function () {
-            var command, executionResult, err_14;
+            var command, executionResult, err_15;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -5251,8 +5280,8 @@ var ContainerAppHelper = /** @class */ (function () {
                         executionResult = _a.sent();
                         return [2 /*return*/, executionResult.exitCode === 0 ? executionResult.stdout.toLowerCase().replace(/["() ]/g, "").trim() : null];
                     case 2:
-                        err_14 = _a.sent();
-                        toolHelper.writeInfo(err_14.message);
+                        err_15 = _a.sent();
+                        toolHelper.writeInfo(err_15.message);
                         return [2 /*return*/, null];
                     case 3: return [2 /*return*/];
                 }
@@ -5266,7 +5295,7 @@ var ContainerAppHelper = /** @class */ (function () {
     */
     ContainerAppHelper.prototype.getExistingContainerAppEnvironmentName = function (containerAppName, resourceGroup) {
         return __awaiter(this, void 0, void 0, function () {
-            var command, executionResult, containerappEnvironmentId, err_15;
+            var command, executionResult, containerappEnvironmentId, err_16;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -5282,8 +5311,8 @@ var ContainerAppHelper = /** @class */ (function () {
                         }
                         return [2 /*return*/, executionResult.exitCode === 0 ? containerappEnvironmentId.split("/").pop().trim() : null];
                     case 2:
-                        err_15 = _a.sent();
-                        toolHelper.writeInfo(err_15.message);
+                        err_16 = _a.sent();
+                        toolHelper.writeInfo(err_16.message);
                         return [2 /*return*/, null];
                     case 3: return [2 /*return*/];
                 }
@@ -5298,7 +5327,7 @@ var ContainerAppHelper = /** @class */ (function () {
      */
     ContainerAppHelper.prototype.createContainerAppEnvironment = function (name, resourceGroup, location) {
         return __awaiter(this, void 0, void 0, function () {
-            var util, command, err_16;
+            var util, command, err_17;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -5316,9 +5345,9 @@ var ContainerAppHelper = /** @class */ (function () {
                         _a.sent();
                         return [3 /*break*/, 4];
                     case 3:
-                        err_16 = _a.sent();
-                        toolHelper.writeError(err_16.message);
-                        throw err_16;
+                        err_17 = _a.sent();
+                        toolHelper.writeError(err_17.message);
+                        throw err_17;
                     case 4: return [2 /*return*/];
                 }
             });
@@ -5331,7 +5360,7 @@ var ContainerAppHelper = /** @class */ (function () {
      */
     ContainerAppHelper.prototype.disableContainerAppIngress = function (name, resourceGroup) {
         return __awaiter(this, void 0, void 0, function () {
-            var command, err_17;
+            var command, err_18;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -5345,9 +5374,9 @@ var ContainerAppHelper = /** @class */ (function () {
                         _a.sent();
                         return [3 /*break*/, 4];
                     case 3:
-                        err_17 = _a.sent();
-                        toolHelper.writeError(err_17.message);
-                        throw err_17;
+                        err_18 = _a.sent();
+                        toolHelper.writeError(err_18.message);
+                        throw err_18;
                     case 4: return [2 /*return*/];
                 }
             });
@@ -5363,7 +5392,7 @@ var ContainerAppHelper = /** @class */ (function () {
      */
     ContainerAppHelper.prototype.updateContainerAppRegistryDetails = function (name, resourceGroup, registryUrl, registryUsername, registryPassword) {
         return __awaiter(this, void 0, void 0, function () {
-            var command, err_18;
+            var command, err_19;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -5377,9 +5406,9 @@ var ContainerAppHelper = /** @class */ (function () {
                         _a.sent();
                         return [3 /*break*/, 4];
                     case 3:
-                        err_18 = _a.sent();
-                        toolHelper.writeError(err_18.message);
-                        throw err_18;
+                        err_19 = _a.sent();
+                        toolHelper.writeError(err_19.message);
+                        throw err_19;
                     case 4: return [2 /*return*/];
                 }
             });
@@ -5394,7 +5423,7 @@ var ContainerAppHelper = /** @class */ (function () {
      */
     ContainerAppHelper.prototype.createRunnableAppImage = function (imageToDeploy, appSourcePath, environmentVariables, builderStack) {
         return __awaiter(this, void 0, void 0, function () {
-            var telemetryArg, couldBuildImage, _loop_1, _i, ORYX_BUILDER_IMAGES_1, builderImage, state_1, errorMessage;
+            var telemetryArg, subscription, couldBuildImage, _loop_1, _i, ORYX_BUILDER_IMAGES_1, builderImage, state_1, errorMessage;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -5402,9 +5431,12 @@ var ContainerAppHelper = /** @class */ (function () {
                         if (this.disableTelemetry) {
                             telemetryArg = "ORYX_DISABLE_TELEMETRY=true";
                         }
+                        return [4 /*yield*/, this.getCurrentSubscription()];
+                    case 1:
+                        subscription = _a.sent();
                         couldBuildImage = false;
                         _loop_1 = function (builderImage) {
-                            var command_5, err_19;
+                            var command_5, err_20;
                             return __generator(this, function (_b) {
                                 switch (_b.label) {
                                     case 0:
@@ -5415,7 +5447,7 @@ var ContainerAppHelper = /** @class */ (function () {
                                         _b.label = 1;
                                     case 1:
                                         _b.trys.push([1, 3, , 4]);
-                                        command_5 = "build ".concat(imageToDeploy, " --path ").concat(appSourcePath, " --builder ").concat(builderImage, " --env ").concat(telemetryArg);
+                                        command_5 = "build ".concat(imageToDeploy, " --path ").concat(appSourcePath, " --builder ").concat(builderImage, " --env ").concat(telemetryArg, " --env BP_SUBSCRIPTION_ID=").concat(subscription);
                                         environmentVariables.forEach(function (envVar) {
                                             command_5 += " --env ".concat(envVar);
                                         });
@@ -5425,28 +5457,28 @@ var ContainerAppHelper = /** @class */ (function () {
                                         couldBuildImage = true;
                                         return [2 /*return*/, "break"];
                                     case 3:
-                                        err_19 = _b.sent();
-                                        toolHelper.writeWarning("Unable to run 'pack build' command to produce runnable application image: ".concat(err_19.message));
+                                        err_20 = _b.sent();
+                                        toolHelper.writeWarning("Unable to run 'pack build' command to produce runnable application image: ".concat(err_20.message));
                                         return [3 /*break*/, 4];
                                     case 4: return [2 /*return*/];
                                 }
                             });
                         };
                         _i = 0, ORYX_BUILDER_IMAGES_1 = ORYX_BUILDER_IMAGES;
-                        _a.label = 1;
-                    case 1:
-                        if (!(_i < ORYX_BUILDER_IMAGES_1.length)) return [3 /*break*/, 4];
+                        _a.label = 2;
+                    case 2:
+                        if (!(_i < ORYX_BUILDER_IMAGES_1.length)) return [3 /*break*/, 5];
                         builderImage = ORYX_BUILDER_IMAGES_1[_i];
                         return [5 /*yield**/, _loop_1(builderImage)];
-                    case 2:
+                    case 3:
                         state_1 = _a.sent();
                         if (state_1 === "break")
-                            return [3 /*break*/, 4];
-                        _a.label = 3;
-                    case 3:
-                        _i++;
-                        return [3 /*break*/, 1];
+                            return [3 /*break*/, 5];
+                        _a.label = 4;
                     case 4:
+                        _i++;
+                        return [3 /*break*/, 2];
+                    case 5:
                         ;
                         // If none of the builder images were able to build the provided application source, throw an error.
                         if (!couldBuildImage) {
@@ -5469,7 +5501,7 @@ var ContainerAppHelper = /** @class */ (function () {
      */
     ContainerAppHelper.prototype.createRunnableAppImageFromDockerfile = function (imageToDeploy, appSourcePath, dockerfilePath, buildArguments) {
         return __awaiter(this, void 0, void 0, function () {
-            var command_6, err_20;
+            var command_6, err_21;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -5490,9 +5522,9 @@ var ContainerAppHelper = /** @class */ (function () {
                         toolHelper.writeDebug("Successfully created runnable application image from the provided/found Dockerfile \"".concat(dockerfilePath, "\" with image name \"").concat(imageToDeploy, "\""));
                         return [3 /*break*/, 4];
                     case 3:
-                        err_20 = _a.sent();
-                        toolHelper.writeError(err_20.message);
-                        throw err_20;
+                        err_21 = _a.sent();
+                        toolHelper.writeError(err_21.message);
+                        throw err_21;
                     case 4: return [2 /*return*/];
                 }
             });
@@ -5505,7 +5537,7 @@ var ContainerAppHelper = /** @class */ (function () {
      */
     ContainerAppHelper.prototype.determineRuntimeStackAsync = function (appSourcePath) {
         return __awaiter(this, void 0, void 0, function () {
-            var command, oryxRuntimeTxtPath_1, runtimeStack, err_21;
+            var command, oryxRuntimeTxtPath_1, runtimeStack, err_22;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -5535,9 +5567,9 @@ var ContainerAppHelper = /** @class */ (function () {
                         });
                         return [2 /*return*/, runtimeStack];
                     case 3:
-                        err_21 = _a.sent();
-                        toolHelper.writeError(err_21.message);
-                        throw err_21;
+                        err_22 = _a.sent();
+                        toolHelper.writeError(err_22.message);
+                        throw err_22;
                     case 4: return [2 /*return*/];
                 }
             });
@@ -5549,7 +5581,7 @@ var ContainerAppHelper = /** @class */ (function () {
      */
     ContainerAppHelper.prototype.setDefaultBuilder = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var command, err_22;
+            var command, err_23;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -5563,9 +5595,9 @@ var ContainerAppHelper = /** @class */ (function () {
                         _a.sent();
                         return [3 /*break*/, 4];
                     case 3:
-                        err_22 = _a.sent();
-                        toolHelper.writeError(err_22.message);
-                        throw err_22;
+                        err_23 = _a.sent();
+                        toolHelper.writeError(err_23.message);
+                        throw err_23;
                     case 4: return [2 /*return*/];
                 }
             });
@@ -5577,7 +5609,7 @@ var ContainerAppHelper = /** @class */ (function () {
      */
     ContainerAppHelper.prototype.installPackCliAsync = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var command, commandLine, packZipDownloadUri, packZipDownloadFilePath, tgzSuffix, err_23;
+            var command, commandLine, packZipDownloadUri, packZipDownloadFilePath, tgzSuffix, err_24;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -5604,9 +5636,9 @@ var ContainerAppHelper = /** @class */ (function () {
                         _a.sent();
                         return [3 /*break*/, 4];
                     case 3:
-                        err_23 = _a.sent();
-                        toolHelper.writeError("Unable to install the pack CLI. Error: ".concat(err_23.message));
-                        throw err_23;
+                        err_24 = _a.sent();
+                        toolHelper.writeError("Unable to install the pack CLI. Error: ".concat(err_24.message));
+                        throw err_24;
                     case 4: return [2 /*return*/];
                 }
             });
@@ -5617,7 +5649,7 @@ var ContainerAppHelper = /** @class */ (function () {
      */
     ContainerAppHelper.prototype.enablePackCliExperimentalFeaturesAsync = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var command, err_24;
+            var command, err_25;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -5631,9 +5663,9 @@ var ContainerAppHelper = /** @class */ (function () {
                         _a.sent();
                         return [3 /*break*/, 4];
                     case 3:
-                        err_24 = _a.sent();
-                        toolHelper.writeError("Unable to enable experimental features for the pack CLI: ".concat(err_24.message));
-                        throw err_24;
+                        err_25 = _a.sent();
+                        toolHelper.writeError("Unable to enable experimental features for the pack CLI: ".concat(err_25.message));
+                        throw err_25;
                     case 4: return [2 /*return*/];
                 }
             });
@@ -5646,7 +5678,7 @@ exports.ContainerAppHelper = ContainerAppHelper;
 
 /***/ }),
 
-/***/ 581:
+/***/ 3211:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -5690,8 +5722,8 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ContainerRegistryHelper = void 0;
 var os = __nccwpck_require__(2037);
-var Utility_1 = __nccwpck_require__(2123);
-var GitHubActionsToolHelper_1 = __nccwpck_require__(9980);
+var Utility_1 = __nccwpck_require__(1178);
+var GitHubActionsToolHelper_1 = __nccwpck_require__(7698);
 var toolHelper = new GitHubActionsToolHelper_1.GitHubActionsToolHelper();
 var util = new Utility_1.Utility();
 var ContainerRegistryHelper = /** @class */ (function () {
@@ -5789,7 +5821,7 @@ exports.ContainerRegistryHelper = ContainerRegistryHelper;
 
 /***/ }),
 
-/***/ 9980:
+/***/ 7698:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -5832,9 +5864,9 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.GitHubActionsToolHelper = void 0;
-var core = __nccwpck_require__(1006);
-var io = __nccwpck_require__(2771);
-var exec = __nccwpck_require__(2803);
+var core = __nccwpck_require__(4950);
+var io = __nccwpck_require__(3852);
+var exec = __nccwpck_require__(6172);
 var GitHubActionsToolHelper = /** @class */ (function () {
     function GitHubActionsToolHelper() {
     }
@@ -5930,7 +5962,7 @@ exports.GitHubActionsToolHelper = GitHubActionsToolHelper;
 
 /***/ }),
 
-/***/ 7169:
+/***/ 4550:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -5973,8 +6005,8 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.TelemetryHelper = void 0;
-var Utility_1 = __nccwpck_require__(2123);
-var GitHubActionsToolHelper_1 = __nccwpck_require__(9980);
+var Utility_1 = __nccwpck_require__(1178);
+var GitHubActionsToolHelper_1 = __nccwpck_require__(7698);
 var ORYX_CLI_IMAGE = "mcr.microsoft.com/oryx/cli:debian-buster-20230207.2";
 var SUCCESSFUL_RESULT = "succeeded";
 var FAILED_RESULT = "failed";
@@ -6067,7 +6099,7 @@ exports.TelemetryHelper = TelemetryHelper;
 
 /***/ }),
 
-/***/ 2123:
+/***/ 1178:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -6111,7 +6143,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Utility = void 0;
 // Note: This file is used to define utility functions that can be used across the project.
-var GitHubActionsToolHelper_1 = __nccwpck_require__(9980);
+var GitHubActionsToolHelper_1 = __nccwpck_require__(7698);
 var toolHelper = new GitHubActionsToolHelper_1.GitHubActionsToolHelper();
 var Utility = /** @class */ (function () {
     function Utility() {
@@ -6315,7 +6347,7 @@ module.exports = require("util");
 /******/ 	// startup
 /******/ 	// Load entry module and return exports
 /******/ 	// This entry module is referenced by other modules so it can't be inlined
-/******/ 	var __webpack_exports__ = __nccwpck_require__(7272);
+/******/ 	var __webpack_exports__ = __nccwpck_require__(8388);
 /******/ 	module.exports = __webpack_exports__;
 /******/ 	
 /******/ })()
