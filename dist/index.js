@@ -690,7 +690,7 @@ var azurecontainerapps = /** @class */ (function () {
             }
         }
         var environmentVariables = this.toolHelper.getInput('environmentVariables', false);
-        var isCappUpdateCommandUsed = this.noIngressUpdate || (!this.noIngressUpdate && this.adminCredentialsProvided);
+        var isCappUpdateCommandUsed = this.containerAppExists && (!this.shouldCreateOrUpdateContainerAppWithUp && (!this.adminCredentialsProvided || this.noIngressUpdate));
         // Add user-specified environment variables
         if (!this.util.isNullOrEmpty(environmentVariables)) {
             // The --replace-env-vars flag is only used for the 'update' command,
