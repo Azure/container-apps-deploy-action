@@ -4232,7 +4232,7 @@ class azurecontainerapps {
     static createAddOnServices(containerAppName, resourceGroup, environment) {
         return __awaiter(this, void 0, void 0, function* () {
             let createdServices = [];
-            this.toolHelper.writeDebug("Trying to create addOnServices");
+            console.log("Trying to create addOnServices");
             for (const addOn in this.addOnTypes) {
                 let services = this.toolHelper.getInput(addOn, false);
                 if (!this.util.isNullOrEmpty(services)) {
