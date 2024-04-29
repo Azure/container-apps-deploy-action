@@ -350,11 +350,12 @@ export class azurecontainerapps {
     private static async createAddOnServices(containerAppName: string, resourceGroup: string, environment: string): Promise<string[]> {
         let createdServices: string[] = []
 
+        this.toolHelper.writeDebug("Trying to create addOnServices")
         for (const addOn in this.addOnTypes){
             let services = this.toolHelper.getInput(addOn, false)
 
             if (!this.util.isNullOrEmpty(services)){
-                
+
                 let bindings = this.util.parseServices(services)
 
                 for (const binding in bindings) {
