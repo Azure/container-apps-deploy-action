@@ -3983,6 +3983,7 @@ class azurecontainerapps {
     static runMain() {
         return __awaiter(this, void 0, void 0, function* () {
             this.initializeHelpers();
+            this.toolHelper.writeDebug("Here it comes");
             try {
                 // Validate that the arguments provided can be used for one of the supported scenarios
                 this.validateSupportedScenarioArguments();

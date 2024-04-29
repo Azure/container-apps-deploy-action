@@ -13,6 +13,7 @@ export class azurecontainerapps {
 
     public static async runMain(): Promise<void> {
         this.initializeHelpers();
+        this.toolHelper.writeDebug("Here it comes")
 
         try {
             // Validate that the arguments provided can be used for one of the supported scenarios
