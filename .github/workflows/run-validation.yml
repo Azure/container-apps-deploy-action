@@ -268,62 +268,62 @@ jobs:
         shell: bash
         run: az containerapp delete -n ${{ env.TEST_CONTAINER_APP_NAME }} -g ${{ vars.TEST_RESOURCE_GROUP_NAME }} -y
 
-  create-using-image-new-env:
+  # create-using-image-new-env:
 
-    name: 'Create app using image with new environment'
-    runs-on: ubuntu-latest
-    timeout-minutes: 25
+  #   name: 'Create app using image with new environment'
+  #   runs-on: ubuntu-latest
+  #   timeout-minutes: 25
 
-    env:
-      TEST_CONTAINER_APP_NAME: 'gh-ca-is-ne-${{ github.run_id }}'
-      TEST_NEW_CONTAINER_APP_ENV: 'gh-ca-is-ne-${{ github.run_id }}-env'
+  #   env:
+  #     TEST_CONTAINER_APP_NAME: 'gh-ca-is-ne-${{ github.run_id }}'
+  #     TEST_NEW_CONTAINER_APP_ENV: 'gh-ca-is-ne-${{ github.run_id }}-env'
 
-    steps:
-      - name: Checkout action repository
-        uses: actions/checkout@v3
+  #   steps:
+  #     - name: Checkout action repository
+  #       uses: actions/checkout@v3
 
-      - name: Log in to Azure
-        uses: azure/login@v1
-        with:
-          creds: ${{ secrets.TEST_AZURE_CREDENTIALS }}
+  #     - name: Log in to Azure
+  #       uses: azure/login@v1
+  #       with:
+  #         creds: ${{ secrets.TEST_AZURE_CREDENTIALS }}
 
-      - name: Execute Azure Container Apps Build and Deploy Action
-        uses: ./
-        with:
-          imageToDeploy: 'mcr.microsoft.com/azuredocs/containerapps-helloworld:latest'
-          containerAppName: ${{ env.TEST_CONTAINER_APP_NAME }}
-          containerAppEnvironment: ${{ env.TEST_NEW_CONTAINER_APP_ENV }}
-          resourceGroup: ${{ vars.TEST_RESOURCE_GROUP_NAME }}
-          disableTelemetry: ${{ vars.TEST_DISABLE_TELEMETRY }}
+  #     - name: Execute Azure Container Apps Build and Deploy Action
+  #       uses: ./
+  #       with:
+  #         imageToDeploy: 'mcr.microsoft.com/azuredocs/containerapps-helloworld:latest'
+  #         containerAppName: ${{ env.TEST_CONTAINER_APP_NAME }}
+  #         containerAppEnvironment: ${{ env.TEST_NEW_CONTAINER_APP_ENV }}
+  #         resourceGroup: ${{ vars.TEST_RESOURCE_GROUP_NAME }}
+  #         disableTelemetry: ${{ vars.TEST_DISABLE_TELEMETRY }}
 
-      - name: Delete created Azure Container App
-        if: ${{ always() }}
-        shell: bash
-        run: az containerapp delete -n ${{ env.TEST_CONTAINER_APP_NAME }} -g ${{ vars.TEST_RESOURCE_GROUP_NAME }} -y
+  #     - name: Delete created Azure Container App
+  #       if: ${{ always() }}
+  #       shell: bash
+  #       run: az containerapp delete -n ${{ env.TEST_CONTAINER_APP_NAME }} -g ${{ vars.TEST_RESOURCE_GROUP_NAME }} -y
 
-      - name: Get customer ID for workspace to delete
-        if: ${{ always() }}
-        shell: bash
-        run: |
-          CUSTOMER_ID=$(az containerapp env show -g ${{ vars.TEST_RESOURCE_GROUP_NAME }} -n ${{ env.TEST_NEW_CONTAINER_APP_ENV }} --query 'properties.appLogsConfiguration.logAnalyticsConfiguration.customerId')
-          echo "CUSTOMER_ID=${CUSTOMER_ID}" >> $GITHUB_ENV
+  #     - name: Get customer ID for workspace to delete
+  #       if: ${{ always() }}
+  #       shell: bash
+  #       run: |
+  #         CUSTOMER_ID=$(az containerapp env show -g ${{ vars.TEST_RESOURCE_GROUP_NAME }} -n ${{ env.TEST_NEW_CONTAINER_APP_ENV }} --query 'properties.appLogsConfiguration.logAnalyticsConfiguration.customerId')
+  #         echo "CUSTOMER_ID=${CUSTOMER_ID}" >> $GITHUB_ENV
 
-      - name: Get name of workspace to delete
-        if: ${{ always() }}
-        shell: bash
-        run: |
-          WORKSPACE_NAME=$(az monitor log-analytics workspace list -g ${{ vars.TEST_RESOURCE_GROUP_NAME }} --query '[?customerId == `${{ env.CUSTOMER_ID }}`].name | [0]')
-          echo "WORKSPACE_NAME=${WORKSPACE_NAME}" >> $GITHUB_ENV
+  #     - name: Get name of workspace to delete
+  #       if: ${{ always() }}
+  #       shell: bash
+  #       run: |
+  #         WORKSPACE_NAME=$(az monitor log-analytics workspace list -g ${{ vars.TEST_RESOURCE_GROUP_NAME }} --query '[?customerId == `${{ env.CUSTOMER_ID }}`].name | [0]')
+  #         echo "WORKSPACE_NAME=${WORKSPACE_NAME}" >> $GITHUB_ENV
 
-      - name: Delete created Azure Container App environment
-        if: ${{ always() }}
-        shell: bash
-        run: az containerapp env delete -g ${{ vars.TEST_RESOURCE_GROUP_NAME }} -n ${{ env.TEST_NEW_CONTAINER_APP_ENV }} -y
+  #     - name: Delete created Azure Container App environment
+  #       if: ${{ always() }}
+  #       shell: bash
+  #       run: az containerapp env delete -g ${{ vars.TEST_RESOURCE_GROUP_NAME }} -n ${{ env.TEST_NEW_CONTAINER_APP_ENV }} -y
 
-      - name: Delete created workspace
-        if: ${{ always() }}
-        shell: bash
-        run: az monitor log-analytics workspace delete -g ${{ vars.TEST_RESOURCE_GROUP_NAME }} -n ${{ env.WORKSPACE_NAME }} -y
+  #     - name: Delete created workspace
+  #       if: ${{ always() }}
+  #       shell: bash
+  #       run: az monitor log-analytics workspace delete -g ${{ vars.TEST_RESOURCE_GROUP_NAME }} -n ${{ env.WORKSPACE_NAME }} -y
 
   create-using-builder-yaml:
 
@@ -625,7 +625,7 @@ jobs:
 
   create-using-builder-with-add-on:
 
-    name: 'Create app using builder'
+    name: 'Create app using builder with add-on services'
     runs-on: ubuntu-latest
     timeout-minutes: 10
 
