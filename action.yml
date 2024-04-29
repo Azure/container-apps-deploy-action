@@ -139,7 +139,42 @@ inputs:
       this GitHub Action.'
     required: false
     default: false
+  kafka:
+    description: |
+      'Name of kafka add-on service that will be created and bounded to the container.
+      Multiple add-on service of this type can be created by specifying a omma-separated or newline-separated list.'
+    required: false
+  mariadb:
+    description: |
+      'Name of mariadb add-on service that will be created and bounded to the container.
+      Multiple add-on service of this type can be created by specifying a omma-separated or newline-separated list.'
+    required: false
+  postgres:
+    description: |
+      'Name of postgres add-on service that will be created and bounded to the container.
+      Multiple add-on service of this type can be created by specifying a omma-separated or newline-separated list.'
+    required: false
+  milvus:
+    description: |
+      'Name of milvus add-on service that will be created and bounded to the container.
+      Multiple add-on service of this type can be created by specifying a omma-separated or newline-separated list.'
+    required: false
+  qdrant:
+    description: |
+      'Name of qdrant add-on service that will be created and bounded to the container.
+      Multiple add-on service of this type can be created by specifying a omma-separated or newline-separated list.'
+    required: false
+  redis:
+    description: |
+      'Name of redis add-on service that will be created and bounded to the container.
+      Multiple add-on service of this type can be created by specifying a omma-separated or newline-separated list.'
+    required: false
+  weaviate:
+    description: |
+      'Name of weaviate add-on service that will be created and bounded to the container.
+      Multiple add-on service of this type can be created by specifying a omma-separated or newline-separated list.'
+    required: false
 
 runs:
-  using: 'node16'
-  main: 'dist/index.js'
+  using: "node20"
+  main: "dist/index.js"

@@ -29,4 +29,36 @@ export class Utility {
   public isNullOrEmpty(str: string): boolean {
     return str === null || str === undefined || str === "";
   }
+
+  private parseCSV(input: string): string[] {
+    input = (input || '').trim();
+    if (!input) {
+      return [];
+    }
+    
+    const list = input.split(/(?<!\\),/gi);
+    for (let i = 0; i < list.length; i++) {
+      list[i] = list[i].trim().replace(/\\,/gi, ',');
+    }
+    return list;
+  }
+
+  /**
+   * Accepts the actions string input of add-on services and parses them as Array.
+   *
+   * @param input String of services, from the actions input, can be
+   * comma-delimited or newline, whitespace around services entires is removed.
+   * @returns Array of string for each service input, in the same order they were
+   * given.
+   */
+  public parseServices(input: string): string[] {
+    const services: string[] = [];
+    for (const line of input.split(/\r|\n/)) {
+      const pieces = this.parseCSV(line);
+      for (const piece of pieces) {
+        services.push(piece);
+      }
+    }
+    return services;
+  }
 }

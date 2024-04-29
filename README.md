@@ -1,5 +1,7 @@
 # Azure Container Apps Build and Deploy
 
+_This repo extends the existing action to fix upstream issues and allow experimental features such as [add-on services](https://learn.microsoft.com/en-us/azure/container-apps/services)._
+
 This action allows users to easily deploy their application source to an
 [Azure Container App](https://azure.microsoft.com/en-us/services/container-apps/) in their GitHub workflow by either
 providing a previously built image, a Dockerfile that an image can be built from, or using a builder to create a
@@ -177,6 +179,13 @@ For more information on the structure of the YAML configuration file, please vis
 | `environmentVariables`    | No       | A list of environment variable(s) for the container. Space-separated values in 'key=value' format. Empty string to clear existing values. Prefix value with 'secretref:' to reference a secret. |
 | `ingress`                 | No       | Possible options: external, internal, disabled. If set to "external" (default value if not provided when creating a Container App), the Container App will be visible from the internet or a VNET, depending on the app environment endpoint configured. If set to "internal", the Container App will be visible from within the app environment only. If set to "disabled", ingress will be disabled for this Container App and will not have an HTTP or TCP endpoint. |
 | `disableTelemetry`        | No       | If set to `true`, no telemetry will be collected by this GitHub Action. If set to `false`, or if this argument is not provided, telemetry will be sent to Microsoft about the Container App build and deploy scenario targeted by this GitHub Action. |
+| `kafka`                   | No       | Name of kafka add-on service that will be created and bounded to the container. Multiple add-on service of this type can be created by specifying a comma-separated or newline-separated list. For example: `mykafka` or `mykafka-1,mykafka-2` |
+| `postgres`                | No       | Name of postgres add-on service that will be created and bounded to the container. Multiple add-on service of this type can be created by specifying a comma-separated or newline-separated list. For example: `mypostgres` or `mypostgres-1,mypostgres-2` |
+| `mariadb`                 | No       | Name of mariadb add-on service that will be created and bounded to the container. Multiple add-on service of this type can be created by specifying a comma-separated or newline-separated list. For example: `mymariadb` or `mymariadb-1,mymariadb-2` |
+| `redis`                   | No       | Name of redis add-on service that will be created and bounded to the container. Multiple add-on service of this type can be created by specifying a comma-separated or newline-separated list. For example: `myredis` or `myredis-1,myredis-2` |
+| `qdrant`                  | No       | Name of qdrant add-on service that will be created and bounded to the container. Multiple add-on service of this type can be created by specifying a comma-separated or newline-separated list. For example: `myqdrant` or `myqdrant-1,myqdrant-2` |
+| `milvus`                  | No       | Name of milvus add-on service that will be created and bounded to the container. Multiple add-on service of this type can be created by specifying a comma-separated or newline-separated list. For example: `mymilvus` or `mymilvus-1,mymilvus-2` |
+| `weaviate`                | No       | Name of weaviate add-on service that will be created and bounded to the container. Multiple add-on service of this type can be created by specifying a comma-separated or newline-separated list. For example: `myweaviate` or `myweaviate-1,myweaviate-2` |
 
 ## Usage
 
