@@ -631,7 +631,7 @@ jobs:
 
     env:
       TEST_IMAGE_TAG: 'bs-${{ github.run_id }}'
-      TEST_CONTAINER_APP_NAME: 'gh-ca-bs-${{ github.run_id }}'
+      TEST_CONTAINER_APP_NAME: 'gh-${{ github.run_id }}'
 
     steps:
       - name: Checkout action repository
