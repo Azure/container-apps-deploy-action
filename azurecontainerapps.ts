@@ -352,7 +352,7 @@ export class azurecontainerapps {
         let createdServices: string[] = []
 
         console.log("addons", this.addOnTypes)
-        for (const addOn in this.addOnTypes){
+        for (const addOn of this.addOnTypes){
             console.log(`addon is ${addOn}.`)
             let services = this.toolHelper.getInput(addOn, false)
             console.log("services", services)
