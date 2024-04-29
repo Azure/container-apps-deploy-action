@@ -54,21 +54,16 @@ jobs:
           resourceGroup: ${{ vars.TEST_RESOURCE_GROUP_NAME }}
           imageToBuild: ${{ env.TEST_FULL_ACR_NAME }}/${{ env.TEST_IMAGE_REPOSITORY }}:${{ env.TEST_IMAGE_TAG }}
           disableTelemetry: ${{ vars.TEST_DISABLE_TELEMETRY }}
-          postgres: |
-            dms-db
-            dms-db2
-          kafka: kaf1,kaf2
 
       - name: Delete created Azure Container App
         if: ${{ always() }}
         shell: bash
         run: az containerapp delete -n ${{ env.TEST_CONTAINER_APP_NAME }} -g ${{ vars.TEST_RESOURCE_GROUP_NAME }} -y
-
+      
       - name: Delete pushed image
         if: ${{ always() }}
         shell: bash
         run: az acr repository delete -n ${{ vars.TEST_ACR_NAME }} -t ${{ env.TEST_IMAGE_REPOSITORY }}:${{ env.TEST_IMAGE_TAG }} -y
-
 
   create-using-builder-and-internal-registry:
 
@@ -107,7 +102,6 @@ jobs:
         if: ${{ always() }}
         shell: bash
         run: az containerapp delete -n ${{ env.TEST_CONTAINER_APP_NAME }} -g ${{ vars.TEST_RESOURCE_GROUP_NO_ACR_NAME }} -y
-
 
   create-using-found-dockerfile:
 
@@ -209,7 +203,6 @@ jobs:
         if: ${{ always() }}
         shell: bash
         run: az acr repository delete -n ${{ vars.TEST_ACR_NAME }} -t ${{ env.TEST_IMAGE_REPOSITORY }}:${{ env.TEST_IMAGE_TAG }} -y
-
 
   create-using-image-linux:
 
@@ -331,7 +324,6 @@ jobs:
         if: ${{ always() }}
         shell: bash
         run: az monitor log-analytics workspace delete -g ${{ vars.TEST_RESOURCE_GROUP_NAME }} -n ${{ env.WORKSPACE_NAME }} -y
-
 
   create-using-builder-yaml:
 
@@ -630,3 +622,56 @@ jobs:
           containerAppName: ${{ env.TEST_CONTAINER_APP_NAME }}
           resourceGroup: ${{ vars.TEST_RESOURCE_GROUP_NAME }}
           disableTelemetry: ${{ vars.TEST_DISABLE_TELEMETRY }}
+
+  create-using-builder-with-add-on:
+
+    name: 'Create app using builder'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    env:
+      TEST_IMAGE_TAG: 'bs-${{ github.run_id }}'
+      TEST_CONTAINER_APP_NAME: 'gh-ca-bs-${{ github.run_id }}'
+
+    steps:
+      - name: Checkout action repository
+        uses: actions/checkout@v3
+
+      - name: Clone Oryx repository
+        uses: actions/checkout@v3
+        with:
+          repository: microsoft/Oryx
+          path: oryx
+
+      - name: Log in to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.TEST_AZURE_CREDENTIALS }}
+
+      - name: Execute Azure Container Apps Build and Deploy Action
+        uses: ./
+        with:
+          appSourcePath: '${{ github.workspace }}/oryx/tests/SampleApps/DotNetCore/NetCore6PreviewWebApp'
+          acrName: ${{ vars.TEST_ACR_NAME }}
+          acrUsername: ${{ secrets.TEST_REGISTRY_USERNAME }}
+          acrPassword: ${{ secrets.TEST_REGISTRY_PASSWORD }}
+          containerAppName: ${{ env.TEST_CONTAINER_APP_NAME }}
+          containerAppEnvironment: ${{ vars.TEST_EXISTING_CONTAINER_APP_ENV }}
+          resourceGroup: ${{ vars.TEST_RESOURCE_GROUP_NAME }}
+          imageToBuild: ${{ env.TEST_FULL_ACR_NAME }}/${{ env.TEST_IMAGE_REPOSITORY }}:${{ env.TEST_IMAGE_TAG }}
+          disableTelemetry: ${{ vars.TEST_DISABLE_TELEMETRY }}
+          postgres: |
+            dms-db
+            dms-db2
+          kafka: kaf1,kaf2
+          redis: redis
+
+      - name: Delete created Azure Container App
+        if: ${{ always() }}
+        shell: bash
+        run: az containerapp delete -n ${{ env.TEST_CONTAINER_APP_NAME }} -g ${{ vars.TEST_RESOURCE_GROUP_NAME }} -y
+      
+      - name: Delete pushed image
+        if: ${{ always() }}
+        shell: bash
+        run: az acr repository delete -n ${{ vars.TEST_ACR_NAME }} -t ${{ env.TEST_IMAGE_REPOSITORY }}:${{ env.TEST_IMAGE_TAG }} -y
