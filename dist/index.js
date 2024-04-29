@@ -3983,7 +3983,6 @@ class azurecontainerapps {
     static runMain() {
         return __awaiter(this, void 0, void 0, function* () {
             this.initializeHelpers();
-            this.toolHelper.writeDebug("Here it comes");
             try {
                 // Validate that the arguments provided can be used for one of the supported scenarios
                 this.validateSupportedScenarioArguments();
@@ -4232,15 +4231,11 @@ class azurecontainerapps {
     static createAddOnServices(containerAppName, resourceGroup, environment) {
         return __awaiter(this, void 0, void 0, function* () {
             let createdServices = [];
-            console.log("addons", this.addOnTypes);
             for (const addOn of this.addOnTypes) {
-                console.log(`addon is ${addOn}.`);
                 let services = this.toolHelper.getInput(addOn, false);
-                console.log("services", services);
                 if (!this.util.isNullOrEmpty(services)) {
                     let bindings = this.util.parseServices(services);
-                    console.log("bindinds", bindings);
-                    for (const binding in bindings) {
+                    for (const binding of bindings) {
                         let bindingName = `${containerAppName}-${addOn}-${binding}`;
                         yield this.addOnHelper.createAddOnService(addOn, bindingName, resourceGroup, environment);
                         createdServices.push(bindingName);
@@ -4468,7 +4463,7 @@ class azurecontainerapps {
             this.commandLineArgs.push(`--registry-server ${this.registryUrl}`, `--registry-username ${this.registryUsername}`, `--registry-password ${this.registryPassword}`);
         }
         if (!(this.addOnServices === null || this.addOnServices === undefined || this.addOnServices.length == 0)) {
-            for (const addOnService in this.addOnServices) {
+            for (const addOnService of this.addOnServices) {
                 this.commandLineArgs.push(`--bind ${addOnService}`);
             }
         }

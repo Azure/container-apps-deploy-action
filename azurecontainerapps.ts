@@ -13,7 +13,6 @@ export class azurecontainerapps {
 
     public static async runMain(): Promise<void> {
         this.initializeHelpers();
-        this.toolHelper.writeDebug("Here it comes")
 
         try {
             // Validate that the arguments provided can be used for one of the supported scenarios
@@ -351,15 +350,11 @@ export class azurecontainerapps {
     private static async createAddOnServices(containerAppName: string, resourceGroup: string, environment: string): Promise<string[]> {
         let createdServices: string[] = []
 
-        console.log("addons", this.addOnTypes)
         for (const addOn of this.addOnTypes){
-            console.log(`addon is ${addOn}.`)
             let services = this.toolHelper.getInput(addOn, false)
-            console.log("services", services)
             if (!this.util.isNullOrEmpty(services)){
                 let bindings = this.util.parseServices(services)
-                console.log("bindinds", bindings)
-                for (const binding in bindings) {
+                for (const binding of bindings) {
                     let bindingName = `${containerAppName}-${addOn}-${binding}`
                     await this.addOnHelper.createAddOnService(addOn, bindingName, resourceGroup, environment)
                     createdServices.push(bindingName)
@@ -616,7 +611,7 @@ export class azurecontainerapps {
         }
 
         if (!(this.addOnServices === null || this.addOnServices === undefined || this.addOnServices.length == 0)){
-            for (const addOnService in this.addOnServices){
+            for (const addOnService of this.addOnServices){
                 this.commandLineArgs.push(`--bind ${addOnService}`)
             }
         }
