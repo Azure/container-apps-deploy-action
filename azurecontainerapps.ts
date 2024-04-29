@@ -353,6 +353,7 @@ export class azurecontainerapps {
 
         console.log("addons", this.addOnTypes)
         for (const addOn in this.addOnTypes){
+            console.log(`addon is ${addOn}.`)
             let services = this.toolHelper.getInput(addOn, false)
             console.log("services", services)
             if (!this.util.isNullOrEmpty(services)){
