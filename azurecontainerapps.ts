@@ -37,7 +37,9 @@ export class azurecontainerapps {
             this.useInternalRegistry = this.util.isNullOrEmpty(this.registryUrl);
 
             // Set up property to trigger cloud build with 'up' command
-            this.shouldCreateOrUpdateContainerAppWithUp = !this.util.isNullOrEmpty(this.appSourcePath) && this.useInternalRegistry;
+            // Do not run up for source to cloud build scenario
+
+            this.shouldCreateOrUpdateContainerAppWithUp = !this.util.isNullOrEmpty(this.appSourcePath) && !this.useInternalRegistry;
 
             // If the application source was provided, build a runnable application image from it
             if (!this.useInternalRegistry && !this.util.isNullOrEmpty(this.appSourcePath)) {
@@ -622,10 +624,11 @@ export class azurecontainerapps {
         if (!this.util.isNullOrEmpty(this.imageToDeploy)) {
             this.commandLineArgs.push(`-i ${this.imageToDeploy}`);
         } else if (this.shouldCreateOrUpdateContainerAppWithUp) {
-            this.commandLineArgs.push(`--source ${this.appSourcePath}`);
+            //this.commandLineArgs.push(`--source ${this.appSourcePath}`);
             this.commandLineArgs.push(`-l ${this.location}`);
+        } else if (!this.util.isNullOrEmpty(this.appSourcePath) && this.useInternalRegistry) {
+            this.commandLineArgs.push(`--source ${this.appSourcePath}`);
         }
-
     }
 
     /**
