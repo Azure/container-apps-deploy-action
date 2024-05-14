@@ -18,7 +18,7 @@ export class azurecontainerapps {
             this.validateSupportedScenarioArguments();
 
             // Set up the Azure CLI to be used for this task
-            await this.setupAzureCli();
+        //    await this.setupAzureCli();
 
             // Set up the resources required to deploy a Container App
             await this.setupResources();
@@ -207,7 +207,7 @@ export class azurecontainerapps {
      */
     private static async setupAzureCli() {
         // Set the Azure CLI to install missing extensions
-        await this.util.installAzureCliExtension();
+     //   await this.util.installAzureCliExtension();
     }
 
     /**
