@@ -18,7 +18,7 @@ export class Utility {
    * Sets the Azure CLI to install the containerapp extension.
    */
   public async installAzureCliExtension() {
-    await this.execute(`az extension add --name containerapp --upgrade`);
+   // await this.execute(`az extension add --name containerapp --upgrade`);
   }
 
   /**
