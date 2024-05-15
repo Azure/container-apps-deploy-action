@@ -131,7 +131,6 @@ var azurecontainerapps = /** @class */ (function () {
             });
         });
     };
-    // private static shouldCreateOrUpdateContainerAppWithUp: boolean;
     /**
      * Initializes the helpers used by this task.
      * @param disableTelemetry - Whether or not to disable telemetry for this task.
