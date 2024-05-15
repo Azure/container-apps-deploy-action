@@ -106,7 +106,6 @@ export class azurecontainerapps {
     private static buildArguments: string;
     private static noIngressUpdate: boolean;
     private static useInternalRegistry: boolean;
-    // private static shouldCreateOrUpdateContainerAppWithUp: boolean;
 
     /**
      * Initializes the helpers used by this task.
