@@ -36,9 +36,6 @@ export class azurecontainerapps {
             // Set up property to determine if the internal registry should be used
             this.useInternalRegistry = this.util.isNullOrEmpty(this.registryUrl);
 
-            // Set up property to trigger cloud build with 'up' command
-            this.shouldCreateOrUpdateContainerAppWithUp = !this.util.isNullOrEmpty(this.appSourcePath) && this.useInternalRegistry;
-
             // If the application source was provided, build a runnable application image from it
             if (!this.useInternalRegistry && !this.util.isNullOrEmpty(this.appSourcePath)) {
                 await this.buildAndPushImageAsync();
@@ -109,7 +106,6 @@ export class azurecontainerapps {
     private static buildArguments: string;
     private static noIngressUpdate: boolean;
     private static useInternalRegistry: boolean;
-    private static shouldCreateOrUpdateContainerAppWithUp: boolean;
 
     /**
      * Initializes the helpers used by this task.
@@ -621,11 +617,9 @@ export class azurecontainerapps {
         // Ensure '-i' argument and '--source' argument are not both provided
         if (!this.util.isNullOrEmpty(this.imageToDeploy)) {
             this.commandLineArgs.push(`-i ${this.imageToDeploy}`);
-        } else if (this.shouldCreateOrUpdateContainerAppWithUp) {
+        } else if (!this.util.isNullOrEmpty(this.appSourcePath) && this.useInternalRegistry) {
             this.commandLineArgs.push(`--source ${this.appSourcePath}`);
-            this.commandLineArgs.push(`-l ${this.location}`);
         }
-
     }
 
     /**
@@ -636,8 +630,6 @@ export class azurecontainerapps {
             if (!this.util.isNullOrEmpty(this.yamlConfigPath)) {
                 // Create the Container App from the YAML configuration file
                 await this.appHelper.createContainerAppFromYaml(this.containerAppName, this.resourceGroup, this.yamlConfigPath);
-            } else if (this.shouldCreateOrUpdateContainerAppWithUp) {
-                await this.appHelper.createOrUpdateContainerAppWithUp(this.containerAppName, this.resourceGroup, this.commandLineArgs);
             } else {
                 // Create the Container App from command line arguments
                 await this.appHelper.createContainerApp(this.containerAppName, this.resourceGroup, this.containerAppEnvironment, this.commandLineArgs);
@@ -653,7 +645,7 @@ export class azurecontainerapps {
             return;
         }
 
-        if (this.noIngressUpdate && !this.shouldCreateOrUpdateContainerAppWithUp) {
+        if (this.noIngressUpdate) {
             // Update the Container Registry details on the existing Container App, if provided as an input
             if (!this.util.isNullOrEmpty(this.registryUrl) && !this.util.isNullOrEmpty(this.registryUsername) && !this.util.isNullOrEmpty(this.registryPassword)) {
                 await this.appHelper.updateContainerAppRegistryDetails(this.containerAppName, this.resourceGroup, this.registryUrl, this.registryUsername, this.registryPassword);
@@ -661,8 +653,6 @@ export class azurecontainerapps {
 
             // Update the Container App using the 'update' command
             await this.appHelper.updateContainerApp(this.containerAppName, this.resourceGroup, this.commandLineArgs);
-        } else if (this.shouldCreateOrUpdateContainerAppWithUp) {
-            await this.appHelper.createOrUpdateContainerAppWithUp(this.containerAppName, this.resourceGroup, this.commandLineArgs);
         } else if (this.adminCredentialsProvided && !this.noIngressUpdate) {
             // Update the Container App with `up` command when admin credentials are provided and ingress is manually provided.
             await this.appHelper.updateContainerAppWithUp(this.containerAppName, this.resourceGroup, this.commandLineArgs, this.ingress, this.targetPort);
