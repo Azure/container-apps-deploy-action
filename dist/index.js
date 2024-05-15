@@ -704,10 +704,7 @@ var azurecontainerapps = /** @class */ (function () {
         // Ensure '-i' argument and '--source' argument are not both provided
         if (!this.util.isNullOrEmpty(this.imageToDeploy)) {
             this.commandLineArgs.push("-i ".concat(this.imageToDeploy));
-        } // else if (this.shouldCreateOrUpdateContainerAppWithUp) {
-        //this.commandLineArgs.push(`--source ${this.appSourcePath}`);
-        //    this.commandLineArgs.push(`-l ${this.location}`);
-        //   }
+        }
         else if (!this.util.isNullOrEmpty(this.appSourcePath) && this.useInternalRegistry) {
             this.commandLineArgs.push("--source ".concat(this.appSourcePath));
         }

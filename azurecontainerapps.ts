@@ -18,7 +18,7 @@ export class azurecontainerapps {
             this.validateSupportedScenarioArguments();
 
             // Set up the Azure CLI to be used for this task
-         //   await this.setupAzureCli();
+            await this.setupAzureCli();
 
             // Set up the resources required to deploy a Container App
             await this.setupResources();
@@ -35,11 +35,6 @@ export class azurecontainerapps {
 
             // Set up property to determine if the internal registry should be used
             this.useInternalRegistry = this.util.isNullOrEmpty(this.registryUrl);
-
-            // Set up property to trigger cloud build with 'up' command
-            // Do not run up for source to cloud build scenario
-
-          //  this.shouldCreateOrUpdateContainerAppWithUp = !this.util.isNullOrEmpty(this.appSourcePath) && !this.useInternalRegistry;
 
             // If the application source was provided, build a runnable application image from it
             if (!this.useInternalRegistry && !this.util.isNullOrEmpty(this.appSourcePath)) {
@@ -111,7 +106,7 @@ export class azurecontainerapps {
     private static buildArguments: string;
     private static noIngressUpdate: boolean;
     private static useInternalRegistry: boolean;
-   // private static shouldCreateOrUpdateContainerAppWithUp: boolean;
+    // private static shouldCreateOrUpdateContainerAppWithUp: boolean;
 
     /**
      * Initializes the helpers used by this task.
@@ -623,11 +618,7 @@ export class azurecontainerapps {
         // Ensure '-i' argument and '--source' argument are not both provided
         if (!this.util.isNullOrEmpty(this.imageToDeploy)) {
             this.commandLineArgs.push(`-i ${this.imageToDeploy}`);
-        }// else if (this.shouldCreateOrUpdateContainerAppWithUp) {
-            //this.commandLineArgs.push(`--source ${this.appSourcePath}`);
-        //    this.commandLineArgs.push(`-l ${this.location}`);
-     //   }
-        else if (!this.util.isNullOrEmpty(this.appSourcePath) && this.useInternalRegistry) {
+        } else if (!this.util.isNullOrEmpty(this.appSourcePath) && this.useInternalRegistry) {
             this.commandLineArgs.push(`--source ${this.appSourcePath}`);
         }
     }
