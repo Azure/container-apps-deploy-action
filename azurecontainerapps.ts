@@ -519,6 +519,7 @@ export class azurecontainerapps {
 
         // If telemetry is enabled, log that the builder scenario was targeted for this task
         this.telemetryHelper.setBuilderScenario();
+
     }
 
     /**
