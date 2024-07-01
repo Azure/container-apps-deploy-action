@@ -81,6 +81,7 @@ export class azurecontainerapps {
     private static location: string;
     private static resourceGroup: string;
     private static containerAppEnvironment: string;
+    private static containerAppEnvironmentResourceGroup: string;
     private static ingressEnabled: boolean;
 
     // Container Registry properties
@@ -221,14 +222,19 @@ export class azurecontainerapps {
         this.location = await this.getLocation();
 
         // Get the resource group to deploy to if it was provided, or generate it from the Container App name
-        this.resourceGroup = await this.getOrCreateResourceGroup(this.containerAppName, this.location);
+        let resourceGroup: string = this.toolHelper.getInput('resourceGroup', false);
+        this.resourceGroup = await this.getOrCreateResourceGroup(resourceGroup, this.containerAppName, this.location);
+        
+        // Get the resource group to deploy to if it was provided, or generate it from the Container App name
+        let containerAppEnvironmentResourceGroup: string = this.toolHelper.getInput('containerAppEnvironmentResourceGroup', false);
+        this.containerAppEnvironmentResourceGroup = await this.getOrCreateResourceGroup(containerAppEnvironmentResourceGroup, this.containerAppName, this.location);
 
         // Determine if the Container Appp currently exists
         this.containerAppExists = await this.appHelper.doesContainerAppExist(this.containerAppName, this.resourceGroup);
 
         // If the Container App doesn't exist, get/create the Container App Environment to use for the Container App
         if (!this.containerAppExists) {
-            this.containerAppEnvironment = await this.getOrCreateContainerAppEnvironment(this.containerAppName, this.resourceGroup, this.location);
+            this.containerAppEnvironment = await this.getOrCreateContainerAppEnvironment(this.containerAppName, this.containerAppEnvironmentResourceGroup, this.location);
         }
     }
 
@@ -304,9 +310,8 @@ export class azurecontainerapps {
      * @param location - The location to deploy resources to.
      * @returns The name of the resource group to use for the task.
      */
-    private static async getOrCreateResourceGroup(containerAppName: string, location: string): Promise<string> {
+    private static async getOrCreateResourceGroup(resourceGroup: string, containerAppName: string, location: string): Promise<string> {
         // Get the resource group to deploy to if it was provided, or generate it from the Container App name
-        let resourceGroup: string = this.toolHelper.getInput('resourceGroup', false);
         if (this.util.isNullOrEmpty(resourceGroup)) {
             resourceGroup = `${containerAppName}-rg`;
             this.toolHelper.writeInfo(`Default resource group name: ${resourceGroup}`);
