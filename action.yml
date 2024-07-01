@@ -72,6 +72,11 @@ inputs:
       environment in the resource group of the Container App will be used, otherwise, an environment will be created in
       the format <container-app-name>-env'
     required: false
+  containerAppEnvironmentResourceGroup:
+    description: |
+      'The name of the Resource Group that contains the Azure Container App environment to use with the application.
+      If not provided, it will fall back to the valie of resourceGroup, which defaults to <container-app-name>-env'
+    required: false
   runtimeStack:
     description: |
       'The platform version stack that the application runs in when deployed to the Azure Container App. This should
