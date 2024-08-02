@@ -139,7 +139,11 @@ inputs:
       this GitHub Action.'
     required: false
     default: false
-
+  containerName: 
+    description: |
+      'Container name to deploy.'
+    required: false
+    
 runs:
   using: 'node16'
   main: 'dist/index.js'
