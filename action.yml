@@ -138,8 +138,18 @@ inputs:
       not provided, telemetry will be sent to Microsoft about the Container App build and deploy scenario targeted by
       this GitHub Action.'
     required: false
-    default: false
-
+    default: 'false'
+  revisionsMode:
+    description: |
+      'Specifies the revision mode for the Azure Container App. Possible values are "single" or "labels". If set to
+      "single", only one revision will be active at a time. If set to "labels", multiple revisions can be active
+      simultaneously. Default is "single".'
+    required: false
+  targetLabel:
+    description: |
+      'Specifies the target label for the Azure Container App revision. This is used to direct traffic to a specific
+      revision. If not provided, the default revision will be used.'
+    required: false
 runs:
   using: 'node16'
   main: 'dist/index.js'

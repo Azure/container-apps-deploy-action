@@ -106,6 +106,8 @@ export class azurecontainerapps {
     private static buildArguments: string;
     private static noIngressUpdate: boolean;
     private static useInternalRegistry: boolean;
+    private static revisionsMode: string;
+    private static targetLabel: string;
 
     /**
      * Initializes the helpers used by this task.
@@ -163,6 +165,12 @@ export class azurecontainerapps {
         // Get the user defined build arguments, if provided
         this.buildArguments = this.toolHelper.getInput('buildArguments', false);
 
+        // Get the RevisionsMode input
+        this.revisionsMode = this.toolHelper.getInput('revisionsMode', false);
+
+        // Get the TargetLabel input
+        this.targetLabel = this.toolHelper.getInput('targetLabel', false);
+
         // Ensure that one of appSourcePath, imageToDeploy, or yamlConfigPath is provided
         if (this.util.isNullOrEmpty(this.appSourcePath) && this.util.isNullOrEmpty(this.imageToDeploy) && this.util.isNullOrEmpty(this.yamlConfigPath)) {
             let requiredArgumentMessage = `One of the following arguments must be provided: 'appSourcePath', 'imageToDeploy', or 'yamlConfigPath'.`;
@@ -170,11 +178,24 @@ export class azurecontainerapps {
             throw Error(requiredArgumentMessage);
         }
 
-        // Ensure that an ACR name and registry URL are not both provided
-        if (!this.util.isNullOrEmpty(this.acrName) && !this.util.isNullOrEmpty(this.registryUrl)) {
-            let conflictingArgumentsMessage = `The 'acrName' and 'registryUrl' arguments cannot both be provided.`;
-            this.toolHelper.writeError(conflictingArgumentsMessage);
-            throw Error(conflictingArgumentsMessage);
+        // Get the revisionsMode input
+        const normalizedRevisionsMode = this.util.isNullOrEmpty(this.revisionsMode)
+            ? ''
+            : this.revisionsMode.toLowerCase();
+
+        // Ensure that revisionsMode is either 'single' or 'labels'
+        const validModes = ['single', 'labels'];
+        if (!this.util.isNullOrEmpty(normalizedRevisionsMode) && !validModes.includes(normalizedRevisionsMode)) {
+            const invalidRevisionsModeMessage = `The 'revisionsMode' argument must be either 'single' or 'labels'.`;
+            this.toolHelper.writeError(invalidRevisionsModeMessage);
+            throw new Error(invalidRevisionsModeMessage);
+        }
+
+        // Validate targetLabel requirements based on normalized revisionsMode
+        if (normalizedRevisionsMode === 'labels' && this.util.isNullOrEmpty(this.targetLabel)) {
+            const missingLabelMessage = `The 'targetLabel' argument must be provided when 'revisionsMode' is set to 'labels'.`;
+            this.toolHelper.writeError(missingLabelMessage);
+            throw new Error(missingLabelMessage);
         }
 
         // Set up the build arguments to pass to the Dockerfile or builder
@@ -565,6 +586,16 @@ export class azurecontainerapps {
                 `--registry-server ${this.registryUrl}`,
                 `--registry-username ${this.registryUsername}`,
                 `--registry-password ${this.registryPassword}`);
+        }
+
+        // Add RevisionsMode to the command-line arguments if provided
+        if (!this.util.isNullOrEmpty(this.revisionsMode)) {
+            this.commandLineArgs.push(`--revisions-mode ${this.revisionsMode}`);
+        }
+
+        // Add TargetLabel to the command-line arguments if provided
+        if (!this.util.isNullOrEmpty(this.targetLabel)) {
+            this.commandLineArgs.push(`--label ${this.targetLabel}`);
         }
 
         // Determine default values only for the 'create' scenario to avoid overriding existing values for the 'update' scenario
