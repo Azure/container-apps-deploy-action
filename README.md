@@ -177,7 +177,6 @@ For more information on the structure of the YAML configuration file, please vis
 | `environmentVariables`    | No       | A list of environment variable(s) for the container. Space-separated values in 'key=value' format. Empty string to clear existing values. Prefix value with 'secretref:' to reference a secret. |
 | `ingress`                 | No       | Possible options: external, internal, disabled. If set to "external" (default value if not provided when creating a Container App), the Container App will be visible from the internet or a VNET, depending on the app environment endpoint configured. If set to "internal", the Container App will be visible from within the app environment only. If set to "disabled", ingress will be disabled for this Container App and will not have an HTTP or TCP endpoint. |
 | `disableTelemetry`        | No       | If set to `true`, no telemetry will be collected by this GitHub Action. If set to `false`, or if this argument is not provided, telemetry will be sent to Microsoft about the Container App build and deploy scenario targeted by this GitHub Action. |
-| `RevisionsMode` | No       | The revisions mode to set for the Azure Container App. Will be injected into the YAML config under `properties.configuration.revisionsMode` if provided. |
 | `TargetLabel`   | No       | The target label for ingress traffic. Will be injected into the YAML config under `properties.configuration.ingress.targetLabel` if provided and ingress exists. |
 
 ## Usage
