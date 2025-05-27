@@ -171,6 +171,13 @@ export class azurecontainerapps {
             throw Error(requiredArgumentMessage);
         }
 
+        // Ensure that an ACR name and registry URL are not both provided
+        if (!this.util.isNullOrEmpty(this.acrName) && !this.util.isNullOrEmpty(this.registryUrl)) {
+            let conflictingArgumentsMessage = `The 'acrName' and 'registryUrl' arguments cannot both be provided.`;
+            this.toolHelper.writeError(conflictingArgumentsMessage);
+            throw Error(conflictingArgumentsMessage);
+        }
+
         // Set up the build arguments to pass to the Dockerfile or builder
         if (!this.util.isNullOrEmpty(this.buildArguments)) {
             // Ensure that the build arguments are in the format 'key1=value1 key2=value2'
