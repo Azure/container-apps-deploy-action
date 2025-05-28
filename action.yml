@@ -141,8 +141,8 @@ inputs:
     default: 'false'
   targetLabel:
     description: |
-      'Specifies the target label for the Azure Container App revision. This is used to direct traffic to a specific
-      revision. If not provided, the default revision will be used.'
+       'Specifies the target label for the Azure Container App revision. 
+       This will replace any prior revision with the given label. This is required when using ActiveRevisionMode: Labels.'
     required: false
 runs:
   using: 'node16'
