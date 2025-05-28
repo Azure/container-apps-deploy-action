@@ -570,7 +570,7 @@ export class azurecontainerapps {
 
         // Add TargetLabel to the command-line arguments if provided
         if (!this.util.isNullOrEmpty(this.targetLabel)) {
-            this.commandLineArgs.push(`--label ${this.targetLabel}`);
+            this.commandLineArgs.push(`--targetLabel ${this.targetLabel}`);
         }
 
         // Determine default values only for the 'create' scenario to avoid overriding existing values for the 'update' scenario
