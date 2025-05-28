@@ -27,6 +27,10 @@ jobs:
       TEST_IMAGE_TAG: 'bs-${{ github.run_id }}'
       TEST_CONTAINER_APP_NAME: 'gh-ca-bs-${{ github.run_id }}'
 
+    permissions:
+      id-token: write
+      contents: read
+
     steps:
       - name: Checkout action repository
         uses: actions/checkout@v3
@@ -37,10 +41,12 @@ jobs:
           repository: microsoft/Oryx
           path: oryx
 
-      - name: Log in to Azure
-        uses: azure/login@v1
+      - name: Log in to Azure using UAMI with OIDC
+        uses: azure/login@v2
         with:
-          creds: ${{ secrets.TEST_AZURE_CREDENTIALS }}
+          client-id: ${{ secrets.AZURE_UAMI_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
       - name: Execute Azure Container Apps Build and Deploy Action
         uses: ./
@@ -65,7 +71,6 @@ jobs:
         shell: bash
         run: az acr repository delete -n ${{ vars.TEST_ACR_NAME }} -t ${{ env.TEST_IMAGE_REPOSITORY }}:${{ env.TEST_IMAGE_TAG }} -y
 
-
   create-using-builder-and-internal-registry:
 
     name: 'Create app using builder and push to internal registry'
@@ -86,10 +91,12 @@ jobs:
           repository: microsoft/Oryx
           path: oryx
 
-      - name: Log in to Azure
-        uses: azure/login@v1
+      - name: Log in to Azure using UAMI with OIDC
+        uses: azure/login@v2
         with:
-          creds: ${{ secrets.TEST_AZURE_CREDENTIALS }}
+          client-id: ${{ secrets.AZURE_UAMI_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
       - name: Execute Azure Container Apps Build and Deploy Action
         uses: ./
@@ -125,10 +132,12 @@ jobs:
           repository: microsoft/Oryx
           path: oryx
 
-      - name: Log in to Azure
-        uses: azure/login@v1
+      - name: Log in to Azure using UAMI with OIDC
+        uses: azure/login@v2
         with:
-          creds: ${{ secrets.TEST_AZURE_CREDENTIALS }}
+          client-id: ${{ secrets.AZURE_UAMI_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
       - name: Execute Azure Container Apps Build and Deploy Action
         uses: ./
@@ -173,10 +182,12 @@ jobs:
           repository: microsoft/Oryx
           path: oryx
 
-      - name: Log in to Azure
-        uses: azure/login@v1
+      - name: Log in to Azure using UAMI with OIDC
+        uses: azure/login@v2
         with:
-          creds: ${{ secrets.TEST_AZURE_CREDENTIALS }}
+          client-id: ${{ secrets.AZURE_UAMI_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
       - name: Execute Azure Container Apps Build and Deploy Action
         uses: ./
@@ -216,10 +227,12 @@ jobs:
       - name: Checkout action repository
         uses: actions/checkout@v3
 
-      - name: Log in to Azure
-        uses: azure/login@v1
+      - name: Log in to Azure using UAMI with OIDC
+        uses: azure/login@v2
         with:
-          creds: ${{ secrets.TEST_AZURE_CREDENTIALS }}
+          client-id: ${{ secrets.AZURE_UAMI_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
       - name: Execute Azure Container Apps Build and Deploy Action
         uses: ./
@@ -248,10 +261,12 @@ jobs:
       - name: Checkout action repository
         uses: actions/checkout@v3
 
-      - name: Log in to Azure
-        uses: azure/login@v1
+      - name: Log in to Azure using UAMI with OIDC
+        uses: azure/login@v2
         with:
-          creds: ${{ secrets.TEST_AZURE_CREDENTIALS }}
+          client-id: ${{ secrets.AZURE_UAMI_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
       - name: Execute Azure Container Apps Build and Deploy Action
         uses: ./
@@ -281,10 +296,12 @@ jobs:
       - name: Checkout action repository
         uses: actions/checkout@v3
 
-      - name: Log in to Azure
-        uses: azure/login@v1
+      - name: Log in to Azure using UAMI with OIDC
+        uses: azure/login@v2
         with:
-          creds: ${{ secrets.TEST_AZURE_CREDENTIALS }}
+          client-id: ${{ secrets.AZURE_UAMI_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
       - name: Execute Azure Container Apps Build and Deploy Action
         uses: ./
@@ -346,10 +363,12 @@ jobs:
           repository: microsoft/Oryx
           path: oryx
 
-      - name: Log in to Azure
-        uses: azure/login@v1
+      - name: Log in to Azure using UAMI with OIDC
+        uses: azure/login@v2
         with:
-          creds: ${{ secrets.TEST_AZURE_CREDENTIALS }}
+          client-id: ${{ secrets.AZURE_UAMI_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
       - name: Update values in YAML configuration file
         shell: pwsh
@@ -406,10 +425,12 @@ jobs:
           repository: microsoft/Oryx
           path: oryx
 
-      - name: Log in to Azure
-        uses: azure/login@v1
+      - name: Log in to Azure using UAMI with OIDC
+        uses: azure/login@v2
         with:
-          creds: ${{ secrets.TEST_AZURE_CREDENTIALS }}
+          client-id: ${{ secrets.AZURE_UAMI_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
       - name: Update values in YAML configuration file
         shell: pwsh
@@ -451,10 +472,12 @@ jobs:
           repository: microsoft/Oryx
           path: oryx
 
-      - name: Log in to Azure
-        uses: azure/login@v1
+      - name: Log in to Azure using UAMI with OIDC
+        uses: azure/login@v2
         with:
-          creds: ${{ secrets.TEST_AZURE_CREDENTIALS }}
+          client-id: ${{ secrets.AZURE_UAMI_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
       - name: Update values in YAML configuration file
         shell: pwsh
@@ -496,10 +519,12 @@ jobs:
           repository: microsoft/Oryx
           path: oryx
 
-      - name: Log in to Azure
-        uses: azure/login@v1
+      - name: Log in to Azure using UAMI with OIDC
+        uses: azure/login@v2
         with:
-          creds: ${{ secrets.TEST_AZURE_CREDENTIALS }}
+          client-id: ${{ secrets.AZURE_UAMI_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
       - name: Execute Azure Container Apps Build and Deploy Action
         uses: ./
@@ -544,10 +569,12 @@ jobs:
           repository: microsoft/Oryx
           path: oryx
 
-      - name: Log in to Azure
-        uses: azure/login@v1
+      - name: Log in to Azure using UAMI with OIDC
+        uses: azure/login@v2
         with:
-          creds: ${{ secrets.TEST_AZURE_CREDENTIALS }}
+          client-id: ${{ secrets.AZURE_UAMI_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
       - name: Execute Azure Container Apps Build and Deploy Action
         uses: ./
@@ -575,10 +602,12 @@ jobs:
       - name: Checkout action repository
         uses: actions/checkout@v3
 
-      - name: Log in to Azure
-        uses: azure/login@v1
+      - name: Log in to Azure using UAMI with OIDC
+        uses: azure/login@v2
         with:
-          creds: ${{ secrets.TEST_AZURE_CREDENTIALS }}
+          client-id: ${{ secrets.AZURE_UAMI_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
       - name: Execute Azure Container Apps Build and Deploy Action
         uses: ./
@@ -603,10 +632,12 @@ jobs:
       - name: Checkout action repository
         uses: actions/checkout@v3
 
-      - name: Log in to Azure
-        uses: azure/login@v1
+      - name: Log in to Azure using UAMI with OIDC
+        uses: azure/login@v2
         with:
-          creds: ${{ secrets.TEST_AZURE_CREDENTIALS }}
+          client-id: ${{ secrets.AZURE_UAMI_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
       - name: Update values in YAML configuration file
         shell: pwsh
