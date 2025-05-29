@@ -224,6 +224,9 @@ export class azurecontainerapps {
         // Get the resource group to deploy to if it was provided, or generate it from the Container App name
         this.resourceGroup = await this.getOrCreateResourceGroup(this.containerAppName, this.location);
 
+        // Get the target label to use for the Container App, if provided
+        this.targetLabel = this.toolHelper.getInput('targetLabel', false);
+
         // Determine if the Container Appp currently exists
         this.containerAppExists = await this.appHelper.doesContainerAppExist(this.containerAppName, this.resourceGroup);
 
@@ -625,7 +628,11 @@ export class azurecontainerapps {
             this.commandLineArgs.push(`-i ${this.imageToDeploy}`);
         } else if (!this.util.isNullOrEmpty(this.appSourcePath) && this.useInternalRegistry) {
             this.commandLineArgs.push(`--source ${this.appSourcePath}`);
+        } else if (!this.util.isNullOrEmpty(this.targetLabel)) {
+            // If the target label is provided, add it to the command line arguments
+            this.commandLineArgs.push(`--target_label ${this.targetLabel}`);
         }
+            
     }
 
     /**
