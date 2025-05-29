@@ -10,7 +10,6 @@ on:
   pull_request:
     branches:
       - main
-      - williamhe/add-labels-support
     paths-ignore:
       - '**.md'
 
@@ -53,10 +52,10 @@ jobs:
           disableTelemetry: ${{ vars.TEST_DISABLE_TELEMETRY }}
           targetLabel: ${{ vars.TEST_TARGET_LABEL }}
 
-      - name: Delete created Azure Container App
-        if: ${{ always() }}
-        shell: bash
-        run: az containerapp delete -n ${{ env.TEST_CONTAINER_APP_NAME }} -g ${{ vars.TEST_RESOURCE_GROUP_NAME }} -y
+      # - name: Delete created Azure Container App
+      #   if: ${{ always() }}
+      #   shell: bash
+      #   run: az containerapp delete -n ${{ env.TEST_CONTAINER_APP_NAME }} -g ${{ vars.TEST_RESOURCE_GROUP_NAME }} -y
 
 
   create-using-image-yaml-linux:
