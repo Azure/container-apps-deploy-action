@@ -225,6 +225,10 @@ jobs:
     env:
       TEST_CONTAINER_APP_NAME: 'gh-ca-is-lin-${{ github.run_id }}'
 
+    permissions:
+      id-token: write
+      contents: read
+
     steps:
       - name: Checkout action repository
         uses: actions/checkout@v3
