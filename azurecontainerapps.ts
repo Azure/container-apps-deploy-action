@@ -624,6 +624,14 @@ export class azurecontainerapps {
                 this.commandLineArgs.push(`--ingress ${this.ingress}`);
                 this.commandLineArgs.push(`--target-port ${this.targetPort}`);
             }
+
+            // Handle TargetLabel setup when activeRevisionsMode is Labels
+            if (!this.util.isNullOrEmpty(this.targetLabel)) {
+                // If the target label is provided, add it to the command line arguments
+                this.commandLineArgs.push(`--revisions-mode Labels`);
+                this.commandLineArgs.push(`--target-label ${this.targetLabel}`);
+
+            }
         }
 
         const environmentVariables: string = this.toolHelper.getInput('environmentVariables', false);
