@@ -95,6 +95,7 @@ export class ContainerAppHelper {
         containerAppName: string,
         resourceGroup: string,
         yamlConfigPath: string) {
+        toolHelper.writeInfo(`Attempting to create Container App with name "${containerAppName}" in resource group "${resourceGroup}" from provided YAML "${yamlConfigPath}"`);
         toolHelper.writeDebug(`Attempting to create Container App with name "${containerAppName}" in resource group "${resourceGroup}" from provided YAML "${yamlConfigPath}"`);
         try {
             let command = `az containerapp create -n ${containerAppName} -g ${resourceGroup} --yaml ${yamlConfigPath} --output none`;
