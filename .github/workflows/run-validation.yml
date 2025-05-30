@@ -50,6 +50,7 @@ jobs:
           containerAppEnvironment: ${{ vars.TEST_EXISTING_CONTAINER_APP_ENV }}
           resourceGroup: ${{ vars.TEST_RESOURCE_GROUP_NAME }}
           disableTelemetry: ${{ vars.TEST_DISABLE_TELEMETRY }}
+          activeRevisionMode: 'Labels'
           targetLabel: ${{ vars.TEST_TARGET_LABEL }}
 
       # - name: Delete created Azure Container App
