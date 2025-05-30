@@ -207,7 +207,7 @@ export class azurecontainerapps {
                 this.targetLabel = this.toolHelper.getInput('targetLabel', false);
                 this.toolHelper.writeDebug(`Retrieved targetLabel input: ${this.targetLabel}`);
             }
-        }
+        }        
 
         // Set up the build arguments to pass to the Dockerfile or builder
         if (!this.util.isNullOrEmpty(this.buildArguments)) {
@@ -603,10 +603,14 @@ export class azurecontainerapps {
 
         // Handle TargetLabel setup when activeRevisionsMode is Labels
         if (!this.util.isNullOrEmpty(this.targetLabel)) {
+            this.toolHelper.writeInfo('Target label is provided. Setting up command line arguments for revisions mode "Labels".');
+
             // If the target label is provided, add it to the command line arguments
             this.commandLineArgs.push(`--revisions-mode Labels`);
-            this.commandLineArgs.push(`--target-label ${this.targetLabel}`);
+            this.toolHelper.writeInfo('Added "--revisions-mode Labels" to command line arguments.');
 
+            this.commandLineArgs.push(`--target-label ${this.targetLabel}`);
+            this.toolHelper.writeInfo(`Added "--target-label ${this.targetLabel}" to command line arguments.`);
         }
 
         // Determine default values only for the 'create' scenario to avoid overriding existing values for the 'update' scenario

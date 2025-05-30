@@ -32,19 +32,27 @@ export class ContainerAppHelper {
         resourceGroup: string,
         environment: string,
         optionalCmdArgs: string[]) {
+    
         toolHelper.writeDebug(`Attempting to create Container App with name "${containerAppName}" in resource group "${resourceGroup}"`);
         try {
             let command = `az containerapp create -n ${containerAppName} -g ${resourceGroup} --environment ${environment} --output none`;
+    
+            toolHelper.writeInfo(`Base command initialized: ${command}`);
+    
             optionalCmdArgs.forEach(function (val: string) {
                 command += ` ${val}`;
             });
+    
+            toolHelper.writeInfo(`Final command with optional arguments: ${command}`);
+    
             await util.execute(command);
+            toolHelper.writeInfo(`Container App "${containerAppName}" created successfully.`);
         } catch (err) {
-            toolHelper.writeError(err.message);
+            toolHelper.writeError(`Error occurred while creating Container App "${containerAppName}": ${err.message}`);
             throw err;
         }
     }
-
+    
     /**
     * Creates an Azure Container App.
     * @param containerAppName - the name of the Container App
