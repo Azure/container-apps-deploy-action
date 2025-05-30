@@ -198,13 +198,13 @@ var azurecontainerapps = /** @class */ (function () {
             }
             if (this.activeRevisionsMode === 'Labels') {
                 this.toolHelper.writeDebug("activeRevisionsMode is 'Labels'. Checking for targetLabel...");
+                this.targetLabel = this.toolHelper.getInput('targetLabel', false);
+                this.toolHelper.writeDebug("Retrieved targetLabel input: ".concat(this.targetLabel));
                 if (this.util.isNullOrEmpty(this.targetLabel)) {
                     var missingTargetLabelMessage = "The 'targetLabel' argument must be provided when 'activeRevisionsMode' is set to 'Labels'.";
                     this.toolHelper.writeError(missingTargetLabelMessage);
                     throw Error(missingTargetLabelMessage);
                 }
-                this.targetLabel = this.toolHelper.getInput('targetLabel', false);
-                this.toolHelper.writeDebug("Retrieved targetLabel input: ".concat(this.targetLabel));
             }
         }
         // Set up the build arguments to pass to the Dockerfile or builder

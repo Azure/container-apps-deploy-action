@@ -181,7 +181,7 @@ export class azurecontainerapps {
 
         this.toolHelper.writeDebug("Setting default value for activeRevisionsMode: 'Labels'");
         this.activeRevisionsMode = 'Labels'; // Default value for active revisions mode
-        
+
         if (!this.util.isNullOrEmpty(this.activeRevisionsMode)) {
             this.toolHelper.writeDebug("activeRevisionsMode is not null or empty, attempting to get input...");
         
@@ -198,14 +198,13 @@ export class azurecontainerapps {
             if (this.activeRevisionsMode === 'Labels') {
                 this.toolHelper.writeDebug("activeRevisionsMode is 'Labels'. Checking for targetLabel...");
         
+                this.targetLabel = this.toolHelper.getInput('targetLabel', false);
+                this.toolHelper.writeDebug(`Retrieved targetLabel input: ${this.targetLabel}`);
                 if (this.util.isNullOrEmpty(this.targetLabel)) {
                     const missingTargetLabelMessage = `The 'targetLabel' argument must be provided when 'activeRevisionsMode' is set to 'Labels'.`; 
                     this.toolHelper.writeError(missingTargetLabelMessage);
                     throw Error(missingTargetLabelMessage);
                 }
-        
-                this.targetLabel = this.toolHelper.getInput('targetLabel', false);
-                this.toolHelper.writeDebug(`Retrieved targetLabel input: ${this.targetLabel}`);
             }
         }        
 
