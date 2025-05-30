@@ -21,9 +21,11 @@
     "@actions/core": "^1.10.0",
     "@actions/exec": "^1.1.1",
     "@actions/github": "^5.1.1",
+    "ncc": "^0.3.6",
     "typescript": "^5.2.2"
   },
   "devDependencies": {
-    "@types/node": "^20.6.0"
+    "@types/node": "^20.17.57",
+    "@vercel/ncc": "^0.38.3"
   }
 }
