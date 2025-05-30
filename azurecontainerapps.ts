@@ -179,22 +179,33 @@ export class azurecontainerapps {
             throw Error(conflictingArgumentsMessage);
         }
 
+        this.toolHelper.writeDebug("Setting default value for activeRevisionsMode: 'Labels'");
         this.activeRevisionsMode = 'Labels'; // Default value for active revisions mode
-        if(!this.util.isNullOrEmpty(this.activeRevisionsMode)) {
+        
+        if (!this.util.isNullOrEmpty(this.activeRevisionsMode)) {
+            this.toolHelper.writeDebug("activeRevisionsMode is not null or empty, attempting to get input...");
+        
             // Set the active revisions mode to use for the Container App, if provided
             this.activeRevisionsMode = this.toolHelper.getInput('activeRevisionsMode', false);
+            this.toolHelper.writeDebug(`Retrieved activeRevisionsMode input: ${this.activeRevisionsMode}`);
+        
             if (this.activeRevisionsMode !== 'Labels' && this.activeRevisionsMode !== 'Single') {
                 const invalidActiveRevisionsModeMessage = `The 'activeRevisionsMode' argument must be either 'Labels' or 'Single'.`;
                 this.toolHelper.writeError(invalidActiveRevisionsModeMessage);
                 throw Error(invalidActiveRevisionsModeMessage);
             }
+        
             if (this.activeRevisionsMode === 'Labels') {
+                this.toolHelper.writeDebug("activeRevisionsMode is 'Labels'. Checking for targetLabel...");
+        
                 if (this.util.isNullOrEmpty(this.targetLabel)) {
                     const missingTargetLabelMessage = `The 'targetLabel' argument must be provided when 'activeRevisionsMode' is set to 'Labels'.`; 
                     this.toolHelper.writeError(missingTargetLabelMessage);
                     throw Error(missingTargetLabelMessage);
                 }
+        
                 this.targetLabel = this.toolHelper.getInput('targetLabel', false);
+                this.toolHelper.writeDebug(`Retrieved targetLabel input: ${this.targetLabel}`);
             }
         }
 
