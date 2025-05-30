@@ -179,6 +179,7 @@ export class azurecontainerapps {
             throw Error(conflictingArgumentsMessage);
         }
 
+        this.activeRevisionsMode = 'Labels'; // Default value for active revisions mode
         if(!this.util.isNullOrEmpty(this.activeRevisionsMode)) {
             // Set the active revisions mode to use for the Container App, if provided
             this.activeRevisionsMode = this.toolHelper.getInput('activeRevisionsMode', false);
