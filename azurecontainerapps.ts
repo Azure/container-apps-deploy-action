@@ -106,6 +106,7 @@ export class azurecontainerapps {
     private static buildArguments: string;
     private static noIngressUpdate: boolean;
     private static useInternalRegistry: boolean;
+    private static activeRevisionsMode: string;
     private static targetLabel: string;
 
     /**
@@ -178,6 +179,24 @@ export class azurecontainerapps {
             throw Error(conflictingArgumentsMessage);
         }
 
+        if(!this.util.isNullOrEmpty(this.activeRevisionsMode)) {
+            // Set the active revisions mode to use for the Container App, if provided
+            this.activeRevisionsMode = this.toolHelper.getInput('activeRevisionsMode', false);
+            if (this.activeRevisionsMode !== 'Labels' && this.activeRevisionsMode !== 'Single') {
+                const invalidActiveRevisionsModeMessage = `The 'activeRevisionsMode' argument must be either 'Labels' or 'Single'.`;
+                this.toolHelper.writeError(invalidActiveRevisionsModeMessage);
+                throw Error(invalidActiveRevisionsModeMessage);
+            }
+            if (this.activeRevisionsMode === 'Labels') {
+                if (this.util.isNullOrEmpty(this.targetLabel)) {
+                    const missingTargetLabelMessage = `The 'targetLabel' argument must be provided when 'activeRevisionsMode' is set to 'Labels'.`; 
+                    this.toolHelper.writeError(missingTargetLabelMessage);
+                    throw Error(missingTargetLabelMessage);
+                }
+                this.targetLabel = this.toolHelper.getInput('targetLabel', false);
+            }
+        }
+
         // Set up the build arguments to pass to the Dockerfile or builder
         if (!this.util.isNullOrEmpty(this.buildArguments)) {
             // Ensure that the build arguments are in the format 'key1=value1 key2=value2'
@@ -223,9 +242,6 @@ export class azurecontainerapps {
 
         // Get the resource group to deploy to if it was provided, or generate it from the Container App name
         this.resourceGroup = await this.getOrCreateResourceGroup(this.containerAppName, this.location);
-
-        // Get the target label to use for the Container App, if provided
-        this.targetLabel = this.toolHelper.getInput('targetLabel', false);
 
         // Determine if the Container Appp currently exists
         this.containerAppExists = await this.appHelper.doesContainerAppExist(this.containerAppName, this.resourceGroup);
