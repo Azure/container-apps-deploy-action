@@ -630,7 +630,9 @@ export class azurecontainerapps {
             this.commandLineArgs.push(`--source ${this.appSourcePath}`);
         } else if (!this.util.isNullOrEmpty(this.targetLabel)) {
             // If the target label is provided, add it to the command line arguments
-            this.commandLineArgs.push(`--target_label ${this.targetLabel}`);
+            this.commandLineArgs.push(`--revisions-mode Labels`);
+            this.commandLineArgs.push(`--target-label ${this.targetLabel}`);
+
         }
             
     }
