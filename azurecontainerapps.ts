@@ -565,6 +565,7 @@ export class azurecontainerapps {
      * file is not provided.
      */
     private static setupContainerAppProperties() {
+        this.toolHelper.writeInfo(`Setting up Container App properties...`);
         this.commandLineArgs = [];
 
         // Get the ingress inputs
@@ -587,9 +588,13 @@ export class azurecontainerapps {
                 `--registry-password ${this.registryPassword}`);
         }
 
-        // Add TargetLabel to the command-line arguments if provided
+
+        // Handle TargetLabel setup when activeRevisionsMode is Labels
         if (!this.util.isNullOrEmpty(this.targetLabel)) {
-            this.commandLineArgs.push(`--targetLabel ${this.targetLabel}`);
+            // If the target label is provided, add it to the command line arguments
+            this.commandLineArgs.push(`--revisions-mode Labels`);
+            this.commandLineArgs.push(`--target-label ${this.targetLabel}`);
+
         }
 
         // Determine default values only for the 'create' scenario to avoid overriding existing values for the 'update' scenario
@@ -623,14 +628,6 @@ export class azurecontainerapps {
                 // Note: this step should be skipped if we're updating an existing Container App (ingress is enabled via a separate command)
                 this.commandLineArgs.push(`--ingress ${this.ingress}`);
                 this.commandLineArgs.push(`--target-port ${this.targetPort}`);
-            }
-
-            // Handle TargetLabel setup when activeRevisionsMode is Labels
-            if (!this.util.isNullOrEmpty(this.targetLabel)) {
-                // If the target label is provided, add it to the command line arguments
-                this.commandLineArgs.push(`--revisions-mode Labels`);
-                this.commandLineArgs.push(`--target-label ${this.targetLabel}`);
-
             }
         }
 
