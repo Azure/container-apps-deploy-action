@@ -184,29 +184,6 @@ var azurecontainerapps = /** @class */ (function () {
             this.toolHelper.writeError(conflictingArgumentsMessage);
             throw Error(conflictingArgumentsMessage);
         }
-        this.toolHelper.writeDebug("Setting default value for activeRevisionsMode: 'Labels'");
-        this.activeRevisionsMode = 'Labels'; // Default value for active revisions mode
-        if (!this.util.isNullOrEmpty(this.activeRevisionsMode)) {
-            this.toolHelper.writeDebug("activeRevisionsMode is not null or empty, attempting to get input...");
-            // Set the active revisions mode to use for the Container App, if provided
-            this.activeRevisionsMode = this.toolHelper.getInput('activeRevisionsMode', false);
-            this.toolHelper.writeDebug("Retrieved activeRevisionsMode input: ".concat(this.activeRevisionsMode));
-            if (this.activeRevisionsMode !== 'Labels' && this.activeRevisionsMode !== 'Single') {
-                var invalidActiveRevisionsModeMessage = "The 'activeRevisionsMode' argument must be either 'Labels' or 'Single'.";
-                this.toolHelper.writeError(invalidActiveRevisionsModeMessage);
-                throw Error(invalidActiveRevisionsModeMessage);
-            }
-            if (this.activeRevisionsMode === 'Labels') {
-                this.toolHelper.writeDebug("activeRevisionsMode is 'Labels'. Checking for targetLabel...");
-                this.targetLabel = this.toolHelper.getInput('targetLabel', false);
-                this.toolHelper.writeDebug("Retrieved targetLabel input: ".concat(this.targetLabel));
-                if (this.util.isNullOrEmpty(this.targetLabel)) {
-                    var missingTargetLabelMessage = "The 'targetLabel' argument must be provided when 'activeRevisionsMode' is set to 'Labels'.";
-                    this.toolHelper.writeError(missingTargetLabelMessage);
-                    throw Error(missingTargetLabelMessage);
-                }
-            }
-        }
         // Set up the build arguments to pass to the Dockerfile or builder
         if (!this.util.isNullOrEmpty(this.buildArguments)) {
             // Ensure that the build arguments are in the format 'key1=value1 key2=value2'

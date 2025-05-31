@@ -139,12 +139,6 @@ inputs:
       this GitHub Action.'
     required: false
     default: 'false'
-  activeRevisionsMode:
-    description: |
-      'Possible options: Labels and Single. If set to "Labels", the action will use the targetLabel argument to
-      determine the label to apply to the Container App revision.'
-    required: false
-    default: 'Labels'
   targetLabel:
     description: |
        'Specifies the target label for the Azure Container App revision. 

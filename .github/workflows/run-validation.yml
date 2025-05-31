@@ -53,10 +53,15 @@ jobs:
           activeRevisionsMode: 'Labels'
           targetLabel: ${{ vars.TEST_TARGET_LABEL }}
 
-      # - name: Delete created Azure Container App
-      #   if: ${{ always() }}
-      #   shell: bash
-      #   run: az containerapp delete -n ${{ env.TEST_CONTAINER_APP_NAME }} -g ${{ vars.TEST_RESOURCE_GROUP_NAME }} -y
+      - name: Wait before deletion
+        if: ${{ always() }}
+        shell: bash
+        run: sleep 21
+
+      - name: Delete created Azure Container App
+        if: ${{ always() }}
+        shell: bash
+        run: az containerapp delete -n ${{ env.TEST_CONTAINER_APP_NAME }} -g ${{ vars.TEST_RESOURCE_GROUP_NAME }} -y
 
 
   create-using-image-yaml-linux:
@@ -106,6 +111,11 @@ jobs:
           disableTelemetry: ${{ vars.TEST_DISABLE_TELEMETRY }}
           activeRevisionsMode: 'Labels'
           targetLabel: ${{ vars.TEST_TARGET_LABEL }}
+
+      - name: Wait before deletion
+        if: ${{ always() }}
+        shell: bash
+        run: sleep 21
 
       - name: Delete created Azure Container App
         if: ${{ always() }}
@@ -157,6 +167,11 @@ jobs:
           containerAppName: ${{ env.TEST_CONTAINER_APP_NAME }}
           resourceGroup: ${{ vars.TEST_RESOURCE_GROUP_NAME }}
           disableTelemetry: ${{ vars.TEST_DISABLE_TELEMETRY }}
+
+      - name: Wait before deletion
+        if: ${{ always() }}
+        shell: bash
+        run: sleep 21
 
       - name: Delete created Azure Container App
         if: ${{ always() }}
