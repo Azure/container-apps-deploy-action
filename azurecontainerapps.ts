@@ -161,6 +161,8 @@ export class azurecontainerapps {
         // Get the name of the image to build if it was provided, or generate it from build variables
         this.imageToBuild = this.toolHelper.getInput('imageToBuild', false);
 
+        this.targetLabel = this.toolHelper.getInput('targetLabel', false);
+        
         // Get the user defined build arguments, if provided
         this.buildArguments = this.toolHelper.getInput('buildArguments', false);
 
