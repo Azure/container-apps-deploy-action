@@ -572,14 +572,14 @@ export class azurecontainerapps {
 
         // Handle TargetLabel setup when activeRevisionsMode is Labels
         if (!this.util.isNullOrEmpty(this.targetLabel)) {
-            this.toolHelper.writeInfo('Target label is provided. Setting up command line arguments for revisions mode "Labels".');
+            this.toolHelper.writeDebug('Target label is provided. Setting up command line arguments for revisions mode "Labels".');
 
             // If the target label is provided, add it to the command line arguments
             this.commandLineArgs.push(`--revisions-mode Labels`);
-            this.toolHelper.writeInfo('Added "--revisions-mode Labels" to command line arguments.');
+            this.toolHelper.writeDebug('Added "--revisions-mode Labels" to command line arguments.');
 
             this.commandLineArgs.push(`--target-label ${this.targetLabel}`);
-            this.toolHelper.writeInfo(`Added "--target-label ${this.targetLabel}" to command line arguments.`);
+            this.toolHelper.writeDebug(`Added "--target-label ${this.targetLabel}" to command line arguments.`);
         }
 
         // Determine default values only for the 'create' scenario to avoid overriding existing values for the 'update' scenario
