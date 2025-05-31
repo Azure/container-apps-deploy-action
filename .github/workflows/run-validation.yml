@@ -120,7 +120,7 @@ jobs:
       - name: Delete created Azure Container App
         if: ${{ always() }}
         shell: bash
-        run: az containerapp delete -n ${{ env.TEST_CONTAINER_APP_NAME }} -g ${{ vars.TEST_RESOURCE_GROUP_NAME }} 'gh-action-test' -y
+        run: az containerapp delete -n ${{ env.TEST_CONTAINER_APP_NAME }} -g ${{ vars.TEST_RESOURCE_GROUP_NAME }} -y
 
   create-using-image-yaml-windows:
 
