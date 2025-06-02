@@ -578,7 +578,6 @@ export class azurecontainerapps {
 
             // If the target label is provided, add it to the command line arguments
             this.commandLineArgs.push(`--revisions-mode Labels`, `--target-label ${this.targetLabel}`);
-            this.toolHelper.writeDebug('Added "--revisions-mode Labels" and "--target-label ${this.targetLabel}" to command line arguments.');
         }
 
         // Determine default values only for the 'create' scenario to avoid overriding existing values for the 'update' scenario
