@@ -577,11 +577,8 @@ export class azurecontainerapps {
             this.toolHelper.writeDebug('Target label is provided. Setting up command line arguments for revisions mode "Labels".');
 
             // If the target label is provided, add it to the command line arguments
-            this.commandLineArgs.push(`--revisions-mode Labels`);
-            this.toolHelper.writeDebug('Added "--revisions-mode Labels" to command line arguments.');
-
-            this.commandLineArgs.push(`--target-label ${this.targetLabel}`);
-            this.toolHelper.writeDebug(`Added "--target-label ${this.targetLabel}" to command line arguments.`);
+            this.commandLineArgs.push(`--revisions-mode Labels`, `--target-label ${this.targetLabel}`);
+            this.toolHelper.writeDebug('Added "--revisions-mode Labels" and "--target-label ${this.targetLabel}" to command line arguments.');
         }
 
         // Determine default values only for the 'create' scenario to avoid overriding existing values for the 'update' scenario
@@ -638,9 +635,7 @@ export class azurecontainerapps {
             this.commandLineArgs.push(`--source ${this.appSourcePath}`);
         } else if (!this.util.isNullOrEmpty(this.targetLabel)) {
             // If the target label is provided, add it to the command line arguments
-            this.commandLineArgs.push(`--revisions-mode Labels`);
-            this.commandLineArgs.push(`--target-label ${this.targetLabel}`);
-
+            this.commandLineArgs.push(`--revisions-mode Labels`, `--target-label ${this.targetLabel}`);
         }
             
     }
