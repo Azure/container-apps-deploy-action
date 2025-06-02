@@ -162,7 +162,7 @@ export class azurecontainerapps {
         this.imageToBuild = this.toolHelper.getInput('imageToBuild', false);
 
         this.targetLabel = this.toolHelper.getInput('targetLabel', false);
-        
+
         // Get the user defined build arguments, if provided
         this.buildArguments = this.toolHelper.getInput('buildArguments', false);
 
@@ -548,7 +548,7 @@ export class azurecontainerapps {
      * file is not provided.
      */
     private static setupContainerAppProperties() {
-        this.toolHelper.writeInfo(`Setting up Container App properties...`);
+        this.toolHelper.writeDebug(`Setting up Container App properties...`);
         this.commandLineArgs = [];
 
         // Get the ingress inputs
