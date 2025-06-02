@@ -645,7 +645,7 @@ var azurecontainerapps = /** @class */ (function () {
      * file is not provided.
      */
     azurecontainerapps.setupContainerAppProperties = function () {
-        this.toolHelper.writeInfo("Setting up Container App properties...");
+        this.toolHelper.writeDebug("Setting up Container App properties...");
         this.commandLineArgs = [];
         // Get the ingress inputs
         this.ingress = this.toolHelper.getInput('ingress', false);
@@ -665,10 +665,7 @@ var azurecontainerapps = /** @class */ (function () {
         if (!this.util.isNullOrEmpty(this.targetLabel)) {
             this.toolHelper.writeDebug('Target label is provided. Setting up command line arguments for revisions mode "Labels".');
             // If the target label is provided, add it to the command line arguments
-            this.commandLineArgs.push("--revisions-mode Labels");
-            this.toolHelper.writeDebug('Added "--revisions-mode Labels" to command line arguments.');
-            this.commandLineArgs.push("--target-label ".concat(this.targetLabel));
-            this.toolHelper.writeDebug("Added \"--target-label ".concat(this.targetLabel, "\" to command line arguments."));
+            this.commandLineArgs.push("--revisions-mode Labels", "--target-label ".concat(this.targetLabel));
         }
         // Determine default values only for the 'create' scenario to avoid overriding existing values for the 'update' scenario
         if (!this.containerAppExists) {
@@ -720,8 +717,7 @@ var azurecontainerapps = /** @class */ (function () {
         }
         else if (!this.util.isNullOrEmpty(this.targetLabel)) {
             // If the target label is provided, add it to the command line arguments
-            this.commandLineArgs.push("--revisions-mode Labels");
-            this.commandLineArgs.push("--target-label ".concat(this.targetLabel));
+            this.commandLineArgs.push("--revisions-mode Labels", "--target-label ".concat(this.targetLabel));
         }
     };
     /**
@@ -4841,15 +4837,12 @@ var ContainerAppHelper = /** @class */ (function () {
                     case 1:
                         _a.trys.push([1, 3, , 4]);
                         command_1 = "az containerapp create -n ".concat(containerAppName, " -g ").concat(resourceGroup, " --environment ").concat(environment, " --output none");
-                        toolHelper.writeInfo("Base command initialized: ".concat(command_1));
                         optionalCmdArgs.forEach(function (val) {
                             command_1 += " ".concat(val);
                         });
-                        toolHelper.writeInfo("Final command with optional arguments: ".concat(command_1));
                         return [4 /*yield*/, util.execute(command_1)];
                     case 2:
                         _a.sent();
-                        toolHelper.writeInfo("Container App \"".concat(containerAppName, "\" created successfully."));
                         return [3 /*break*/, 4];
                     case 3:
                         err_1 = _a.sent();
@@ -4934,7 +4927,6 @@ var ContainerAppHelper = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        toolHelper.writeInfo("Attempting to create Container App with name \"".concat(containerAppName, "\" in resource group \"").concat(resourceGroup, "\" from provided YAML \"").concat(yamlConfigPath, "\""));
                         toolHelper.writeDebug("Attempting to create Container App with name \"".concat(containerAppName, "\" in resource group \"").concat(resourceGroup, "\" from provided YAML \"").concat(yamlConfigPath, "\""));
                         _a.label = 1;
                     case 1:

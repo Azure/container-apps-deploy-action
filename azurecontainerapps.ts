@@ -636,7 +636,6 @@ export class azurecontainerapps {
             // If the target label is provided, add it to the command line arguments
             this.commandLineArgs.push(`--revisions-mode Labels`, `--target-label ${this.targetLabel}`);
         }
-            
     }
 
     /**
