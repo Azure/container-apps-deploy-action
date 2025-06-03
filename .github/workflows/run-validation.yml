@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - williamhe/add-labels-support
     paths-ignore:
       - '**.md'
   pull_request:
@@ -28,6 +29,10 @@ jobs:
       TEST_IMAGE_TAG: 'pd-${{ github.run_id }}'
       TEST_CONTAINER_APP_NAME: 'gh-ca-pd-${{ github.run_id }}'
 
+    permissions:
+      id-token: write
+      contents: read
+      
     steps:
       - name: Checkout action repository
         uses: actions/checkout@v3
@@ -256,6 +261,10 @@ jobs:
     env:
       TEST_CONTAINER_APP_NAME: 'gh-ca-is-ne-${{ github.run_id }}'
       TEST_NEW_CONTAINER_APP_ENV: 'gh-ca-is-ne-${{ github.run_id }}-env'
+
+    permissions:
+      id-token: write
+      contents: read
 
     steps:
       - name: Checkout action repository
