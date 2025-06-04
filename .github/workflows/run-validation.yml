@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - williamhe/add-labels-support
     paths-ignore:
       - '**.md'
   pull_request:
