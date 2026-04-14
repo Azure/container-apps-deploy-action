@@ -189,7 +189,7 @@ See [`action.yml`](./action.yml)
 steps:
 
   - name: Log in to Azure
-    uses: azure/login@v1
+    uses: azure/login@v3
     with:
       creds: ${{ secrets.AZURE_CREDENTIALS }}
 
@@ -211,7 +211,7 @@ the push to the provided ACR instance.
 steps:
 
   - name: Log in to Azure
-    uses: azure/login@v1
+    uses: azure/login@v3
     with:
       creds: ${{ secrets.AZURE_CREDENTIALS }}
 
@@ -231,7 +231,7 @@ resource group named `<container-app-name>-rg` where **no new image is built**, 
 steps:
 
   - name: Log in to Azure
-    uses: azure/login@v1
+    uses: azure/login@v3
     with:
       creds: ${{ secrets.AZURE_CREDENTIALS }}
 
@@ -272,7 +272,7 @@ resource ID of the **existing** Container App environment that the Container App
 steps:
 
   - name: Log in to Azure
-    uses: azure/login@v1
+    uses: azure/login@v3
     with:
       creds: ${{ secrets.AZURE_CREDENTIALS }}
 
@@ -296,7 +296,7 @@ authenticate the calls to the ACR instance.
 steps:
 
   - name: Log in to Azure
-    uses: azure/login@v1
+    uses: azure/login@v3
     with:
       creds: ${{ secrets.AZURE_CREDENTIALS }}
 
@@ -319,7 +319,7 @@ authenticate the calls to the Container Registry instance.
 steps:
 
   - name: Log in to Azure
-    uses: azure/login@v1
+    uses: azure/login@v3
     with:
       creds: ${{ secrets.AZURE_CREDENTIALS }}
 
@@ -340,7 +340,7 @@ This will create a new Container App named `my-test-container-app` in a new reso
 steps:
 
   - name: Log in to Azure
-    uses: azure/login@v1
+    uses: azure/login@v3
     with:
       creds: ${{ secrets.AZURE_CREDENTIALS }}
 
@@ -361,7 +361,7 @@ resource group named `my-test-rg`.
 steps:
 
   - name: Log in to Azure
-    uses: azure/login@v1
+    uses: azure/login@v3
     with:
       creds: ${{ secrets.AZURE_CREDENTIALS }}
 
@@ -385,7 +385,7 @@ within the resource group.
 steps:
 
   - name: Log in to Azure
-    uses: azure/login@v1
+    uses: azure/login@v3
     with:
       creds: ${{ secrets.AZURE_CREDENTIALS }}
 
@@ -406,7 +406,7 @@ resource group named `<container-app-name>-rg` with a new Container App environm
 steps:
 
   - name: Log in to Azure
-    uses: azure/login@v1
+    uses: azure/login@v3
     with:
       creds: ${{ secrets.AZURE_CREDENTIALS }}
 
@@ -427,7 +427,7 @@ resource group named `<container-app-name>-rg` where the runnable application im
 steps:
 
   - name: Log in to Azure
-    uses: azure/login@v1
+    uses: azure/login@v3
     with:
       creds: ${{ secrets.AZURE_CREDENTIALS }}
 
@@ -450,7 +450,7 @@ the provided `appSourcePath`. Oryx++ builder is used to create a runnable applic
 steps:
 
   - name: Log in to Azure
-    uses: azure/login@v1
+    uses: azure/login@v3
     with:
       creds: ${{ secrets.AZURE_CREDENTIALS }}
 
@@ -478,7 +478,7 @@ of the GitHub Action.
 steps:
 
   - name: Log in to Azure
-    uses: azure/login@v1
+    uses: azure/login@v3
     with:
       creds: ${{ secrets.AZURE_CREDENTIALS }}
 
