@@ -35,13 +35,11 @@ export class ContainerAppHelper {
     
         toolHelper.writeDebug(`Attempting to create Container App with name "${containerAppName}" in resource group "${resourceGroup}"`);
         try {
-            let command = `az containerapp create -n ${containerAppName} -g ${resourceGroup} --environment ${environment} --output none`;
+            let command = ['az', 'containerapp', 'create', '-n', containerAppName, '-g', resourceGroup, '--environment', environment, '--output', 'none'];
 
-            optionalCmdArgs.forEach(function (val: string) {
-                command += ` ${val}`;
-            });
+            command.push(...optionalCmdArgs);
         
-            await util.execute(command);
+            await util.execute(command[0], command.slice(1));
         } catch (err) {
             toolHelper.writeError(`Error occurred while creating Container App "${containerAppName}": ${err.message}`);
             throw err;
@@ -60,11 +58,9 @@ export class ContainerAppHelper {
         optionalCmdArgs: string[]) {
         toolHelper.writeDebug(`Attempting to create Container App with name "${containerAppName}" in resource group "${resourceGroup}"`);
         try {
-            let command = `az containerapp up -n ${containerAppName} -g ${resourceGroup}`;
-            optionalCmdArgs.forEach(function (val: string) {
-                command += ` ${val}`;
-            });
-            await util.execute(command);
+            let command = ['az', 'containerapp', 'up', '-n', containerAppName, '-g', resourceGroup];
+            command.push(...optionalCmdArgs);
+            await util.execute(command[0], command.slice(1));
         } catch (err) {
             toolHelper.writeError(err.message);
             throw err;
@@ -78,13 +74,13 @@ export class ContainerAppHelper {
     public async getCurrentSubscription(): Promise<string> {
         toolHelper.writeDebug(`Attempting to get the default subscription`);
         try {
-            let command = ` az account show --query id --output tsv `
-            let executionResult = await util.execute(command);
+            let command = ['az', 'account', 'show', '--query', 'id', '--output', 'tsv'];
+            let executionResult = await util.execute(command[0], command.slice(1));
             // If successful, strip out double quotes, spaces and parentheses from the first location returned
-            return executionResult.exitCode === 0 ? executionResult.stdout.toLowerCase() : ``;
+            return executionResult.exitCode === 0 ? executionResult.stdout.toLowerCase() : '';
         } catch (err) {
             toolHelper.writeInfo(err.message);
-            return ``;
+            return '';
         }
     }
 
@@ -100,8 +96,8 @@ export class ContainerAppHelper {
         yamlConfigPath: string) {
         toolHelper.writeDebug(`Attempting to create Container App with name "${containerAppName}" in resource group "${resourceGroup}" from provided YAML "${yamlConfigPath}"`);
         try {
-            let command = `az containerapp create -n ${containerAppName} -g ${resourceGroup} --yaml ${yamlConfigPath} --output none`;
-            await util.execute(command);
+            let command = ['az', 'containerapp', 'create', '-n', containerAppName, '-g', resourceGroup, '--yaml', yamlConfigPath, '--output', 'none'];
+            await util.execute(command[0], command.slice(1));
         } catch (err) {
             toolHelper.writeError(err.message);
             throw err;
@@ -120,11 +116,9 @@ export class ContainerAppHelper {
         optionalCmdArgs: string[]) {
         toolHelper.writeDebug(`Attempting to update Container App with name "${containerAppName}" in resource group "${resourceGroup}" `);
         try {
-            let command = `az containerapp update -n ${containerAppName} -g ${resourceGroup} --output none`;
-            optionalCmdArgs.forEach(function (val: string) {
-                command += ` ${val}`;
-            });
-            await util.execute(command);
+            let command = ['az', 'containerapp', 'update', '-n', containerAppName, '-g', resourceGroup, '--output', 'none'];
+            command.push(...optionalCmdArgs);
+            await util.execute(command[0], command.slice(1));
         } catch (err) {
             toolHelper.writeError(err.message);
             throw err;
@@ -147,20 +141,18 @@ export class ContainerAppHelper {
         targetPort?: string) {
         toolHelper.writeDebug(`Attempting to update Container App with name "${containerAppName}" in resource group "${resourceGroup}"`);
         try {
-            let command = `az containerapp up -n ${containerAppName} -g ${resourceGroup}`;
-            optionalCmdArgs.forEach(function (val: string) {
-                command += ` ${val}`;
-            });
+            let command = ['az', 'containerapp', 'up', '-n', containerAppName, '-g', resourceGroup];
+            command.push(...optionalCmdArgs);
 
             if (!util.isNullOrEmpty(ingress)) {
-                command += ` --ingress ${ingress}`;
+                command.push('--ingress', ingress);
             }
 
             if (!util.isNullOrEmpty(targetPort)) {
-                command += ` --target-port ${targetPort}`;
+                command.push('--target-port', targetPort);
             }
 
-            await util.execute(command);
+            await util.execute(command[0], command.slice(1));
         } catch (err) {
             toolHelper.writeError(err.message);
             throw err;
@@ -181,16 +173,16 @@ export class ContainerAppHelper {
         targetPort?: string) {
         toolHelper.writeDebug(`Attempting to update Container App ingress with name "${containerAppName}" in resource group "${resourceGroup}"`);
         try {
-            let command = `az containerapp ingress update -n ${containerAppName} -g ${resourceGroup}`;
+            let command = ['az', 'containerapp', 'ingress', 'update', '-n', containerAppName, '-g', resourceGroup];
             if (!util.isNullOrEmpty(ingress)) {
-                command += ` --type ${ingress}`;
+                command.push(`--type`, ingress);
             }
 
             if (!util.isNullOrEmpty(targetPort)) {
-                command += ` --target-port ${targetPort}`;
+                command.push('--target-port', targetPort);
             }
 
-            await util.execute(command);
+            await util.execute(command[0], command.slice(1));
         } catch (err) {
             toolHelper.writeError(err.message);
             throw err;
@@ -209,8 +201,8 @@ export class ContainerAppHelper {
         yamlConfigPath: string) {
         toolHelper.writeDebug(`Attempting to update Container App with name "${containerAppName}" in resource group "${resourceGroup}" from provided YAML "${yamlConfigPath}"`);
         try {
-            let command = `az containerapp update -n ${containerAppName} -g ${resourceGroup} --yaml ${yamlConfigPath} --output none`;
-            await util.execute(command);
+            let command = ['az', 'containerapp', 'update', '-n', containerAppName, '-g', resourceGroup, '--yaml', yamlConfigPath, '--output', 'none'];
+            await util.execute(command[0], command.slice(1));
         } catch (err) {
             toolHelper.writeError(err.message);
             throw err;
@@ -226,8 +218,8 @@ export class ContainerAppHelper {
     public async doesContainerAppExist(containerAppName: string, resourceGroup: string): Promise<boolean> {
         toolHelper.writeDebug(`Attempting to determine if Container App with name "${containerAppName}" exists in resource group "${resourceGroup}"`);
         try {
-            let command = `az containerapp show -n ${containerAppName} -g ${resourceGroup} -o none`;
-            let executionResult = await util.execute(command);
+            let command = ['az', 'containerapp', 'show', '-n', containerAppName, '-g', resourceGroup, '-o', 'none'];
+            let executionResult = await util.execute(command[0], command.slice(1));
             return executionResult.exitCode === 0;
         } catch (err) {
             toolHelper.writeInfo(err.message);
@@ -244,8 +236,8 @@ export class ContainerAppHelper {
     public async doesContainerAppEnvironmentExist(containerAppEnvironment: string, resourceGroup: string): Promise<boolean> {
         toolHelper.writeDebug(`Attempting to determine if Container App Environment with name "${containerAppEnvironment}" exists in resource group "${resourceGroup}"`);
         try {
-            let command = `az containerapp env show -o none -g ${resourceGroup} -n ${containerAppEnvironment}`;
-            let executionResult = await util.execute(command);
+            let command = ['az', 'containerapp', 'env', 'show', '-o', 'none', '-g', resourceGroup, '-n', containerAppEnvironment];
+            let executionResult = await util.execute(command[0], command.slice(1));
             return executionResult.exitCode === 0;
         } catch (err) {
             toolHelper.writeInfo(err.message);
@@ -261,8 +253,8 @@ export class ContainerAppHelper {
     public async doesResourceGroupExist(resourceGroup: string): Promise<boolean> {
         toolHelper.writeDebug(`Attempting to determine if resource group "${resourceGroup}" exists`);
         try {
-            let command = `az group show -n ${resourceGroup} -o none`;
-            let executionResult = await util.execute(command);
+            let command = ['az', 'group', 'show', '-n', resourceGroup, '-o', 'none'];
+            let executionResult = await util.execute(command[0], command.slice(1));
             return executionResult.exitCode === 0;
         } catch (err) {
             toolHelper.writeInfo(err.message);
@@ -277,13 +269,13 @@ export class ContainerAppHelper {
     public async getDefaultContainerAppLocation(): Promise<string> {
         toolHelper.writeDebug(`Attempting to get the default location for the Container App service for the subscription.`);
         try {
-            let command = `az provider show -n Microsoft.App --query "resourceTypes[?resourceType=='containerApps'].locations[] | [0]"`
-            let executionResult = await util.execute(command);
+            let command = ['az', 'provider', 'show', '-n', 'Microsoft.App', '--query', 'resourceTypes[?resourceType==\'containerApps\'].locations[] | [0]'];
+            let executionResult = await util.execute(command[0], command.slice(1));
             // If successful, strip out double quotes, spaces and parentheses from the first location returned
-            return executionResult.exitCode === 0 ? executionResult.stdout.toLowerCase().replace(/["() ]/g, "").trim() : `eastus2`;
+            return executionResult.exitCode === 0 ? executionResult.stdout.toLowerCase().replace(/["() ]/g, "").trim() : 'eastus2';
         } catch (err) {
             toolHelper.writeInfo(err.message);
-            return `eastus2`;
+            return 'eastus2';
         }
     }
 
@@ -295,8 +287,8 @@ export class ContainerAppHelper {
     public async createResourceGroup(name: string, location: string) {
         toolHelper.writeDebug(`Attempting to create resource group "${name}" in location "${location}"`);
         try {
-            let command = `az group create -n ${name} -l ${location}`;
-            await util.execute(command);
+            let command = ['az', 'group', 'create', '-n', name, '-l', location];
+            await util.execute(command[0], command.slice(1));
         } catch (err) {
             toolHelper.writeError(err.message);
             throw err;
@@ -311,8 +303,8 @@ export class ContainerAppHelper {
     public async getExistingContainerAppEnvironment(resourceGroup: string) {
         toolHelper.writeDebug(`Attempting to get the existing Container App Environment in resource group "${resourceGroup}"`);
         try {
-            let command = `az containerapp env list -g ${resourceGroup} --query "[0].name"`
-            let executionResult = await util.execute(command);
+            let command = ['az', 'containerapp', 'env', 'list', '-g', resourceGroup, '--query', '[0].name'];
+            let executionResult = await util.execute(command[0], command.slice(1));
             return executionResult.exitCode === 0 ? executionResult.stdout : null;
         } catch (err) {
             toolHelper.writeInfo(err.message);
@@ -327,8 +319,8 @@ export class ContainerAppHelper {
     */
     public async getExistingContainerAppEnvironmentLocation(environmentName: string, resourceGroup: string) {
         try {
-            let command = `az containerapp env show -g ${resourceGroup} --query location -n ${environmentName}`;
-            let executionResult = await util.execute(command);
+            let command = ['az', 'containerapp', 'env', 'show', '-g', resourceGroup, '--query', 'location', '-n', environmentName];
+            let executionResult = await util.execute(command[0], command.slice(1));
             return executionResult.exitCode === 0 ? executionResult.stdout.toLowerCase().replace(/["() ]/g, "").trim() : null;
         } catch (err) {
             toolHelper.writeInfo(err.message);
@@ -343,8 +335,8 @@ export class ContainerAppHelper {
     */
     public async getExistingContainerAppEnvironmentName(containerAppName: string, resourceGroup: string) {
         try {
-            let command = `az containerapp show -n ${containerAppName} -g ${resourceGroup} --query properties.environmentId`;
-            let executionResult = await util.execute(command);
+            let command = ['az', 'containerapp', 'show', '-n', containerAppName, '-g', resourceGroup, '--query', 'properties.environmentId'];
+            let executionResult = await util.execute(command[0], command.slice(1));
             let containerappEnvironmentId = executionResult.stdout.trim();
 
             //Remove trailing slash if it exists
@@ -369,11 +361,11 @@ export class ContainerAppHelper {
         const util = new Utility();
         toolHelper.writeDebug(`Attempting to create Container App Environment with name "${name}" in resource group "${resourceGroup}"`);
         try {
-            let command = `az containerapp env create -n ${name} -g ${resourceGroup}`;
+            let command = ['az', 'containerapp', 'env', 'create', '-n', name, '-g', resourceGroup];
             if (!util.isNullOrEmpty(location)) {
-                command += ` -l ${location}`;
+                command.push('-l', location);
             }
-            await util.execute(command);
+            await util.execute(command[0], command.slice(1));
         } catch (err) {
             toolHelper.writeError(err.message);
             throw err;
@@ -388,8 +380,8 @@ export class ContainerAppHelper {
     public async disableContainerAppIngress(name: string, resourceGroup: string) {
         toolHelper.writeDebug(`Attempting to disable ingress for Container App with name "${name}" in resource group "${resourceGroup}"`);
         try {
-            let command = `az containerapp ingress disable -n ${name} -g ${resourceGroup}`;
-            await util.execute(command);
+            let command = ['az', 'containerapp', 'ingress', 'disable', '-n', name, '-g', resourceGroup];
+            await util.execute(command[0], command.slice(1));
         } catch (err) {
             toolHelper.writeError(err.message);
             throw err;
@@ -407,8 +399,8 @@ export class ContainerAppHelper {
     public async updateContainerAppRegistryDetails(name: string, resourceGroup: string, registryUrl: string, registryUsername: string, registryPassword: string) {
         toolHelper.writeDebug(`Attempting to set the Container Registry details for Container App with name "${name}" in resource group "${resourceGroup}"`);
         try {
-            let command = `az containerapp registry set -n ${name} -g ${resourceGroup} --server ${registryUrl} --username ${registryUsername} --password ${registryPassword}`;
-            await util.execute(command);
+            let command = ['az', 'containerapp', 'registry', 'set', '-n', name, '-g', resourceGroup, '--server', registryUrl, '--username', registryUsername, '--password', registryPassword];
+            await util.execute(command[0], command.slice(1));
         } catch (err) {
             toolHelper.writeError(err.message);
             throw err;
@@ -419,7 +411,7 @@ export class ContainerAppHelper {
      * Using the Oryx++ Builder, creates a runnable application image from the provided application source.
      * @param imageToDeploy - the name of the runnable application image that is created and can be later deployed
      * @param appSourcePath - the path to the application source on the machine
-     * @param environmentVariables - an array of environment variables that should be provided to the builder via the `--env` flag
+     * @param environmentVariables - an array of environment variables that should be provided to the builder via the '--env' flag
      * @param builderStack - the stack to use when building the provided application source
      */
     public async createRunnableAppImage(
@@ -445,12 +437,10 @@ export class ContainerAppHelper {
             toolHelper.writeDebug(`Attempting to create a runnable application image with name "${imageToDeploy}" using the Oryx++ Builder "${builderImage}"`);
 
             try {
-                let command = `build ${imageToDeploy} --path ${appSourcePath} --builder ${builderImage} --env ${telemetryArg} --env BP_SUBSCRIPTION_ID=${subscription}`;
-                environmentVariables.forEach(function (envVar: string) {
-                    command += ` --env ${envVar}`;
-                });
+                let command = ['build', imageToDeploy, '--path', appSourcePath, '--builder', builderImage, '--env', telemetryArg, '--env', `BP_SUBSCRIPTION_ID=${subscription}`];
+                command.push(...environmentVariables.flatMap(envVar => ['--env', envVar]));
 
-                await util.execute(`${PACK_CMD} ${command}`);
+                await util.execute(PACK_CMD, command);
                 couldBuildImage = true;
                 break;
             } catch (err) {
@@ -472,7 +462,7 @@ export class ContainerAppHelper {
      * @param imageToDeploy - the name of the runnable application image that is created and can be later deployed
      * @param appSourcePath - the path to the application source on the machine
      * @param dockerfilePath - the path to the Dockerfile to build and tag with the provided image name
-     * @param buildArguments - an array of build arguments that should be provided to the docker build command via the `--build-arg` flag
+     * @param buildArguments - an array of build arguments that should be provided to the docker build command via the '--build-arg' flag
      */
     public async createRunnableAppImageFromDockerfile(
         imageToDeploy: string,
@@ -481,14 +471,12 @@ export class ContainerAppHelper {
         buildArguments: string[]) {
         toolHelper.writeDebug(`Attempting to create a runnable application image from the provided/found Dockerfile "${dockerfilePath}" with image name "${imageToDeploy}"`);
         try {
-            let command = `docker build --file ${dockerfilePath} ${appSourcePath} --tag ${imageToDeploy}`;
+            let command = ['docker', 'build', '--file', dockerfilePath, appSourcePath, '--tag', imageToDeploy];
             // If build arguments were provided, append them to the command
             if (buildArguments.length > 0) {
-                buildArguments.forEach(function (buildArg: string) {
-                    command += ` --build-arg ${buildArg}`;
-                });
+                command.push(...buildArguments.flatMap(buildArg => ['--build-arg', buildArg]));
             }
-            await util.execute(command);
+            await util.execute(command[0], command.slice(1));
             toolHelper.writeDebug(`Successfully created runnable application image from the provided/found Dockerfile "${dockerfilePath}" with image name "${imageToDeploy}"`);
         } catch (err) {
             toolHelper.writeError(err.message);
@@ -505,8 +493,8 @@ export class ContainerAppHelper {
         toolHelper.writeDebug('Attempting to determine the runtime stack needed for the provided application source');
         try {
             // Use 'oryx dockerfile' command to determine the runtime stack to use and write it to a temp file
-            let command = `docker run --rm -v ${appSourcePath}:/app ${ORYX_CLI_IMAGE} /bin/bash -c "oryx dockerfile /app | head -n 1 | sed 's/ARG RUNTIME=//' >> /app/oryx-runtime.txt"`
-            await util.execute(command)
+            let command = ['docker', 'run', '--rm', '-v', `${appSourcePath}:/app`, ORYX_CLI_IMAGE, '/bin/bash', '-c', `oryx dockerfile /app | head -n 1 | sed 's/ARG RUNTIME=//' >> /app/oryx-runtime.txt`];
+            await util.execute(command[0], command.slice(1))
 
             // Read the temp file to get the runtime stack into a variable
             let oryxRuntimeTxtPath = path.join(appSourcePath, 'oryx-runtime.txt');
@@ -540,8 +528,8 @@ export class ContainerAppHelper {
     public async setDefaultBuilder() {
         toolHelper.writeInfo('Setting the Oryx++ Builder as the default builder via the pack CLI');
         try {
-            let command = `config default-builder ${ORYX_BUILDER_IMAGES[0]}`
-            await util.execute(`${PACK_CMD} ${command}`);
+            let command = ['config', 'default-builder', ORYX_BUILDER_IMAGES[0]];
+            await util.execute(PACK_CMD, command);
         }
         catch (err) {
             toolHelper.writeError(err.message);
@@ -556,20 +544,19 @@ export class ContainerAppHelper {
     public async installPackCliAsync() {
         toolHelper.writeDebug('Attempting to install the pack CLI');
         try {
-            let command: string = '';
+            let command: string[] = [];
             let commandLine = '';
             if (IS_WINDOWS_AGENT) {
                 let packZipDownloadUri: string = 'https://github.com/buildpacks/pack/releases/download/v0.31.0/pack-v0.31.0-windows.zip';
                 let packZipDownloadFilePath: string = path.join(PACK_CMD, 'pack-windows.zip');
-                command = `New-Item -ItemType Directory -Path ${PACK_CMD} -Force | Out-Null; Invoke-WebRequest -Uri ${packZipDownloadUri} -OutFile ${packZipDownloadFilePath}; Expand-Archive -LiteralPath ${packZipDownloadFilePath} -DestinationPath ${PACK_CMD}; Remove-Item -Path ${packZipDownloadFilePath}`;
+                command = ['-c', `New-Item -ItemType Directory -Path ${PACK_CMD} -Force | Out-Null; Invoke-WebRequest -Uri ${packZipDownloadUri} -OutFile ${packZipDownloadFilePath}; Expand-Archive -LiteralPath ${packZipDownloadFilePath} -DestinationPath ${PACK_CMD}; Remove-Item -Path ${packZipDownloadFilePath}`];
                 commandLine = 'pwsh';
             } else {
                 let tgzSuffix = os.platform() == 'darwin' ? 'macos' : 'linux';
-                command = `(curl -sSL "https://github.com/buildpacks/pack/releases/download/v0.31.0/pack-v0.31.0-${tgzSuffix}.tgz" | ` +
-                    'tar -C /usr/local/bin/ --no-same-owner -xzv pack)';
+                command = ['-c', `(curl -sSL "https://github.com/buildpacks/pack/releases/download/v0.31.0/pack-v0.31.0-${tgzSuffix}.tgz" | tar -C /usr/local/bin/ --no-same-owner -xzv pack)`];
                 commandLine = 'bash';
             }
-            await util.execute(`${commandLine} -c "${command}"`);
+            await util.execute(commandLine, command);
         } catch (err) {
             toolHelper.writeError(`Unable to install the pack CLI. Error: ${err.message}`);
             throw err;
@@ -582,8 +569,8 @@ export class ContainerAppHelper {
     public async enablePackCliExperimentalFeaturesAsync() {
         toolHelper.writeDebug('Attempting to enable experimental features for the pack CLI');
         try {
-            let command = `${PACK_CMD} config experimental true`;
-            await util.execute(command);
+            let command = ['config', 'experimental', 'true'];
+            await util.execute(PACK_CMD, command);
         } catch (err) {
             toolHelper.writeError(`Unable to enable experimental features for the pack CLI: ${err.message}`);
             throw err;
