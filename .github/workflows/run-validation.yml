@@ -34,10 +34,10 @@ jobs:
 
     steps:
       - name: Checkout action repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v7
 
       - name: Clone Oryx repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v7
         with:
           repository: microsoft/Oryx
           path: oryx
@@ -88,10 +88,10 @@ jobs:
       
     steps:
       - name: Checkout action repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v7
 
       - name: Clone Oryx repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v7
         with:
           repository: microsoft/Oryx
           path: oryx
@@ -142,7 +142,7 @@ jobs:
 
     steps:
       - name: Checkout action repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v7
 
       - name: Log in to Azure using UAMI with OIDC
         uses: azure/login@v3
@@ -159,7 +159,6 @@ jobs:
           containerAppEnvironment: ${{ vars.TEST_EXISTING_CONTAINER_APP_ENV }}
           resourceGroup: ${{ vars.TEST_RESOURCE_GROUP_NAME }}
           disableTelemetry: ${{ vars.TEST_DISABLE_TELEMETRY }}
-          activeRevisionsMode: 'Labels'
           targetLabel: ${{ vars.TEST_TARGET_LABEL }}
 
       - name: Delete created Azure Container App
@@ -184,10 +183,10 @@ jobs:
 
     steps:
       - name: Checkout action repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v7
 
       - name: Clone Oryx repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v7
         with:
           repository: microsoft/Oryx
           path: oryx
@@ -213,7 +212,6 @@ jobs:
           containerAppName: ${{ env.TEST_CONTAINER_APP_NAME }}
           resourceGroup: ${{ vars.TEST_RESOURCE_GROUP_NAME }}
           disableTelemetry: ${{ vars.TEST_DISABLE_TELEMETRY }}
-          activeRevisionsMode: 'Labels'
           targetLabel: ${{ vars.TEST_TARGET_LABEL }}
 
       - name: Delete created Azure Container App
@@ -237,10 +235,10 @@ jobs:
 
     steps:
       - name: Checkout action repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v7
 
       - name: Clone Oryx repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v7
         with:
           repository: microsoft/Oryx
           path: oryx
@@ -287,7 +285,7 @@ jobs:
 
     steps:
       - name: Checkout action repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v7
 
       - name: Log in to Azure using UAMI with OIDC
         uses: azure/login@v3
@@ -321,7 +319,7 @@ jobs:
 
     steps:
       - name: Checkout action repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v7
 
       - name: Log in to Azure using UAMI with OIDC
         uses: azure/login@v3
@@ -384,7 +382,7 @@ jobs:
 
     steps:
       - name: Checkout action repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v7
 
       - name: Log in to Azure using UAMI with OIDC
         uses: azure/login@v3

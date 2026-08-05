@@ -2,7 +2,7 @@ name: 'Azure Container Apps Build and Deploy'
 description: |
   'GitHub Action for building and deploying Azure Container Apps'
 branding:
-  icon: "login.svg"
+  icon: "log-in"
   color: "blue"
 inputs:
   appSourcePath:
@@ -145,5 +145,5 @@ inputs:
        This will replace any prior revision with the given label. This is required when using ActiveRevisionMode: Labels.'
     required: false
 runs:
-  using: 'node16'
+  using: 'node24'
   main: 'dist/index.js'
