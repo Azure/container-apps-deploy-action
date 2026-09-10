@@ -194,7 +194,7 @@ steps:
       creds: ${{ secrets.AZURE_CREDENTIALS }}
 
   - name: Build and deploy Container App
-    uses: azure/container-apps-deploy-action@v1
+    uses: azure/container-apps-deploy-action@v2
     with:
       appSourcePath: ${{ github.workspace }}
       acrName: mytestacr
@@ -216,7 +216,7 @@ steps:
       creds: ${{ secrets.AZURE_CREDENTIALS }}
 
   - name: Build and deploy Container App
-    uses: azure/container-apps-deploy-action@v1
+    uses: azure/container-apps-deploy-action@v2
     with:
       imageToDeploy: mcr.microsoft.com/azuredocs/containerapps-helloworld:latest
 ```
@@ -236,7 +236,7 @@ steps:
       creds: ${{ secrets.AZURE_CREDENTIALS }}
 
   - name: Build and deploy Container App
-    uses: azure/container-apps-deploy-action@v1
+    uses: azure/container-apps-deploy-action@v2
     with:
       yamlConfigPath: simple-image-container-app.yaml
 ```
@@ -277,7 +277,7 @@ steps:
       creds: ${{ secrets.AZURE_CREDENTIALS }}
 
   - name: Build and deploy Container App
-    uses: azure/container-apps-deploy-action@v1
+    uses: azure/container-apps-deploy-action@v2
     with:
       appSourcePath: ${{ github.workspace }}
       acrName: mytestacr
@@ -301,7 +301,7 @@ steps:
       creds: ${{ secrets.AZURE_CREDENTIALS }}
 
   - name: Build and deploy Container App
-    uses: azure/container-apps-deploy-action@v1
+    uses: azure/container-apps-deploy-action@v2
     with:
       appSourcePath: ${{ github.workspace }}
       registryUrl: mytestregistry.dockerhub.io
@@ -324,7 +324,7 @@ steps:
       creds: ${{ secrets.AZURE_CREDENTIALS }}
 
   - name: Build and deploy Container App
-    uses: azure/container-apps-deploy-action@v1
+    uses: azure/container-apps-deploy-action@v2
     with:
       appSourcePath: ${{ github.workspace }}
       acrName: mytestacr
@@ -345,7 +345,7 @@ steps:
       creds: ${{ secrets.AZURE_CREDENTIALS }}
 
   - name: Build and deploy Container App
-    uses: azure/container-apps-deploy-action@v1
+    uses: azure/container-apps-deploy-action@v2
     with:
       appSourcePath: ${{ github.workspace }}
       acrName: mytestacr
@@ -366,7 +366,7 @@ steps:
       creds: ${{ secrets.AZURE_CREDENTIALS }}
 
   - name: Build and deploy Container App
-    uses: azure/container-apps-deploy-action@v1
+    uses: azure/container-apps-deploy-action@v2
     with:
       appSourcePath: ${{ github.workspace }}
       acrName: mytestacr
@@ -390,7 +390,7 @@ steps:
       creds: ${{ secrets.AZURE_CREDENTIALS }}
 
   - name: Build and deploy Container App
-    uses: azure/container-apps-deploy-action@v1
+    uses: azure/container-apps-deploy-action@v2
     with:
       appSourcePath: ${{ github.workspace }}
       acrName: mytestacr
@@ -411,7 +411,7 @@ steps:
       creds: ${{ secrets.AZURE_CREDENTIALS }}
 
   - name: Build and deploy Container App
-    uses: azure/container-apps-deploy-action@v1
+    uses: azure/container-apps-deploy-action@v2
     with:
       appSourcePath: ${{ github.workspace }}
       acrName: mytestacr
@@ -432,7 +432,7 @@ steps:
       creds: ${{ secrets.AZURE_CREDENTIALS }}
 
   - name: Build and deploy Container App
-    uses: azure/container-apps-deploy-action@v1
+    uses: azure/container-apps-deploy-action@v2
     with:
       appSourcePath: ${{ github.workspace }}
       acrName: mytestacr
@@ -455,7 +455,7 @@ steps:
       creds: ${{ secrets.AZURE_CREDENTIALS }}
 
   - name: Build and deploy Container App
-    uses: azure/container-apps-deploy-action@v1
+    uses: azure/container-apps-deploy-action@v2
     with:
       appSourcePath: ${{ github.workspace }}
       acrName: mytestacr
@@ -483,7 +483,7 @@ steps:
       creds: ${{ secrets.AZURE_CREDENTIALS }}
 
   - name: Build and deploy Container App
-    uses: azure/container-apps-deploy-action@v1
+    uses: azure/container-apps-deploy-action@v2
     with:
       appSourcePath: ${{ github.workspace }}
       acrName: mytestacr
