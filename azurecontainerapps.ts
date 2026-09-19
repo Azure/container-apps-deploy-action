@@ -428,9 +428,7 @@ export class azurecontainerapps {
         // Get the build arguments to pass to the Dockerfile or builder
         let buildArguments: string[] = [];
         if (!this.util.isNullOrEmpty(this.buildArguments)) {
-            this.buildArguments.match(buildArgumentRegex).forEach((buildArg) => {
-                buildArguments.push(buildArg);
-            });
+            buildArguments = this.buildArguments.match(buildArgumentRegex);
         }
 
         // Get Dockerfile to build, if provided, or check if one exists at the root of the provided application
@@ -507,9 +505,7 @@ export class azurecontainerapps {
 
         // Add user-specified build environment variables
         if (buildArguments.length > 0) {
-            buildArguments.forEach((buildArg) => {
-                environmentVariables.push(buildArg);
-            });
+            environmentVariables.push(...buildArguments);
         }
 
         this.toolHelper.writeInfo(`Building image "${imageToBuild}" using the Oryx++ Builder`);
@@ -614,16 +610,16 @@ export class azurecontainerapps {
             }
         }
 
-        const environmentVariables: string = this.toolHelper.getInput('environmentVariables', false);
+        const environmentVariables = this.toolHelper.getInput('environmentVariables', false).split(/\s+/g).filter(Boolean);
         const isCappUpdateCommandUsed: boolean = this.noIngressUpdate || (!this.noIngressUpdate && !this.adminCredentialsProvided)
         // Add user-specified environment variables
-        if (!this.util.isNullOrEmpty(environmentVariables)) {
+        if (environmentVariables.length) {
             // The --replace-env-vars flag is only used for the 'update' command,
             // otherwise --env-vars is used for 'create' and 'up'
             if (isCappUpdateCommandUsed) {
-                this.commandLineArgs.push(`--replace-env-vars ${environmentVariables}`);
+                this.commandLineArgs.push('--replace-env-vars', ...environmentVariables);
             } else {
-                this.commandLineArgs.push(`--env-vars ${environmentVariables}`);
+                this.commandLineArgs.push('--set-env-vars', ...environmentVariables);
             }
         }
 

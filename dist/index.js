@@ -15,132 +15,75 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __generator = (this && this.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g = Object.create((typeof Iterator === "function" ? Iterator : Object).prototype);
-    return g.next = verb(0), g["throw"] = verb(1), g["return"] = verb(2), typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (g && (g = 0, op[0] && (_ = 0)), _) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.azurecontainerapps = void 0;
-var fs = __nccwpck_require__(9896);
-var path = __nccwpck_require__(6928);
-var ContainerAppHelper_1 = __nccwpck_require__(3135);
-var ContainerRegistryHelper_1 = __nccwpck_require__(3745);
-var TelemetryHelper_1 = __nccwpck_require__(7546);
-var Utility_1 = __nccwpck_require__(6393);
-var GitHubActionsToolHelper_1 = __nccwpck_require__(1569);
-var buildArgumentRegex = /"[^"]*"|\S+/g;
-var buildpackEnvironmentNameRegex = /^"?(BP|ORYX)_[-._a-zA-Z0-9]+"?$/;
-var azurecontainerapps = /** @class */ (function () {
-    function azurecontainerapps() {
-    }
-    azurecontainerapps.runMain = function () {
-        return __awaiter(this, void 0, void 0, function () {
-            var err_1;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        this.initializeHelpers();
-                        _a.label = 1;
-                    case 1:
-                        _a.trys.push([1, 11, 12, 14]);
-                        // Validate that the arguments provided can be used for one of the supported scenarios
-                        this.validateSupportedScenarioArguments();
-                        // Set up the Azure CLI to be used for this task
-                        return [4 /*yield*/, this.setupAzureCli()];
-                    case 2:
-                        // Set up the Azure CLI to be used for this task
-                        _a.sent();
-                        // Set up the resources required to deploy a Container App
-                        return [4 /*yield*/, this.setupResources()];
-                    case 3:
-                        // Set up the resources required to deploy a Container App
-                        _a.sent();
-                        if (!!this.util.isNullOrEmpty(this.registryUrl)) return [3 /*break*/, 5];
-                        return [4 /*yield*/, this.authenticateContainerRegistryAsync()];
-                    case 4:
-                        _a.sent();
-                        _a.label = 5;
-                    case 5:
-                        if (!!this.util.isNullOrEmpty(this.acrName)) return [3 /*break*/, 7];
-                        return [4 /*yield*/, this.authenticateAzureContainerRegistryAsync()];
-                    case 6:
-                        _a.sent();
-                        _a.label = 7;
-                    case 7:
-                        // Set up property to determine if the internal registry should be used
-                        this.useInternalRegistry = this.util.isNullOrEmpty(this.registryUrl);
-                        if (!(!this.useInternalRegistry && !this.util.isNullOrEmpty(this.appSourcePath))) return [3 /*break*/, 9];
-                        return [4 /*yield*/, this.buildAndPushImageAsync()];
-                    case 8:
-                        _a.sent();
-                        _a.label = 9;
-                    case 9:
-                        // If no application source was provided, set up the scenario for deploying an existing image
-                        if (this.util.isNullOrEmpty(this.appSourcePath)) {
-                            this.setupExistingImageScenario();
-                        }
-                        // If no YAML configuration file was provided, set up the Container App properties
-                        if (this.util.isNullOrEmpty(this.yamlConfigPath)) {
-                            this.setupContainerAppProperties();
-                        }
-                        // Create/update the Container App
-                        return [4 /*yield*/, this.createOrUpdateContainerApp()];
-                    case 10:
-                        // Create/update the Container App
-                        _a.sent();
-                        // If telemetry is enabled, log that the task completed successfully
-                        this.telemetryHelper.setSuccessfulResult();
-                        return [3 /*break*/, 14];
-                    case 11:
-                        err_1 = _a.sent();
-                        this.toolHelper.setFailed(err_1.message);
-                        this.telemetryHelper.setFailedResult(err_1.message);
-                        return [3 /*break*/, 14];
-                    case 12: 
-                    // If telemetry is enabled, will log metadata for this task run
-                    return [4 /*yield*/, this.telemetryHelper.sendLogs()];
-                    case 13:
-                        // If telemetry is enabled, will log metadata for this task run
-                        _a.sent();
-                        return [7 /*endfinally*/];
-                    case 14: return [2 /*return*/];
+const fs = __nccwpck_require__(9896);
+const path = __nccwpck_require__(6928);
+const ContainerAppHelper_1 = __nccwpck_require__(3135);
+const ContainerRegistryHelper_1 = __nccwpck_require__(3745);
+const TelemetryHelper_1 = __nccwpck_require__(7546);
+const Utility_1 = __nccwpck_require__(6393);
+const GithubActionsToolHelper_1 = __nccwpck_require__(3921);
+const buildArgumentRegex = /"[^"]*"|\S+/g;
+const buildpackEnvironmentNameRegex = /^"?(BP|ORYX)_[-._a-zA-Z0-9]+"?$/;
+class azurecontainerapps {
+    static runMain() {
+        return __awaiter(this, void 0, void 0, function* () {
+            this.initializeHelpers();
+            try {
+                // Validate that the arguments provided can be used for one of the supported scenarios
+                this.validateSupportedScenarioArguments();
+                // Set up the Azure CLI to be used for this task
+                yield this.setupAzureCli();
+                // Set up the resources required to deploy a Container App
+                yield this.setupResources();
+                // If a Container Registry URL was provided, try to authenticate against it
+                if (!this.util.isNullOrEmpty(this.registryUrl)) {
+                    yield this.authenticateContainerRegistryAsync();
                 }
-            });
+                // If an Azure Container Registry name was provided, try to authenticate against it
+                if (!this.util.isNullOrEmpty(this.acrName)) {
+                    yield this.authenticateAzureContainerRegistryAsync();
+                }
+                // Set up property to determine if the internal registry should be used
+                this.useInternalRegistry = this.util.isNullOrEmpty(this.registryUrl);
+                // If the application source was provided, build a runnable application image from it
+                if (!this.useInternalRegistry && !this.util.isNullOrEmpty(this.appSourcePath)) {
+                    yield this.buildAndPushImageAsync();
+                }
+                // If no application source was provided, set up the scenario for deploying an existing image
+                if (this.util.isNullOrEmpty(this.appSourcePath)) {
+                    this.setupExistingImageScenario();
+                }
+                // If no YAML configuration file was provided, set up the Container App properties
+                if (this.util.isNullOrEmpty(this.yamlConfigPath)) {
+                    this.setupContainerAppProperties();
+                }
+                // Create/update the Container App
+                yield this.createOrUpdateContainerApp();
+                // If telemetry is enabled, log that the task completed successfully
+                this.telemetryHelper.setSuccessfulResult();
+            }
+            catch (err) {
+                this.toolHelper.setFailed(err.message);
+                this.telemetryHelper.setFailedResult(err.message);
+            }
+            finally {
+                // If telemetry is enabled, will log metadata for this task run
+                yield this.telemetryHelper.sendLogs();
+            }
         });
-    };
+    }
     /**
      * Initializes the helpers used by this task.
      * @param disableTelemetry - Whether or not to disable telemetry for this task.
      */
-    azurecontainerapps.initializeHelpers = function () {
+    static initializeHelpers() {
         // Set up Utility for managing miscellaneous calls
         this.util = new Utility_1.Utility();
         // Set up toolHelper for managing calls to the GitHub Actions toolkit
-        this.toolHelper = new GitHubActionsToolHelper_1.GitHubActionsToolHelper();
-        var disableTelemetry = this.toolHelper.getInput('disableTelemetry').toLowerCase() === 'true';
+        this.toolHelper = new GithubActionsToolHelper_1.GitHubActionsToolHelper();
+        let disableTelemetry = this.toolHelper.getInput('disableTelemetry').toLowerCase() === 'true';
         // Get buildId
         this.buildId = this.toolHelper.getBuildId();
         // Get buildNumber
@@ -151,13 +94,12 @@ var azurecontainerapps = /** @class */ (function () {
         this.appHelper = new ContainerAppHelper_1.ContainerAppHelper(disableTelemetry);
         // Set up ContainerRegistryHelper for managing calls around the Container Registry
         this.registryHelper = new ContainerRegistryHelper_1.ContainerRegistryHelper();
-    };
+    }
     /**
      * Validates the arguments provided to the task for supported scenarios.
      * @throws Error if a valid combination of the support scenario arguments is not provided.
      */
-    azurecontainerapps.validateSupportedScenarioArguments = function () {
-        var _this = this;
+    static validateSupportedScenarioArguments() {
         // Get the path to the application source to build and run, if provided
         this.appSourcePath = this.toolHelper.getInput('appSourcePath', false);
         // Get the name of the ACR instance to push images to, if provided
@@ -175,23 +117,23 @@ var azurecontainerapps = /** @class */ (function () {
         this.buildArguments = this.toolHelper.getInput('buildArguments', false);
         // Ensure that one of appSourcePath, imageToDeploy, or yamlConfigPath is provided
         if (this.util.isNullOrEmpty(this.appSourcePath) && this.util.isNullOrEmpty(this.imageToDeploy) && this.util.isNullOrEmpty(this.yamlConfigPath)) {
-            var requiredArgumentMessage = "One of the following arguments must be provided: 'appSourcePath', 'imageToDeploy', or 'yamlConfigPath'.";
+            let requiredArgumentMessage = `One of the following arguments must be provided: 'appSourcePath', 'imageToDeploy', or 'yamlConfigPath'.`;
             this.toolHelper.writeError(requiredArgumentMessage);
             throw Error(requiredArgumentMessage);
         }
         // Ensure that an ACR name and registry URL are not both provided
         if (!this.util.isNullOrEmpty(this.acrName) && !this.util.isNullOrEmpty(this.registryUrl)) {
-            var conflictingArgumentsMessage = "The 'acrName' and 'registryUrl' arguments cannot both be provided.";
+            let conflictingArgumentsMessage = `The 'acrName' and 'registryUrl' arguments cannot both be provided.`;
             this.toolHelper.writeError(conflictingArgumentsMessage);
             throw Error(conflictingArgumentsMessage);
         }
         // Set up the build arguments to pass to the Dockerfile or builder
         if (!this.util.isNullOrEmpty(this.buildArguments)) {
             // Ensure that the build arguments are in the format 'key1=value1 key2=value2'
-            var buildArguments = this.buildArguments.match(buildArgumentRegex);
-            var invalidBuildArgumentsMessage = "The 'buildArguments' argument must be in the format 'key1=value1 key2=value2'.";
-            var invalidBuildArguments = buildArguments.some(function (variable) {
-                if (!_this.util.isNullOrEmpty(variable)) {
+            const buildArguments = this.buildArguments.match(buildArgumentRegex);
+            let invalidBuildArgumentsMessage = `The 'buildArguments' argument must be in the format 'key1=value1 key2=value2'.`;
+            const invalidBuildArguments = buildArguments.some(variable => {
+                if (!this.util.isNullOrEmpty(variable)) {
                     return variable.indexOf('=') === -1;
                 }
                 else {
@@ -203,26 +145,17 @@ var azurecontainerapps = /** @class */ (function () {
                 throw Error(invalidBuildArgumentsMessage);
             }
         }
-    };
+    }
     /**
      * Sets up the Azure CLI to be used for this task by logging in to Azure with the provided service connection and
      * setting the Azure CLI to install missing extensions.
      */
-    azurecontainerapps.setupAzureCli = function () {
-        return __awaiter(this, void 0, void 0, function () {
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: 
-                    // Set the Azure CLI to install missing extensions
-                    return [4 /*yield*/, this.util.installAzureCliExtension()];
-                    case 1:
-                        // Set the Azure CLI to install missing extensions
-                        _a.sent();
-                        return [2 /*return*/];
-                }
-            });
+    static setupAzureCli() {
+        return __awaiter(this, void 0, void 0, function* () {
+            // Set the Azure CLI to install missing extensions
+            yield this.util.installAzureCliExtension();
         });
-    };
+    }
     /**
      * Sets up the resources required to deploy a Container App. This includes the following:
      * - Getting or generating the Container App name
@@ -230,121 +163,78 @@ var azurecontainerapps = /** @class */ (function () {
      * - Getting or creating the resource group
      * - Getting or creating the Container App Environment
      */
-    azurecontainerapps.setupResources = function () {
-        return __awaiter(this, void 0, void 0, function () {
-            var _a, _b, _c, _d;
-            return __generator(this, function (_e) {
-                switch (_e.label) {
-                    case 0:
-                        // Get the Container App name if it was provided, or generate it from build variables
-                        this.containerAppName = this.getContainerAppName();
-                        // Get the location to deploy resources to, if provided, or use the default location
-                        _a = this;
-                        return [4 /*yield*/, this.getLocation()];
-                    case 1:
-                        // Get the location to deploy resources to, if provided, or use the default location
-                        _a.location = _e.sent();
-                        // Get the resource group to deploy to if it was provided, or generate it from the Container App name
-                        _b = this;
-                        return [4 /*yield*/, this.getOrCreateResourceGroup(this.containerAppName, this.location)];
-                    case 2:
-                        // Get the resource group to deploy to if it was provided, or generate it from the Container App name
-                        _b.resourceGroup = _e.sent();
-                        // Determine if the Container Appp currently exists
-                        _c = this;
-                        return [4 /*yield*/, this.appHelper.doesContainerAppExist(this.containerAppName, this.resourceGroup)];
-                    case 3:
-                        // Determine if the Container Appp currently exists
-                        _c.containerAppExists = _e.sent();
-                        if (!!this.containerAppExists) return [3 /*break*/, 5];
-                        _d = this;
-                        return [4 /*yield*/, this.getOrCreateContainerAppEnvironment(this.containerAppName, this.resourceGroup, this.location)];
-                    case 4:
-                        _d.containerAppEnvironment = _e.sent();
-                        _e.label = 5;
-                    case 5: return [2 /*return*/];
-                }
-            });
+    static setupResources() {
+        return __awaiter(this, void 0, void 0, function* () {
+            // Get the Container App name if it was provided, or generate it from build variables
+            this.containerAppName = this.getContainerAppName();
+            // Get the location to deploy resources to, if provided, or use the default location
+            this.location = yield this.getLocation();
+            // Get the resource group to deploy to if it was provided, or generate it from the Container App name
+            this.resourceGroup = yield this.getOrCreateResourceGroup(this.containerAppName, this.location);
+            // Determine if the Container Appp currently exists
+            this.containerAppExists = yield this.appHelper.doesContainerAppExist(this.containerAppName, this.resourceGroup);
+            // If the Container App doesn't exist, get/create the Container App Environment to use for the Container App
+            if (!this.containerAppExists) {
+                this.containerAppEnvironment = yield this.getOrCreateContainerAppEnvironment(this.containerAppName, this.resourceGroup, this.location);
+            }
         });
-    };
+    }
     /**
      * Gets the name of the Container App to use for the task. If the 'containerAppName' argument is not provided,
      * then a default name will be generated in the form 'gh-action-app-<buildId>-<buildNumber>'.
      * @returns The name of the Container App to use for the task.
      */
-    azurecontainerapps.getContainerAppName = function () {
-        var containerAppName = this.toolHelper.getInput('containerAppName', false);
+    static getContainerAppName() {
+        let containerAppName = this.toolHelper.getInput('containerAppName', false);
         if (this.util.isNullOrEmpty(containerAppName)) {
             return this.toolHelper.getDefaultContainerAppName(containerAppName);
         }
         return containerAppName;
-    };
+    }
     /**
      * Gets the location to deploy resources to. If the 'location' argument is not provided, then the default location
      * for the Container App service will be used.
      * @returns The location to deploy resources to.
      */
-    azurecontainerapps.getLocation = function () {
-        return __awaiter(this, void 0, void 0, function () {
-            var location, resourceGroup, containerAppExists, environmentName, containerAppEnvironmentExistsInResourceGroup, _a, containerAppEnvironment, containerAppEnvironmentExists, _b;
-            return __generator(this, function (_c) {
-                switch (_c.label) {
-                    case 0:
-                        location = this.toolHelper.getInput('location', false);
-                        if (!this.util.isNullOrEmpty(location)) {
-                            return [2 /*return*/, location];
-                        }
-                        resourceGroup = this.toolHelper.getInput('resourceGroup', false);
-                        if (!!this.util.isNullOrEmpty(resourceGroup)) return [3 /*break*/, 12];
-                        return [4 /*yield*/, this.appHelper.doesContainerAppExist(this.containerAppName, resourceGroup)];
-                    case 1:
-                        containerAppExists = _c.sent();
-                        if (!containerAppExists) return [3 /*break*/, 7];
-                        return [4 /*yield*/, this.appHelper.getExistingContainerAppEnvironmentName(this.containerAppName, resourceGroup)];
-                    case 2:
-                        environmentName = _c.sent();
-                        if (!!this.util.isNullOrEmpty(environmentName)) return [3 /*break*/, 4];
-                        return [4 /*yield*/, this.appHelper.doesContainerAppEnvironmentExist(environmentName, resourceGroup)];
-                    case 3:
-                        _a = _c.sent();
-                        return [3 /*break*/, 5];
-                    case 4:
-                        _a = false;
-                        _c.label = 5;
-                    case 5:
-                        containerAppEnvironmentExistsInResourceGroup = _a;
-                        if (!containerAppEnvironmentExistsInResourceGroup) return [3 /*break*/, 7];
-                        return [4 /*yield*/, this.appHelper.getExistingContainerAppEnvironmentLocation(environmentName, resourceGroup)];
-                    case 6:
+    static getLocation() {
+        return __awaiter(this, void 0, void 0, function* () {
+            // Set deployment location, if provided
+            let location = this.toolHelper.getInput('location', false);
+            if (!this.util.isNullOrEmpty(location)) {
+                return location;
+            }
+            // If no location was provided, attempt to discover the location of the existing Container App Environment linked to the Container App
+            // or Container App Environment provided in the resource group or use the default location.
+            // Get the resource group if it was provided
+            let resourceGroup = this.toolHelper.getInput('resourceGroup', false);
+            if (!this.util.isNullOrEmpty(resourceGroup)) {
+                // Check if Container App exists in the resource group provided and get the location from the Container App Environment linked to it
+                let containerAppExists = yield this.appHelper.doesContainerAppExist(this.containerAppName, resourceGroup);
+                if (containerAppExists) {
+                    // Get the name of the Container App Environment linked to the Container App
+                    var environmentName = yield this.appHelper.getExistingContainerAppEnvironmentName(this.containerAppName, resourceGroup);
+                    // Check if environment exists in the resource group provided and get the location
+                    var containerAppEnvironmentExistsInResourceGroup = !this.util.isNullOrEmpty(environmentName) ? yield this.appHelper.doesContainerAppEnvironmentExist(environmentName, resourceGroup) : false;
+                    if (containerAppEnvironmentExistsInResourceGroup) {
                         // Get the location of the Container App Environment linked to the Container App
-                        location = _c.sent();
-                        return [2 /*return*/, location];
-                    case 7:
-                        containerAppEnvironment = this.toolHelper.getInput('containerAppEnvironment', false);
-                        if (!!this.util.isNullOrEmpty(containerAppEnvironment)) return [3 /*break*/, 9];
-                        return [4 /*yield*/, this.appHelper.doesContainerAppEnvironmentExist(containerAppEnvironment, resourceGroup)];
-                    case 8:
-                        _b = _c.sent();
-                        return [3 /*break*/, 10];
-                    case 9:
-                        _b = false;
-                        _c.label = 10;
-                    case 10:
-                        containerAppEnvironmentExists = _b;
-                        if (!containerAppEnvironmentExists) return [3 /*break*/, 12];
-                        return [4 /*yield*/, this.appHelper.getExistingContainerAppEnvironmentLocation(containerAppEnvironment, resourceGroup)];
-                    case 11:
-                        location = _c.sent();
-                        return [2 /*return*/, location];
-                    case 12: return [4 /*yield*/, this.appHelper.getDefaultContainerAppLocation()];
-                    case 13:
-                        // Get the default location if the Container App or Container App Environment was not found in the resource group provided.
-                        location = _c.sent();
-                        return [2 /*return*/, location];
+                        location = yield this.appHelper.getExistingContainerAppEnvironmentLocation(environmentName, resourceGroup);
+                        return location;
+                    }
                 }
-            });
+                // Get the Container App Environment name if it was provided
+                let containerAppEnvironment = this.toolHelper.getInput('containerAppEnvironment', false);
+                // Check if Container App Environment is provided and exits in the resource group provided and get the location
+                let containerAppEnvironmentExists = !this.util.isNullOrEmpty(containerAppEnvironment) ? yield this.appHelper.doesContainerAppEnvironmentExist(containerAppEnvironment, resourceGroup) : false;
+                if (containerAppEnvironmentExists) {
+                    location = yield this.appHelper.getExistingContainerAppEnvironmentLocation(containerAppEnvironment, resourceGroup);
+                    return location;
+                }
+            }
+            // Get the default location if the Container App or Container App Environment was not found in the resource group provided.
+            location = yield this.appHelper.getDefaultContainerAppLocation();
+            return location;
         });
-    };
+    }
     /**
      * Gets the name of the resource group to use for the task. If the 'resourceGroup' argument is not provided,
      * then a default name will be generated in the form '<containerAppName>-rg'. If the generated resource group does
@@ -353,29 +243,22 @@ var azurecontainerapps = /** @class */ (function () {
      * @param location - The location to deploy resources to.
      * @returns The name of the resource group to use for the task.
      */
-    azurecontainerapps.getOrCreateResourceGroup = function (containerAppName, location) {
-        return __awaiter(this, void 0, void 0, function () {
-            var resourceGroup, resourceGroupExists;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        resourceGroup = this.toolHelper.getInput('resourceGroup', false);
-                        if (!this.util.isNullOrEmpty(resourceGroup)) return [3 /*break*/, 3];
-                        resourceGroup = "".concat(containerAppName, "-rg");
-                        this.toolHelper.writeInfo("Default resource group name: ".concat(resourceGroup));
-                        return [4 /*yield*/, this.appHelper.doesResourceGroupExist(resourceGroup)];
-                    case 1:
-                        resourceGroupExists = _a.sent();
-                        if (!!resourceGroupExists) return [3 /*break*/, 3];
-                        return [4 /*yield*/, this.appHelper.createResourceGroup(resourceGroup, location)];
-                    case 2:
-                        _a.sent();
-                        _a.label = 3;
-                    case 3: return [2 /*return*/, resourceGroup];
+    static getOrCreateResourceGroup(containerAppName, location) {
+        return __awaiter(this, void 0, void 0, function* () {
+            // Get the resource group to deploy to if it was provided, or generate it from the Container App name
+            let resourceGroup = this.toolHelper.getInput('resourceGroup', false);
+            if (this.util.isNullOrEmpty(resourceGroup)) {
+                resourceGroup = `${containerAppName}-rg`;
+                this.toolHelper.writeInfo(`Default resource group name: ${resourceGroup}`);
+                // Ensure that the resource group that the Container App will be created in exists
+                const resourceGroupExists = yield this.appHelper.doesResourceGroupExist(resourceGroup);
+                if (!resourceGroupExists) {
+                    yield this.appHelper.createResourceGroup(resourceGroup, location);
                 }
-            });
+            }
+            return resourceGroup;
         });
-    };
+    }
     /**
      * Gets the name of the Container App Environment to use for the task. If the 'containerAppEnvironment' argument
      * is not provided, then the task will attempt to discover an existing Container App Environment in the resource
@@ -386,237 +269,174 @@ var azurecontainerapps = /** @class */ (function () {
      * @param location - The location to deploy resources to.
      * @returns The name of the Container App Environment to use for the task.
      */
-    azurecontainerapps.getOrCreateContainerAppEnvironment = function (containerAppName, resourceGroup, location) {
-        return __awaiter(this, void 0, void 0, function () {
-            var containerAppEnvironment, existingContainerAppEnvironment, containerAppEnvironmentExists;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        containerAppEnvironment = this.toolHelper.getInput('containerAppEnvironment', false);
-                        if (!this.util.isNullOrEmpty(containerAppEnvironment)) return [3 /*break*/, 2];
-                        return [4 /*yield*/, this.appHelper.getExistingContainerAppEnvironment(resourceGroup)];
-                    case 1:
-                        existingContainerAppEnvironment = _a.sent();
-                        if (!this.util.isNullOrEmpty(existingContainerAppEnvironment)) {
-                            this.toolHelper.writeInfo("Existing Container App environment found in resource group: ".concat(existingContainerAppEnvironment));
-                            return [2 /*return*/, existingContainerAppEnvironment];
-                        }
-                        _a.label = 2;
-                    case 2:
-                        // Generate the Container App environment name if it was not provided
-                        if (this.util.isNullOrEmpty(containerAppEnvironment)) {
-                            containerAppEnvironment = "".concat(containerAppName, "-env");
-                            this.toolHelper.writeInfo("Default Container App environment name: ".concat(containerAppEnvironment));
-                        }
-                        return [4 /*yield*/, this.appHelper.doesContainerAppEnvironmentExist(containerAppEnvironment, resourceGroup)];
-                    case 3:
-                        containerAppEnvironmentExists = _a.sent();
-                        if (!!containerAppEnvironmentExists) return [3 /*break*/, 5];
-                        return [4 /*yield*/, this.appHelper.createContainerAppEnvironment(containerAppEnvironment, resourceGroup, location)];
-                    case 4:
-                        _a.sent();
-                        _a.label = 5;
-                    case 5: return [2 /*return*/, containerAppEnvironment];
+    static getOrCreateContainerAppEnvironment(containerAppName, resourceGroup, location) {
+        return __awaiter(this, void 0, void 0, function* () {
+            // Get the Container App environment if it was provided
+            let containerAppEnvironment = this.toolHelper.getInput('containerAppEnvironment', false);
+            // See if we can reuse an existing Container App environment found in the resource group
+            if (this.util.isNullOrEmpty(containerAppEnvironment)) {
+                const existingContainerAppEnvironment = yield this.appHelper.getExistingContainerAppEnvironment(resourceGroup);
+                if (!this.util.isNullOrEmpty(existingContainerAppEnvironment)) {
+                    this.toolHelper.writeInfo(`Existing Container App environment found in resource group: ${existingContainerAppEnvironment}`);
+                    return existingContainerAppEnvironment;
                 }
-            });
+            }
+            // Generate the Container App environment name if it was not provided
+            if (this.util.isNullOrEmpty(containerAppEnvironment)) {
+                containerAppEnvironment = `${containerAppName}-env`;
+                this.toolHelper.writeInfo(`Default Container App environment name: ${containerAppEnvironment}`);
+            }
+            // Determine if the Container App environment currently exists and create one if it doesn't
+            const containerAppEnvironmentExists = yield this.appHelper.doesContainerAppEnvironmentExist(containerAppEnvironment, resourceGroup);
+            if (!containerAppEnvironmentExists) {
+                yield this.appHelper.createContainerAppEnvironment(containerAppEnvironment, resourceGroup, location);
+            }
+            return containerAppEnvironment;
         });
-    };
+    }
     /**
      * Authenticates calls to the provided Azure Container Registry.
      */
-    azurecontainerapps.authenticateAzureContainerRegistryAsync = function () {
-        return __awaiter(this, void 0, void 0, function () {
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        this.registryUsername = this.toolHelper.getInput('acrUsername', false);
-                        this.registryPassword = this.toolHelper.getInput('acrPassword', false);
-                        this.registryUrl = "".concat(this.acrName, ".azurecr.io");
-                        if (!(!this.util.isNullOrEmpty(this.registryUsername) && !this.util.isNullOrEmpty(this.registryPassword))) return [3 /*break*/, 2];
-                        this.toolHelper.writeInfo("Logging in to ACR instance \"".concat(this.acrName, "\" with username and password credentials"));
-                        return [4 /*yield*/, this.registryHelper.loginContainerRegistryWithUsernamePassword(this.registryUrl, this.registryUsername, this.registryPassword)];
-                    case 1:
-                        _a.sent();
-                        return [3 /*break*/, 4];
-                    case 2:
-                        this.toolHelper.writeInfo("No ACR credentials provided; attempting to log in to ACR instance \"".concat(this.acrName, "\" with access token"));
-                        return [4 /*yield*/, this.registryHelper.loginAcrWithAccessTokenAsync(this.acrName)];
-                    case 3:
-                        _a.sent();
-                        _a.label = 4;
-                    case 4: return [2 /*return*/];
-                }
-            });
+    static authenticateAzureContainerRegistryAsync() {
+        return __awaiter(this, void 0, void 0, function* () {
+            this.registryUsername = this.toolHelper.getInput('acrUsername', false);
+            this.registryPassword = this.toolHelper.getInput('acrPassword', false);
+            this.registryUrl = `${this.acrName}.azurecr.io`;
+            // Login to ACR if credentials were provided
+            if (!this.util.isNullOrEmpty(this.registryUsername) && !this.util.isNullOrEmpty(this.registryPassword)) {
+                this.toolHelper.writeInfo(`Logging in to ACR instance "${this.acrName}" with username and password credentials`);
+                yield this.registryHelper.loginContainerRegistryWithUsernamePassword(this.registryUrl, this.registryUsername, this.registryPassword);
+            }
+            else {
+                this.toolHelper.writeInfo(`No ACR credentials provided; attempting to log in to ACR instance "${this.acrName}" with access token`);
+                yield this.registryHelper.loginAcrWithAccessTokenAsync(this.acrName);
+            }
         });
-    };
+    }
     /**
      * Authenticates calls to the provided Container Registry.
      */
-    azurecontainerapps.authenticateContainerRegistryAsync = function () {
-        return __awaiter(this, void 0, void 0, function () {
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        this.registryUsername = this.toolHelper.getInput('registryUsername', false);
-                        this.registryPassword = this.toolHelper.getInput('registryPassword', false);
-                        if (!(!this.util.isNullOrEmpty(this.registryUsername) && !this.util.isNullOrEmpty(this.registryPassword))) return [3 /*break*/, 2];
-                        this.toolHelper.writeInfo("Logging in to Container Registry \"".concat(this.registryUrl, "\" with username and password credentials"));
-                        return [4 /*yield*/, this.registryHelper.loginContainerRegistryWithUsernamePassword(this.registryUrl, this.registryUsername, this.registryPassword)];
-                    case 1:
-                        _a.sent();
-                        _a.label = 2;
-                    case 2: return [2 /*return*/];
-                }
-            });
+    static authenticateContainerRegistryAsync() {
+        return __awaiter(this, void 0, void 0, function* () {
+            this.registryUsername = this.toolHelper.getInput('registryUsername', false);
+            this.registryPassword = this.toolHelper.getInput('registryPassword', false);
+            // Login to Container Registry if credentials were provided
+            if (!this.util.isNullOrEmpty(this.registryUsername) && !this.util.isNullOrEmpty(this.registryPassword)) {
+                this.toolHelper.writeInfo(`Logging in to Container Registry "${this.registryUrl}" with username and password credentials`);
+                yield this.registryHelper.loginContainerRegistryWithUsernamePassword(this.registryUrl, this.registryUsername, this.registryPassword);
+            }
         });
-    };
+    }
     /**
      * Sets up the scenario where an existing image is used for the Container App.
      */
-    azurecontainerapps.setupExistingImageScenario = function () {
+    static setupExistingImageScenario() {
         // If telemetry is enabled, log that the previously built image scenario was targeted for this task
         this.telemetryHelper.setImageScenario();
-    };
+    }
     /**
      * Builds a runnable application image using a Dockerfile or the builder and pushes it to the Container Registry.
      */
-    azurecontainerapps.buildAndPushImageAsync = function () {
-        return __awaiter(this, void 0, void 0, function () {
-            var imageRepository, buildArguments, dockerfilePath, rootDockerfilePath;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        // Get the name of the image to build if it was provided, or generate it from build variables
-                        this.imageToBuild = this.toolHelper.getInput('imageToBuild', false);
-                        if (this.util.isNullOrEmpty(this.imageToBuild)) {
-                            imageRepository = this.toolHelper.getDefaultImageRepository();
-                            // Constructs the image to build based on the provided registry URL, image repository,  build ID, and build number.
-                            this.imageToBuild = "".concat(this.registryUrl, "/").concat(imageRepository, ":").concat(this.buildId, ".").concat(this.buildNumber);
-                            this.toolHelper.writeInfo("Default image to build: ".concat(this.imageToBuild));
-                        }
-                        // Get the name of the image to deploy if it was provided, or set it to the value of 'imageToBuild'
-                        if (this.util.isNullOrEmpty(this.imageToDeploy)) {
-                            this.imageToDeploy = this.imageToBuild;
-                            this.toolHelper.writeInfo("Default image to deploy: ".concat(this.imageToDeploy));
-                        }
-                        buildArguments = [];
-                        if (!this.util.isNullOrEmpty(this.buildArguments)) {
-                            this.buildArguments.match(buildArgumentRegex).forEach(function (buildArg) {
-                                buildArguments.push(buildArg);
-                            });
-                        }
-                        dockerfilePath = this.toolHelper.getInput('dockerfilePath', false);
-                        if (!this.util.isNullOrEmpty(dockerfilePath)) return [3 /*break*/, 4];
-                        this.toolHelper.writeInfo("No Dockerfile path provided; checking for Dockerfile at root of application source.");
-                        rootDockerfilePath = path.join(this.appSourcePath, 'Dockerfile');
-                        if (!fs.existsSync(rootDockerfilePath)) return [3 /*break*/, 1];
-                        this.toolHelper.writeInfo("Dockerfile found at root of application source.");
-                        dockerfilePath = rootDockerfilePath;
-                        return [3 /*break*/, 3];
-                    case 1: 
-                    // No Dockerfile found or provided, build the image using the builder
-                    return [4 /*yield*/, this.buildImageFromBuilderAsync(this.appSourcePath, this.imageToBuild, buildArguments)];
-                    case 2:
-                        // No Dockerfile found or provided, build the image using the builder
-                        _a.sent();
-                        _a.label = 3;
-                    case 3: return [3 /*break*/, 5];
-                    case 4:
-                        dockerfilePath = path.join(this.appSourcePath, dockerfilePath);
-                        _a.label = 5;
-                    case 5:
-                        if (!!this.util.isNullOrEmpty(dockerfilePath)) return [3 /*break*/, 7];
-                        // Build the image from the provided/discovered Dockerfile
-                        return [4 /*yield*/, this.buildImageFromDockerfile(this.appSourcePath, dockerfilePath, this.imageToBuild, buildArguments)];
-                    case 6:
-                        // Build the image from the provided/discovered Dockerfile
-                        _a.sent();
-                        _a.label = 7;
-                    case 7: 
-                    // Push the image to the Container Registry
-                    return [4 /*yield*/, this.registryHelper.pushImageToContainerRegistry(this.imageToBuild)];
-                    case 8:
-                        // Push the image to the Container Registry
-                        _a.sent();
-                        return [2 /*return*/];
+    static buildAndPushImageAsync() {
+        return __awaiter(this, void 0, void 0, function* () {
+            // Get the name of the image to build if it was provided, or generate it from build variables
+            this.imageToBuild = this.toolHelper.getInput('imageToBuild', false);
+            if (this.util.isNullOrEmpty(this.imageToBuild)) {
+                const imageRepository = this.toolHelper.getDefaultImageRepository();
+                // Constructs the image to build based on the provided registry URL, image repository,  build ID, and build number.
+                this.imageToBuild = `${this.registryUrl}/${imageRepository}:${this.buildId}.${this.buildNumber}`;
+                this.toolHelper.writeInfo(`Default image to build: ${this.imageToBuild}`);
+            }
+            // Get the name of the image to deploy if it was provided, or set it to the value of 'imageToBuild'
+            if (this.util.isNullOrEmpty(this.imageToDeploy)) {
+                this.imageToDeploy = this.imageToBuild;
+                this.toolHelper.writeInfo(`Default image to deploy: ${this.imageToDeploy}`);
+            }
+            // Get the build arguments to pass to the Dockerfile or builder
+            let buildArguments = [];
+            if (!this.util.isNullOrEmpty(this.buildArguments)) {
+                buildArguments = this.buildArguments.match(buildArgumentRegex);
+            }
+            // Get Dockerfile to build, if provided, or check if one exists at the root of the provided application
+            let dockerfilePath = this.toolHelper.getInput('dockerfilePath', false);
+            if (this.util.isNullOrEmpty(dockerfilePath)) {
+                this.toolHelper.writeInfo(`No Dockerfile path provided; checking for Dockerfile at root of application source.`);
+                const rootDockerfilePath = path.join(this.appSourcePath, 'Dockerfile');
+                if (fs.existsSync(rootDockerfilePath)) {
+                    this.toolHelper.writeInfo(`Dockerfile found at root of application source.`);
+                    dockerfilePath = rootDockerfilePath;
                 }
-            });
+                else {
+                    // No Dockerfile found or provided, build the image using the builder
+                    yield this.buildImageFromBuilderAsync(this.appSourcePath, this.imageToBuild, buildArguments);
+                }
+            }
+            else {
+                dockerfilePath = path.join(this.appSourcePath, dockerfilePath);
+            }
+            if (!this.util.isNullOrEmpty(dockerfilePath)) {
+                // Build the image from the provided/discovered Dockerfile
+                yield this.buildImageFromDockerfile(this.appSourcePath, dockerfilePath, this.imageToBuild, buildArguments);
+            }
+            // Push the image to the Container Registry
+            yield this.registryHelper.pushImageToContainerRegistry(this.imageToBuild);
         });
-    };
+    }
     /**
      * Builds a runnable application image using the builder.
      * @param appSourcePath - The path to the application source code.
      * @param imageToBuild - The name of the image to build.
      * @param buildArguments - The build arguments to pass to the pack command via environment variables.
      */
-    azurecontainerapps.buildImageFromBuilderAsync = function (appSourcePath, imageToBuild, buildArguments) {
-        return __awaiter(this, void 0, void 0, function () {
-            var environmentVariables, runtimeStack, runtimeStackSplit, platformName, platformVersion, builderStack;
-            var _this = this;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        if (buildArguments.length > 0) {
-                            buildArguments.forEach(function (buildArg) {
-                                var nameAndValue = buildArg.split('=');
-                                var isNameValid = nameAndValue[0].match(buildpackEnvironmentNameRegex);
-                                if (!isNameValid) {
-                                    var invalidBuildArgumentsMessage = "Build environment variable name must consist of alphanumeric characters, numbers, '_', '.' or '-', start with 'BP_' or 'ORYX_'.";
-                                    _this.toolHelper.writeError(invalidBuildArgumentsMessage);
-                                    throw Error(invalidBuildArgumentsMessage);
-                                }
-                            });
-                        }
-                        // Install the pack CLI
-                        return [4 /*yield*/, this.appHelper.installPackCliAsync()];
-                    case 1:
-                        // Install the pack CLI
-                        _a.sent();
-                        this.toolHelper.writeInfo("Successfully installed the pack CLI.");
-                        // Enable experimental features for the pack CLI
-                        return [4 /*yield*/, this.appHelper.enablePackCliExperimentalFeaturesAsync()];
-                    case 2:
-                        // Enable experimental features for the pack CLI
-                        _a.sent();
-                        this.toolHelper.writeInfo("Successfully enabled experimental features for the pack CLI.");
-                        environmentVariables = [];
-                        runtimeStack = this.toolHelper.getInput('runtimeStack', false);
-                        if (!this.util.isNullOrEmpty(runtimeStack)) {
-                            runtimeStackSplit = runtimeStack.split(':');
-                            platformName = runtimeStackSplit[0] == "dotnetcore" ? "dotnet" : runtimeStackSplit[0];
-                            platformVersion = runtimeStackSplit[1];
-                            environmentVariables.push("ORYX_PLATFORM_NAME=".concat(platformName));
-                            environmentVariables.push("ORYX_PLATFORM_VERSION=".concat(platformVersion));
-                        }
-                        builderStack = this.toolHelper.getInput('builderStack', false);
-                        // Set the target port on the image produced by the builder
-                        if (!this.util.isNullOrEmpty(this.targetPort)) {
-                            environmentVariables.push("ORYX_RUNTIME_PORT=".concat(this.targetPort));
-                        }
-                        // Add user-specified build environment variables
-                        if (buildArguments.length > 0) {
-                            buildArguments.forEach(function (buildArg) {
-                                environmentVariables.push(buildArg);
-                            });
-                        }
-                        this.toolHelper.writeInfo("Building image \"".concat(imageToBuild, "\" using the Oryx++ Builder"));
-                        // Set the Oryx++ Builder as the default builder locally
-                        return [4 /*yield*/, this.appHelper.setDefaultBuilder()];
-                    case 3:
-                        // Set the Oryx++ Builder as the default builder locally
-                        _a.sent();
-                        // Create a runnable application image
-                        return [4 /*yield*/, this.appHelper.createRunnableAppImage(imageToBuild, appSourcePath, environmentVariables, builderStack)];
-                    case 4:
-                        // Create a runnable application image
-                        _a.sent();
-                        // If telemetry is enabled, log that the builder scenario was targeted for this task
-                        this.telemetryHelper.setBuilderScenario();
-                        return [2 /*return*/];
-                }
-            });
+    static buildImageFromBuilderAsync(appSourcePath, imageToBuild, buildArguments) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (buildArguments.length > 0) {
+                buildArguments.forEach((buildArg) => {
+                    const nameAndValue = buildArg.split('=');
+                    const isNameValid = nameAndValue[0].match(buildpackEnvironmentNameRegex);
+                    if (!isNameValid) {
+                        const invalidBuildArgumentsMessage = `Build environment variable name must consist of alphanumeric characters, numbers, '_', '.' or '-', start with 'BP_' or 'ORYX_'.`;
+                        this.toolHelper.writeError(invalidBuildArgumentsMessage);
+                        throw Error(invalidBuildArgumentsMessage);
+                    }
+                });
+            }
+            // Install the pack CLI
+            yield this.appHelper.installPackCliAsync();
+            this.toolHelper.writeInfo(`Successfully installed the pack CLI.`);
+            // Enable experimental features for the pack CLI
+            yield this.appHelper.enablePackCliExperimentalFeaturesAsync();
+            this.toolHelper.writeInfo(`Successfully enabled experimental features for the pack CLI.`);
+            // Define the environment variables that should be propagated to the builder
+            let environmentVariables = [];
+            // Parse the given runtime stack input and export the platform and version to environment variables
+            const runtimeStack = this.toolHelper.getInput('runtimeStack', false);
+            if (!this.util.isNullOrEmpty(runtimeStack)) {
+                const runtimeStackSplit = runtimeStack.split(':');
+                const platformName = runtimeStackSplit[0] == "dotnetcore" ? "dotnet" : runtimeStackSplit[0];
+                const platformVersion = runtimeStackSplit[1];
+                environmentVariables.push(`ORYX_PLATFORM_NAME=${platformName}`);
+                environmentVariables.push(`ORYX_PLATFORM_VERSION=${platformVersion}`);
+            }
+            // Check if the user provided a builder stack to use
+            const builderStack = this.toolHelper.getInput('builderStack', false);
+            // Set the target port on the image produced by the builder
+            if (!this.util.isNullOrEmpty(this.targetPort)) {
+                environmentVariables.push(`ORYX_RUNTIME_PORT=${this.targetPort}`);
+            }
+            // Add user-specified build environment variables
+            if (buildArguments.length > 0) {
+                environmentVariables.push(...buildArguments);
+            }
+            this.toolHelper.writeInfo(`Building image "${imageToBuild}" using the Oryx++ Builder`);
+            // Set the Oryx++ Builder as the default builder locally
+            yield this.appHelper.setDefaultBuilder();
+            // Create a runnable application image
+            yield this.appHelper.createRunnableAppImage(imageToBuild, appSourcePath, environmentVariables, builderStack);
+            // If telemetry is enabled, log that the builder scenario was targeted for this task
+            this.telemetryHelper.setBuilderScenario();
         });
-    };
+    }
     /**
      * Builds a runnable application image using a provided or discovered Dockerfile.
      * @param appSourcePath - The path to the application source code.
@@ -624,28 +444,20 @@ var azurecontainerapps = /** @class */ (function () {
      * @param imageToBuild - The name of the image to build.
      * @param buildArguments - The build arguments to pass to the docker build command.
      */
-    azurecontainerapps.buildImageFromDockerfile = function (appSourcePath, dockerfilePath, imageToBuild, buildArguments) {
-        return __awaiter(this, void 0, void 0, function () {
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        this.toolHelper.writeInfo("Building image \"".concat(imageToBuild, "\" using the provided Dockerfile"));
-                        return [4 /*yield*/, this.appHelper.createRunnableAppImageFromDockerfile(imageToBuild, appSourcePath, dockerfilePath, buildArguments)];
-                    case 1:
-                        _a.sent();
-                        // If telemetry is enabled, log that the Dockerfile scenario was targeted for this task
-                        this.telemetryHelper.setDockerfileScenario();
-                        return [2 /*return*/];
-                }
-            });
+    static buildImageFromDockerfile(appSourcePath, dockerfilePath, imageToBuild, buildArguments) {
+        return __awaiter(this, void 0, void 0, function* () {
+            this.toolHelper.writeInfo(`Building image "${imageToBuild}" using the provided Dockerfile`);
+            yield this.appHelper.createRunnableAppImageFromDockerfile(imageToBuild, appSourcePath, dockerfilePath, buildArguments);
+            // If telemetry is enabled, log that the Dockerfile scenario was targeted for this task
+            this.telemetryHelper.setDockerfileScenario();
         });
-    };
+    }
     /**
      * Sets up the Container App properties that will be passed through to the Azure CLI when a YAML configuration
      * file is not provided.
      */
-    azurecontainerapps.setupContainerAppProperties = function () {
-        this.toolHelper.writeDebug("Setting up Container App properties...");
+    static setupContainerAppProperties() {
+        this.toolHelper.writeDebug(`Setting up Container App properties...`);
         this.commandLineArgs = [];
         // Get the ingress inputs
         this.ingress = this.toolHelper.getInput('ingress', false);
@@ -659,13 +471,13 @@ var azurecontainerapps = /** @class */ (function () {
         if (!this.util.isNullOrEmpty(this.registryUrl) && !this.util.isNullOrEmpty(this.registryUsername) && !this.util.isNullOrEmpty(this.registryPassword) &&
             (!this.containerAppExists || (this.containerAppExists && !this.noIngressUpdate))) {
             this.adminCredentialsProvided = true;
-            this.commandLineArgs.push("--registry-server ".concat(this.registryUrl), "--registry-username ".concat(this.registryUsername), "--registry-password ".concat(this.registryPassword));
+            this.commandLineArgs.push(`--registry-server ${this.registryUrl}`, `--registry-username ${this.registryUsername}`, `--registry-password ${this.registryPassword}`);
         }
         // Handle TargetLabel setup when activeRevisionsMode is Labels
         if (!this.util.isNullOrEmpty(this.targetLabel)) {
             this.toolHelper.writeDebug('Target label is provided. Setting up command line arguments for revisions mode "Labels".');
             // If the target label is provided, add it to the command line arguments
-            this.commandLineArgs.push("--revisions-mode Labels", "--target-label ".concat(this.targetLabel));
+            this.commandLineArgs.push(`--revisions-mode Labels`, `--target-label ${this.targetLabel}`);
         }
         // Determine default values only for the 'create' scenario to avoid overriding existing values for the 'update' scenario
         if (!this.containerAppExists) {
@@ -673,12 +485,12 @@ var azurecontainerapps = /** @class */ (function () {
             // Set the ingress value to 'external' if it was not provided
             if (this.util.isNullOrEmpty(this.ingress)) {
                 this.ingress = 'external';
-                this.toolHelper.writeInfo("Default ingress value: ".concat(this.ingress));
+                this.toolHelper.writeInfo(`Default ingress value: ${this.ingress}`);
             }
             // Set the value of ingressEnabled to 'false' if ingress was provided as 'disabled'
             if (this.ingress == 'disabled') {
                 this.ingressEnabled = false;
-                this.toolHelper.writeInfo("Ingress is disabled for this Container App.");
+                this.toolHelper.writeInfo(`Ingress is disabled for this Container App.`);
             }
             // Handle setup for ingress values when enabled
             if (this.ingressEnabled) {
@@ -687,119 +499,87 @@ var azurecontainerapps = /** @class */ (function () {
                 // Set the target port to 80 if it was not provided
                 if (this.util.isNullOrEmpty(this.targetPort)) {
                     this.targetPort = '80';
-                    this.toolHelper.writeInfo("Default target port: ".concat(this.targetPort));
+                    this.toolHelper.writeInfo(`Default target port: ${this.targetPort}`);
                 }
                 // Add the ingress value and target port to the optional arguments array
                 // Note: this step should be skipped if we're updating an existing Container App (ingress is enabled via a separate command)
-                this.commandLineArgs.push("--ingress ".concat(this.ingress));
-                this.commandLineArgs.push("--target-port ".concat(this.targetPort));
+                this.commandLineArgs.push(`--ingress ${this.ingress}`);
+                this.commandLineArgs.push(`--target-port ${this.targetPort}`);
             }
         }
-        var environmentVariables = this.toolHelper.getInput('environmentVariables', false);
-        var isCappUpdateCommandUsed = this.noIngressUpdate || (!this.noIngressUpdate && !this.adminCredentialsProvided);
+        const environmentVariables = this.toolHelper.getInput('environmentVariables', false).split(/\s+/g).filter(Boolean);
+        const isCappUpdateCommandUsed = this.noIngressUpdate || (!this.noIngressUpdate && !this.adminCredentialsProvided);
         // Add user-specified environment variables
-        if (!this.util.isNullOrEmpty(environmentVariables)) {
+        if (environmentVariables.length) {
             // The --replace-env-vars flag is only used for the 'update' command,
             // otherwise --env-vars is used for 'create' and 'up'
             if (isCappUpdateCommandUsed) {
-                this.commandLineArgs.push("--replace-env-vars ".concat(environmentVariables));
+                this.commandLineArgs.push('--replace-env-vars', ...environmentVariables);
             }
             else {
-                this.commandLineArgs.push("--env-vars ".concat(environmentVariables));
+                this.commandLineArgs.push('--set-env-vars', ...environmentVariables);
             }
         }
         // Ensure '-i' argument and '--source' argument are not both provided
         if (!this.util.isNullOrEmpty(this.imageToDeploy)) {
-            this.commandLineArgs.push("-i ".concat(this.imageToDeploy));
+            this.commandLineArgs.push(`-i ${this.imageToDeploy}`);
         }
         else if (!this.util.isNullOrEmpty(this.appSourcePath) && this.useInternalRegistry) {
-            this.commandLineArgs.push("--source ".concat(this.appSourcePath));
+            this.commandLineArgs.push(`--source ${this.appSourcePath}`);
         }
         else if (!this.util.isNullOrEmpty(this.targetLabel)) {
             // If the target label is provided, add it to the command line arguments
-            this.commandLineArgs.push("--revisions-mode Labels", "--target-label ".concat(this.targetLabel));
+            this.commandLineArgs.push(`--revisions-mode Labels`, `--target-label ${this.targetLabel}`);
         }
-    };
+    }
     /**
      * Creates or updates the Container App.
      */
-    azurecontainerapps.createOrUpdateContainerApp = function () {
-        return __awaiter(this, void 0, void 0, function () {
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        this.toolHelper.writeInfo("Creating or updating Container App \"".concat(this.containerAppName, "\" in resource group \"").concat(this.resourceGroup, "\"..."));
-                        if (!!this.containerAppExists) return [3 /*break*/, 5];
-                        if (!!this.util.isNullOrEmpty(this.yamlConfigPath)) return [3 /*break*/, 2];
-                        this.toolHelper.writeInfo("Creating Container App \"".concat(this.containerAppName, "\" from YAML configuration file \"").concat(this.yamlConfigPath, "\"..."));
-                        // Create the Container App from the YAML configuration file
-                        return [4 /*yield*/, this.appHelper.createContainerAppFromYaml(this.containerAppName, this.resourceGroup, this.yamlConfigPath)];
-                    case 1:
-                        // Create the Container App from the YAML configuration file
-                        _a.sent();
-                        return [3 /*break*/, 4];
-                    case 2:
-                        this.toolHelper.writeInfo("Creating Container App \"".concat(this.containerAppName, "\" from command line arguments..."));
-                        // Create the Container App from command line arguments
-                        return [4 /*yield*/, this.appHelper.createContainerApp(this.containerAppName, this.resourceGroup, this.containerAppEnvironment, this.commandLineArgs)];
-                    case 3:
-                        // Create the Container App from command line arguments
-                        _a.sent();
-                        _a.label = 4;
-                    case 4: return [2 /*return*/];
-                    case 5:
-                        if (!!this.util.isNullOrEmpty(this.yamlConfigPath)) return [3 /*break*/, 7];
-                        // Update the Container App from the YAML configuration file
-                        return [4 /*yield*/, this.appHelper.updateContainerAppFromYaml(this.containerAppName, this.resourceGroup, this.yamlConfigPath)];
-                    case 6:
-                        // Update the Container App from the YAML configuration file
-                        _a.sent();
-                        return [2 /*return*/];
-                    case 7:
-                        if (!this.noIngressUpdate) return [3 /*break*/, 11];
-                        if (!(!this.util.isNullOrEmpty(this.registryUrl) && !this.util.isNullOrEmpty(this.registryUsername) && !this.util.isNullOrEmpty(this.registryPassword))) return [3 /*break*/, 9];
-                        return [4 /*yield*/, this.appHelper.updateContainerAppRegistryDetails(this.containerAppName, this.resourceGroup, this.registryUrl, this.registryUsername, this.registryPassword)];
-                    case 8:
-                        _a.sent();
-                        _a.label = 9;
-                    case 9: 
-                    // Update the Container App using the 'update' command
-                    return [4 /*yield*/, this.appHelper.updateContainerApp(this.containerAppName, this.resourceGroup, this.commandLineArgs)];
-                    case 10:
-                        // Update the Container App using the 'update' command
-                        _a.sent();
-                        return [3 /*break*/, 16];
-                    case 11:
-                        if (!(this.adminCredentialsProvided && !this.noIngressUpdate)) return [3 /*break*/, 13];
-                        // Update the Container App with `up` command when admin credentials are provided and ingress is manually provided.
-                        return [4 /*yield*/, this.appHelper.updateContainerAppWithUp(this.containerAppName, this.resourceGroup, this.commandLineArgs, this.ingress, this.targetPort)];
-                    case 12:
-                        // Update the Container App with `up` command when admin credentials are provided and ingress is manually provided.
-                        _a.sent();
-                        return [3 /*break*/, 16];
-                    case 13: 
-                    // Update the Container App using the 'containerapp update' and 'ingress update' commands
-                    return [4 /*yield*/, this.appHelper.updateContainerApp(this.containerAppName, this.resourceGroup, this.commandLineArgs)];
-                    case 14:
-                        // Update the Container App using the 'containerapp update' and 'ingress update' commands
-                        _a.sent();
-                        return [4 /*yield*/, this.appHelper.updateContainerAppIngress(this.containerAppName, this.resourceGroup, this.ingress, this.targetPort)];
-                    case 15:
-                        _a.sent();
-                        _a.label = 16;
-                    case 16:
-                        if (!(this.ingress == 'disabled')) return [3 /*break*/, 18];
-                        return [4 /*yield*/, this.appHelper.disableContainerAppIngress(this.containerAppName, this.resourceGroup)];
-                    case 17:
-                        _a.sent();
-                        _a.label = 18;
-                    case 18: return [2 /*return*/];
+    static createOrUpdateContainerApp() {
+        return __awaiter(this, void 0, void 0, function* () {
+            this.toolHelper.writeInfo(`Creating or updating Container App "${this.containerAppName}" in resource group "${this.resourceGroup}"...`);
+            if (!this.containerAppExists) {
+                if (!this.util.isNullOrEmpty(this.yamlConfigPath)) {
+                    this.toolHelper.writeInfo(`Creating Container App "${this.containerAppName}" from YAML configuration file "${this.yamlConfigPath}"...`);
+                    // Create the Container App from the YAML configuration file
+                    yield this.appHelper.createContainerAppFromYaml(this.containerAppName, this.resourceGroup, this.yamlConfigPath);
                 }
-            });
+                else {
+                    this.toolHelper.writeInfo(`Creating Container App "${this.containerAppName}" from command line arguments...`);
+                    // Create the Container App from command line arguments
+                    yield this.appHelper.createContainerApp(this.containerAppName, this.resourceGroup, this.containerAppEnvironment, this.commandLineArgs);
+                }
+                return;
+            }
+            if (!this.util.isNullOrEmpty(this.yamlConfigPath)) {
+                // Update the Container App from the YAML configuration file
+                yield this.appHelper.updateContainerAppFromYaml(this.containerAppName, this.resourceGroup, this.yamlConfigPath);
+                return;
+            }
+            if (this.noIngressUpdate) {
+                // Update the Container Registry details on the existing Container App, if provided as an input
+                if (!this.util.isNullOrEmpty(this.registryUrl) && !this.util.isNullOrEmpty(this.registryUsername) && !this.util.isNullOrEmpty(this.registryPassword)) {
+                    yield this.appHelper.updateContainerAppRegistryDetails(this.containerAppName, this.resourceGroup, this.registryUrl, this.registryUsername, this.registryPassword);
+                }
+                // Update the Container App using the 'update' command
+                yield this.appHelper.updateContainerApp(this.containerAppName, this.resourceGroup, this.commandLineArgs);
+            }
+            else if (this.adminCredentialsProvided && !this.noIngressUpdate) {
+                // Update the Container App with `up` command when admin credentials are provided and ingress is manually provided.
+                yield this.appHelper.updateContainerAppWithUp(this.containerAppName, this.resourceGroup, this.commandLineArgs, this.ingress, this.targetPort);
+            }
+            else {
+                // Update the Container App using the 'containerapp update' and 'ingress update' commands
+                yield this.appHelper.updateContainerApp(this.containerAppName, this.resourceGroup, this.commandLineArgs);
+                yield this.appHelper.updateContainerAppIngress(this.containerAppName, this.resourceGroup, this.ingress, this.targetPort);
+            }
+            // Disable ingress on the existing Container App, if provided as an input
+            if (this.ingress == 'disabled') {
+                yield this.appHelper.disableContainerAppIngress(this.containerAppName, this.resourceGroup);
+            }
         });
-    };
-    return azurecontainerapps;
-}());
+    }
+}
 exports.azurecontainerapps = azurecontainerapps;
 azurecontainerapps.runMain();
 
@@ -4772,50 +4552,23 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __generator = (this && this.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g = Object.create((typeof Iterator === "function" ? Iterator : Object).prototype);
-    return g.next = verb(0), g["throw"] = verb(1), g["return"] = verb(2), typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (g && (g = 0, op[0] && (_ = 0)), _) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ContainerAppHelper = void 0;
-var path = __nccwpck_require__(6928);
-var os = __nccwpck_require__(857);
-var Utility_1 = __nccwpck_require__(6393);
-var GitHubActionsToolHelper_1 = __nccwpck_require__(1569);
-var fs = __nccwpck_require__(9896);
-var ORYX_CLI_IMAGE = 'mcr.microsoft.com/oryx/cli:builder-debian-bullseye-20230926.1';
-var ORYX_BULLSEYE_BUILDER_IMAGE = 'mcr.microsoft.com/oryx/builder:debian-bullseye-20240124.1';
-var ORYX_BOOKWORM_BUILDER_IMAGE = 'mcr.microsoft.com/oryx/builder:debian-bookworm-20240124.1';
-var ORYX_BUILDER_IMAGES = [ORYX_BULLSEYE_BUILDER_IMAGE, ORYX_BOOKWORM_BUILDER_IMAGE];
-var IS_WINDOWS_AGENT = os.platform() == 'win32';
-var PACK_CMD = IS_WINDOWS_AGENT ? path.join(os.tmpdir(), 'pack') : 'pack';
-var toolHelper = new GitHubActionsToolHelper_1.GitHubActionsToolHelper();
-var util = new Utility_1.Utility();
-var ContainerAppHelper = /** @class */ (function () {
-    function ContainerAppHelper(disableTelemetry) {
+const path = __nccwpck_require__(6928);
+const os = __nccwpck_require__(857);
+const Utility_1 = __nccwpck_require__(6393);
+const GithubActionsToolHelper_1 = __nccwpck_require__(3921);
+const fs = __nccwpck_require__(9896);
+const ORYX_CLI_IMAGE = 'mcr.microsoft.com/oryx/cli:builder-debian-bullseye-20230926.1';
+const ORYX_BULLSEYE_BUILDER_IMAGE = 'mcr.microsoft.com/oryx/builder:debian-bullseye-20240124.1';
+const ORYX_BOOKWORM_BUILDER_IMAGE = 'mcr.microsoft.com/oryx/builder:debian-bookworm-20240124.1';
+const ORYX_BUILDER_IMAGES = [ORYX_BULLSEYE_BUILDER_IMAGE, ORYX_BOOKWORM_BUILDER_IMAGE];
+const IS_WINDOWS_AGENT = os.platform() == 'win32';
+const PACK_CMD = IS_WINDOWS_AGENT ? path.join(os.tmpdir(), 'pack') : 'pack';
+const toolHelper = new GithubActionsToolHelper_1.GitHubActionsToolHelper();
+const util = new Utility_1.Utility();
+class ContainerAppHelper {
+    constructor(disableTelemetry) {
         this.disableTelemetry = false;
         this.disableTelemetry = disableTelemetry;
     }
@@ -4826,158 +4579,98 @@ var ContainerAppHelper = /** @class */ (function () {
      * @param environment - the Container App Environment that will be associated with the Container App
      * @param optionalCmdArgs - a set of optional command line arguments
      */
-    ContainerAppHelper.prototype.createContainerApp = function (containerAppName, resourceGroup, environment, optionalCmdArgs) {
-        return __awaiter(this, void 0, void 0, function () {
-            var command_1, err_1;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        toolHelper.writeDebug("Attempting to create Container App with name \"".concat(containerAppName, "\" in resource group \"").concat(resourceGroup, "\""));
-                        _a.label = 1;
-                    case 1:
-                        _a.trys.push([1, 3, , 4]);
-                        command_1 = "az containerapp create -n ".concat(containerAppName, " -g ").concat(resourceGroup, " --environment ").concat(environment, " --output none");
-                        optionalCmdArgs.forEach(function (val) {
-                            command_1 += " ".concat(val);
-                        });
-                        return [4 /*yield*/, util.execute(command_1)];
-                    case 2:
-                        _a.sent();
-                        return [3 /*break*/, 4];
-                    case 3:
-                        err_1 = _a.sent();
-                        toolHelper.writeError("Error occurred while creating Container App \"".concat(containerAppName, "\": ").concat(err_1.message));
-                        throw err_1;
-                    case 4: return [2 /*return*/];
-                }
-            });
+    createContainerApp(containerAppName, resourceGroup, environment, optionalCmdArgs) {
+        return __awaiter(this, void 0, void 0, function* () {
+            toolHelper.writeDebug(`Attempting to create Container App with name "${containerAppName}" in resource group "${resourceGroup}"`);
+            try {
+                let command = ['az', 'containerapp', 'create', '-n', containerAppName, '-g', resourceGroup, '--environment', environment, '--output', 'none'];
+                command.push(...optionalCmdArgs);
+                yield util.execute(command[0], command.slice(1));
+            }
+            catch (err) {
+                toolHelper.writeError(`Error occurred while creating Container App "${containerAppName}": ${err.message}`);
+                throw err;
+            }
         });
-    };
+    }
     /**
     * Creates an Azure Container App.
     * @param containerAppName - the name of the Container App
     * @param resourceGroup - the resource group that the Container App is found in
     * @param optionalCmdArgs - a set of optional command line arguments
     */
-    ContainerAppHelper.prototype.createOrUpdateContainerAppWithUp = function (containerAppName, resourceGroup, optionalCmdArgs) {
-        return __awaiter(this, void 0, void 0, function () {
-            var command_2, err_2;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        toolHelper.writeDebug("Attempting to create Container App with name \"".concat(containerAppName, "\" in resource group \"").concat(resourceGroup, "\""));
-                        _a.label = 1;
-                    case 1:
-                        _a.trys.push([1, 3, , 4]);
-                        command_2 = "az containerapp up -n ".concat(containerAppName, " -g ").concat(resourceGroup);
-                        optionalCmdArgs.forEach(function (val) {
-                            command_2 += " ".concat(val);
-                        });
-                        return [4 /*yield*/, util.execute(command_2)];
-                    case 2:
-                        _a.sent();
-                        return [3 /*break*/, 4];
-                    case 3:
-                        err_2 = _a.sent();
-                        toolHelper.writeError(err_2.message);
-                        throw err_2;
-                    case 4: return [2 /*return*/];
-                }
-            });
+    createOrUpdateContainerAppWithUp(containerAppName, resourceGroup, optionalCmdArgs) {
+        return __awaiter(this, void 0, void 0, function* () {
+            toolHelper.writeDebug(`Attempting to create Container App with name "${containerAppName}" in resource group "${resourceGroup}"`);
+            try {
+                let command = ['az', 'containerapp', 'up', '-n', containerAppName, '-g', resourceGroup];
+                command.push(...optionalCmdArgs);
+                yield util.execute(command[0], command.slice(1));
+            }
+            catch (err) {
+                toolHelper.writeError(err.message);
+                throw err;
+            }
         });
-    };
+    }
     /**
      * Get the current subscription
      * @returns the current subscription
      */
-    ContainerAppHelper.prototype.getCurrentSubscription = function () {
-        return __awaiter(this, void 0, void 0, function () {
-            var command, executionResult, err_3;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        toolHelper.writeDebug("Attempting to get the default subscription");
-                        _a.label = 1;
-                    case 1:
-                        _a.trys.push([1, 3, , 4]);
-                        command = " az account show --query id --output tsv ";
-                        return [4 /*yield*/, util.execute(command)];
-                    case 2:
-                        executionResult = _a.sent();
-                        // If successful, strip out double quotes, spaces and parentheses from the first location returned
-                        return [2 /*return*/, executionResult.exitCode === 0 ? executionResult.stdout.toLowerCase() : ""];
-                    case 3:
-                        err_3 = _a.sent();
-                        toolHelper.writeInfo(err_3.message);
-                        return [2 /*return*/, ""];
-                    case 4: return [2 /*return*/];
-                }
-            });
+    getCurrentSubscription() {
+        return __awaiter(this, void 0, void 0, function* () {
+            toolHelper.writeDebug(`Attempting to get the default subscription`);
+            try {
+                let command = ['az', 'account', 'show', '--query', 'id', '--output', 'tsv'];
+                let executionResult = yield util.execute(command[0], command.slice(1));
+                // If successful, strip out double quotes, spaces and parentheses from the first location returned
+                return executionResult.exitCode === 0 ? executionResult.stdout.toLowerCase() : '';
+            }
+            catch (err) {
+                toolHelper.writeInfo(err.message);
+                return '';
+            }
         });
-    };
+    }
     /**
      * Creates an Azure Container App based from a YAML configuration file.
      * @param containerAppName - the name of the Container App
      * @param resourceGroup - the resource group that the Container App is found in
      * @param yamlConfigPath - the path to the YAML configuration file that the Container App properties will be based from
      */
-    ContainerAppHelper.prototype.createContainerAppFromYaml = function (containerAppName, resourceGroup, yamlConfigPath) {
-        return __awaiter(this, void 0, void 0, function () {
-            var command, err_4;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        toolHelper.writeDebug("Attempting to create Container App with name \"".concat(containerAppName, "\" in resource group \"").concat(resourceGroup, "\" from provided YAML \"").concat(yamlConfigPath, "\""));
-                        _a.label = 1;
-                    case 1:
-                        _a.trys.push([1, 3, , 4]);
-                        command = "az containerapp create -n ".concat(containerAppName, " -g ").concat(resourceGroup, " --yaml ").concat(yamlConfigPath, " --output none");
-                        return [4 /*yield*/, util.execute(command)];
-                    case 2:
-                        _a.sent();
-                        return [3 /*break*/, 4];
-                    case 3:
-                        err_4 = _a.sent();
-                        toolHelper.writeError(err_4.message);
-                        throw err_4;
-                    case 4: return [2 /*return*/];
-                }
-            });
+    createContainerAppFromYaml(containerAppName, resourceGroup, yamlConfigPath) {
+        return __awaiter(this, void 0, void 0, function* () {
+            toolHelper.writeDebug(`Attempting to create Container App with name "${containerAppName}" in resource group "${resourceGroup}" from provided YAML "${yamlConfigPath}"`);
+            try {
+                let command = ['az', 'containerapp', 'create', '-n', containerAppName, '-g', resourceGroup, '--yaml', yamlConfigPath, '--output', 'none'];
+                yield util.execute(command[0], command.slice(1));
+            }
+            catch (err) {
+                toolHelper.writeError(err.message);
+                throw err;
+            }
         });
-    };
+    }
     /**
      * Updates an existing Azure Container App based from an image that was previously built.
      * @param containerAppName - the name of the existing Container App
      * @param resourceGroup - the resource group that the existing Container App is found in
      * @param optionalCmdArgs - a set of optional command line arguments
      */
-    ContainerAppHelper.prototype.updateContainerApp = function (containerAppName, resourceGroup, optionalCmdArgs) {
-        return __awaiter(this, void 0, void 0, function () {
-            var command_3, err_5;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        toolHelper.writeDebug("Attempting to update Container App with name \"".concat(containerAppName, "\" in resource group \"").concat(resourceGroup, "\" "));
-                        _a.label = 1;
-                    case 1:
-                        _a.trys.push([1, 3, , 4]);
-                        command_3 = "az containerapp update -n ".concat(containerAppName, " -g ").concat(resourceGroup, " --output none");
-                        optionalCmdArgs.forEach(function (val) {
-                            command_3 += " ".concat(val);
-                        });
-                        return [4 /*yield*/, util.execute(command_3)];
-                    case 2:
-                        _a.sent();
-                        return [3 /*break*/, 4];
-                    case 3:
-                        err_5 = _a.sent();
-                        toolHelper.writeError(err_5.message);
-                        throw err_5;
-                    case 4: return [2 /*return*/];
-                }
-            });
+    updateContainerApp(containerAppName, resourceGroup, optionalCmdArgs) {
+        return __awaiter(this, void 0, void 0, function* () {
+            toolHelper.writeDebug(`Attempting to update Container App with name "${containerAppName}" in resource group "${resourceGroup}" `);
+            try {
+                let command = ['az', 'containerapp', 'update', '-n', containerAppName, '-g', resourceGroup, '--output', 'none'];
+                command.push(...optionalCmdArgs);
+                yield util.execute(command[0], command.slice(1));
+            }
+            catch (err) {
+                toolHelper.writeError(err.message);
+                throw err;
+            }
         });
-    };
+    }
     /**
      * Updates an existing Azure Container App using the 'az containerapp up' command.
      * @param containerAppName - the name of the existing Container App
@@ -4986,39 +4679,26 @@ var ContainerAppHelper = /** @class */ (function () {
      * @param ingress - the ingress that the Container App will be exposed on
      * @param targetPort - the target port that the Container App will be exposed on
      */
-    ContainerAppHelper.prototype.updateContainerAppWithUp = function (containerAppName, resourceGroup, optionalCmdArgs, ingress, targetPort) {
-        return __awaiter(this, void 0, void 0, function () {
-            var command_4, err_6;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        toolHelper.writeDebug("Attempting to update Container App with name \"".concat(containerAppName, "\" in resource group \"").concat(resourceGroup, "\""));
-                        _a.label = 1;
-                    case 1:
-                        _a.trys.push([1, 3, , 4]);
-                        command_4 = "az containerapp up -n ".concat(containerAppName, " -g ").concat(resourceGroup);
-                        optionalCmdArgs.forEach(function (val) {
-                            command_4 += " ".concat(val);
-                        });
-                        if (!util.isNullOrEmpty(ingress)) {
-                            command_4 += " --ingress ".concat(ingress);
-                        }
-                        if (!util.isNullOrEmpty(targetPort)) {
-                            command_4 += " --target-port ".concat(targetPort);
-                        }
-                        return [4 /*yield*/, util.execute(command_4)];
-                    case 2:
-                        _a.sent();
-                        return [3 /*break*/, 4];
-                    case 3:
-                        err_6 = _a.sent();
-                        toolHelper.writeError(err_6.message);
-                        throw err_6;
-                    case 4: return [2 /*return*/];
+    updateContainerAppWithUp(containerAppName, resourceGroup, optionalCmdArgs, ingress, targetPort) {
+        return __awaiter(this, void 0, void 0, function* () {
+            toolHelper.writeDebug(`Attempting to update Container App with name "${containerAppName}" in resource group "${resourceGroup}"`);
+            try {
+                let command = ['az', 'containerapp', 'up', '-n', containerAppName, '-g', resourceGroup];
+                command.push(...optionalCmdArgs);
+                if (!util.isNullOrEmpty(ingress)) {
+                    command.push('--ingress', ingress);
                 }
-            });
+                if (!util.isNullOrEmpty(targetPort)) {
+                    command.push('--target-port', targetPort);
+                }
+                yield util.execute(command[0], command.slice(1));
+            }
+            catch (err) {
+                toolHelper.writeError(err.message);
+                throw err;
+            }
         });
-    };
+    }
     /**
      * Update container app with update and ingress update to avoid failure of acr authentication.
      * @param containerAppName - the name of the existing Container App
@@ -5026,362 +4706,241 @@ var ContainerAppHelper = /** @class */ (function () {
      * @param ingress - the ingress that the Container App will be exposed on
      * @param targetPort - the target port that the Container App will be exposed on
      */
-    ContainerAppHelper.prototype.updateContainerAppIngress = function (containerAppName, resourceGroup, ingress, targetPort) {
-        return __awaiter(this, void 0, void 0, function () {
-            var command, err_7;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        toolHelper.writeDebug("Attempting to update Container App ingress with name \"".concat(containerAppName, "\" in resource group \"").concat(resourceGroup, "\""));
-                        _a.label = 1;
-                    case 1:
-                        _a.trys.push([1, 3, , 4]);
-                        command = "az containerapp ingress update -n ".concat(containerAppName, " -g ").concat(resourceGroup);
-                        if (!util.isNullOrEmpty(ingress)) {
-                            command += " --type ".concat(ingress);
-                        }
-                        if (!util.isNullOrEmpty(targetPort)) {
-                            command += " --target-port ".concat(targetPort);
-                        }
-                        return [4 /*yield*/, util.execute(command)];
-                    case 2:
-                        _a.sent();
-                        return [3 /*break*/, 4];
-                    case 3:
-                        err_7 = _a.sent();
-                        toolHelper.writeError(err_7.message);
-                        throw err_7;
-                    case 4: return [2 /*return*/];
+    updateContainerAppIngress(containerAppName, resourceGroup, ingress, targetPort) {
+        return __awaiter(this, void 0, void 0, function* () {
+            toolHelper.writeDebug(`Attempting to update Container App ingress with name "${containerAppName}" in resource group "${resourceGroup}"`);
+            try {
+                let command = ['az', 'containerapp', 'ingress', 'update', '-n', containerAppName, '-g', resourceGroup];
+                if (!util.isNullOrEmpty(ingress)) {
+                    command.push(`--type`, ingress);
                 }
-            });
+                if (!util.isNullOrEmpty(targetPort)) {
+                    command.push('--target-port', targetPort);
+                }
+                yield util.execute(command[0], command.slice(1));
+            }
+            catch (err) {
+                toolHelper.writeError(err.message);
+                throw err;
+            }
         });
-    };
+    }
     /**
      * Updates an existing Azure Container App based from a YAML configuration file.
      * @param containerAppName - the name of the existing Container App
      * @param resourceGroup - the resource group that the existing Container App is found in
      * @param yamlConfigPath - the path to the YAML configuration file that the Container App properties will be based from
      */
-    ContainerAppHelper.prototype.updateContainerAppFromYaml = function (containerAppName, resourceGroup, yamlConfigPath) {
-        return __awaiter(this, void 0, void 0, function () {
-            var command, err_8;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        toolHelper.writeDebug("Attempting to update Container App with name \"".concat(containerAppName, "\" in resource group \"").concat(resourceGroup, "\" from provided YAML \"").concat(yamlConfigPath, "\""));
-                        _a.label = 1;
-                    case 1:
-                        _a.trys.push([1, 3, , 4]);
-                        command = "az containerapp update -n ".concat(containerAppName, " -g ").concat(resourceGroup, " --yaml ").concat(yamlConfigPath, " --output none");
-                        return [4 /*yield*/, util.execute(command)];
-                    case 2:
-                        _a.sent();
-                        return [3 /*break*/, 4];
-                    case 3:
-                        err_8 = _a.sent();
-                        toolHelper.writeError(err_8.message);
-                        throw err_8;
-                    case 4: return [2 /*return*/];
-                }
-            });
+    updateContainerAppFromYaml(containerAppName, resourceGroup, yamlConfigPath) {
+        return __awaiter(this, void 0, void 0, function* () {
+            toolHelper.writeDebug(`Attempting to update Container App with name "${containerAppName}" in resource group "${resourceGroup}" from provided YAML "${yamlConfigPath}"`);
+            try {
+                let command = ['az', 'containerapp', 'update', '-n', containerAppName, '-g', resourceGroup, '--yaml', yamlConfigPath, '--output', 'none'];
+                yield util.execute(command[0], command.slice(1));
+            }
+            catch (err) {
+                toolHelper.writeError(err.message);
+                throw err;
+            }
         });
-    };
+    }
     /**
      * Determines if the provided Container App exists in the provided resource group.
      * @param containerAppName - the name of the Container App
      * @param resourceGroup - the resource group that the Container App is found in
      * @returns true if the Container App exists, false otherwise
      */
-    ContainerAppHelper.prototype.doesContainerAppExist = function (containerAppName, resourceGroup) {
-        return __awaiter(this, void 0, void 0, function () {
-            var command, executionResult, err_9;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        toolHelper.writeDebug("Attempting to determine if Container App with name \"".concat(containerAppName, "\" exists in resource group \"").concat(resourceGroup, "\""));
-                        _a.label = 1;
-                    case 1:
-                        _a.trys.push([1, 3, , 4]);
-                        command = "az containerapp show -n ".concat(containerAppName, " -g ").concat(resourceGroup, " -o none");
-                        return [4 /*yield*/, util.execute(command)];
-                    case 2:
-                        executionResult = _a.sent();
-                        return [2 /*return*/, executionResult.exitCode === 0];
-                    case 3:
-                        err_9 = _a.sent();
-                        toolHelper.writeInfo(err_9.message);
-                        return [2 /*return*/, false];
-                    case 4: return [2 /*return*/];
-                }
-            });
+    doesContainerAppExist(containerAppName, resourceGroup) {
+        return __awaiter(this, void 0, void 0, function* () {
+            toolHelper.writeDebug(`Attempting to determine if Container App with name "${containerAppName}" exists in resource group "${resourceGroup}"`);
+            try {
+                let command = ['az', 'containerapp', 'show', '-n', containerAppName, '-g', resourceGroup, '-o', 'none'];
+                let executionResult = yield util.execute(command[0], command.slice(1));
+                return executionResult.exitCode === 0;
+            }
+            catch (err) {
+                toolHelper.writeInfo(err.message);
+                return false;
+            }
         });
-    };
+    }
     /**
      * Determines if the provided Container App Environment exists in the provided resource group.
      * @param containerAppEnvironment - the name of the Container App Environment
      * @param resourceGroup - the resource group that the Container App Environment is found in
      * @returns true if the Container App Environment exists, false otherwise
      */
-    ContainerAppHelper.prototype.doesContainerAppEnvironmentExist = function (containerAppEnvironment, resourceGroup) {
-        return __awaiter(this, void 0, void 0, function () {
-            var command, executionResult, err_10;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        toolHelper.writeDebug("Attempting to determine if Container App Environment with name \"".concat(containerAppEnvironment, "\" exists in resource group \"").concat(resourceGroup, "\""));
-                        _a.label = 1;
-                    case 1:
-                        _a.trys.push([1, 3, , 4]);
-                        command = "az containerapp env show -o none -g ".concat(resourceGroup, " -n ").concat(containerAppEnvironment);
-                        return [4 /*yield*/, util.execute(command)];
-                    case 2:
-                        executionResult = _a.sent();
-                        return [2 /*return*/, executionResult.exitCode === 0];
-                    case 3:
-                        err_10 = _a.sent();
-                        toolHelper.writeInfo(err_10.message);
-                        return [2 /*return*/, false];
-                    case 4: return [2 /*return*/];
-                }
-            });
+    doesContainerAppEnvironmentExist(containerAppEnvironment, resourceGroup) {
+        return __awaiter(this, void 0, void 0, function* () {
+            toolHelper.writeDebug(`Attempting to determine if Container App Environment with name "${containerAppEnvironment}" exists in resource group "${resourceGroup}"`);
+            try {
+                let command = ['az', 'containerapp', 'env', 'show', '-o', 'none', '-g', resourceGroup, '-n', containerAppEnvironment];
+                let executionResult = yield util.execute(command[0], command.slice(1));
+                return executionResult.exitCode === 0;
+            }
+            catch (err) {
+                toolHelper.writeInfo(err.message);
+                return false;
+            }
         });
-    };
+    }
     /**
      * Determines if the provided resource group exists.
      * @param resourceGroup - the name of the resource group
      * @returns true if the resource group exists, false otherwise
      */
-    ContainerAppHelper.prototype.doesResourceGroupExist = function (resourceGroup) {
-        return __awaiter(this, void 0, void 0, function () {
-            var command, executionResult, err_11;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        toolHelper.writeDebug("Attempting to determine if resource group \"".concat(resourceGroup, "\" exists"));
-                        _a.label = 1;
-                    case 1:
-                        _a.trys.push([1, 3, , 4]);
-                        command = "az group show -n ".concat(resourceGroup, " -o none");
-                        return [4 /*yield*/, util.execute(command)];
-                    case 2:
-                        executionResult = _a.sent();
-                        return [2 /*return*/, executionResult.exitCode === 0];
-                    case 3:
-                        err_11 = _a.sent();
-                        toolHelper.writeInfo(err_11.message);
-                        return [2 /*return*/, false];
-                    case 4: return [2 /*return*/];
-                }
-            });
+    doesResourceGroupExist(resourceGroup) {
+        return __awaiter(this, void 0, void 0, function* () {
+            toolHelper.writeDebug(`Attempting to determine if resource group "${resourceGroup}" exists`);
+            try {
+                let command = ['az', 'group', 'show', '-n', resourceGroup, '-o', 'none'];
+                let executionResult = yield util.execute(command[0], command.slice(1));
+                return executionResult.exitCode === 0;
+            }
+            catch (err) {
+                toolHelper.writeInfo(err.message);
+                return false;
+            }
         });
-    };
+    }
     /**
      * Gets the default location for the Container App provider.
      * @returns the default location if found, otherwise 'eastus2'
      */
-    ContainerAppHelper.prototype.getDefaultContainerAppLocation = function () {
-        return __awaiter(this, void 0, void 0, function () {
-            var command, executionResult, err_12;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        toolHelper.writeDebug("Attempting to get the default location for the Container App service for the subscription.");
-                        _a.label = 1;
-                    case 1:
-                        _a.trys.push([1, 3, , 4]);
-                        command = "az provider show -n Microsoft.App --query \"resourceTypes[?resourceType=='containerApps'].locations[] | [0]\"";
-                        return [4 /*yield*/, util.execute(command)];
-                    case 2:
-                        executionResult = _a.sent();
-                        // If successful, strip out double quotes, spaces and parentheses from the first location returned
-                        return [2 /*return*/, executionResult.exitCode === 0 ? executionResult.stdout.toLowerCase().replace(/["() ]/g, "").trim() : "eastus2"];
-                    case 3:
-                        err_12 = _a.sent();
-                        toolHelper.writeInfo(err_12.message);
-                        return [2 /*return*/, "eastus2"];
-                    case 4: return [2 /*return*/];
-                }
-            });
+    getDefaultContainerAppLocation() {
+        return __awaiter(this, void 0, void 0, function* () {
+            toolHelper.writeDebug(`Attempting to get the default location for the Container App service for the subscription.`);
+            try {
+                let command = ['az', 'provider', 'show', '-n', 'Microsoft.App', '--query', 'resourceTypes[?resourceType==\'containerApps\'].locations[] | [0]'];
+                let executionResult = yield util.execute(command[0], command.slice(1));
+                // If successful, strip out double quotes, spaces and parentheses from the first location returned
+                return executionResult.exitCode === 0 ? executionResult.stdout.toLowerCase().replace(/["() ]/g, "").trim() : 'eastus2';
+            }
+            catch (err) {
+                toolHelper.writeInfo(err.message);
+                return 'eastus2';
+            }
         });
-    };
+    }
     /**
      * Creates a new resource group in the provided location.
      * @param name - the name of the resource group to create
      * @param location - the location to create the resource group in
      */
-    ContainerAppHelper.prototype.createResourceGroup = function (name, location) {
-        return __awaiter(this, void 0, void 0, function () {
-            var command, err_13;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        toolHelper.writeDebug("Attempting to create resource group \"".concat(name, "\" in location \"").concat(location, "\""));
-                        _a.label = 1;
-                    case 1:
-                        _a.trys.push([1, 3, , 4]);
-                        command = "az group create -n ".concat(name, " -l ").concat(location);
-                        return [4 /*yield*/, util.execute(command)];
-                    case 2:
-                        _a.sent();
-                        return [3 /*break*/, 4];
-                    case 3:
-                        err_13 = _a.sent();
-                        toolHelper.writeError(err_13.message);
-                        throw err_13;
-                    case 4: return [2 /*return*/];
-                }
-            });
+    createResourceGroup(name, location) {
+        return __awaiter(this, void 0, void 0, function* () {
+            toolHelper.writeDebug(`Attempting to create resource group "${name}" in location "${location}"`);
+            try {
+                let command = ['az', 'group', 'create', '-n', name, '-l', location];
+                yield util.execute(command[0], command.slice(1));
+            }
+            catch (err) {
+                toolHelper.writeError(err.message);
+                throw err;
+            }
         });
-    };
+    }
     /**
      * Gets the name of an existing Container App Environment in the provided resource group.
      * @param resourceGroup - the resource group to check for an existing Container App Environment
      * @returns the name of the existing Container App Environment, null if none exists
      */
-    ContainerAppHelper.prototype.getExistingContainerAppEnvironment = function (resourceGroup) {
-        return __awaiter(this, void 0, void 0, function () {
-            var command, executionResult, err_14;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        toolHelper.writeDebug("Attempting to get the existing Container App Environment in resource group \"".concat(resourceGroup, "\""));
-                        _a.label = 1;
-                    case 1:
-                        _a.trys.push([1, 3, , 4]);
-                        command = "az containerapp env list -g ".concat(resourceGroup, " --query \"[0].name\"");
-                        return [4 /*yield*/, util.execute(command)];
-                    case 2:
-                        executionResult = _a.sent();
-                        return [2 /*return*/, executionResult.exitCode === 0 ? executionResult.stdout : null];
-                    case 3:
-                        err_14 = _a.sent();
-                        toolHelper.writeInfo(err_14.message);
-                        return [2 /*return*/, null];
-                    case 4: return [2 /*return*/];
-                }
-            });
+    getExistingContainerAppEnvironment(resourceGroup) {
+        return __awaiter(this, void 0, void 0, function* () {
+            toolHelper.writeDebug(`Attempting to get the existing Container App Environment in resource group "${resourceGroup}"`);
+            try {
+                let command = ['az', 'containerapp', 'env', 'list', '-g', resourceGroup, '--query', '[0].name'];
+                let executionResult = yield util.execute(command[0], command.slice(1));
+                return executionResult.exitCode === 0 ? executionResult.stdout : null;
+            }
+            catch (err) {
+                toolHelper.writeInfo(err.message);
+                return null;
+            }
         });
-    };
+    }
     /**
      * Gets the location of an existing Container App Environment
      * @param environmentName - the name of the Container App Environment
      * @param resourceGroup - the resource group that the Container App Environment is found in
     */
-    ContainerAppHelper.prototype.getExistingContainerAppEnvironmentLocation = function (environmentName, resourceGroup) {
-        return __awaiter(this, void 0, void 0, function () {
-            var command, executionResult, err_15;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        _a.trys.push([0, 2, , 3]);
-                        command = "az containerapp env show -g ".concat(resourceGroup, " --query location -n ").concat(environmentName);
-                        return [4 /*yield*/, util.execute(command)];
-                    case 1:
-                        executionResult = _a.sent();
-                        return [2 /*return*/, executionResult.exitCode === 0 ? executionResult.stdout.toLowerCase().replace(/["() ]/g, "").trim() : null];
-                    case 2:
-                        err_15 = _a.sent();
-                        toolHelper.writeInfo(err_15.message);
-                        return [2 /*return*/, null];
-                    case 3: return [2 /*return*/];
-                }
-            });
+    getExistingContainerAppEnvironmentLocation(environmentName, resourceGroup) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                let command = ['az', 'containerapp', 'env', 'show', '-g', resourceGroup, '--query', 'location', '-n', environmentName];
+                let executionResult = yield util.execute(command[0], command.slice(1));
+                return executionResult.exitCode === 0 ? executionResult.stdout.toLowerCase().replace(/["() ]/g, "").trim() : null;
+            }
+            catch (err) {
+                toolHelper.writeInfo(err.message);
+                return null;
+            }
         });
-    };
+    }
     /**
      * Gets the environment name of an existing Container App
      * @param containerAppName - the name of the Container App
      * @param resourceGroup - the resource group that the Container App is found in
     */
-    ContainerAppHelper.prototype.getExistingContainerAppEnvironmentName = function (containerAppName, resourceGroup) {
-        return __awaiter(this, void 0, void 0, function () {
-            var command, executionResult, containerappEnvironmentId, err_16;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        _a.trys.push([0, 2, , 3]);
-                        command = "az containerapp show -n ".concat(containerAppName, " -g ").concat(resourceGroup, " --query properties.environmentId");
-                        return [4 /*yield*/, util.execute(command)];
-                    case 1:
-                        executionResult = _a.sent();
-                        containerappEnvironmentId = executionResult.stdout.trim();
-                        //Remove trailing slash if it exists
-                        if (!util.isNullOrEmpty(containerappEnvironmentId)) {
-                            containerappEnvironmentId = containerappEnvironmentId.endsWith("/") ? containerappEnvironmentId.slice(0, -1) : containerappEnvironmentId;
-                        }
-                        return [2 /*return*/, executionResult.exitCode === 0 ? containerappEnvironmentId.split("/").pop().trim() : null];
-                    case 2:
-                        err_16 = _a.sent();
-                        toolHelper.writeInfo(err_16.message);
-                        return [2 /*return*/, null];
-                    case 3: return [2 /*return*/];
+    getExistingContainerAppEnvironmentName(containerAppName, resourceGroup) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                let command = ['az', 'containerapp', 'show', '-n', containerAppName, '-g', resourceGroup, '--query', 'properties.environmentId'];
+                let executionResult = yield util.execute(command[0], command.slice(1));
+                let containerappEnvironmentId = executionResult.stdout.trim();
+                //Remove trailing slash if it exists
+                if (!util.isNullOrEmpty(containerappEnvironmentId)) {
+                    containerappEnvironmentId = containerappEnvironmentId.endsWith("/") ? containerappEnvironmentId.slice(0, -1) : containerappEnvironmentId;
                 }
-            });
+                return executionResult.exitCode === 0 ? containerappEnvironmentId.split("/").pop().trim() : null;
+            }
+            catch (err) {
+                toolHelper.writeInfo(err.message);
+                return null;
+            }
         });
-    };
+    }
     /**
      * Creates a new Azure Container App Environment in the provided resource group.
      * @param name - the name of the Container App Environment
      * @param resourceGroup - the resource group that the Container App Environment will be created in
      * @param location - the location that the Container App Environment will be created in
      */
-    ContainerAppHelper.prototype.createContainerAppEnvironment = function (name, resourceGroup, location) {
-        return __awaiter(this, void 0, void 0, function () {
-            var util, command, err_17;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        util = new Utility_1.Utility();
-                        toolHelper.writeDebug("Attempting to create Container App Environment with name \"".concat(name, "\" in resource group \"").concat(resourceGroup, "\""));
-                        _a.label = 1;
-                    case 1:
-                        _a.trys.push([1, 3, , 4]);
-                        command = "az containerapp env create -n ".concat(name, " -g ").concat(resourceGroup);
-                        if (!util.isNullOrEmpty(location)) {
-                            command += " -l ".concat(location);
-                        }
-                        return [4 /*yield*/, util.execute(command)];
-                    case 2:
-                        _a.sent();
-                        return [3 /*break*/, 4];
-                    case 3:
-                        err_17 = _a.sent();
-                        toolHelper.writeError(err_17.message);
-                        throw err_17;
-                    case 4: return [2 /*return*/];
+    createContainerAppEnvironment(name, resourceGroup, location) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const util = new Utility_1.Utility();
+            toolHelper.writeDebug(`Attempting to create Container App Environment with name "${name}" in resource group "${resourceGroup}"`);
+            try {
+                let command = ['az', 'containerapp', 'env', 'create', '-n', name, '-g', resourceGroup];
+                if (!util.isNullOrEmpty(location)) {
+                    command.push('-l', location);
                 }
-            });
+                yield util.execute(command[0], command.slice(1));
+            }
+            catch (err) {
+                toolHelper.writeError(err.message);
+                throw err;
+            }
         });
-    };
+    }
     /**
      * Disables ingress on an existing Container App.
      * @param name - the name of the Container App
      * @param resourceGroup - the resource group that the Container App is found in
      */
-    ContainerAppHelper.prototype.disableContainerAppIngress = function (name, resourceGroup) {
-        return __awaiter(this, void 0, void 0, function () {
-            var command, err_18;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        toolHelper.writeDebug("Attempting to disable ingress for Container App with name \"".concat(name, "\" in resource group \"").concat(resourceGroup, "\""));
-                        _a.label = 1;
-                    case 1:
-                        _a.trys.push([1, 3, , 4]);
-                        command = "az containerapp ingress disable -n ".concat(name, " -g ").concat(resourceGroup);
-                        return [4 /*yield*/, util.execute(command)];
-                    case 2:
-                        _a.sent();
-                        return [3 /*break*/, 4];
-                    case 3:
-                        err_18 = _a.sent();
-                        toolHelper.writeError(err_18.message);
-                        throw err_18;
-                    case 4: return [2 /*return*/];
-                }
-            });
+    disableContainerAppIngress(name, resourceGroup) {
+        return __awaiter(this, void 0, void 0, function* () {
+            toolHelper.writeDebug(`Attempting to disable ingress for Container App with name "${name}" in resource group "${resourceGroup}"`);
+            try {
+                let command = ['az', 'containerapp', 'ingress', 'disable', '-n', name, '-g', resourceGroup];
+                yield util.execute(command[0], command.slice(1));
+            }
+            catch (err) {
+                toolHelper.writeError(err.message);
+                throw err;
+            }
         });
-    };
+    }
     /**
      * Updates the Container Registry details on an existing Container App.
      * @param name - the name of the Container App
@@ -5390,289 +4949,183 @@ var ContainerAppHelper = /** @class */ (function () {
      * @param registryUsername - the username used to authenticate with the Container Registry
      * @param registryPassword - the password used to authenticate with the Container Registry
      */
-    ContainerAppHelper.prototype.updateContainerAppRegistryDetails = function (name, resourceGroup, registryUrl, registryUsername, registryPassword) {
-        return __awaiter(this, void 0, void 0, function () {
-            var command, err_19;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        toolHelper.writeDebug("Attempting to set the Container Registry details for Container App with name \"".concat(name, "\" in resource group \"").concat(resourceGroup, "\""));
-                        _a.label = 1;
-                    case 1:
-                        _a.trys.push([1, 3, , 4]);
-                        command = "az containerapp registry set -n ".concat(name, " -g ").concat(resourceGroup, " --server ").concat(registryUrl, " --username ").concat(registryUsername, " --password ").concat(registryPassword);
-                        return [4 /*yield*/, util.execute(command)];
-                    case 2:
-                        _a.sent();
-                        return [3 /*break*/, 4];
-                    case 3:
-                        err_19 = _a.sent();
-                        toolHelper.writeError(err_19.message);
-                        throw err_19;
-                    case 4: return [2 /*return*/];
-                }
-            });
+    updateContainerAppRegistryDetails(name, resourceGroup, registryUrl, registryUsername, registryPassword) {
+        return __awaiter(this, void 0, void 0, function* () {
+            toolHelper.writeDebug(`Attempting to set the Container Registry details for Container App with name "${name}" in resource group "${resourceGroup}"`);
+            try {
+                let command = ['az', 'containerapp', 'registry', 'set', '-n', name, '-g', resourceGroup, '--server', registryUrl, '--username', registryUsername, '--password', registryPassword];
+                yield util.execute(command[0], command.slice(1));
+            }
+            catch (err) {
+                toolHelper.writeError(err.message);
+                throw err;
+            }
         });
-    };
+    }
     /**
      * Using the Oryx++ Builder, creates a runnable application image from the provided application source.
      * @param imageToDeploy - the name of the runnable application image that is created and can be later deployed
      * @param appSourcePath - the path to the application source on the machine
-     * @param environmentVariables - an array of environment variables that should be provided to the builder via the `--env` flag
+     * @param environmentVariables - an array of environment variables that should be provided to the builder via the '--env' flag
      * @param builderStack - the stack to use when building the provided application source
      */
-    ContainerAppHelper.prototype.createRunnableAppImage = function (imageToDeploy, appSourcePath, environmentVariables, builderStack) {
-        return __awaiter(this, void 0, void 0, function () {
-            var telemetryArg, subscription, couldBuildImage, _loop_1, _i, ORYX_BUILDER_IMAGES_1, builderImage, state_1, errorMessage;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        telemetryArg = toolHelper.getTelemetryArg();
-                        if (this.disableTelemetry) {
-                            telemetryArg = "ORYX_DISABLE_TELEMETRY=true";
-                        }
-                        return [4 /*yield*/, this.getCurrentSubscription()];
-                    case 1:
-                        subscription = _a.sent();
-                        couldBuildImage = false;
-                        _loop_1 = function (builderImage) {
-                            var command_5, err_20;
-                            return __generator(this, function (_b) {
-                                switch (_b.label) {
-                                    case 0:
-                                        if (!util.isNullOrEmpty(builderStack) && !builderImage.includes(builderStack)) {
-                                            return [2 /*return*/, "continue"];
-                                        }
-                                        toolHelper.writeDebug("Attempting to create a runnable application image with name \"".concat(imageToDeploy, "\" using the Oryx++ Builder \"").concat(builderImage, "\""));
-                                        _b.label = 1;
-                                    case 1:
-                                        _b.trys.push([1, 3, , 4]);
-                                        command_5 = "build ".concat(imageToDeploy, " --path ").concat(appSourcePath, " --builder ").concat(builderImage, " --env ").concat(telemetryArg, " --env BP_SUBSCRIPTION_ID=").concat(subscription);
-                                        environmentVariables.forEach(function (envVar) {
-                                            command_5 += " --env ".concat(envVar);
-                                        });
-                                        return [4 /*yield*/, util.execute("".concat(PACK_CMD, " ").concat(command_5))];
-                                    case 2:
-                                        _b.sent();
-                                        couldBuildImage = true;
-                                        return [2 /*return*/, "break"];
-                                    case 3:
-                                        err_20 = _b.sent();
-                                        toolHelper.writeWarning("Unable to run 'pack build' command to produce runnable application image: ".concat(err_20.message));
-                                        return [3 /*break*/, 4];
-                                    case 4: return [2 /*return*/];
-                                }
-                            });
-                        };
-                        _i = 0, ORYX_BUILDER_IMAGES_1 = ORYX_BUILDER_IMAGES;
-                        _a.label = 2;
-                    case 2:
-                        if (!(_i < ORYX_BUILDER_IMAGES_1.length)) return [3 /*break*/, 5];
-                        builderImage = ORYX_BUILDER_IMAGES_1[_i];
-                        return [5 /*yield**/, _loop_1(builderImage)];
-                    case 3:
-                        state_1 = _a.sent();
-                        if (state_1 === "break")
-                            return [3 /*break*/, 5];
-                        _a.label = 4;
-                    case 4:
-                        _i++;
-                        return [3 /*break*/, 2];
-                    case 5:
-                        ;
-                        // If none of the builder images were able to build the provided application source, throw an error.
-                        if (!couldBuildImage) {
-                            errorMessage = "No builder was able to build the provided application source. Please visit the following page for more information on supported platform versions: https://aka.ms/SourceToCloudSupportedVersions";
-                            toolHelper.writeError(errorMessage);
-                            throw new Error(errorMessage);
-                        }
-                        return [2 /*return*/];
+    createRunnableAppImage(imageToDeploy, appSourcePath, environmentVariables, builderStack) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let telemetryArg = toolHelper.getTelemetryArg();
+            if (this.disableTelemetry) {
+                telemetryArg = `ORYX_DISABLE_TELEMETRY=true`;
+            }
+            let subscription = yield this.getCurrentSubscription();
+            let couldBuildImage = false;
+            for (const builderImage of ORYX_BUILDER_IMAGES) {
+                if (!util.isNullOrEmpty(builderStack) && !builderImage.includes(builderStack)) {
+                    continue;
                 }
-            });
+                toolHelper.writeDebug(`Attempting to create a runnable application image with name "${imageToDeploy}" using the Oryx++ Builder "${builderImage}"`);
+                try {
+                    let command = ['build', imageToDeploy, '--path', appSourcePath, '--builder', builderImage, '--env', telemetryArg, '--env', `BP_SUBSCRIPTION_ID=${subscription}`];
+                    command.push(...environmentVariables.flatMap(envVar => ['--env', envVar]));
+                    yield util.execute(PACK_CMD, command);
+                    couldBuildImage = true;
+                    break;
+                }
+                catch (err) {
+                    toolHelper.writeWarning(`Unable to run 'pack build' command to produce runnable application image: ${err.message}`);
+                }
+            }
+            ;
+            // If none of the builder images were able to build the provided application source, throw an error.
+            if (!couldBuildImage) {
+                const errorMessage = `No builder was able to build the provided application source. Please visit the following page for more information on supported platform versions: https://aka.ms/SourceToCloudSupportedVersions`;
+                toolHelper.writeError(errorMessage);
+                throw new Error(errorMessage);
+            }
         });
-    };
+    }
     /**
      * Using a Dockerfile that was provided or found at the root of the application source,
      * creates a runable application image.
      * @param imageToDeploy - the name of the runnable application image that is created and can be later deployed
      * @param appSourcePath - the path to the application source on the machine
      * @param dockerfilePath - the path to the Dockerfile to build and tag with the provided image name
-     * @param buildArguments - an array of build arguments that should be provided to the docker build command via the `--build-arg` flag
+     * @param buildArguments - an array of build arguments that should be provided to the docker build command via the '--build-arg' flag
      */
-    ContainerAppHelper.prototype.createRunnableAppImageFromDockerfile = function (imageToDeploy, appSourcePath, dockerfilePath, buildArguments) {
-        return __awaiter(this, void 0, void 0, function () {
-            var command_6, err_21;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        toolHelper.writeDebug("Attempting to create a runnable application image from the provided/found Dockerfile \"".concat(dockerfilePath, "\" with image name \"").concat(imageToDeploy, "\""));
-                        _a.label = 1;
-                    case 1:
-                        _a.trys.push([1, 3, , 4]);
-                        command_6 = "docker build --file ".concat(dockerfilePath, " ").concat(appSourcePath, " --tag ").concat(imageToDeploy);
-                        // If build arguments were provided, append them to the command
-                        if (buildArguments.length > 0) {
-                            buildArguments.forEach(function (buildArg) {
-                                command_6 += " --build-arg ".concat(buildArg);
-                            });
-                        }
-                        return [4 /*yield*/, util.execute(command_6)];
-                    case 2:
-                        _a.sent();
-                        toolHelper.writeDebug("Successfully created runnable application image from the provided/found Dockerfile \"".concat(dockerfilePath, "\" with image name \"").concat(imageToDeploy, "\""));
-                        return [3 /*break*/, 4];
-                    case 3:
-                        err_21 = _a.sent();
-                        toolHelper.writeError(err_21.message);
-                        throw err_21;
-                    case 4: return [2 /*return*/];
+    createRunnableAppImageFromDockerfile(imageToDeploy, appSourcePath, dockerfilePath, buildArguments) {
+        return __awaiter(this, void 0, void 0, function* () {
+            toolHelper.writeDebug(`Attempting to create a runnable application image from the provided/found Dockerfile "${dockerfilePath}" with image name "${imageToDeploy}"`);
+            try {
+                let command = ['docker', 'build', '--file', dockerfilePath, appSourcePath, '--tag', imageToDeploy];
+                // If build arguments were provided, append them to the command
+                if (buildArguments.length > 0) {
+                    command.push(...buildArguments.flatMap(buildArg => ['--build-arg', buildArg]));
                 }
-            });
+                yield util.execute(command[0], command.slice(1));
+                toolHelper.writeDebug(`Successfully created runnable application image from the provided/found Dockerfile "${dockerfilePath}" with image name "${imageToDeploy}"`);
+            }
+            catch (err) {
+                toolHelper.writeError(err.message);
+                throw err;
+            }
         });
-    };
+    }
     /**
      * Determines the runtime stack to use for the runnable application image.
      * @param appSourcePath - the path to the application source on the machine
      * @returns a string representing the runtime stack that can be used for the Oryx MCR runtime images
      */
-    ContainerAppHelper.prototype.determineRuntimeStackAsync = function (appSourcePath) {
-        return __awaiter(this, void 0, void 0, function () {
-            var command, oryxRuntimeTxtPath_1, runtimeStack, err_22;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        toolHelper.writeDebug('Attempting to determine the runtime stack needed for the provided application source');
-                        _a.label = 1;
-                    case 1:
-                        _a.trys.push([1, 3, , 4]);
-                        command = "docker run --rm -v ".concat(appSourcePath, ":/app ").concat(ORYX_CLI_IMAGE, " /bin/bash -c \"oryx dockerfile /app | head -n 1 | sed 's/ARG RUNTIME=//' >> /app/oryx-runtime.txt\"");
-                        return [4 /*yield*/, util.execute(command)
-                            // Read the temp file to get the runtime stack into a variable
-                        ];
-                    case 2:
-                        _a.sent();
-                        oryxRuntimeTxtPath_1 = path.join(appSourcePath, 'oryx-runtime.txt');
-                        runtimeStack = fs.promises.readFile(oryxRuntimeTxtPath_1, 'utf8').then(function (data) {
-                            var lines = data.split('\n');
-                            return lines[0];
-                        }).catch(function (err) {
-                            toolHelper.writeError(err.message);
-                            throw err;
-                        });
-                        // Delete the temp file
-                        fs.unlink(oryxRuntimeTxtPath_1, function (err) {
-                            if (err) {
-                                toolHelper.writeWarning("Unable to delete the temporary file \"".concat(oryxRuntimeTxtPath_1, "\". Error: ").concat(err.message));
-                            }
-                        });
-                        return [2 /*return*/, runtimeStack];
-                    case 3:
-                        err_22 = _a.sent();
-                        toolHelper.writeError(err_22.message);
-                        throw err_22;
-                    case 4: return [2 /*return*/];
-                }
-            });
+    determineRuntimeStackAsync(appSourcePath) {
+        return __awaiter(this, void 0, void 0, function* () {
+            toolHelper.writeDebug('Attempting to determine the runtime stack needed for the provided application source');
+            try {
+                // Use 'oryx dockerfile' command to determine the runtime stack to use and write it to a temp file
+                let command = ['docker', 'run', '--rm', '-v', `${appSourcePath}:/app`, ORYX_CLI_IMAGE, '/bin/bash', '-c', `oryx dockerfile /app | head -n 1 | sed 's/ARG RUNTIME=//' >> /app/oryx-runtime.txt`];
+                yield util.execute(command[0], command.slice(1));
+                // Read the temp file to get the runtime stack into a variable
+                let oryxRuntimeTxtPath = path.join(appSourcePath, 'oryx-runtime.txt');
+                let runtimeStack = fs.promises.readFile(oryxRuntimeTxtPath, 'utf8').then((data) => {
+                    let lines = data.split('\n');
+                    return lines[0];
+                }).catch((err) => {
+                    toolHelper.writeError(err.message);
+                    throw err;
+                });
+                // Delete the temp file
+                fs.unlink(oryxRuntimeTxtPath, (err) => {
+                    if (err) {
+                        toolHelper.writeWarning(`Unable to delete the temporary file "${oryxRuntimeTxtPath}". Error: ${err.message}`);
+                    }
+                });
+                return runtimeStack;
+            }
+            catch (err) {
+                toolHelper.writeError(err.message);
+                throw err;
+            }
         });
-    };
+    }
     /**
      * Sets the default builder on the machine to the Oryx++ Builder to prevent an exception from being thrown due
      * to no default builder set.
      */
-    ContainerAppHelper.prototype.setDefaultBuilder = function () {
-        return __awaiter(this, void 0, void 0, function () {
-            var command, err_23;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        toolHelper.writeInfo('Setting the Oryx++ Builder as the default builder via the pack CLI');
-                        _a.label = 1;
-                    case 1:
-                        _a.trys.push([1, 3, , 4]);
-                        command = "config default-builder ".concat(ORYX_BUILDER_IMAGES[0]);
-                        return [4 /*yield*/, util.execute("".concat(PACK_CMD, " ").concat(command))];
-                    case 2:
-                        _a.sent();
-                        return [3 /*break*/, 4];
-                    case 3:
-                        err_23 = _a.sent();
-                        toolHelper.writeError(err_23.message);
-                        throw err_23;
-                    case 4: return [2 /*return*/];
-                }
-            });
+    setDefaultBuilder() {
+        return __awaiter(this, void 0, void 0, function* () {
+            toolHelper.writeInfo('Setting the Oryx++ Builder as the default builder via the pack CLI');
+            try {
+                let command = ['config', 'default-builder', ORYX_BUILDER_IMAGES[0]];
+                yield util.execute(PACK_CMD, command);
+            }
+            catch (err) {
+                toolHelper.writeError(err.message);
+                throw err;
+            }
         });
-    };
+    }
     /**
      * Installs the pack CLI that will be used to build a runnable application image.
      * For more Information about the pack CLI can be found here: https://buildpacks.io/docs/tools/pack/
      */
-    ContainerAppHelper.prototype.installPackCliAsync = function () {
-        return __awaiter(this, void 0, void 0, function () {
-            var command, commandLine, packZipDownloadUri, packZipDownloadFilePath, tgzSuffix, err_24;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        toolHelper.writeDebug('Attempting to install the pack CLI');
-                        _a.label = 1;
-                    case 1:
-                        _a.trys.push([1, 3, , 4]);
-                        command = '';
-                        commandLine = '';
-                        if (IS_WINDOWS_AGENT) {
-                            packZipDownloadUri = 'https://github.com/buildpacks/pack/releases/download/v0.31.0/pack-v0.31.0-windows.zip';
-                            packZipDownloadFilePath = path.join(PACK_CMD, 'pack-windows.zip');
-                            command = "New-Item -ItemType Directory -Path ".concat(PACK_CMD, " -Force | Out-Null; Invoke-WebRequest -Uri ").concat(packZipDownloadUri, " -OutFile ").concat(packZipDownloadFilePath, "; Expand-Archive -LiteralPath ").concat(packZipDownloadFilePath, " -DestinationPath ").concat(PACK_CMD, "; Remove-Item -Path ").concat(packZipDownloadFilePath);
-                            commandLine = 'pwsh';
-                        }
-                        else {
-                            tgzSuffix = os.platform() == 'darwin' ? 'macos' : 'linux';
-                            command = "(curl -sSL \"https://github.com/buildpacks/pack/releases/download/v0.31.0/pack-v0.31.0-".concat(tgzSuffix, ".tgz\" | ") +
-                                'tar -C /usr/local/bin/ --no-same-owner -xzv pack)';
-                            commandLine = 'bash';
-                        }
-                        return [4 /*yield*/, util.execute("".concat(commandLine, " -c \"").concat(command, "\""))];
-                    case 2:
-                        _a.sent();
-                        return [3 /*break*/, 4];
-                    case 3:
-                        err_24 = _a.sent();
-                        toolHelper.writeError("Unable to install the pack CLI. Error: ".concat(err_24.message));
-                        throw err_24;
-                    case 4: return [2 /*return*/];
+    installPackCliAsync() {
+        return __awaiter(this, void 0, void 0, function* () {
+            toolHelper.writeDebug('Attempting to install the pack CLI');
+            try {
+                let command = [];
+                let commandLine = '';
+                if (IS_WINDOWS_AGENT) {
+                    let packZipDownloadUri = 'https://github.com/buildpacks/pack/releases/download/v0.31.0/pack-v0.31.0-windows.zip';
+                    let packZipDownloadFilePath = path.join(PACK_CMD, 'pack-windows.zip');
+                    command = ['-c', `New-Item -ItemType Directory -Path ${PACK_CMD} -Force | Out-Null; Invoke-WebRequest -Uri ${packZipDownloadUri} -OutFile ${packZipDownloadFilePath}; Expand-Archive -LiteralPath ${packZipDownloadFilePath} -DestinationPath ${PACK_CMD}; Remove-Item -Path ${packZipDownloadFilePath}`];
+                    commandLine = 'pwsh';
                 }
-            });
+                else {
+                    let tgzSuffix = os.platform() == 'darwin' ? 'macos' : 'linux';
+                    command = ['-c', `(curl -sSL "https://github.com/buildpacks/pack/releases/download/v0.31.0/pack-v0.31.0-${tgzSuffix}.tgz" | tar -C /usr/local/bin/ --no-same-owner -xzv pack)`];
+                    commandLine = 'bash';
+                }
+                yield util.execute(commandLine, command);
+            }
+            catch (err) {
+                toolHelper.writeError(`Unable to install the pack CLI. Error: ${err.message}`);
+                throw err;
+            }
         });
-    };
+    }
     /**
      * Enables experimental features for the pack CLI, such as extension support.
      */
-    ContainerAppHelper.prototype.enablePackCliExperimentalFeaturesAsync = function () {
-        return __awaiter(this, void 0, void 0, function () {
-            var command, err_25;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        toolHelper.writeDebug('Attempting to enable experimental features for the pack CLI');
-                        _a.label = 1;
-                    case 1:
-                        _a.trys.push([1, 3, , 4]);
-                        command = "".concat(PACK_CMD, " config experimental true");
-                        return [4 /*yield*/, util.execute(command)];
-                    case 2:
-                        _a.sent();
-                        return [3 /*break*/, 4];
-                    case 3:
-                        err_25 = _a.sent();
-                        toolHelper.writeError("Unable to enable experimental features for the pack CLI: ".concat(err_25.message));
-                        throw err_25;
-                    case 4: return [2 /*return*/];
-                }
-            });
+    enablePackCliExperimentalFeaturesAsync() {
+        return __awaiter(this, void 0, void 0, function* () {
+            toolHelper.writeDebug('Attempting to enable experimental features for the pack CLI');
+            try {
+                let command = ['config', 'experimental', 'true'];
+                yield util.execute(PACK_CMD, command);
+            }
+            catch (err) {
+                toolHelper.writeError(`Unable to enable experimental features for the pack CLI: ${err.message}`);
+                throw err;
+            }
         });
-    };
-    return ContainerAppHelper;
-}());
+    }
+}
 exports.ContainerAppHelper = ContainerAppHelper;
 
 
@@ -5692,136 +5145,73 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __generator = (this && this.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g = Object.create((typeof Iterator === "function" ? Iterator : Object).prototype);
-    return g.next = verb(0), g["throw"] = verb(1), g["return"] = verb(2), typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (g && (g = 0, op[0] && (_ = 0)), _) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ContainerRegistryHelper = void 0;
-var os = __nccwpck_require__(857);
-var Utility_1 = __nccwpck_require__(6393);
-var GitHubActionsToolHelper_1 = __nccwpck_require__(1569);
-var toolHelper = new GitHubActionsToolHelper_1.GitHubActionsToolHelper();
-var util = new Utility_1.Utility();
-var ContainerRegistryHelper = /** @class */ (function () {
-    function ContainerRegistryHelper() {
-    }
+const os = __nccwpck_require__(857);
+const Utility_1 = __nccwpck_require__(6393);
+const GithubActionsToolHelper_1 = __nccwpck_require__(3921);
+const toolHelper = new GithubActionsToolHelper_1.GitHubActionsToolHelper();
+const util = new Utility_1.Utility();
+class ContainerRegistryHelper {
     /**
      * Authorizes Docker to make calls to the provided Container Registry instance using username and password.
      * @param registryUrl - the name of the Container Registry instance to authenticate calls to
      * @param registryUsername - the username for authentication
      * @param registryPassword - the password for authentication
      */
-    ContainerRegistryHelper.prototype.loginContainerRegistryWithUsernamePassword = function (registryUrl, registryUsername, registryPassword) {
-        return __awaiter(this, void 0, void 0, function () {
-            var err_1;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        toolHelper.writeDebug("Attempting to log in to Container Registry instance\"".concat(registryUrl, "\" with username and password credentials"));
-                        _a.label = 1;
-                    case 1:
-                        _a.trys.push([1, 3, , 4]);
-                        return [4 /*yield*/, util.execute("docker login --password-stdin --username ".concat(registryUsername, " ").concat(registryUrl), [], Buffer.from(registryPassword))];
-                    case 2:
-                        _a.sent();
-                        return [3 /*break*/, 4];
-                    case 3:
-                        err_1 = _a.sent();
-                        toolHelper.writeError("Failed to log in to Container Registry instance \"".concat(registryUrl, "\" with username and password credentials"));
-                        throw err_1;
-                    case 4: return [2 /*return*/];
-                }
-            });
+    loginContainerRegistryWithUsernamePassword(registryUrl, registryUsername, registryPassword) {
+        return __awaiter(this, void 0, void 0, function* () {
+            toolHelper.writeDebug(`Attempting to log in to Container Registry instance"${registryUrl}" with username and password credentials`);
+            try {
+                yield util.execute('docker', ['login', '--password-stdin', '--username', registryUsername, registryUrl], Buffer.from(registryPassword));
+            }
+            catch (err) {
+                toolHelper.writeError(`Failed to log in to Container Registry instance "${registryUrl}" with username and password credentials`);
+                throw err;
+            }
         });
-    };
+    }
     /**
      * Authorizes Docker to make calls to the provided ACR instance using an access token that is generated via
      * the 'az acr login --expose-token' command.
      * @param acrName - the name of the ACR instance to authenticate calls to.
      */
-    ContainerRegistryHelper.prototype.loginAcrWithAccessTokenAsync = function (acrName) {
-        return __awaiter(this, void 0, void 0, function () {
-            var commandLine, err_2;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        toolHelper.writeDebug("Attempting to log in to ACR instance \"".concat(acrName, "\" with access token"));
-                        _a.label = 1;
-                    case 1:
-                        _a.trys.push([1, 3, , 4]);
-                        commandLine = os.platform() === 'win32' ? 'pwsh' : 'bash';
-                        return [4 /*yield*/, util.execute("".concat(commandLine, " -c \"CA_ADO_TASK_ACR_ACCESS_TOKEN=$(az acr login --name ").concat(acrName, " --output json --expose-token --only-show-errors | jq -r '.accessToken'); docker login ").concat(acrName, ".azurecr.io -u 00000000-0000-0000-0000-000000000000 -p $CA_ADO_TASK_ACR_ACCESS_TOKEN > /dev/null 2>&1\""))];
-                    case 2:
-                        _a.sent();
-                        return [3 /*break*/, 4];
-                    case 3:
-                        err_2 = _a.sent();
-                        toolHelper.writeError("Failed to log in to ACR instance \"".concat(acrName, "\" with access token"));
-                        throw err_2;
-                    case 4: return [2 /*return*/];
-                }
-            });
+    loginAcrWithAccessTokenAsync(acrName) {
+        return __awaiter(this, void 0, void 0, function* () {
+            toolHelper.writeDebug(`Attempting to log in to ACR instance "${acrName}" with access token`);
+            try {
+                let commandLine = os.platform() === 'win32' ? 'pwsh' : 'bash';
+                yield util.execute(commandLine, ['-c', `CA_ADO_TASK_ACR_ACCESS_TOKEN=$(az acr login --name ${acrName} --output json --expose-token --only-show-errors | jq -r '.accessToken'); docker login ${acrName}.azurecr.io -u 00000000-0000-0000-0000-000000000000 -p $CA_ADO_TASK_ACR_ACCESS_TOKEN > /dev/null 2>&1`]);
+            }
+            catch (err) {
+                toolHelper.writeError(`Failed to log in to ACR instance "${acrName}" with access token`);
+                throw err;
+            }
         });
-    };
+    }
     /**
      * Pushes an image to the Container Registry instance that was previously authenticated against.
      * @param imageToPush - the name of the image to push to the Container Registry instance
      */
-    ContainerRegistryHelper.prototype.pushImageToContainerRegistry = function (imageToPush) {
-        return __awaiter(this, void 0, void 0, function () {
-            var err_3;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        toolHelper.writeDebug("Attempting to push image \"".concat(imageToPush, "\" to Container Registry"));
-                        _a.label = 1;
-                    case 1:
-                        _a.trys.push([1, 3, , 4]);
-                        return [4 /*yield*/, util.execute("docker push ".concat(imageToPush))];
-                    case 2:
-                        _a.sent();
-                        return [3 /*break*/, 4];
-                    case 3:
-                        err_3 = _a.sent();
-                        toolHelper.writeError("Failed to push image \"".concat(imageToPush, "\" to Container Registry. Error: ").concat(err_3.message));
-                        throw err_3;
-                    case 4: return [2 /*return*/];
-                }
-            });
+    pushImageToContainerRegistry(imageToPush) {
+        return __awaiter(this, void 0, void 0, function* () {
+            toolHelper.writeDebug(`Attempting to push image "${imageToPush}" to Container Registry`);
+            try {
+                yield util.execute('docker', ['push', imageToPush]);
+            }
+            catch (err) {
+                toolHelper.writeError(`Failed to push image "${imageToPush}" to Container Registry. Error: ${err.message}`);
+                throw err;
+            }
         });
-    };
-    return ContainerRegistryHelper;
-}());
+    }
+}
 exports.ContainerRegistryHelper = ContainerRegistryHelper;
 
 
 /***/ }),
 
-/***/ 1569:
+/***/ 3921:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -5835,128 +5225,90 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __generator = (this && this.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g = Object.create((typeof Iterator === "function" ? Iterator : Object).prototype);
-    return g.next = verb(0), g["throw"] = verb(1), g["return"] = verb(2), typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (g && (g = 0, op[0] && (_ = 0)), _) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.GitHubActionsToolHelper = void 0;
-var core = __nccwpck_require__(7484);
-var io = __nccwpck_require__(4994);
-var exec = __nccwpck_require__(5236);
-var GitHubActionsToolHelper = /** @class */ (function () {
-    function GitHubActionsToolHelper() {
-    }
-    GitHubActionsToolHelper.prototype.getBuildId = function () {
+const core = __nccwpck_require__(7484);
+const io = __nccwpck_require__(4994);
+const exec = __nccwpck_require__(5236);
+class GitHubActionsToolHelper {
+    getBuildId() {
         return process.env['GITHUB_RUN_ID'] || '';
-    };
-    GitHubActionsToolHelper.prototype.getBuildNumber = function () {
+    }
+    getBuildNumber() {
         return process.env['GITHUB_RUN_NUMBER'] || '';
-    };
-    GitHubActionsToolHelper.prototype.writeInfo = function (message) {
+    }
+    writeInfo(message) {
         core.info(message);
-    };
-    GitHubActionsToolHelper.prototype.writeError = function (message) {
+    }
+    writeError(message) {
         core.error(message);
-    };
-    GitHubActionsToolHelper.prototype.writeWarning = function (message) {
+    }
+    writeWarning(message) {
         core.warning(message);
-    };
-    GitHubActionsToolHelper.prototype.writeDebug = function (message) {
+    }
+    writeDebug(message) {
         core.debug(message);
-    };
-    GitHubActionsToolHelper.prototype.exec = function (commandLine, args, inputOptions) {
-        return __awaiter(this, void 0, void 0, function () {
-            var stdout_1, stderr_1, options, exitCode_1, err_1;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        _a.trys.push([0, 2, , 3]);
-                        stdout_1 = '';
-                        stderr_1 = '';
-                        options = {
-                            listeners: {
-                                stdout: function (data) {
-                                    stdout_1 += data.toString().replace(/(\r\n|\n|\r)/gm, "");
-                                },
-                                stderr: function (data) {
-                                    stderr_1 += data.toString();
-                                },
-                            },
-                            input: inputOptions
-                        };
-                        return [4 /*yield*/, exec.exec(commandLine, args, options)];
-                    case 1:
-                        exitCode_1 = _a.sent();
-                        return [2 /*return*/, new Promise(function (resolve, reject) {
-                                var executionResult = {
-                                    exitCode: exitCode_1,
-                                    stdout: stdout_1,
-                                    stderr: stderr_1
-                                };
-                                resolve(executionResult);
-                            })];
-                    case 2:
-                        err_1 = _a.sent();
-                        throw err_1;
-                    case 3: return [2 /*return*/];
-                }
-            });
+    }
+    exec(commandLine, args, inputOptions) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                let stdout = '';
+                let stderr = '';
+                const options = {
+                    listeners: {
+                        stdout: (data) => {
+                            stdout += data.toString().replace(/(\r\n|\n|\r)/gm, "");
+                        },
+                        stderr: (data) => {
+                            stderr += data.toString();
+                        },
+                    },
+                    input: inputOptions
+                };
+                let exitCode = yield exec.exec(commandLine, args, options);
+                return new Promise((resolve, reject) => {
+                    let executionResult = {
+                        exitCode: exitCode,
+                        stdout: stdout,
+                        stderr: stderr
+                    };
+                    resolve(executionResult);
+                });
+            }
+            catch (err) {
+                throw err;
+            }
         });
-    };
-    GitHubActionsToolHelper.prototype.getInput = function (name, required) {
-        var options = {
+    }
+    getInput(name, required) {
+        const options = {
             required: required
         };
         return core.getInput(name, options);
-    };
-    GitHubActionsToolHelper.prototype.setFailed = function (message) {
+    }
+    setFailed(message) {
         core.setFailed(message);
-    };
-    GitHubActionsToolHelper.prototype.which = function (tool, check) {
+    }
+    which(tool, check) {
         return io.which(tool, check);
-    };
-    GitHubActionsToolHelper.prototype.getDefaultContainerAppName = function (containerAppName) {
-        containerAppName = "gh-action-app-".concat(this.getBuildId(), "-").concat(this.getBuildNumber());
+    }
+    getDefaultContainerAppName(containerAppName) {
+        containerAppName = `gh-action-app-${this.getBuildId()}-${this.getBuildNumber()}`;
         // Replace all '.' characters with '-' characters in the Container App name
         containerAppName = containerAppName.replace(/\./gi, "-");
-        this.writeInfo("Default Container App name: ".concat(containerAppName));
+        this.writeInfo(`Default Container App name: ${containerAppName}`);
         return containerAppName;
-    };
-    GitHubActionsToolHelper.prototype.getTelemetryArg = function () {
-        return "CALLER_ID=github-actions-v2";
-    };
-    GitHubActionsToolHelper.prototype.getEventName = function () {
-        return "ContainerAppsGitHubActionV2";
-    };
-    GitHubActionsToolHelper.prototype.getDefaultImageRepository = function () {
-        return "gh-action/container-app";
-    };
-    return GitHubActionsToolHelper;
-}());
+    }
+    getTelemetryArg() {
+        return `CALLER_ID=github-actions-v2`;
+    }
+    getEventName() {
+        return `ContainerAppsGitHubActionV2`;
+    }
+    getDefaultImageRepository() {
+        return `gh-action/container-app`;
+    }
+}
 exports.GitHubActionsToolHelper = GitHubActionsToolHelper;
 
 
@@ -5976,124 +5328,85 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __generator = (this && this.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g = Object.create((typeof Iterator === "function" ? Iterator : Object).prototype);
-    return g.next = verb(0), g["throw"] = verb(1), g["return"] = verb(2), typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (g && (g = 0, op[0] && (_ = 0)), _) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.TelemetryHelper = void 0;
-var Utility_1 = __nccwpck_require__(6393);
-var GitHubActionsToolHelper_1 = __nccwpck_require__(1569);
-var ORYX_CLI_IMAGE = "mcr.microsoft.com/oryx/cli:debian-buster-20230207.2";
-var SUCCESSFUL_RESULT = "succeeded";
-var FAILED_RESULT = "failed";
-var BUILDER_SCENARIO = "used-builder";
-var DOCKERFILE_SCENARIO = "used-dockerfile";
-var IMAGE_SCENARIO = "used-image";
-var util = new Utility_1.Utility();
-var toolHelper = new GitHubActionsToolHelper_1.GitHubActionsToolHelper();
-var TelemetryHelper = /** @class */ (function () {
-    function TelemetryHelper(disableTelemetry) {
+const Utility_1 = __nccwpck_require__(6393);
+const GithubActionsToolHelper_1 = __nccwpck_require__(3921);
+const ORYX_CLI_IMAGE = "mcr.microsoft.com/oryx/cli:debian-buster-20230207.2";
+const SUCCESSFUL_RESULT = "succeeded";
+const FAILED_RESULT = "failed";
+const BUILDER_SCENARIO = "used-builder";
+const DOCKERFILE_SCENARIO = "used-dockerfile";
+const IMAGE_SCENARIO = "used-image";
+const util = new Utility_1.Utility();
+const toolHelper = new GithubActionsToolHelper_1.GitHubActionsToolHelper();
+class TelemetryHelper {
+    constructor(disableTelemetry) {
         this.disableTelemetry = disableTelemetry;
         this.taskStartMilliseconds = Date.now();
     }
     /**
      * Marks that the task was successful in telemetry.
      */
-    TelemetryHelper.prototype.setSuccessfulResult = function () {
+    setSuccessfulResult() {
         this.result = SUCCESSFUL_RESULT;
-    };
+    }
     /**
      * Marks that the task failed in telemetry.
      */
-    TelemetryHelper.prototype.setFailedResult = function (errorMessage) {
+    setFailedResult(errorMessage) {
         this.result = FAILED_RESULT;
         this.errorMessage = errorMessage;
-    };
+    }
     /**
      * Marks that the task used the builder scenario.
      */
-    TelemetryHelper.prototype.setBuilderScenario = function () {
+    setBuilderScenario() {
         this.scenario = BUILDER_SCENARIO;
-    };
+    }
     /**
      * Marks that the task used the Dockerfile scenario.
      */
-    TelemetryHelper.prototype.setDockerfileScenario = function () {
+    setDockerfileScenario() {
         this.scenario = DOCKERFILE_SCENARIO;
-    };
+    }
     /**
      * Marks that the task used the previously built image scenario.
      */
-    TelemetryHelper.prototype.setImageScenario = function () {
+    setImageScenario() {
         this.scenario = IMAGE_SCENARIO;
-    };
+    }
     /**
      * If telemetry is enabled, uses the "oryx telemetry" command to log metadata about this task execution.
      */
-    TelemetryHelper.prototype.sendLogs = function () {
-        return __awaiter(this, void 0, void 0, function () {
-            var taskLengthMilliseconds, resultArg, scenarioArg, errorMessageArg, eventName, err_1;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        taskLengthMilliseconds = Date.now() - this.taskStartMilliseconds;
-                        if (!!this.disableTelemetry) return [3 /*break*/, 4];
-                        toolHelper.writeInfo("Telemetry enabled; logging metadata about task result, length and scenario targeted.");
-                        _a.label = 1;
-                    case 1:
-                        _a.trys.push([1, 3, , 4]);
-                        resultArg = '';
-                        if (!util.isNullOrEmpty(this.result)) {
-                            resultArg = "--property result=".concat(this.result);
-                        }
-                        scenarioArg = '';
-                        if (!util.isNullOrEmpty(this.scenario)) {
-                            scenarioArg = "--property scenario=".concat(this.scenario);
-                        }
-                        errorMessageArg = '';
-                        if (!util.isNullOrEmpty(this.errorMessage)) {
-                            errorMessageArg = "--property errorMessage=".concat(this.errorMessage);
-                        }
-                        eventName = toolHelper.getEventName();
-                        return [4 /*yield*/, util.execute("docker run --rm ".concat(ORYX_CLI_IMAGE, " /bin/bash -c \"oryx telemetry --event-name ").concat(eventName, " --processing-time ").concat(taskLengthMilliseconds, " ").concat(resultArg, " ").concat(scenarioArg, " ").concat(errorMessageArg, "\""))];
-                    case 2:
-                        _a.sent();
-                        return [3 /*break*/, 4];
-                    case 3:
-                        err_1 = _a.sent();
-                        toolHelper.writeWarning("Skipping telemetry logging due to the following exception: ".concat(err_1.message));
-                        return [3 /*break*/, 4];
-                    case 4: return [2 /*return*/];
+    sendLogs() {
+        return __awaiter(this, void 0, void 0, function* () {
+            let taskLengthMilliseconds = Date.now() - this.taskStartMilliseconds;
+            if (!this.disableTelemetry) {
+                toolHelper.writeInfo(`Telemetry enabled; logging metadata about task result, length and scenario targeted.`);
+                try {
+                    let resultArg = '';
+                    if (!util.isNullOrEmpty(this.result)) {
+                        resultArg = `--property result=${this.result}`;
+                    }
+                    let scenarioArg = '';
+                    if (!util.isNullOrEmpty(this.scenario)) {
+                        scenarioArg = `--property scenario=${this.scenario}`;
+                    }
+                    let errorMessageArg = '';
+                    if (!util.isNullOrEmpty(this.errorMessage)) {
+                        errorMessageArg = `--property errorMessage=${this.errorMessage}`;
+                    }
+                    let eventName = toolHelper.getEventName();
+                    yield util.execute('docker', ['run', '--rm', ORYX_CLI_IMAGE, '/bin/bash', '-c', `oryx telemetry --event-name ${eventName} --processing-time ${taskLengthMilliseconds} ${resultArg} ${scenarioArg} ${errorMessageArg}`]);
                 }
-            });
+                catch (err) {
+                    toolHelper.writeWarning(`Skipping telemetry logging due to the following exception: ${err.message}`);
+                }
+            }
         });
-    };
-    return TelemetryHelper;
-}());
+    }
+}
 exports.TelemetryHelper = TelemetryHelper;
 
 
@@ -6113,81 +5426,39 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __generator = (this && this.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g = Object.create((typeof Iterator === "function" ? Iterator : Object).prototype);
-    return g.next = verb(0), g["throw"] = verb(1), g["return"] = verb(2), typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (g && (g = 0, op[0] && (_ = 0)), _) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Utility = void 0;
 // Note: This file is used to define utility functions that can be used across the project.
-var GitHubActionsToolHelper_1 = __nccwpck_require__(1569);
-var toolHelper = new GitHubActionsToolHelper_1.GitHubActionsToolHelper();
-var Utility = /** @class */ (function () {
-    function Utility() {
-    }
+const GithubActionsToolHelper_1 = __nccwpck_require__(3921);
+const toolHelper = new GithubActionsToolHelper_1.GitHubActionsToolHelper();
+class Utility {
     /**
      * @param commandLine - the command to execute
      * @param args - the arguments to pass to the command
      * @param continueOnError - whether or not to continue execution if the command fails
      */
-    Utility.prototype.execute = function (commandLine, args, inputOptions) {
-        return __awaiter(this, void 0, void 0, function () {
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, toolHelper.exec(commandLine, args, inputOptions)];
-                    case 1: return [2 /*return*/, _a.sent()];
-                }
-            });
+    execute(commandLine, args, inputOptions) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield toolHelper.exec(commandLine, args, inputOptions);
         });
-    };
+    }
     /**
      * Sets the Azure CLI to install the containerapp extension.
      */
-    Utility.prototype.installAzureCliExtension = function () {
-        return __awaiter(this, void 0, void 0, function () {
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.execute("az extension add --name containerapp --upgrade")];
-                    case 1:
-                        _a.sent();
-                        return [2 /*return*/];
-                }
-            });
+    installAzureCliExtension() {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield this.execute('az', ['extension', 'add', '--name', 'containerapp', '--upgrade']);
         });
-    };
+    }
     /**
      * Checks whether or not the provided string is null, undefined or empty.
      * @param str - the string to validate
      * @returns true if the string is null, undefined or empty, false otherwise
      */
-    Utility.prototype.isNullOrEmpty = function (str) {
+    isNullOrEmpty(str) {
         return str === null || str === undefined || str === "";
-    };
-    return Utility;
-}());
+    }
+}
 exports.Utility = Utility;
 
 
